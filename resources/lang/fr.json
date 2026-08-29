@@ -1,0 +1,17 @@
+{
+  "auth.continue_with_apple": "Continuer avec Apple",
+  "auth.continue_with_google": "Continuer avec Google",
+  "auth.create_account": "Créer un compte",
+  "common.close": "Fermer",
+  "common.continue": "Continuer",
+  "common.retry": "Réessayer",
+  "error.bootstrap_unavailable": "Impossible de charger l’application. Veuillez réessayer.",
+  "language.current": "Français",
+  "language.select": "Choisir la langue",
+  "location.detecting": "Détection de votre position...",
+  "location.permission_required": "Autorisez l’accès à votre position pour continuer",
+  "location.unavailable": "Impossible de détecter votre position",
+  "onboarding.headline_highlight": "Faites défiler pour trouver",
+  "onboarding.headline_rest": "Votre bonheur",
+  "onboarding.subtitle": "Commencez dès aujourd’hui votre parcours vers des liens authentiques et des relations durables"
+}

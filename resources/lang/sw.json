@@ -1,0 +1,17 @@
+{
+  "auth.continue_with_apple": "Endelea na Apple",
+  "auth.continue_with_google": "Endelea na Google",
+  "auth.create_account": "Fungua akaunti",
+  "common.close": "Funga",
+  "common.continue": "Endelea",
+  "common.retry": "Jaribu tena",
+  "error.bootstrap_unavailable": "Programu haikuweza kupakiwa. Jaribu tena.",
+  "language.current": "Kiswahili",
+  "language.select": "Chagua lugha",
+  "location.detecting": "Tunatafuta eneo lako...",
+  "location.permission_required": "Ruhusu ufikiaji wa eneo ili kuendelea",
+  "location.unavailable": "Eneo lako halikuweza kupatikana",
+  "onboarding.headline_highlight": "Telezesha ili upate",
+  "onboarding.headline_rest": "Furaha yako",
+  "onboarding.subtitle": "Anza leo safari yako ya kupata uhusiano wa kweli na wa kudumu"
+}

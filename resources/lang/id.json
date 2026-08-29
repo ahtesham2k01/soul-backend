@@ -1,0 +1,17 @@
+{
+  "auth.continue_with_apple": "Lanjutkan dengan Apple",
+  "auth.continue_with_google": "Lanjutkan dengan Google",
+  "auth.create_account": "Buat akun",
+  "common.close": "Tutup",
+  "common.continue": "Lanjutkan",
+  "common.retry": "Coba lagi",
+  "error.bootstrap_unavailable": "Aplikasi tidak dapat dimuat. Silakan coba lagi.",
+  "language.current": "Bahasa Indonesia",
+  "language.select": "Pilih bahasa",
+  "location.detecting": "Mendeteksi lokasimu...",
+  "location.permission_required": "Izinkan akses lokasi untuk melanjutkan",
+  "location.unavailable": "Lokasimu tidak dapat ditemukan",
+  "onboarding.headline_highlight": "Geser untuk menemukan",
+  "onboarding.headline_rest": "Kebahagiaanmu",
+  "onboarding.subtitle": "Mulai perjalananmu menuju hubungan yang bermakna dan bertahan lama hari ini"
+}

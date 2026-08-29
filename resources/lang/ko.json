@@ -1,0 +1,17 @@
+{
+  "auth.continue_with_apple": "Apple로 계속하기",
+  "auth.continue_with_google": "Google로 계속하기",
+  "auth.create_account": "계정 만들기",
+  "common.close": "닫기",
+  "common.continue": "계속",
+  "common.retry": "다시 시도",
+  "error.bootstrap_unavailable": "앱을 불러올 수 없습니다. 다시 시도해 주세요.",
+  "language.current": "한국어",
+  "language.select": "언어 선택",
+  "location.detecting": "현재 위치를 확인하는 중...",
+  "location.permission_required": "계속하려면 위치 접근을 허용해 주세요",
+  "location.unavailable": "현재 위치를 확인할 수 없습니다",
+  "onboarding.headline_highlight": "스와이프해서 찾아보세요",
+  "onboarding.headline_rest": "당신의 행복을",
+  "onboarding.subtitle": "진정한 만남과 오래가는 관계를 위한 여정을 오늘 시작하세요"
+}

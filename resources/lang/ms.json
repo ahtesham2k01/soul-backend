@@ -1,0 +1,17 @@
+{
+  "auth.continue_with_apple": "Teruskan dengan Apple",
+  "auth.continue_with_google": "Teruskan dengan Google",
+  "auth.create_account": "Cipta akaun",
+  "common.close": "Tutup",
+  "common.continue": "Teruskan",
+  "common.retry": "Cuba lagi",
+  "error.bootstrap_unavailable": "Aplikasi tidak dapat dimuatkan. Sila cuba lagi.",
+  "language.current": "Bahasa Melayu",
+  "language.select": "Pilih bahasa",
+  "location.detecting": "Mengesan lokasi anda...",
+  "location.permission_required": "Benarkan akses lokasi untuk meneruskan",
+  "location.unavailable": "Lokasi anda tidak dapat dikesan",
+  "onboarding.headline_highlight": "Leret untuk mencari",
+  "onboarding.headline_rest": "Kebahagiaan anda",
+  "onboarding.subtitle": "Mulakan perjalanan anda menuju hubungan yang bermakna dan berkekalan hari ini"
+}

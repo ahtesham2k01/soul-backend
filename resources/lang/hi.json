@@ -1,0 +1,17 @@
+{
+  "auth.continue_with_apple": "Apple के साथ जारी रखें",
+  "auth.continue_with_google": "Google के साथ जारी रखें",
+  "auth.create_account": "अकाउंट बनाएं",
+  "common.close": "बंद करें",
+  "common.continue": "जारी रखें",
+  "common.retry": "फिर से कोशिश करें",
+  "error.bootstrap_unavailable": "ऐप लोड नहीं हो सका। फिर से कोशिश करें।",
+  "language.current": "हिन्दी",
+  "language.select": "भाषा चुनें",
+  "location.detecting": "आपकी लोकेशन पता की जा रही है...",
+  "location.permission_required": "जारी रखने के लिए लोकेशन एक्सेस की अनुमति दें",
+  "location.unavailable": "आपकी लोकेशन नहीं मिल सकी",
+  "onboarding.headline_highlight": "स्वाइप करें और पाएं",
+  "onboarding.headline_rest": "अपना सच्चा साथी",
+  "onboarding.subtitle": "सच्चे जुड़ाव और लंबे रिश्ते की अपनी यात्रा आज ही शुरू करें"
+}

@@ -1,0 +1,17 @@
+{
+  "auth.continue_with_apple": "Kontynuuj z Apple",
+  "auth.continue_with_google": "Kontynuuj z Google",
+  "auth.create_account": "Utwórz konto",
+  "common.close": "Zamknij",
+  "common.continue": "Kontynuuj",
+  "common.retry": "Spróbuj ponownie",
+  "error.bootstrap_unavailable": "Nie udało się załadować aplikacji. Spróbuj ponownie.",
+  "language.current": "Polski",
+  "language.select": "Wybierz język",
+  "location.detecting": "Ustalamy Twoją lokalizację...",
+  "location.permission_required": "Zezwól na dostęp do lokalizacji, aby kontynuować",
+  "location.unavailable": "Nie udało się ustalić Twojej lokalizacji",
+  "onboarding.headline_highlight": "Przesuń, aby znaleźć",
+  "onboarding.headline_rest": "Swoje szczęście",
+  "onboarding.subtitle": "Rozpocznij dziś swoją drogę do prawdziwych znajomości i trwałych relacji"
+}

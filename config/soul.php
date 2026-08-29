@@ -14,7 +14,7 @@ return [
 
     'translations' => [
         'fallback_locale' => 'en',
-        'catalog_version' => '3',
+        'catalog_version' => '4',
 
         'locales' => [
             'en' => [

@@ -1,0 +1,17 @@
+{
+  "auth.continue_with_apple": "Продовжити з Apple",
+  "auth.continue_with_google": "Продовжити з Google",
+  "auth.create_account": "Створити акаунт",
+  "common.close": "Закрити",
+  "common.continue": "Продовжити",
+  "common.retry": "Спробувати ще раз",
+  "error.bootstrap_unavailable": "Не вдалося завантажити застосунок. Спробуйте ще раз.",
+  "language.current": "Українська",
+  "language.select": "Вибрати мову",
+  "location.detecting": "Визначаємо ваше місцезнаходження...",
+  "location.permission_required": "Дозвольте доступ до місцезнаходження, щоб продовжити",
+  "location.unavailable": "Не вдалося визначити ваше місцезнаходження",
+  "onboarding.headline_highlight": "Гортайте, щоб знайти",
+  "onboarding.headline_rest": "Своє щастя",
+  "onboarding.subtitle": "Почніть свій шлях до справжніх знайомств і тривалих стосунків уже сьогодні"
+}

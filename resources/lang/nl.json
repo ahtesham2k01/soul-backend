@@ -1,0 +1,17 @@
+{
+  "auth.continue_with_apple": "Doorgaan met Apple",
+  "auth.continue_with_google": "Doorgaan met Google",
+  "auth.create_account": "Account aanmaken",
+  "common.close": "Sluiten",
+  "common.continue": "Doorgaan",
+  "common.retry": "Opnieuw proberen",
+  "error.bootstrap_unavailable": "De app kon niet worden geladen. Probeer het opnieuw.",
+  "language.current": "Nederlands",
+  "language.select": "Taal selecteren",
+  "location.detecting": "Je locatie wordt bepaald...",
+  "location.permission_required": "Sta locatietoegang toe om door te gaan",
+  "location.unavailable": "Je locatie kon niet worden bepaald",
+  "onboarding.headline_highlight": "Swipe en vind",
+  "onboarding.headline_rest": "Jouw geluk",
+  "onboarding.subtitle": "Begin vandaag je reis naar echte connecties en langdurige relaties"
+}

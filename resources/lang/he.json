@@ -1,0 +1,17 @@
+{
+  "auth.continue_with_apple": "המשך עם Apple",
+  "auth.continue_with_google": "המשך עם Google",
+  "auth.create_account": "יצירת חשבון",
+  "common.close": "סגירה",
+  "common.continue": "המשך",
+  "common.retry": "נסה שוב",
+  "error.bootstrap_unavailable": "לא הצלחנו לטעון את האפליקציה. נסו שוב.",
+  "language.current": "עברית",
+  "language.select": "בחירת שפה",
+  "location.detecting": "מאתרים את המיקום שלך...",
+  "location.permission_required": "יש לאפשר גישה למיקום כדי להמשיך",
+  "location.unavailable": "לא הצלחנו לאתר את המיקום שלך",
+  "onboarding.headline_highlight": "החליקו כדי למצוא",
+  "onboarding.headline_rest": "את האושר שלכם",
+  "onboarding.subtitle": "התחילו עוד היום את הדרך לחיבורים אמיתיים ולמערכות יחסים ארוכות טווח"
+}

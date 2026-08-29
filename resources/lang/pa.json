@@ -1,0 +1,17 @@
+{
+  "auth.continue_with_apple": "Apple ਨਾਲ ਜਾਰੀ ਰੱਖੋ",
+  "auth.continue_with_google": "Google ਨਾਲ ਜਾਰੀ ਰੱਖੋ",
+  "auth.create_account": "ਅਕਾਊਂਟ ਬਣਾਓ",
+  "common.close": "ਬੰਦ ਕਰੋ",
+  "common.continue": "ਜਾਰੀ ਰੱਖੋ",
+  "common.retry": "ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
+  "error.bootstrap_unavailable": "ਐਪ ਲੋਡ ਨਹੀਂ ਹੋ ਸਕੀ। ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।",
+  "language.current": "ਪੰਜਾਬੀ",
+  "language.select": "ਭਾਸ਼ਾ ਚੁਣੋ",
+  "location.detecting": "ਤੁਹਾਡੀ ਲੋਕੇਸ਼ਨ ਲੱਭੀ ਜਾ ਰਹੀ ਹੈ...",
+  "location.permission_required": "ਜਾਰੀ ਰੱਖਣ ਲਈ ਲੋਕੇਸ਼ਨ ਐਕਸੈੱਸ ਦੀ ਇਜਾਜ਼ਤ ਦਿਓ",
+  "location.unavailable": "ਤੁਹਾਡੀ ਲੋਕੇਸ਼ਨ ਨਹੀਂ ਮਿਲ ਸਕੀ",
+  "onboarding.headline_highlight": "ਆਪਣੀ ਪਸੰਦ ਲਈ ਸਵਾਈਪ ਕਰੋ",
+  "onboarding.headline_rest": "ਅਤੇ ਆਪਣਾ ਸਾਥੀ ਲੱਭੋ",
+  "onboarding.subtitle": "ਸੱਚੇ ਜੁੜਾਅ ਅਤੇ ਲੰਬੇ ਰਿਸ਼ਤੇ ਲਈ ਆਪਣਾ ਸਫ਼ਰ ਅੱਜ ਹੀ ਸ਼ੁਰੂ ਕਰੋ"
+}

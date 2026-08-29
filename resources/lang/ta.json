@@ -1,0 +1,17 @@
+{
+  "auth.continue_with_apple": "Apple மூலம் தொடரவும்",
+  "auth.continue_with_google": "Google மூலம் தொடரவும்",
+  "auth.create_account": "கணக்கை உருவாக்கவும்",
+  "common.close": "மூடு",
+  "common.continue": "தொடரவும்",
+  "common.retry": "மீண்டும் முயற்சிக்கவும்",
+  "error.bootstrap_unavailable": "செயலியை ஏற்ற முடியவில்லை. மீண்டும் முயற்சிக்கவும்.",
+  "language.current": "தமிழ்",
+  "language.select": "மொழியைத் தேர்ந்தெடுக்கவும்",
+  "location.detecting": "உங்கள் இருப்பிடம் கண்டறியப்படுகிறது...",
+  "location.permission_required": "தொடர இருப்பிட அணுகலை அனுமதிக்கவும்",
+  "location.unavailable": "உங்கள் இருப்பிடத்தைக் கண்டறிய முடியவில்லை",
+  "onboarding.headline_highlight": "உங்கள் துணையை கண்டறிய ஸ்வைப் செய்யுங்கள்",
+  "onboarding.headline_rest": "உங்கள் மகிழ்ச்சியைத் தேடுங்கள்",
+  "onboarding.subtitle": "உண்மையான இணைப்புகள் மற்றும் நீடித்த உறவுகளுக்கான உங்கள் பயணத்தை இன்றே தொடங்குங்கள்"
+}

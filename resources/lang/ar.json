@@ -1,0 +1,17 @@
+{
+  "auth.continue_with_apple": "المتابعة باستخدام Apple",
+  "auth.continue_with_google": "المتابعة باستخدام Google",
+  "auth.create_account": "إنشاء حساب",
+  "common.close": "إغلاق",
+  "common.continue": "متابعة",
+  "common.retry": "حاول مرة أخرى",
+  "error.bootstrap_unavailable": "تعذر تحميل التطبيق. حاول مرة أخرى.",
+  "language.current": "العربية",
+  "language.select": "اختر اللغة",
+  "location.detecting": "جارٍ تحديد موقعك...",
+  "location.permission_required": "اسمح بالوصول إلى موقعك للمتابعة",
+  "location.unavailable": "تعذر تحديد موقعك",
+  "onboarding.headline_highlight": "اسحب لتجد",
+  "onboarding.headline_rest": "سعادتك الأبدية",
+  "onboarding.subtitle": "ابدأ اليوم رحلتك نحو علاقات حقيقية ودائمة"
+}

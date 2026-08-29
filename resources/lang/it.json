@@ -1,0 +1,17 @@
+{
+  "auth.continue_with_apple": "Continua con Apple",
+  "auth.continue_with_google": "Continua con Google",
+  "auth.create_account": "Crea un account",
+  "common.close": "Chiudi",
+  "common.continue": "Continua",
+  "common.retry": "Riprova",
+  "error.bootstrap_unavailable": "Impossibile caricare l’app. Riprova.",
+  "language.current": "Italiano",
+  "language.select": "Seleziona la lingua",
+  "location.detecting": "Rilevamento della tua posizione...",
+  "location.permission_required": "Consenti l’accesso alla posizione per continuare",
+  "location.unavailable": "Impossibile rilevare la tua posizione",
+  "onboarding.headline_highlight": "Scorri per trovare",
+  "onboarding.headline_rest": "Il tuo lieto fine",
+  "onboarding.subtitle": "Inizia oggi il tuo viaggio verso legami autentici e relazioni durature"
+}

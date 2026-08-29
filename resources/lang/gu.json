@@ -1,0 +1,17 @@
+{
+  "auth.continue_with_apple": "Apple સાથે ચાલુ રાખો",
+  "auth.continue_with_google": "Google સાથે ચાલુ રાખો",
+  "auth.create_account": "એકાઉન્ટ બનાવો",
+  "common.close": "બંધ કરો",
+  "common.continue": "ચાલુ રાખો",
+  "common.retry": "ફરી પ્રયાસ કરો",
+  "error.bootstrap_unavailable": "એપ લોડ થઈ શકી નથી. ફરી પ્રયાસ કરો.",
+  "language.current": "ગુજરાતી",
+  "language.select": "ભાષા પસંદ કરો",
+  "location.detecting": "તમારું સ્થાન શોધી રહ્યા છીએ...",
+  "location.permission_required": "આગળ વધવા માટે સ્થાનની પરવાનગી આપો",
+  "location.unavailable": "તમારું સ્થાન મળી શક્યું નથી",
+  "onboarding.headline_highlight": "તમારી પસંદ શોધવા સ્વાઇપ કરો",
+  "onboarding.headline_rest": "અને તમારો સાથી શોધો",
+  "onboarding.subtitle": "સાચા જોડાણ અને લાંબા સંબંધોની તમારી સફર આજે જ શરૂ કરો"
+}

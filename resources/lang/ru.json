@@ -1,0 +1,17 @@
+{
+  "auth.continue_with_apple": "Продолжить с Apple",
+  "auth.continue_with_google": "Продолжить с Google",
+  "auth.create_account": "Создать аккаунт",
+  "common.close": "Закрыть",
+  "common.continue": "Продолжить",
+  "common.retry": "Попробовать снова",
+  "error.bootstrap_unavailable": "Не удалось загрузить приложение. Попробуйте снова.",
+  "language.current": "Русский",
+  "language.select": "Выбрать язык",
+  "location.detecting": "Определяем ваше местоположение...",
+  "location.permission_required": "Разрешите доступ к местоположению, чтобы продолжить",
+  "location.unavailable": "Не удалось определить ваше местоположение",
+  "onboarding.headline_highlight": "Листайте, чтобы найти",
+  "onboarding.headline_rest": "Своё счастье",
+  "onboarding.subtitle": "Начните свой путь к настоящим знакомствам и долгим отношениям уже сегодня"
+}

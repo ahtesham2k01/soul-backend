@@ -1,0 +1,17 @@
+{
+  "auth.continue_with_apple": "Appleで続ける",
+  "auth.continue_with_google": "Googleで続ける",
+  "auth.create_account": "アカウントを作成",
+  "common.close": "閉じる",
+  "common.continue": "続ける",
+  "common.retry": "もう一度試す",
+  "error.bootstrap_unavailable": "アプリを読み込めませんでした。もう一度お試しください。",
+  "language.current": "日本語",
+  "language.select": "言語を選択",
+  "location.detecting": "現在地を確認しています...",
+  "location.permission_required": "続けるには位置情報へのアクセスを許可してください",
+  "location.unavailable": "現在地を取得できませんでした",
+  "onboarding.headline_highlight": "スワイプして見つけよう",
+  "onboarding.headline_rest": "あなたの幸せを",
+  "onboarding.subtitle": "本当のつながりと長く続く関係への一歩を、今日から始めましょう"
+}

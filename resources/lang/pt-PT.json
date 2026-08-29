@@ -1,0 +1,17 @@
+{
+  "auth.continue_with_apple": "Continuar com a Apple",
+  "auth.continue_with_google": "Continuar com o Google",
+  "auth.create_account": "Criar uma conta",
+  "common.close": "Fechar",
+  "common.continue": "Continuar",
+  "common.retry": "Tentar novamente",
+  "error.bootstrap_unavailable": "Não foi possível carregar a aplicação. Tente novamente.",
+  "language.current": "Português (Portugal)",
+  "language.select": "Selecionar idioma",
+  "location.detecting": "A detetar a sua localização...",
+  "location.permission_required": "Permita o acesso à sua localização para continuar",
+  "location.unavailable": "Não foi possível detetar a sua localização",
+  "onboarding.headline_highlight": "Deslize para encontrar",
+  "onboarding.headline_rest": "O seu final feliz",
+  "onboarding.subtitle": "Comece hoje a sua jornada em busca de ligações verdadeiras e relações duradouras"
+}

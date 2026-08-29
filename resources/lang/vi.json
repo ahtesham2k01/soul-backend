@@ -1,0 +1,17 @@
+{
+  "auth.continue_with_apple": "Tiếp tục với Apple",
+  "auth.continue_with_google": "Tiếp tục với Google",
+  "auth.create_account": "Tạo tài khoản",
+  "common.close": "Đóng",
+  "common.continue": "Tiếp tục",
+  "common.retry": "Thử lại",
+  "error.bootstrap_unavailable": "Không thể tải ứng dụng. Vui lòng thử lại.",
+  "language.current": "Tiếng Việt",
+  "language.select": "Chọn ngôn ngữ",
+  "location.detecting": "Đang xác định vị trí của bạn...",
+  "location.permission_required": "Cho phép truy cập vị trí để tiếp tục",
+  "location.unavailable": "Không thể xác định vị trí của bạn",
+  "onboarding.headline_highlight": "Vuốt để tìm thấy",
+  "onboarding.headline_rest": "Hạnh phúc của bạn",
+  "onboarding.subtitle": "Bắt đầu hành trình tìm kiếm sự kết nối chân thành và mối quan hệ lâu dài ngay hôm nay"
+}

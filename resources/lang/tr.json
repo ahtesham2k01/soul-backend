@@ -1,0 +1,17 @@
+{
+  "auth.continue_with_apple": "Apple ile devam et",
+  "auth.continue_with_google": "Google ile devam et",
+  "auth.create_account": "Hesap oluştur",
+  "common.close": "Kapat",
+  "common.continue": "Devam et",
+  "common.retry": "Tekrar dene",
+  "error.bootstrap_unavailable": "Uygulama yüklenemedi. Tekrar deneyin.",
+  "language.current": "Türkçe",
+  "language.select": "Dil seç",
+  "location.detecting": "Konumunuz belirleniyor...",
+  "location.permission_required": "Devam etmek için konum erişimine izin verin",
+  "location.unavailable": "Konumunuz belirlenemedi",
+  "onboarding.headline_highlight": "Kaydır ve bul",
+  "onboarding.headline_rest": "Sonsuz mutluluğunu",
+  "onboarding.subtitle": "Gerçek bağlar ve uzun süreli ilişkiler için yolculuğuna bugün başla"
+}

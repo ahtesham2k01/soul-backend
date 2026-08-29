@@ -1,0 +1,17 @@
+{
+  "auth.continue_with_apple": "ดำเนินการต่อด้วย Apple",
+  "auth.continue_with_google": "ดำเนินการต่อด้วย Google",
+  "auth.create_account": "สร้างบัญชี",
+  "common.close": "ปิด",
+  "common.continue": "ดำเนินการต่อ",
+  "common.retry": "ลองอีกครั้ง",
+  "error.bootstrap_unavailable": "ไม่สามารถโหลดแอปได้ โปรดลองอีกครั้ง",
+  "language.current": "ไทย",
+  "language.select": "เลือกภาษา",
+  "location.detecting": "กำลังค้นหาตำแหน่งของคุณ...",
+  "location.permission_required": "อนุญาตให้เข้าถึงตำแหน่งเพื่อดำเนินการต่อ",
+  "location.unavailable": "ไม่พบตำแหน่งของคุณ",
+  "onboarding.headline_highlight": "ปัดเพื่อค้นหา",
+  "onboarding.headline_rest": "ความสุขของคุณ",
+  "onboarding.subtitle": "เริ่มต้นการเดินทางสู่ความสัมพันธ์ที่จริงใจและยั่งยืนได้แล้ววันนี้"
+}

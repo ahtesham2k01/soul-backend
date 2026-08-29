@@ -21,7 +21,10 @@ class AppBootstrapEndpointTest extends TestCase
         $response
             ->assertOk()
             ->assertHeader('X-Request-ID')
-            ->assertJsonPath('success', true)
+            ->assertJsonPath(
+                'success',
+                true,
+            )
             ->assertJsonPath(
                 'data.brand.name',
                 'SOUL',
@@ -48,15 +51,17 @@ class AppBootstrapEndpointTest extends TestCase
             )
             ->assertJsonPath(
                 'data.translations.version',
-                '3',
+                '4',
             )
             ->assertJsonFragment([
                 'auth.create_account' => 'Create Account',
             ])
-            ->assertJsonPath(
-                'data.supported_languages.0.code',
-                'en',
-            )
+            ->assertJsonFragment([
+                'code' => 'en',
+                'name' => 'English',
+                'native_name' => 'English',
+                'direction' => 'ltr',
+            ])
             ->assertJsonPath(
                 'data.location',
                 null,
@@ -75,9 +80,28 @@ class AppBootstrapEndpointTest extends TestCase
         );
 
         $this->assertIsString($hash);
+
         $this->assertSame(
             64,
             strlen($hash),
+        );
+
+        $supportedLanguages = $response->json(
+            'data.supported_languages',
+        );
+
+        $this->assertIsArray(
+            $supportedLanguages,
+        );
+
+        $this->assertCount(
+            count(
+                config(
+                    'soul.translations.locales',
+                    [],
+                ),
+            ),
+            $supportedLanguages,
         );
     }
 
@@ -248,7 +272,7 @@ class AppBootstrapEndpointTest extends TestCase
             )
             ->assertJsonPath(
                 'data.translations.version',
-                '3',
+                '4',
             )
             ->assertJsonFragment([
                 'auth.create_account' => 'Account banayein',
@@ -256,22 +280,12 @@ class AppBootstrapEndpointTest extends TestCase
             ->assertJsonFragment([
                 'language.select' => 'Language select karein',
             ])
-            ->assertJsonPath(
-                'data.supported_languages.1.code',
-                'ur',
-            )
-            ->assertJsonPath(
-                'data.supported_languages.1.name',
-                'Roman Urdu',
-            )
-            ->assertJsonPath(
-                'data.supported_languages.1.native_name',
-                'Roman Urdu',
-            )
-            ->assertJsonPath(
-                'data.supported_languages.1.direction',
-                'ltr',
-            );
+            ->assertJsonFragment([
+                'code' => 'ur',
+                'name' => 'Roman Urdu',
+                'native_name' => 'Roman Urdu',
+                'direction' => 'ltr',
+            ]);
     }
 
     public function test_spanish_catalog_is_returned_for_regional_locale(): void
@@ -300,7 +314,7 @@ class AppBootstrapEndpointTest extends TestCase
             )
             ->assertJsonPath(
                 'data.translations.version',
-                '3',
+                '4',
             )
             ->assertJsonFragment([
                 'auth.create_account' => 'Crear una cuenta',
@@ -308,21 +322,11 @@ class AppBootstrapEndpointTest extends TestCase
             ->assertJsonFragment([
                 'language.select' => 'Seleccionar idioma',
             ])
-            ->assertJsonPath(
-                'data.supported_languages.2.code',
-                'es',
-            )
-            ->assertJsonPath(
-                'data.supported_languages.2.name',
-                'Spanish',
-            )
-            ->assertJsonPath(
-                'data.supported_languages.2.native_name',
-                'Español',
-            )
-            ->assertJsonPath(
-                'data.supported_languages.2.direction',
-                'ltr',
-            );
+            ->assertJsonFragment([
+                'code' => 'es',
+                'name' => 'Spanish',
+                'native_name' => 'Español',
+                'direction' => 'ltr',
+            ]);
     }
 }

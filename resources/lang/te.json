@@ -1,0 +1,17 @@
+{
+  "auth.continue_with_apple": "Appleతో కొనసాగండి",
+  "auth.continue_with_google": "Googleతో కొనసాగండి",
+  "auth.create_account": "అకౌంట్ సృష్టించండి",
+  "common.close": "మూసివేయండి",
+  "common.continue": "కొనసాగండి",
+  "common.retry": "మళ్లీ ప్రయత్నించండి",
+  "error.bootstrap_unavailable": "యాప్ లోడ్ కాలేదు. మళ్లీ ప్రయత్నించండి.",
+  "language.current": "తెలుగు",
+  "language.select": "భాషను ఎంచుకోండి",
+  "location.detecting": "మీ లొకేషన్‌ను గుర్తిస్తున్నాము...",
+  "location.permission_required": "కొనసాగడానికి లొకేషన్ యాక్సెస్‌ను అనుమతించండి",
+  "location.unavailable": "మీ లొకేషన్‌ను గుర్తించలేకపోయాము",
+  "onboarding.headline_highlight": "మీకు నచ్చిన వ్యక్తిని కనుగొనడానికి స్వైప్ చేయండి",
+  "onboarding.headline_rest": "మీ ఆనందాన్ని కనుగొనండి",
+  "onboarding.subtitle": "నిజమైన అనుబంధాలు మరియు దీర్ఘకాలిక సంబంధాల కోసం మీ ప్రయాణాన్ని ఈరోజే ప్రారంభించండి"
+}

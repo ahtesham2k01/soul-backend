@@ -1,0 +1,17 @@
+{
+  "auth.continue_with_apple": "ادامه با Apple",
+  "auth.continue_with_google": "ادامه با Google",
+  "auth.create_account": "ساخت حساب",
+  "common.close": "بستن",
+  "common.continue": "ادامه",
+  "common.retry": "تلاش دوباره",
+  "error.bootstrap_unavailable": "برنامه بارگذاری نشد. دوباره تلاش کنید.",
+  "language.current": "فارسی",
+  "language.select": "انتخاب زبان",
+  "location.detecting": "در حال پیدا کردن موقعیت شما...",
+  "location.permission_required": "برای ادامه، دسترسی به موقعیت مکانی را فعال کنید",
+  "location.unavailable": "موقعیت شما پیدا نشد",
+  "onboarding.headline_highlight": "بکشید تا پیدا کنید",
+  "onboarding.headline_rest": "همراه همیشگی خود را",
+  "onboarding.subtitle": "سفر خود را برای یافتن ارتباطی واقعی و رابطه‌ای ماندگار از امروز آغاز کنید"
+}

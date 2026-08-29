@@ -1,0 +1,17 @@
+{
+  "auth.continue_with_apple": "Magpatuloy gamit ang Apple",
+  "auth.continue_with_google": "Magpatuloy gamit ang Google",
+  "auth.create_account": "Gumawa ng account",
+  "common.close": "Isara",
+  "common.continue": "Magpatuloy",
+  "common.retry": "Subukan muli",
+  "error.bootstrap_unavailable": "Hindi ma-load ang app. Subukan muli.",
+  "language.current": "Filipino",
+  "language.select": "Pumili ng wika",
+  "location.detecting": "Hinahanap ang iyong lokasyon...",
+  "location.permission_required": "Payagan ang access sa lokasyon upang magpatuloy",
+  "location.unavailable": "Hindi mahanap ang iyong lokasyon",
+  "onboarding.headline_highlight": "Mag-swipe para mahanap",
+  "onboarding.headline_rest": "Ang iyong kaligayahan",
+  "onboarding.subtitle": "Simulan ngayon ang iyong paglalakbay tungo sa tunay na koneksyon at pangmatagalang relasyon"
+}
