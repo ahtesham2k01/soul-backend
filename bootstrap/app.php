@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Middleware\AttachRequestId;
+use App\Http\Middleware\EnsureAccountIsActive;
 use App\Support\ApiResponse;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -21,6 +23,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'api',
             AttachRequestId::class,
         );
+
+        $middleware->alias([
+            'active.account' => EnsureAccountIsActive::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(
@@ -34,6 +40,23 @@ return Application::configure(basePath: dirname(__DIR__))
 
                 return ApiResponse::validation(
                     errors: $exception->errors(),
+                );
+            },
+        );
+
+        $exceptions->render(
+            function (
+                AuthenticationException $exception,
+                Request $request,
+            ): ?JsonResponse {
+                if (! $request->is('api/*')) {
+                    return null;
+                }
+
+                return ApiResponse::error(
+                    code: 'UNAUTHENTICATED',
+                    message: 'Authentication is required.',
+                    status: 401,
                 );
             },
         );
