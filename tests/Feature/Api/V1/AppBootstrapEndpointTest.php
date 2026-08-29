@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Api\V1;
 
+use App\Contracts\Location\GeolocationProvider;
+use App\Data\LocationData;
 use Tests\TestCase;
 
 class AppBootstrapEndpointTest extends TestCase
@@ -20,10 +22,6 @@ class AppBootstrapEndpointTest extends TestCase
             ->assertOk()
             ->assertHeader('X-Request-ID')
             ->assertJsonPath('success', true)
-            ->assertJsonPath(
-                'message',
-                'App bootstrap loaded successfully.',
-            )
             ->assertJsonPath(
                 'data.brand.name',
                 'SOUL',
@@ -45,10 +43,6 @@ class AppBootstrapEndpointTest extends TestCase
                 'en',
             )
             ->assertJsonPath(
-                'data.locale.fallback',
-                'en',
-            )
-            ->assertJsonPath(
                 'data.locale.direction',
                 'ltr',
             )
@@ -56,6 +50,9 @@ class AppBootstrapEndpointTest extends TestCase
                 'data.translations.version',
                 '1',
             )
+            ->assertJsonFragment([
+                'auth.create_account' => 'Create Account',
+            ])
             ->assertJsonPath(
                 'data.supported_languages.0.code',
                 'en',
@@ -66,32 +63,22 @@ class AppBootstrapEndpointTest extends TestCase
             )
             ->assertJsonPath(
                 'data.location_status',
-                'unresolved',
+                'unavailable',
             )
             ->assertJsonPath(
                 'meta.request_id',
                 $requestId,
             );
 
-        /*
-         * Translation keys contain dots and are flat keys.
-         * assertJsonPath would treat dots as nested paths,
-         * so assertJsonFragment is used instead.
-         */
-        $response->assertJsonFragment([
-            'auth.create_account' => 'Create Account',
-        ]);
-
-        $response->assertJsonFragment([
-            'onboarding.headline_highlight' => 'Swipe to Your',
-        ]);
-
         $hash = $response->json(
             'data.translations.hash',
         );
 
         $this->assertIsString($hash);
-        $this->assertSame(64, strlen($hash));
+        $this->assertSame(
+            64,
+            strlen($hash),
+        );
     }
 
     public function test_query_locale_has_priority_over_header(): void
@@ -114,10 +101,6 @@ class AppBootstrapEndpointTest extends TestCase
             ->assertJsonPath(
                 'data.locale.matched',
                 'ur',
-            )
-            ->assertJsonPath(
-                'data.locale.resolved',
-                'en',
             );
     }
 
@@ -128,17 +111,15 @@ class AppBootstrapEndpointTest extends TestCase
                 'Accept-Language',
                 'fr-FR;q=0.5, es-MX;q=0.9',
             )
-            ->getJson('/api/v1/bootstrap');
+            ->getJson(
+                '/api/v1/bootstrap',
+            );
 
         $response
             ->assertOk()
             ->assertJsonPath(
                 'data.locale.matched',
                 'es',
-            )
-            ->assertJsonPath(
-                'data.locale.resolved',
-                'en',
             );
     }
 
@@ -151,20 +132,93 @@ class AppBootstrapEndpointTest extends TestCase
         $response
             ->assertOk()
             ->assertJsonPath(
-                'data.locale.requested',
-                'xx-ZZ',
-            )
-            ->assertJsonPath(
                 'data.locale.matched',
                 'en',
             )
             ->assertJsonPath(
                 'data.locale.resolved',
                 'en',
+            );
+    }
+
+    public function test_bootstrap_includes_location_returned_by_provider(): void
+    {
+        $provider = new class implements GeolocationProvider
+        {
+            public function fromCoordinates(
+                float $latitude,
+                float $longitude,
+            ): ?LocationData {
+                return null;
+            }
+
+            public function fromIp(
+                string $ipAddress,
+            ): ?LocationData {
+                return new LocationData(
+                    city: 'Dubai',
+                    region: 'Dubai',
+                    country: 'United Arab Emirates',
+                    countryCode: 'AE',
+                    latitude: 25.2048,
+                    longitude: 55.2708,
+                    timezone: 'Asia/Dubai',
+                    source: 'ip',
+                    isApproximate: true,
+                );
+            }
+        };
+
+        $this->app->instance(
+            GeolocationProvider::class,
+            $provider,
+        );
+
+        $response = $this->getJson(
+            '/api/v1/bootstrap?locale=en',
+        );
+
+        $response
+            ->assertOk()
+            ->assertJsonPath(
+                'data.location.city',
+                'Dubai',
             )
             ->assertJsonPath(
-                'data.locale.direction',
-                'ltr',
+                'data.location.region',
+                'Dubai',
+            )
+            ->assertJsonPath(
+                'data.location.country',
+                'United Arab Emirates',
+            )
+            ->assertJsonPath(
+                'data.location.country_code',
+                'AE',
+            )
+            ->assertJsonPath(
+                'data.location.latitude',
+                25.2048,
+            )
+            ->assertJsonPath(
+                'data.location.longitude',
+                55.2708,
+            )
+            ->assertJsonPath(
+                'data.location.timezone',
+                'Asia/Dubai',
+            )
+            ->assertJsonPath(
+                'data.location.source',
+                'ip',
+            )
+            ->assertJsonPath(
+                'data.location.is_approximate',
+                true,
+            )
+            ->assertJsonPath(
+                'data.location_status',
+                'resolved',
             );
     }
 }

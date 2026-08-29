@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Contracts\Location\GeolocationProvider;
 use App\Http\Controllers\Controller;
 use App\Support\ApiResponse;
 use App\Support\Localization\LocaleResolver;
@@ -16,6 +17,7 @@ class AppBootstrapController extends Controller
         Request $request,
         LocaleResolver $localeResolver,
         TranslationCatalog $translationCatalog,
+        GeolocationProvider $geolocationProvider,
     ): JsonResponse {
         $queryLocale = $request->query('locale');
 
@@ -32,6 +34,16 @@ class AppBootstrapController extends Controller
 
         $catalog = $translationCatalog->load(
             $matchedLocale,
+        );
+
+        /*
+         * Production Cloudflare driver approximate
+         * IP location return karega.
+         *
+         * Local/failed detection par null rahega.
+         */
+        $location = $geolocationProvider->fromIp(
+            $request->ip(),
         );
 
         return ApiResponse::success(
@@ -60,13 +72,11 @@ class AppBootstrapController extends Controller
                 'supported_languages' =>
                     $this->availableLanguages(),
 
-                /*
-                 * Real location resolver next module mein
-                 * connect hoga. Koi fake/default location
-                 * return nahi ki ja rahi.
-                 */
-                'location' => null,
-                'location_status' => 'unresolved',
+                'location' => $location?->toArray(),
+
+                'location_status' => $location === null
+                    ? 'unavailable'
+                    : 'resolved',
             ],
             message: 'App bootstrap loaded successfully.',
         );

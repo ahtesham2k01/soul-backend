@@ -190,4 +190,29 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Location
+    |--------------------------------------------------------------------------
+    |
+    | Local development uses the null provider.
+    | Production may use Cloudflare visitor location headers.
+    |
+    */
+
+    'location' => [
+        'driver' => env(
+            'GEOLOCATION_DRIVER',
+            'none',
+        ),
+
+        'cloudflare_headers_enabled' => filter_var(
+            env(
+                'CLOUDFLARE_LOCATION_HEADERS_ENABLED',
+                false,
+            ),
+            FILTER_VALIDATE_BOOL,
+        ),
+    ],
+
 ];
