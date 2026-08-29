@@ -48,7 +48,7 @@ class AppBootstrapEndpointTest extends TestCase
             )
             ->assertJsonPath(
                 'data.translations.version',
-                '1',
+                '2',
             )
             ->assertJsonFragment([
                 'auth.create_account' => 'Create Account',
@@ -219,6 +219,58 @@ class AppBootstrapEndpointTest extends TestCase
             ->assertJsonPath(
                 'data.location_status',
                 'resolved',
+            );
+    }
+
+    public function test_roman_urdu_catalog_is_returned_with_ltr_direction(): void
+    {
+        $response = $this->getJson(
+            '/api/v1/bootstrap?locale=ur-PK',
+        );
+
+        $response
+            ->assertOk()
+            ->assertJsonPath(
+                'data.locale.requested',
+                'ur-PK',
+            )
+            ->assertJsonPath(
+                'data.locale.matched',
+                'ur',
+            )
+            ->assertJsonPath(
+                'data.locale.resolved',
+                'ur',
+            )
+            ->assertJsonPath(
+                'data.locale.direction',
+                'ltr',
+            )
+            ->assertJsonPath(
+                'data.translations.version',
+                '2',
+            )
+            ->assertJsonFragment([
+                'auth.create_account' => 'Account banayein',
+            ])
+            ->assertJsonFragment([
+                'language.select' => 'Language select karein',
+            ])
+            ->assertJsonPath(
+                'data.supported_languages.1.code',
+                'ur',
+            )
+            ->assertJsonPath(
+                'data.supported_languages.1.name',
+                'Roman Urdu',
+            )
+            ->assertJsonPath(
+                'data.supported_languages.1.native_name',
+                'Roman Urdu',
+            )
+            ->assertJsonPath(
+                'data.supported_languages.1.direction',
+                'ltr',
             );
     }
 }

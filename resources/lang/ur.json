@@ -1,0 +1,17 @@
+{
+  "auth.continue_with_apple": "Apple se continue karein",
+  "auth.continue_with_google": "Google se continue karein",
+  "auth.create_account": "Account banayein",
+  "common.close": "Band karein",
+  "common.continue": "Continue karein",
+  "common.retry": "Dobara try karein",
+  "error.bootstrap_unavailable": "App load nahi ho saki. Dobara try karein.",
+  "language.current": "Roman Urdu",
+  "language.select": "Language select karein",
+  "location.detecting": "Aapki location check ho rahi hai...",
+  "location.permission_required": "Continue karne ke liye location access allow karein",
+  "location.unavailable": "Aapki location nahi mil saki",
+  "onboarding.headline_highlight": "Apni Pasand ki Taraf Swipe Karein",
+  "onboarding.headline_rest": "Aur Apna Humsafar Dhoondein",
+  "onboarding.subtitle": "Achay aur lasting relationship ke liye apna safar aaj hi shuru karein"
+}
