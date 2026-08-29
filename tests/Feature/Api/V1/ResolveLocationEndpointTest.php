@@ -4,6 +4,7 @@ namespace Tests\Feature\Api\V1;
 
 use App\Contracts\Location\GeolocationProvider;
 use App\Data\LocationData;
+use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
 class ResolveLocationEndpointTest extends TestCase
@@ -22,8 +23,14 @@ class ResolveLocationEndpointTest extends TestCase
         $response
             ->assertOk()
             ->assertHeader('X-Request-ID')
-            ->assertJsonPath('success', true)
-            ->assertJsonPath('data.location', null)
+            ->assertJsonPath(
+                'success',
+                true,
+            )
+            ->assertJsonPath(
+                'data.location',
+                null,
+            )
             ->assertJsonPath(
                 'data.location_status',
                 'unavailable',
@@ -40,11 +47,12 @@ class ResolveLocationEndpointTest extends TestCase
             ],
         );
 
-        $response
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors([
+        $this->assertStandardValidationError(
+            response: $response,
+            fields: [
                 'latitude',
-            ]);
+            ],
+        );
     }
 
     public function test_invalid_longitude_is_rejected(): void
@@ -57,11 +65,12 @@ class ResolveLocationEndpointTest extends TestCase
             ],
         );
 
-        $response
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors([
+        $this->assertStandardValidationError(
+            response: $response,
+            fields: [
                 'longitude',
-            ]);
+            ],
+        );
     }
 
     public function test_missing_coordinates_are_rejected(): void
@@ -71,12 +80,13 @@ class ResolveLocationEndpointTest extends TestCase
             [],
         );
 
-        $response
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors([
+        $this->assertStandardValidationError(
+            response: $response,
+            fields: [
                 'latitude',
                 'longitude',
-            ]);
+            ],
+        );
     }
 
     public function test_query_string_coordinates_are_not_accepted(): void
@@ -87,12 +97,13 @@ class ResolveLocationEndpointTest extends TestCase
             [],
         );
 
-        $response
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors([
+        $this->assertStandardValidationError(
+            response: $response,
+            fields: [
                 'latitude',
                 'longitude',
-            ]);
+            ],
+        );
     }
 
     public function test_resolved_location_uses_flutter_friendly_contract(): void
@@ -137,7 +148,11 @@ class ResolveLocationEndpointTest extends TestCase
 
         $response
             ->assertOk()
-            ->assertJsonPath('success', true)
+            ->assertHeader('X-Request-ID')
+            ->assertJsonPath(
+                'success',
+                true,
+            )
             ->assertJsonPath(
                 'message',
                 'Location resolved successfully.',
@@ -195,5 +210,62 @@ class ResolveLocationEndpointTest extends TestCase
                 'longitude' => 71.5249,
             ],
         )->assertTooManyRequests();
+    }
+
+    /**
+     * @param array<int, string> $fields
+     */
+    private function assertStandardValidationError(
+        TestResponse $response,
+        array $fields,
+    ): void {
+        $requestId = $response->headers->get(
+            'X-Request-ID',
+        );
+
+        $response
+            ->assertUnprocessable()
+            ->assertHeader('X-Request-ID')
+            ->assertJsonPath(
+                'success',
+                false,
+            )
+            ->assertJsonPath(
+                'error.code',
+                'VALIDATION_ERROR',
+            )
+            ->assertJsonPath(
+                'error.message',
+                'The submitted data is invalid.',
+            )
+            ->assertJsonPath(
+                'meta.request_id',
+                $requestId,
+            );
+
+        $this->assertNotNull(
+            $requestId,
+        );
+
+        foreach ($fields as $field) {
+            $errors = $response->json(
+                "error.details.fields.{$field}",
+            );
+
+            $this->assertIsArray(
+                $errors,
+                "Validation errors for [{$field}] must be an array.",
+            );
+
+            $this->assertNotEmpty(
+                $errors,
+                "Validation errors for [{$field}] must not be empty.",
+            );
+
+            $this->assertIsString(
+                $errors[0],
+                "The first validation error for [{$field}] must be a string.",
+            );
+        }
     }
 }

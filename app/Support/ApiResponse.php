@@ -38,6 +38,23 @@ final class ApiResponse
         ], $status);
     }
 
+    /**
+     * @param array<string, array<int, string>> $errors
+     */
+    public static function validation(
+        array $errors,
+        string $message = 'The submitted data is invalid.',
+    ): JsonResponse {
+        return self::error(
+            code: 'VALIDATION_ERROR',
+            message: $message,
+            status: 422,
+            details: [
+                'fields' => $errors,
+            ],
+        );
+    }
+
     private static function withRequestId(array $meta): array
     {
         if (! app()->bound('request_id')) {
