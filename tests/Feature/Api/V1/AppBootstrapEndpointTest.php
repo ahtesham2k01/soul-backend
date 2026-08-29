@@ -48,7 +48,7 @@ class AppBootstrapEndpointTest extends TestCase
             )
             ->assertJsonPath(
                 'data.translations.version',
-                '2',
+                '3',
             )
             ->assertJsonFragment([
                 'auth.create_account' => 'Create Account',
@@ -248,7 +248,7 @@ class AppBootstrapEndpointTest extends TestCase
             )
             ->assertJsonPath(
                 'data.translations.version',
-                '2',
+                '3',
             )
             ->assertJsonFragment([
                 'auth.create_account' => 'Account banayein',
@@ -270,6 +270,58 @@ class AppBootstrapEndpointTest extends TestCase
             )
             ->assertJsonPath(
                 'data.supported_languages.1.direction',
+                'ltr',
+            );
+    }
+
+    public function test_spanish_catalog_is_returned_for_regional_locale(): void
+    {
+        $response = $this->getJson(
+            '/api/v1/bootstrap?locale=es-MX',
+        );
+
+        $response
+            ->assertOk()
+            ->assertJsonPath(
+                'data.locale.requested',
+                'es-MX',
+            )
+            ->assertJsonPath(
+                'data.locale.matched',
+                'es',
+            )
+            ->assertJsonPath(
+                'data.locale.resolved',
+                'es',
+            )
+            ->assertJsonPath(
+                'data.locale.direction',
+                'ltr',
+            )
+            ->assertJsonPath(
+                'data.translations.version',
+                '3',
+            )
+            ->assertJsonFragment([
+                'auth.create_account' => 'Crear una cuenta',
+            ])
+            ->assertJsonFragment([
+                'language.select' => 'Seleccionar idioma',
+            ])
+            ->assertJsonPath(
+                'data.supported_languages.2.code',
+                'es',
+            )
+            ->assertJsonPath(
+                'data.supported_languages.2.name',
+                'Spanish',
+            )
+            ->assertJsonPath(
+                'data.supported_languages.2.native_name',
+                'Español',
+            )
+            ->assertJsonPath(
+                'data.supported_languages.2.direction',
                 'ltr',
             );
     }
