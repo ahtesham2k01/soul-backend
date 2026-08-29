@@ -1,0 +1,22 @@
+{
+    "common.continue": "Continue",
+    "common.close": "Close",
+    "common.retry": "Try again",
+
+    "language.current": "English",
+    "language.select": "Select language",
+
+    "location.detecting": "Detecting your location...",
+    "location.permission_required": "Allow location access to continue",
+    "location.unavailable": "Location could not be detected",
+
+    "onboarding.headline_highlight": "Swipe to Your",
+    "onboarding.headline_rest": "Happily Ever After",
+    "onboarding.subtitle": "Start your journey to meaningful connections and lasting relationships today",
+
+    "auth.create_account": "Create Account",
+    "auth.continue_with_google": "Continue with Google",
+    "auth.continue_with_apple": "Continue with Apple",
+
+    "error.bootstrap_unavailable": "We could not load the app configuration. Please try again."
+}
