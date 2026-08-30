@@ -67,4 +67,21 @@ return [
         ),
     ],
 
+    'apple' => [
+        'client_ids' => array_values(
+            array_filter(
+                array_map(
+                    'trim',
+                    explode(
+                        ',',
+                        (string) env(
+                            'APPLE_CLIENT_IDS',
+                            '',
+                        ),
+                    ),
+                ),
+            ),
+        ),
+    ],
+
 ];

@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\V1\Auth\RegisterRequestOtpController;
 use App\Http\Controllers\Api\V1\Auth\RegisterVerifyOtpController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\ResolveLocationController;
+use App\Http\Controllers\Api\V1\Auth\AppleSignInController;
 use App\Support\ApiResponse;
 use Illuminate\Support\Facades\Route;
 
@@ -59,7 +60,12 @@ Route::prefix('v1')->group(function (): void {
     )
         ->middleware('throttle:social-sign-in')
         ->name('api.v1.auth.google');
-
+    Route::post(
+        '/auth/apple',
+        AppleSignInController::class,
+    )
+        ->middleware('throttle:social-sign-in')
+        ->name('api.v1.auth.apple');
     Route::middleware([
         'auth:sanctum',
         'active.account',
@@ -90,7 +96,7 @@ Route::prefix('v1')->group(function (): void {
         ->name('api.v1.location.resolve');
 
     Route::fallback(
-        fn () => ApiResponse::error(
+        fn() => ApiResponse::error(
             code: 'route_not_found',
             message: 'The requested API endpoint does not exist.',
             status: 404,

@@ -7,6 +7,8 @@ use App\Contracts\Location\GeolocationProvider;
 use App\Infrastructure\Auth\GoogleAuthTokenVerifier;
 use App\Infrastructure\Location\CloudflareGeolocationProvider;
 use App\Infrastructure\Location\NullGeolocationProvider;
+use App\Contracts\Auth\AppleTokenVerifier;
+use App\Infrastructure\Auth\AppleIdentityTokenVerifier;
 use App\Services\Auth\EmailOtpService;
 use App\Support\ApiResponse;
 use Google\Auth\AccessToken;
@@ -51,6 +53,11 @@ class AppServiceProvider extends ServiceProvider
             new GoogleAuthTokenVerifier(
                 new AccessToken(),
             ),
+        );
+
+        $this->app->singleton(
+            AppleTokenVerifier::class,
+            AppleIdentityTokenVerifier::class,
         );
     }
 
