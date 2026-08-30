@@ -2,11 +2,14 @@
 
 namespace App\Providers;
 
+use App\Contracts\Auth\GoogleTokenVerifier;
 use App\Contracts\Location\GeolocationProvider;
+use App\Infrastructure\Auth\GoogleAuthTokenVerifier;
 use App\Infrastructure\Location\CloudflareGeolocationProvider;
 use App\Infrastructure\Location\NullGeolocationProvider;
 use App\Services\Auth\EmailOtpService;
 use App\Support\ApiResponse;
+use Google\Auth\AccessToken;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -41,6 +44,14 @@ class AppServiceProvider extends ServiceProvider
                 };
             },
         );
+
+        $this->app->singleton(
+            GoogleTokenVerifier::class,
+            static fn(): GoogleTokenVerifier =>
+            new GoogleAuthTokenVerifier(
+                new AccessToken(),
+            ),
+        );
     }
 
     public function boot(): void
@@ -48,6 +59,7 @@ class AppServiceProvider extends ServiceProvider
         $this->configureLocationRateLimiter();
         $this->configureEmailOtpRateLimiter();
         $this->configureEmailOtpVerificationRateLimiter();
+        $this->configureSocialSignInRateLimiter();
     }
 
     private function configureLocationRateLimiter(): void
@@ -172,6 +184,48 @@ class AppServiceProvider extends ServiceProvider
                     Limit::perDay(200)
                         ->by(
                             'otp-verification-ip-day:'
+                                . $ipAddress,
+                        )
+                        ->response($rateLimitResponse),
+                ];
+            },
+        );
+    }
+
+    private function configureSocialSignInRateLimiter(): void
+    {
+        RateLimiter::for(
+            'social-sign-in',
+            function (Request $request): array {
+                $ipAddress = $request->ip();
+
+                $rateLimitResponse = static function (
+                    Request $request,
+                    array $headers,
+                ): JsonResponse {
+                    return ApiResponse::error(
+                        code: 'RATE_LIMIT_EXCEEDED',
+                        message: 'Too many sign-in attempts. Please try again later.',
+                        status: 429,
+                        details: [
+                            'retry_after_seconds' => (int) (
+                                $headers['Retry-After'] ?? 60
+                            ),
+                        ],
+                    )->withHeaders($headers);
+                };
+
+                return [
+                    Limit::perMinute(10)
+                        ->by(
+                            'social-sign-in-minute:'
+                                . $ipAddress,
+                        )
+                        ->response($rateLimitResponse),
+
+                    Limit::perDay(100)
+                        ->by(
+                            'social-sign-in-day:'
                                 . $ipAddress,
                         )
                         ->response($rateLimitResponse),
