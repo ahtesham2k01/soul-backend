@@ -6,6 +6,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
@@ -35,6 +36,18 @@ class User extends Authenticatable
     public const STATUS_SUSPENDED = 'suspended';
 
     public const STATUS_BLOCKED = 'blocked';
+
+    /**
+     * Get the social identities linked to this user.
+     *
+     * @return HasMany<SocialAccount, $this>
+     */
+    public function socialAccounts(): HasMany
+    {
+        return $this->hasMany(
+            SocialAccount::class,
+        );
+    }
 
     /**
      * Use public ULIDs for route model binding.
