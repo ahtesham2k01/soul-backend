@@ -1,22 +1,30 @@
 {
-    "common.continue": "Continue",
-    "common.close": "Close",
-    "common.retry": "Try again",
+  "common.continue": "Continue",
+  "common.close": "Close",
+  "common.retry": "Try again",
 
-    "language.current": "English",
-    "language.select": "Select language",
+  "language.current": "English",
+  "language.select": "Select language",
 
-    "location.detecting": "Detecting your location...",
-    "location.permission_required": "Allow location access to continue",
-    "location.unavailable": "Location could not be detected",
+  "location.detecting": "Detecting your location...",
+  "location.permission_required": "Allow location access to continue",
+  "location.unavailable": "Location could not be detected",
 
-    "onboarding.headline_highlight": "Swipe to Your",
-    "onboarding.headline_rest": "Happily Ever After",
-    "onboarding.subtitle": "Start your journey to meaningful connections and lasting relationships today",
+  "onboarding.headline_highlight": "Swipe to Your",
+  "onboarding.headline_rest": "Happily Ever After",
+  "onboarding.subtitle": "Start your journey to meaningful connections and lasting relationships today",
 
-    "auth.create_account": "Create Account",
-    "auth.continue_with_google": "Continue with Google",
-    "auth.continue_with_apple": "Continue with Apple",
+  "auth.create_account": "Create Account",
+  "auth.continue_with_google": "Continue with Google",
+  "auth.continue_with_apple": "Continue with Apple",
+  "auth.already_have_account": "Already have an account?",
+  "auth.log_in": "Log in",
 
-    "error.bootstrap_unavailable": "We could not load the app configuration. Please try again."
+  "auth.error.google_failed": "Google sign-in could not be completed. Please try again.",
+  "auth.error.apple_failed": "Apple sign-in could not be completed. Please try again.",
+  "auth.error.account_unavailable": "This account is currently unavailable.",
+  "auth.error.too_many_attempts": "Too many attempts. Please try again later.",
+  "auth.error.apple_email_required": "Apple did not provide an email address. Please restart Apple sign-in.",
+
+  "error.bootstrap_unavailable": "We could not load the app configuration. Please try again."
 }

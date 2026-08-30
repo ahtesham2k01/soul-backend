@@ -1,17 +1,30 @@
 {
-  "auth.continue_with_apple": "Apple se continue karein",
-  "auth.continue_with_google": "Google se continue karein",
-  "auth.create_account": "Account banayein",
-  "common.close": "Band karein",
   "common.continue": "Continue karein",
+  "common.close": "Band karein",
   "common.retry": "Dobara try karein",
-  "error.bootstrap_unavailable": "App load nahi ho saki. Dobara try karein.",
+
   "language.current": "Roman Urdu",
   "language.select": "Language select karein",
+
   "location.detecting": "Aapki location check ho rahi hai...",
   "location.permission_required": "Continue karne ke liye location access allow karein",
   "location.unavailable": "Aapki location nahi mil saki",
+
   "onboarding.headline_highlight": "Apni Pasand ki Taraf Swipe Karein",
   "onboarding.headline_rest": "Aur Apna Humsafar Dhoondein",
-  "onboarding.subtitle": "Achay aur lasting relationship ke liye apna safar aaj hi shuru karein"
+  "onboarding.subtitle": "Achay aur lasting relationship ke liye apna safar aaj hi shuru karein",
+
+  "auth.create_account": "Account banayein",
+  "auth.continue_with_google": "Google se continue karein",
+  "auth.continue_with_apple": "Apple se continue karein",
+  "auth.already_have_account": "Pehle se account hai?",
+  "auth.log_in": "Log in karein",
+
+  "auth.error.google_failed": "Google se sign in nahi ho saka. Dobara try karein.",
+  "auth.error.apple_failed": "Apple se sign in nahi ho saka. Dobara try karein.",
+  "auth.error.account_unavailable": "Ye account abhi available nahi hai.",
+  "auth.error.too_many_attempts": "Bohat zyada attempts ho gaye hain. Thori dair baad dobara try karein.",
+  "auth.error.apple_email_required": "Apple se email nahi mili. Apple sign-in dobara shuru karein.",
+
+  "error.bootstrap_unavailable": "App load nahi ho saki. Dobara try karein."
 }
