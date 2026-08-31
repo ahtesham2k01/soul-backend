@@ -29,6 +29,7 @@ class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasApiTokens;
+
     use HasFactory;
     use Notifiable;
 
@@ -54,6 +55,12 @@ class User extends Authenticatable
     public function religionProfile(): HasOne
     {
         return $this->hasOne(UserReligionProfile::class);
+    }
+
+    /** @return HasOne<UserProfile, $this> */
+    public function profile(): HasOne
+    {
+        return $this->hasOne(UserProfile::class);
     }
 
     /**
