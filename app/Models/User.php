@@ -49,6 +49,12 @@ class User extends Authenticatable
         );
     }
 
+    /** @return HasOne<UserReligionProfile, $this> */
+    public function religionProfile(): HasOne
+    {
+        return $this->hasOne(UserReligionProfile::class);
+    }
+
     /**
      * Use public ULIDs for route model binding.
      */
