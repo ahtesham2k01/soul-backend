@@ -58,7 +58,7 @@ class ReligionOptionsController extends Controller
                     ->whereDoesntHave('countries'),
             )
             ->with([
-                'translations' => fn (Builder $query): Builder => $query
+                'translations' => fn ($query) => $query
                     ->whereIn('locale', $localeCandidates),
             ])
             ->withCount([
