@@ -63,7 +63,7 @@ class ReligionOptionsController extends Controller
             ])
             ->withCount([
                 'children as available_children_count' =>
-                    function (Builder $query) use ($countryCode): void {
+                    function ($query) use ($countryCode): void {
                         $query->where('is_active', true);
 
                         if ($countryCode !== null) {
