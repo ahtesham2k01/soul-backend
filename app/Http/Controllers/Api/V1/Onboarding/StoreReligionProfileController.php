@@ -7,7 +7,6 @@ use App\Http\Requests\Api\V1\Onboarding\StoreReligionProfileRequest;
 use App\Models\ReligionTaxonomyNode;
 use App\Models\UserReligionProfile;
 use App\Support\ApiResponse;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 
