@@ -67,16 +67,18 @@ class StoreReligionProfileController extends Controller
                 ),
         );
 
+        $segments = explode('/', $node->path);
+        $ancestorPaths = [];
+
+        foreach (array_keys($segments) as $index) {
+            $ancestorPaths[] = implode(
+                '/',
+                array_slice($segments, 0, $index + 1),
+            );
+        }
+
         $path = ReligionTaxonomyNode::query()
-            ->where(function (Builder $query) use ($node): void {
-                $query
-                    ->where('path', $node->path)
-                    ->orWhere(
-                        'path',
-                        'like',
-                        $node->path . '/%',
-                    );
-            })
+            ->whereIn('path', $ancestorPaths)
             ->where('is_active', true)
             ->orderByRaw(
                 "LENGTH(path) - LENGTH(REPLACE(path, '/', ''))",
