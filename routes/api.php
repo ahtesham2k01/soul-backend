@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\V1\Auth\RegisterRequestOtpController;
 use App\Http\Controllers\Api\V1\Auth\RegisterVerifyOtpController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\Onboarding\ReligionOptionsController;
+use App\Http\Controllers\Api\V1\Onboarding\StoreReligionProfileController;
 use App\Http\Controllers\Api\V1\ResolveLocationController;
 use App\Http\Controllers\Api\V1\Auth\AppleSignInController;
 use App\Support\ApiResponse;
@@ -102,6 +103,17 @@ Route::prefix('v1')->group(function (): void {
     )
         ->middleware('throttle:60,1')
         ->name('api.v1.onboarding.religion-options');
+
+    Route::put(
+        '/onboarding/religion-profile',
+        StoreReligionProfileController::class,
+    )
+        ->middleware([
+            'auth:sanctum',
+            'active.account',
+            'throttle:30,1',
+        ])
+        ->name('api.v1.onboarding.religion-profile.store');
 
     Route::fallback(
         fn() => ApiResponse::error(
