@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\V1\Auth\LogoutController;
 use App\Http\Controllers\Api\V1\Auth\RegisterRequestOtpController;
 use App\Http\Controllers\Api\V1\Auth\RegisterVerifyOtpController;
 use App\Http\Controllers\Api\V1\HealthController;
+use App\Http\Controllers\Api\V1\Onboarding\ReligionOptionsController;
 use App\Http\Controllers\Api\V1\ResolveLocationController;
 use App\Http\Controllers\Api\V1\Auth\AppleSignInController;
 use App\Support\ApiResponse;
@@ -94,6 +95,13 @@ Route::prefix('v1')->group(function (): void {
     )
         ->middleware('throttle:location-resolution')
         ->name('api.v1.location.resolve');
+
+    Route::get(
+        '/onboarding/religion-options',
+        ReligionOptionsController::class,
+    )
+        ->middleware('throttle:60,1')
+        ->name('api.v1.onboarding.religion-options');
 
     Route::fallback(
         fn() => ApiResponse::error(
