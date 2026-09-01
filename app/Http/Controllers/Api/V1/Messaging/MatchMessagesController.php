@@ -65,6 +65,8 @@ class MatchMessagesController extends Controller
         $userId = $request->user()->id;
         return UserMatch::query()->where('public_id', $publicId)->where('status', 'active')
             ->where(fn ($q) => $q->where('first_user_id', $userId)->orWhere('second_user_id', $userId))
+            ->whereHas('firstUser', fn ($query) => $query->where('status', 'active'))
+            ->whereHas('secondUser', fn ($query) => $query->where('status', 'active'))
             ->whereNotExists(fn ($q) => $q->selectRaw('1')->from('user_blocks')
                 ->whereColumn('blocker_user_id', 'user_matches.first_user_id')->whereColumn('blocked_user_id', 'user_matches.second_user_id')
                 ->orWhere(fn ($q) => $q->whereColumn('blocker_user_id', 'user_matches.second_user_id')->whereColumn('blocked_user_id', 'user_matches.first_user_id')))

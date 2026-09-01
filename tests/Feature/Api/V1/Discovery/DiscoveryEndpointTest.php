@@ -5,6 +5,7 @@ namespace Tests\Feature\Api\V1\Discovery;
 use App\Enums\Profile\ProfilePhotoModerationStatus;
 use App\Enums\Profile\ProfilePhotoVisibility;
 use App\Models\ProfilePhoto;
+use App\Models\ProfileDecision;
 use App\Models\User;
 use App\Models\UserProfile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -95,5 +96,37 @@ class DiscoveryEndpointTest extends TestCase
             ->assertJsonCount(1, 'data.candidates.0.photos')
             ->assertJsonMissingPath('data.candidates.0.date_of_birth')
             ->assertJsonMissingPath('data.candidates.0.user_id');
+    }
+
+    public function test_candidates_exclude_profiles_already_decided_by_viewer(): void
+    {
+        $viewer = User::factory()->create(['status' => User::STATUS_ACTIVE]);
+        UserProfile::factory()->for($viewer)->create([
+            'profile_status' => 'live',
+            'gender' => 'man',
+            'country_code' => 'PK',
+        ]);
+        $viewer->discoveryPreference()->create([
+            'preferred_gender' => 'woman',
+            'minimum_age' => 18,
+            'maximum_age' => 60,
+            'same_country_only' => false,
+        ]);
+        $candidate = User::factory()->create(['status' => User::STATUS_ACTIVE]);
+        UserProfile::factory()->for($candidate)->create([
+            'profile_status' => 'live',
+            'gender' => 'woman',
+            'date_of_birth' => now()->subYears(30),
+        ]);
+        ProfileDecision::query()->create([
+            'actor_user_id' => $viewer->id,
+            'target_user_id' => $candidate->id,
+            'decision' => 'pass',
+        ]);
+        Sanctum::actingAs($viewer);
+
+        $this->getJson('/api/v1/discovery/candidates')
+            ->assertOk()
+            ->assertJsonCount(0, 'data.candidates');
     }
 }

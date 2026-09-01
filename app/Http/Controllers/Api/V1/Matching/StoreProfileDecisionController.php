@@ -22,8 +22,19 @@ class StoreProfileDecisionController extends Controller
     {
         $validated = $request->validate(['decision' => ['required', Rule::in(['like', 'pass'])]]);
         $actor = $request->user();
+
+        if ($actor->profile?->profile_status !== ProfileStatus::Live) {
+            return ApiResponse::error(
+                'DISCOVERY_NOT_READY',
+                'Your profile must be live before making profile decisions.',
+                409,
+            );
+        }
+
         $target = UserProfile::query()->where('public_id', $profile)->where('profile_status', ProfileStatus::Live->value)
-            ->whereHas('user', fn ($query) => $query->where('status', User::STATUS_ACTIVE))->first();
+            ->whereHas('user', fn ($query) => $query->where('status', User::STATUS_ACTIVE))
+            ->whereDoesntHave('user.privacySetting', fn ($query) => $query->where('discoverable', false))
+            ->first();
 
         if ($target === null) return ApiResponse::error('PROFILE_UNAVAILABLE', 'This profile is not available.', 404);
         if ($target->user_id === $actor->id) return ApiResponse::error('SELF_DECISION_NOT_ALLOWED', 'You cannot decide on your own profile.', 422);

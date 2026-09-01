@@ -36,6 +36,21 @@ class MessagingSafetyEndpointTest extends TestCase
         $this->postJson("/api/v1/matches/{$match->public_id}/messages", ['body' => 'Hello'])->assertNotFound();
     }
 
+    public function test_active_user_cannot_message_a_suspended_match(): void
+    {
+        [$first, $second, $match] = $this->matchedUsers();
+        $second->forceFill(['status' => 'suspended'])->save();
+        Sanctum::actingAs($first);
+
+        $this->getJson("/api/v1/matches/{$match->public_id}/messages")
+            ->assertNotFound();
+        $this->postJson("/api/v1/matches/{$match->public_id}/messages", [
+            'body' => 'Hello',
+        ])->assertNotFound();
+
+        $this->assertDatabaseCount('messages', 0);
+    }
+
     public function test_block_is_idempotent_closes_match_and_removes_decisions(): void
     {
         [$first, $second, $match] = $this->matchedUsers();

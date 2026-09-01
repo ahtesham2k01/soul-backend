@@ -15,6 +15,8 @@ class ListMatchesController extends Controller
         $user = $request->user();
         $page = UserMatch::query()->where('status', 'active')
             ->where(fn ($query) => $query->where('first_user_id', $user->id)->orWhere('second_user_id', $user->id))
+            ->whereHas('firstUser', fn ($query) => $query->where('status', 'active'))
+            ->whereHas('secondUser', fn ($query) => $query->where('status', 'active'))
             ->with(['firstUser.profile', 'secondUser.profile'])
             ->orderByDesc('matched_at')->cursorPaginate(20);
 

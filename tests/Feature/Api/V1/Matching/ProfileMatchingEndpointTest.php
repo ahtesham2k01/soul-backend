@@ -73,6 +73,45 @@ class ProfileMatchingEndpointTest extends TestCase
         $this->getJson('/api/v1/matches')->assertJsonCount(0, 'data.matches');
     }
 
+    public function test_draft_actor_and_hidden_target_cannot_be_decided_on(): void
+    {
+        [$actor, $target] = $this->liveUsers();
+        $actor->profile->update(['profile_status' => 'draft']);
+        Sanctum::actingAs($actor);
+
+        $this->postJson("/api/v1/profiles/{$target->profile->public_id}/decision", [
+            'decision' => 'like',
+        ])->assertConflict()->assertJsonPath('error.code', 'DISCOVERY_NOT_READY');
+
+        $actor->profile->update(['profile_status' => 'live']);
+        $target->privacySetting()->create(['discoverable' => false]);
+
+        $this->postJson("/api/v1/profiles/{$target->profile->public_id}/decision", [
+            'decision' => 'like',
+        ])->assertNotFound()->assertJsonPath('error.code', 'PROFILE_UNAVAILABLE');
+
+        $this->assertDatabaseCount('profile_decisions', 0);
+    }
+
+    public function test_matches_with_suspended_counterpart_are_not_listed(): void
+    {
+        [$first, $second] = $this->liveUsers();
+        $ids = [$first->id, $second->id];
+        sort($ids);
+        \App\Models\UserMatch::query()->create([
+            'first_user_id' => $ids[0],
+            'second_user_id' => $ids[1],
+            'status' => 'active',
+            'matched_at' => now(),
+        ]);
+        $second->forceFill(['status' => 'suspended'])->save();
+        Sanctum::actingAs($first);
+
+        $this->getJson('/api/v1/matches')
+            ->assertOk()
+            ->assertJsonCount(0, 'data.matches');
+    }
+
     private function liveUsers(): array
     {
         $first = User::factory()->create(['status' => User::STATUS_ACTIVE]);

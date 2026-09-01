@@ -37,6 +37,10 @@ class ListCandidatesController extends Controller
             ->whereBetween('date_of_birth', [$oldest, $youngest])
             ->whereHas('user', fn ($query) => $query->where('status', User::STATUS_ACTIVE))
             ->whereDoesntHave('user.privacySetting', fn ($query) => $query->where('discoverable', false))
+            ->whereNotExists(fn ($query) => $query->selectRaw('1')
+                ->from('profile_decisions')
+                ->where('actor_user_id', $user->id)
+                ->whereColumn('target_user_id', 'user_profiles.user_id'))
             ->whereNotExists(fn ($query) => $query->selectRaw('1')->from('user_blocks')
                 ->where(fn ($query) => $query
                     ->whereColumn('blocker_user_id', 'user_profiles.user_id')

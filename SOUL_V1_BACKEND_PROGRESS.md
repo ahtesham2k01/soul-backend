@@ -16,3 +16,13 @@
 - [x] Phase 14 — Custom React admin panel, moderation queues and audit controls
 - [x] Phase 15 — Privacy settings, data export and deletion controls
 - [x] Phase 16 — Performance, security and V1 release readiness
+
+## Release candidate hardening
+
+- [x] Previously decided profiles excluded from discovery
+- [x] Hidden profiles protected from direct decision requests
+- [x] Only live profiles can make discovery decisions
+- [x] Suspended counterparts removed from matches and messaging
+- [x] Candidate lookup query index added
+- [x] Production health, cleanup and security controls documented
+- [ ] Final PHP/React CI verification for release-candidate head
