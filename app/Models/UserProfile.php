@@ -59,6 +59,13 @@ class UserProfile extends Model
         return $this->hasMany(UserProfileIntention::class);
     }
 
+    /** @return HasMany<ProfilePhoto, $this> */
+    public function photos(): HasMany
+    {
+        return $this->hasMany(ProfilePhoto::class)
+            ->orderBy('position');
+    }
+
     protected static function booted(): void
     {
         static::creating(function (UserProfile $profile): void {
