@@ -1880,6 +1880,103 @@
             },
             "description": "api.v1.admin.admins.destroy: Remove another admin's access safely"
           }
+        },
+        {
+          "name": "Browse the complete taxonomy with translations and country rules",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/religion-taxonomy",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "religion-taxonomy"
+              ]
+            },
+            "description": "api.v1.admin.religion-taxonomy.index: Browse the complete taxonomy with translations and country rules"
+          }
+        },
+        {
+          "name": "Create a localized taxonomy option safely",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"parent_id\": null,\n  \"type\": \"religion\",\n  \"slug\": \"islam\",\n  \"is_active\": true,\n  \"sort_order\": 0,\n  \"translations\": [\n    {\n      \"locale\": \"en\",\n      \"label\": \"Islam\",\n      \"description\": null\n    }\n  ],\n  \"country_codes\": [],\n  \"reason\": \"Approved taxonomy maintenance\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/religion-taxonomy",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "religion-taxonomy"
+              ]
+            },
+            "description": "api.v1.admin.religion-taxonomy.store: Create a localized taxonomy option safely"
+          }
+        },
+        {
+          "name": "Update hierarchy, translations, availability and ordering",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"parent_id\": null,\n  \"type\": \"religion\",\n  \"slug\": \"islam\",\n  \"is_active\": true,\n  \"sort_order\": 0,\n  \"translations\": [\n    {\n      \"locale\": \"en\",\n      \"label\": \"Islam\",\n      \"description\": null\n    }\n  ],\n  \"country_codes\": [\n    \"PK\"\n  ],\n  \"reason\": \"Approved taxonomy maintenance\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/religion-taxonomy/{node}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "religion-taxonomy",
+                "{node}"
+              ]
+            },
+            "description": "api.v1.admin.religion-taxonomy.update: Update hierarchy, translations, availability and ordering"
+          }
         }
       ]
     },

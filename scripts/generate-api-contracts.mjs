@@ -11,8 +11,8 @@ const endpoints = [...handoff.matchAll(endpointPattern)].map((match) => ({
     summary: match[4].trim(),
 }));
 
-if (endpoints.length !== 67) {
-    throw new Error(`Expected 67 documented endpoints, found ${endpoints.length}.`);
+if (endpoints.length !== 70) {
+    throw new Error(`Expected 70 documented endpoints, found ${endpoints.length}.`);
 }
 
 const publicOperations = new Set([
@@ -51,6 +51,8 @@ const requestExamples = {
     'api.v1.admin.admins.store': { name: 'Safety Moderator', email: 'moderator@example.com', password: '<strong-password>', password_confirmation: '<strong-password>', role: 'moderator', reason: 'Joining safety operations' },
     'api.v1.admin.admins.role.update': { role: 'super_admin', reason: 'Promoted to operations lead' },
     'api.v1.admin.admins.destroy': { reason: 'Admin left operations' },
+    'api.v1.admin.religion-taxonomy.store': { parent_id: null, type: 'religion', slug: 'islam', is_active: true, sort_order: 0, translations: [{ locale: 'en', label: 'Islam', description: null }], country_codes: [], reason: 'Approved taxonomy maintenance' },
+    'api.v1.admin.religion-taxonomy.update': { parent_id: null, type: 'religion', slug: 'islam', is_active: true, sort_order: 0, translations: [{ locale: 'en', label: 'Islam', description: null }], country_codes: ['PK'], reason: 'Approved taxonomy maintenance' },
 };
 
 const tags = (operationId) => {

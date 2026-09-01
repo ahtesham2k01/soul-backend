@@ -2240,6 +2240,152 @@
         }
       }
     },
+    "/admin/religion-taxonomy": {
+      "get": {
+        "operationId": "api.v1.admin.religion-taxonomy.index",
+        "summary": "Browse the complete taxonomy with translations and country rules",
+        "tags": [
+          "Admin"
+        ],
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      },
+      "post": {
+        "operationId": "api.v1.admin.religion-taxonomy.store",
+        "summary": "Create a localized taxonomy option safely",
+        "tags": [
+          "Admin"
+        ],
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "parent_id": null,
+                "type": "religion",
+                "slug": "islam",
+                "is_active": true,
+                "sort_order": 0,
+                "translations": [
+                  {
+                    "locale": "en",
+                    "label": "Islam",
+                    "description": null
+                  }
+                ],
+                "country_codes": [],
+                "reason": "Approved taxonomy maintenance"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/admin/religion-taxonomy/{node}": {
+      "put": {
+        "operationId": "api.v1.admin.religion-taxonomy.update",
+        "summary": "Update hierarchy, translations, availability and ordering",
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "node",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "parent_id": null,
+                "type": "religion",
+                "slug": "islam",
+                "is_active": true,
+                "sort_order": 0,
+                "translations": [
+                  {
+                    "locale": "en",
+                    "label": "Islam",
+                    "description": null
+                  }
+                ],
+                "country_codes": [
+                  "PK"
+                ],
+                "reason": "Approved taxonomy maintenance"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
     "/webhooks/cloudinary/moderation": {
       "post": {
         "operationId": "api.v1.webhooks.cloudinary.moderation",

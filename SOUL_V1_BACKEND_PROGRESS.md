@@ -61,6 +61,6 @@
 - [x] Filtered immutable audit-log browser
 - [x] Responsive React operations workspace
 - [x] Admin authorization and regression tests
-- [ ] Religion taxonomy and translation management
+- [x] Religion taxonomy and translation management
 - [x] Admin account and role management
 - [ ] Notification broadcast and analytics
