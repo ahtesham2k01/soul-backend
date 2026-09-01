@@ -9,7 +9,34 @@ final class CloudinaryUploadVerifier
         return filled(config('soul.media.cloudinary.api_secret'));
     }
 
+    public function canSignUploads(): bool
+    {
+        return $this->isConfigured()
+            && filled(config('soul.media.cloudinary.cloud_name'))
+            && filled(config('soul.media.cloudinary.api_key'));
+    }
+
+    public function signUpload(string $publicId, int $timestamp): string
+    {
+        return $this->digest(
+            "public_id={$publicId}&timestamp={$timestamp}",
+        );
+    }
+
     public function verify(string $publicId, int $version, string $signature): bool
+    {
+        if (! $this->isConfigured()) {
+            return false;
+        }
+
+        $expected = $this->digest(
+            "public_id={$publicId}&version={$version}",
+        );
+
+        return hash_equals($expected, strtolower($signature));
+    }
+
+    private function digest(string $payload): string
     {
         $secret = (string) config('soul.media.cloudinary.api_secret');
         $algorithm = (string) config(
@@ -18,14 +45,9 @@ final class CloudinaryUploadVerifier
         );
 
         if ($secret === '' || ! in_array($algorithm, ['sha1', 'sha256'], true)) {
-            return false;
+            return '';
         }
 
-        $expected = hash(
-            $algorithm,
-            "public_id={$publicId}&version={$version}{$secret}",
-        );
-
-        return hash_equals($expected, strtolower($signature));
+        return hash($algorithm, $payload.$secret);
     }
 }

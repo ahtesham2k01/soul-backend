@@ -4,6 +4,7 @@ namespace Tests\Feature\Api\V1\Onboarding;
 
 use App\Enums\Profile\ProfilePhotoModerationStatus;
 use App\Models\ProfilePhoto;
+use App\Models\ProfilePhotoUpload;
 use App\Models\User;
 use App\Models\UserProfile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -39,12 +40,12 @@ class ProfilePhotoEndpointTest extends TestCase
         UserProfile::factory()->for($user)->create();
         Sanctum::actingAs($user);
 
-        $this->putJson('/api/v1/onboarding/photos/1', $this->payload(
+        $this->putJson('/api/v1/onboarding/photos/1', $this->payload($user, 1,
             assetId: 'soul/users/cover',
             visibility: 'private',
         ))->assertUnprocessable();
 
-        $this->putJson('/api/v1/onboarding/photos/4', $this->payload(
+        $this->putJson('/api/v1/onboarding/photos/4', $this->payload($user, 4,
             assetId: 'soul/users/fourth',
         ))->assertUnprocessable();
         $this->assertDatabaseCount('profile_photos', 0);
@@ -56,7 +57,7 @@ class ProfilePhotoEndpointTest extends TestCase
         UserProfile::factory()->for($user)->create();
         Sanctum::actingAs($user);
 
-        $payload = $this->payload('soul/users/cover');
+        $payload = $this->payload($user, 1, 'soul/users/cover');
         $payload['provider_signature'] = str_repeat('a', 40);
 
         $this->putJson('/api/v1/onboarding/photos/1', $payload)
@@ -73,7 +74,7 @@ class ProfilePhotoEndpointTest extends TestCase
 
         $this->putJson(
             '/api/v1/onboarding/photos/1',
-            $this->payload('soul/users/cover'),
+            $this->payload($user, 1, 'soul/users/cover'),
         )
             ->assertOk()
             ->assertJsonPath('data.photo.position', 1)
@@ -107,7 +108,7 @@ class ProfilePhotoEndpointTest extends TestCase
             'face_detected' => true,
         ]);
 
-        $this->putJson('/api/v1/onboarding/photos/2', $this->payload(
+        $this->putJson('/api/v1/onboarding/photos/2', $this->payload($user, 2,
             assetId: 'soul/users/existing',
             visibility: 'private',
         ))
@@ -115,7 +116,7 @@ class ProfilePhotoEndpointTest extends TestCase
             ->assertJsonPath('data.photo.visibility', 'private')
             ->assertJsonPath('data.photo.moderation_status', 'approved');
 
-        $this->putJson('/api/v1/onboarding/photos/2', $this->payload(
+        $this->putJson('/api/v1/onboarding/photos/2', $this->payload($user, 2,
             assetId: 'soul/users/replacement',
             visibility: 'private',
         ))
@@ -142,7 +143,7 @@ class ProfilePhotoEndpointTest extends TestCase
         ]);
         Sanctum::actingAs($user);
 
-        $this->putJson('/api/v1/onboarding/photos/2', $this->payload(
+        $this->putJson('/api/v1/onboarding/photos/2', $this->payload($user, 2,
             assetId: 'soul/users/shared',
             visibility: 'private',
         ))
@@ -152,13 +153,70 @@ class ProfilePhotoEndpointTest extends TestCase
         $this->assertDatabaseCount('profile_photos', 1);
     }
 
+    public function test_upload_session_must_be_current_and_owned_by_authenticated_user(): void
+    {
+        $user = User::factory()->create(['status' => User::STATUS_ACTIVE]);
+        UserProfile::factory()->for($user)->create();
+        Sanctum::actingAs($user);
+
+        $expired = $this->payload($user, 2, 'soul/users/expired', 'private');
+        ProfilePhotoUpload::where('public_id', $expired['upload_token'])
+            ->update(['expires_at' => now()->subSecond()]);
+
+        $this->putJson('/api/v1/onboarding/photos/2', $expired)
+            ->assertUnprocessable()
+            ->assertJsonPath('error.code', 'VALIDATION_ERROR')
+            ->assertJsonStructure(['error' => ['details' => ['fields' => ['upload_token']]]]);
+
+        $otherUser = User::factory()->create(['status' => User::STATUS_ACTIVE]);
+        $otherUpload = $this->payload($otherUser, 2, 'soul/users/other', 'private');
+
+        $this->putJson('/api/v1/onboarding/photos/2', $otherUpload)
+            ->assertUnprocessable()
+            ->assertJsonPath('error.code', 'VALIDATION_ERROR')
+            ->assertJsonStructure(['error' => ['details' => ['fields' => ['upload_token']]]]);
+
+        $this->assertDatabaseCount('profile_photos', 0);
+    }
+
+    public function test_consumed_session_allows_retry_but_cannot_register_a_different_asset(): void
+    {
+        $user = User::factory()->create(['status' => User::STATUS_ACTIVE]);
+        UserProfile::factory()->for($user)->create();
+        Sanctum::actingAs($user);
+        $payload = $this->payload($user, 2, 'soul/users/retry', 'private');
+
+        $this->putJson('/api/v1/onboarding/photos/2', $payload)->assertOk();
+        $this->putJson('/api/v1/onboarding/photos/2', $payload)->assertOk();
+
+        $payload['provider_asset_id'] = 'soul/users/replayed-as-other';
+        $payload['provider_signature'] = hash(
+            'sha1',
+            'public_id=soul/users/replayed-as-other&version=1788220800'.self::SECRET,
+        );
+
+        $this->putJson('/api/v1/onboarding/photos/2', $payload)
+            ->assertUnprocessable()
+            ->assertJsonPath('error.code', 'VALIDATION_ERROR')
+            ->assertJsonStructure(['error' => ['details' => ['fields' => ['upload_token']]]]);
+        $this->assertDatabaseCount('profile_photos', 1);
+    }
+
     /** @return array<string, int|string> */
     private function payload(
+        User $user,
+        int $position,
         string $assetId,
         string $visibility = 'public',
         int $version = 1788220800,
     ): array {
+        $upload = ProfilePhotoUpload::factory()->for($user)->create([
+            'position' => $position,
+            'provider_asset_id' => $assetId,
+        ]);
+
         return [
+            'upload_token' => $upload->public_id,
             'provider_asset_id' => $assetId,
             'provider_version' => $version,
             'provider_signature' => hash(

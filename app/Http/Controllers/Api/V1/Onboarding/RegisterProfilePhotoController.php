@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\Onboarding\RegisterProfilePhotoRequest;
 use App\Http\Resources\Api\V1\ProfilePhotoResource;
 use App\Models\ProfilePhoto;
+use App\Models\ProfilePhotoUpload;
 use App\Support\ApiResponse;
 use App\Support\Media\CloudinaryUploadVerifier;
 use Illuminate\Http\JsonResponse;
@@ -54,14 +55,44 @@ class RegisterProfilePhotoController extends Controller
         }
 
         $photo = DB::transaction(function () use (
+            $request,
             $profile,
             $position,
             $validated,
         ): ProfilePhoto {
+            $upload = ProfilePhotoUpload::query()
+                ->where('public_id', $validated['upload_token'])
+                ->where('user_id', $request->user()->getKey())
+                ->lockForUpdate()
+                ->first();
+
+            if (
+                $upload === null
+                || $upload->position !== $position
+                || $upload->provider_asset_id !== $validated['provider_asset_id']
+                || ($upload->consumed_at === null && $upload->expires_at->isPast())
+            ) {
+                throw ValidationException::withMessages([
+                    'upload_token' => ['The upload session is invalid or expired.'],
+                ]);
+            }
+
             $existing = $profile->photos()
                 ->where('position', $position)
                 ->lockForUpdate()
                 ->first();
+
+            if ($upload->consumed_at !== null) {
+                if ($existing?->provider_asset_id !== $validated['provider_asset_id']) {
+                    throw ValidationException::withMessages([
+                        'upload_token' => ['This upload session has already been used.'],
+                    ]);
+                }
+
+                $existing->update(['visibility' => $validated['visibility']]);
+
+                return $existing->refresh();
+            }
 
             $assetAlreadyUsed = ProfilePhoto::query()
                 ->where('storage_provider', 'cloudinary')
@@ -82,6 +113,7 @@ class RegisterProfilePhotoController extends Controller
 
             if ($existing?->provider_asset_id === $validated['provider_asset_id']) {
                 $existing->update(['visibility' => $validated['visibility']]);
+                $upload->update(['consumed_at' => now()]);
 
                 return $existing->refresh();
             }
@@ -98,10 +130,14 @@ class RegisterProfilePhotoController extends Controller
             ];
 
             if ($existing === null) {
-                return $profile->photos()->create($attributes);
+                $photo = $profile->photos()->create($attributes);
+                $upload->update(['consumed_at' => now()]);
+
+                return $photo;
             }
 
             $existing->update($attributes);
+            $upload->update(['consumed_at' => now()]);
 
             return $existing->refresh();
         });

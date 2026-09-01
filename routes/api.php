@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\V1\Auth\LogoutController;
 use App\Http\Controllers\Api\V1\Auth\RegisterRequestOtpController;
 use App\Http\Controllers\Api\V1\Auth\RegisterVerifyOtpController;
 use App\Http\Controllers\Api\V1\HealthController;
+use App\Http\Controllers\Api\V1\Onboarding\CreateProfilePhotoUploadController;
 use App\Http\Controllers\Api\V1\Onboarding\ListProfilePhotosController;
 use App\Http\Controllers\Api\V1\Onboarding\RegisterProfilePhotoController;
 use App\Http\Controllers\Api\V1\Onboarding\ReligionOptionsController;
@@ -175,6 +176,17 @@ Route::prefix('v1')->group(function (): void {
             'throttle:60,1',
         ])
         ->name('api.v1.onboarding.photos.index');
+
+    Route::post(
+        '/onboarding/photos/upload-session',
+        CreateProfilePhotoUploadController::class,
+    )
+        ->middleware([
+            'auth:sanctum',
+            'active.account',
+            'throttle:20,1',
+        ])
+        ->name('api.v1.onboarding.photos.upload-session.create');
 
     Route::put(
         '/onboarding/photos/{position}',

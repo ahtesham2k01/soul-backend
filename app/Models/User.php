@@ -63,6 +63,12 @@ class User extends Authenticatable
         return $this->hasOne(UserProfile::class);
     }
 
+    /** @return HasMany<ProfilePhotoUpload, $this> */
+    public function profilePhotoUploads(): HasMany
+    {
+        return $this->hasMany(ProfilePhotoUpload::class);
+    }
+
     /**
      * Use public ULIDs for route model binding.
      */

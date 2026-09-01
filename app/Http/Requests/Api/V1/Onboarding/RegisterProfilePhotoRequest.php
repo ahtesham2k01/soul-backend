@@ -25,6 +25,7 @@ class RegisterProfilePhotoRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'upload_token' => ['required', 'string', 'ulid'],
             'position' => ['required', 'integer', 'between:1,3'],
             'provider_asset_id' => [
                 'required', 'string', 'max:255', 'regex:/^[A-Za-z0-9_\/.-]+$/',

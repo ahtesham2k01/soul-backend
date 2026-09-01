@@ -251,7 +251,12 @@ return [
     'media' => [
         'cloudinary' => [
             'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),
+            'api_key' => env('CLOUDINARY_API_KEY'),
             'api_secret' => env('CLOUDINARY_API_SECRET'),
+            'upload_session_ttl_minutes' => (int) env(
+                'CLOUDINARY_UPLOAD_SESSION_TTL_MINUTES',
+                10,
+            ),
             'response_signature_algorithm' => env(
                 'CLOUDINARY_RESPONSE_SIGNATURE_ALGORITHM',
                 'sha1',
