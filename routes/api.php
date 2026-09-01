@@ -11,6 +11,8 @@ use App\Http\Controllers\Api\V1\Auth\LogoutController;
 use App\Http\Controllers\Api\V1\Auth\RegisterRequestOtpController;
 use App\Http\Controllers\Api\V1\Auth\RegisterVerifyOtpController;
 use App\Http\Controllers\Api\V1\HealthController;
+use App\Http\Controllers\Api\V1\Onboarding\ListProfilePhotosController;
+use App\Http\Controllers\Api\V1\Onboarding\RegisterProfilePhotoController;
 use App\Http\Controllers\Api\V1\Onboarding\ReligionOptionsController;
 use App\Http\Controllers\Api\V1\Onboarding\ShowProfileDraftController;
 use App\Http\Controllers\Api\V1\Onboarding\ShowReadinessController;
@@ -162,6 +164,28 @@ Route::prefix('v1')->group(function (): void {
             'throttle:60,1',
         ])
         ->name('api.v1.onboarding.readiness.show');
+
+    Route::get(
+        '/onboarding/photos',
+        ListProfilePhotosController::class,
+    )
+        ->middleware([
+            'auth:sanctum',
+            'active.account',
+            'throttle:60,1',
+        ])
+        ->name('api.v1.onboarding.photos.index');
+
+    Route::put(
+        '/onboarding/photos/{position}',
+        RegisterProfilePhotoController::class,
+    )
+        ->middleware([
+            'auth:sanctum',
+            'active.account',
+            'throttle:20,1',
+        ])
+        ->name('api.v1.onboarding.photos.register');
 
     Route::fallback(
         fn () => ApiResponse::error(

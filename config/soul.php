@@ -248,4 +248,15 @@ return [
         ),
     ],
 
+    'media' => [
+        'cloudinary' => [
+            'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),
+            'api_secret' => env('CLOUDINARY_API_SECRET'),
+            'response_signature_algorithm' => env(
+                'CLOUDINARY_RESPONSE_SIGNATURE_ALGORITHM',
+                'sha1',
+            ),
+        ],
+    ],
+
 ];
