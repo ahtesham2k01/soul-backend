@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\UserMatch;
 use App\Models\UserBlock;
 use App\Models\UserProfile;
+use App\Models\UserNotification;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -51,6 +52,19 @@ class StoreProfileDecisionController extends Controller
                 ['status' => 'active', 'matched_at' => now(), 'ended_at' => null, 'ended_by_user_id' => null],
             ) : null;
         });
+
+        if ($match?->wasRecentlyCreated) {
+            foreach ([$actor->id, $target->user_id] as $userId) {
+                $enabled = \App\Models\NotificationPreference::query()
+                    ->where('user_id', $userId)->value('new_matches');
+                if ($enabled !== false && $enabled !== 0) {
+                    UserNotification::query()->create([
+                        'user_id' => $userId, 'type' => 'new_match',
+                        'data' => ['match_id' => $match->public_id],
+                    ]);
+                }
+            }
+        }
 
         return ApiResponse::success([
             'decision' => $validated['decision'],

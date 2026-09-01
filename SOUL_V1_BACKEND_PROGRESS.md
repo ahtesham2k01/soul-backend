@@ -12,7 +12,7 @@
 - [x] Phase 10 — Likes, passes and matches
 - [x] Phase 11 — Messaging, blocking and reporting
 - [x] Phase 12 — Safety, verification and appeals
-- [ ] Phase 13 — Notifications
+- [x] Phase 13 — Notifications
 - [ ] Phase 14 — Admin panel
 - [ ] Phase 15 — Privacy and account data controls
 - [ ] Phase 16 — Performance, security and V1 release readiness

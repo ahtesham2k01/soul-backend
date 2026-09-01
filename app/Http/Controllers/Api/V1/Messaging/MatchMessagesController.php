@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\Messaging;
 use App\Http\Controllers\Controller;
 use App\Models\Conversation;
 use App\Models\UserMatch;
+use App\Models\UserNotification;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -43,6 +44,16 @@ class MatchMessagesController extends Controller
             $conversation->update(['last_message_at' => $message->created_at]);
             return $message;
         });
+        $recipientId = $record->first_user_id === $request->user()->id
+            ? $record->second_user_id : $record->first_user_id;
+        $enabled = \App\Models\NotificationPreference::query()
+            ->where('user_id', $recipientId)->value('new_messages');
+        if ($enabled !== false && $enabled !== 0) {
+            UserNotification::query()->create([
+                'user_id' => $recipientId, 'type' => 'new_message',
+                'data' => ['match_id' => $record->public_id, 'message_id' => $message->public_id],
+            ]);
+        }
         return ApiResponse::success([
             'message' => ['id' => $message->public_id, 'body' => $message->body, 'is_mine' => true,
                 'sent_at' => $message->created_at->toIso8601String()],

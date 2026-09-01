@@ -80,6 +80,10 @@ class User extends Authenticatable
         return $this->hasMany(LegalAcceptance::class);
     }
 
+    public function devices(): HasMany { return $this->hasMany(UserDevice::class); }
+    public function notificationPreference(): HasOne { return $this->hasOne(NotificationPreference::class); }
+    public function notifications(): HasMany { return $this->hasMany(UserNotification::class); }
+
     /**
      * Use public ULIDs for route model binding.
      */

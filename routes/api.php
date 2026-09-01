@@ -17,6 +17,9 @@ use App\Http\Controllers\Api\V1\Matching\ListMatchesController;
 use App\Http\Controllers\Api\V1\Matching\StoreProfileDecisionController;
 use App\Http\Controllers\Api\V1\Matching\UnmatchController;
 use App\Http\Controllers\Api\V1\Messaging\MatchMessagesController;
+use App\Http\Controllers\Api\V1\Notifications\DeviceController;
+use App\Http\Controllers\Api\V1\Notifications\NotificationFeedController;
+use App\Http\Controllers\Api\V1\Notifications\PreferenceController;
 use App\Http\Controllers\Api\V1\Onboarding\CreateProfilePhotoUploadController;
 use App\Http\Controllers\Api\V1\Onboarding\DeleteProfilePhotoController;
 use App\Http\Controllers\Api\V1\Onboarding\ListProfilePhotosController;
@@ -69,6 +72,12 @@ Route::prefix('v1')->group(function (): void {
             ->middleware('throttle:10,1')->name('api.v1.verification.cases.store');
         Route::post('/verification/cases/{case}/appeal', SubmitVerificationAppealController::class)
             ->middleware('throttle:5,1')->name('api.v1.verification.appeals.store');
+        Route::post('/devices', [DeviceController::class, 'store'])->middleware('throttle:20,1')->name('api.v1.devices.store');
+        Route::delete('/devices/{device}', [DeviceController::class, 'destroy'])->middleware('throttle:20,1')->name('api.v1.devices.destroy');
+        Route::get('/notification-preferences', [PreferenceController::class, 'show'])->name('api.v1.notification-preferences.show');
+        Route::put('/notification-preferences', [PreferenceController::class, 'update'])->middleware('throttle:30,1')->name('api.v1.notification-preferences.update');
+        Route::get('/notifications', [NotificationFeedController::class, 'index'])->name('api.v1.notifications.index');
+        Route::post('/notifications/{notification}/read', [NotificationFeedController::class, 'read'])->middleware('throttle:120,1')->name('api.v1.notifications.read');
     });
     Route::get(
         '/health',
