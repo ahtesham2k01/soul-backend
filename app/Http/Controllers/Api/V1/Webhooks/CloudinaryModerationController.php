@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Webhooks;
 
 use App\Enums\Profile\ProfilePhotoModerationStatus;
+use App\Enums\Profile\ProfileStatus;
 use App\Http\Controllers\Controller;
 use App\Models\ProfilePhoto;
 use App\Support\Media\CloudinaryUploadVerifier;
@@ -51,6 +52,16 @@ class CloudinaryModerationController extends Controller
                 'face_detected' => $validated['face_detected']
                     ?? $photo->face_detected,
             ]);
+
+            if ($status === ProfilePhotoModerationStatus::Rejected) {
+                $photo->userProfile->update([
+                    'profile_status' => ProfileStatus::ChangesRequired,
+                    'status_reason' => $this->rejectionReason(
+                        $validated['moderation_kind'] ?? null,
+                    ),
+                    'correction_screen' => 'onboarding.photos',
+                ]);
+            }
         }
 
         return response()->json(['accepted' => true]);

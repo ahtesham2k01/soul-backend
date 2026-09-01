@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Profile\Gender;
+use App\Enums\Profile\ProfileStatus;
 use Database\Factories\UserProfileFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -38,6 +39,12 @@ class UserProfile extends Model
         'ethnic_origin',
         'relocation_preference',
         'family_involvement_preference',
+        'profile_status',
+        'submitted_at',
+        'checks_completed_at',
+        'live_at',
+        'status_reason',
+        'correction_screen',
     ];
 
     /** @return BelongsTo<User, $this> */
@@ -79,7 +86,11 @@ class UserProfile extends Model
         return [
             'date_of_birth' => 'date',
             'gender' => Gender::class,
+            'profile_status' => ProfileStatus::class,
             'height_cm' => 'integer',
+            'submitted_at' => 'immutable_datetime',
+            'checks_completed_at' => 'immutable_datetime',
+            'live_at' => 'immutable_datetime',
         ];
     }
 }

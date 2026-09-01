@@ -17,9 +17,11 @@ use App\Http\Controllers\Api\V1\Onboarding\ListProfilePhotosController;
 use App\Http\Controllers\Api\V1\Onboarding\RegisterProfilePhotoController;
 use App\Http\Controllers\Api\V1\Onboarding\ReligionOptionsController;
 use App\Http\Controllers\Api\V1\Onboarding\ShowProfileDraftController;
+use App\Http\Controllers\Api\V1\Onboarding\ShowProfileStatusController;
 use App\Http\Controllers\Api\V1\Onboarding\ShowReadinessController;
 use App\Http\Controllers\Api\V1\Onboarding\ShowReligionProfileController;
 use App\Http\Controllers\Api\V1\Onboarding\StoreReligionProfileController;
+use App\Http\Controllers\Api\V1\Onboarding\SubmitProfileController;
 use App\Http\Controllers\Api\V1\Onboarding\UpdateProfileDraftController;
 use App\Http\Controllers\Api\V1\ResolveLocationController;
 use App\Http\Controllers\Api\V1\Webhooks\CloudinaryModerationController;
@@ -174,6 +176,28 @@ Route::prefix('v1')->group(function (): void {
             'throttle:60,1',
         ])
         ->name('api.v1.onboarding.readiness.show');
+
+    Route::post(
+        '/onboarding/submit',
+        SubmitProfileController::class,
+    )
+        ->middleware([
+            'auth:sanctum',
+            'active.account',
+            'throttle:10,1',
+        ])
+        ->name('api.v1.onboarding.submit');
+
+    Route::get(
+        '/onboarding/status',
+        ShowProfileStatusController::class,
+    )
+        ->middleware([
+            'auth:sanctum',
+            'active.account',
+            'throttle:60,1',
+        ])
+        ->name('api.v1.onboarding.status');
 
     Route::get(
         '/onboarding/photos',

@@ -86,6 +86,11 @@ class CloudinaryModerationEndpointTest extends TestCase
             'rejection_reason' => 'Photo appears to duplicate another uploaded image.',
             'face_detected' => false,
         ]);
+        $this->assertDatabaseHas('user_profiles', [
+            'id' => $photo->user_profile_id,
+            'profile_status' => 'changes_required',
+            'correction_screen' => 'onboarding.photos',
+        ]);
     }
 
     public function test_unknown_or_replaced_asset_is_acknowledged_without_mutation(): void

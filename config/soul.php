@@ -2,6 +2,11 @@
 
 return [
 
+    'legal' => [
+        'terms_version' => env('SOUL_TERMS_VERSION', '1.0'),
+        'privacy_version' => env('SOUL_PRIVACY_VERSION', '1.0'),
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Translation catalog
