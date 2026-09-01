@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AppBootstrapController;
+use App\Http\Controllers\Api\V1\Admin\ModerationController;
 use App\Http\Controllers\Api\V1\Auth\AppleSignInController;
 use App\Http\Controllers\Api\V1\Auth\CurrentUserController;
 use App\Http\Controllers\Api\V1\Auth\GoogleSignInController;
@@ -43,6 +44,13 @@ use App\Support\ApiResponse;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function (): void {
+    Route::prefix('admin')->middleware(['auth:sanctum', 'active.account', 'admin:super_admin,moderator'])->group(function (): void {
+        Route::get('/dashboard', [ModerationController::class, 'dashboard'])->name('api.v1.admin.dashboard');
+        Route::get('/reports', [ModerationController::class, 'reports'])->name('api.v1.admin.reports.index');
+        Route::put('/reports/{report}', [ModerationController::class, 'decideReport'])->name('api.v1.admin.reports.update');
+        Route::get('/verifications', [ModerationController::class, 'verifications'])->name('api.v1.admin.verifications.index');
+        Route::put('/verifications/{case}', [ModerationController::class, 'decideVerification'])->name('api.v1.admin.verifications.update');
+    });
     Route::middleware(['auth:sanctum', 'active.account'])->group(function (): void {
         Route::get('/discovery/preferences', [DiscoveryPreferenceController::class, 'show'])
             ->name('api.v1.discovery.preferences.show');

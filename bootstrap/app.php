@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\AttachRequestId;
 use App\Http\Middleware\EnsureAccountIsActive;
+use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Support\ApiResponse;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
@@ -19,6 +20,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->statefulApi();
+
         $middleware->prependToGroup(
             'api',
             AttachRequestId::class,
@@ -26,6 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'active.account' => EnsureAccountIsActive::class,
+            'admin' => EnsureUserIsAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
