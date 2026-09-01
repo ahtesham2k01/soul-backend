@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ProfileDecision;
 use App\Models\User;
 use App\Models\UserMatch;
+use App\Models\UserBlock;
 use App\Models\UserProfile;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
@@ -25,6 +26,12 @@ class StoreProfileDecisionController extends Controller
 
         if ($target === null) return ApiResponse::error('PROFILE_UNAVAILABLE', 'This profile is not available.', 404);
         if ($target->user_id === $actor->id) return ApiResponse::error('SELF_DECISION_NOT_ALLOWED', 'You cannot decide on your own profile.', 422);
+        $blocked = UserBlock::query()->where(fn ($query) => $query
+            ->where(['blocker_user_id' => $actor->id, 'blocked_user_id' => $target->user_id])
+            ->orWhere(fn ($query) => $query->where([
+                'blocker_user_id' => $target->user_id, 'blocked_user_id' => $actor->id,
+            ])))->exists();
+        if ($blocked) return ApiResponse::error('PROFILE_UNAVAILABLE', 'This profile is not available.', 404);
 
         $match = DB::transaction(function () use ($actor, $target, $validated): ?UserMatch {
             $ids = [$actor->id, $target->user_id]; sort($ids);

@@ -10,7 +10,7 @@
 - [x] Phase 8 — Submission, readiness, resubmission and audit history
 - [x] Phase 9 — Discovery preferences and candidate eligibility
 - [x] Phase 10 — Likes, passes and matches
-- [ ] Phase 11 — Messaging, blocking and reporting
+- [x] Phase 11 — Messaging, blocking and reporting
 - [ ] Phase 12 — Safety, verification and appeals
 - [ ] Phase 13 — Notifications
 - [ ] Phase 14 — Admin panel

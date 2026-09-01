@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\Matching\ListMatchesController;
 use App\Http\Controllers\Api\V1\Matching\StoreProfileDecisionController;
 use App\Http\Controllers\Api\V1\Matching\UnmatchController;
+use App\Http\Controllers\Api\V1\Messaging\MatchMessagesController;
 use App\Http\Controllers\Api\V1\Onboarding\CreateProfilePhotoUploadController;
 use App\Http\Controllers\Api\V1\Onboarding\DeleteProfilePhotoController;
 use App\Http\Controllers\Api\V1\Onboarding\ListProfilePhotosController;
@@ -30,6 +31,8 @@ use App\Http\Controllers\Api\V1\Onboarding\StoreReligionProfileController;
 use App\Http\Controllers\Api\V1\Onboarding\SubmitProfileController;
 use App\Http\Controllers\Api\V1\Onboarding\UpdateProfileDraftController;
 use App\Http\Controllers\Api\V1\ResolveLocationController;
+use App\Http\Controllers\Api\V1\Safety\BlockUserController;
+use App\Http\Controllers\Api\V1\Safety\ReportUserController;
 use App\Http\Controllers\Api\V1\Webhooks\CloudinaryModerationController;
 use App\Support\ApiResponse;
 use Illuminate\Support\Facades\Route;
@@ -50,6 +53,14 @@ Route::prefix('v1')->group(function (): void {
             ->middleware('throttle:60,1')->name('api.v1.matches.index');
         Route::delete('/matches/{match}', UnmatchController::class)
             ->middleware('throttle:30,1')->name('api.v1.matches.destroy');
+        Route::get('/matches/{match}/messages', [MatchMessagesController::class, 'index'])
+            ->middleware('throttle:120,1')->name('api.v1.messages.index');
+        Route::post('/matches/{match}/messages', [MatchMessagesController::class, 'store'])
+            ->middleware('throttle:60,1')->name('api.v1.messages.store');
+        Route::post('/profiles/{profile}/block', BlockUserController::class)
+            ->middleware('throttle:20,1')->name('api.v1.safety.blocks.store');
+        Route::post('/profiles/{profile}/report', ReportUserController::class)
+            ->middleware('throttle:10,1')->name('api.v1.safety.reports.store');
     });
     Route::get(
         '/health',

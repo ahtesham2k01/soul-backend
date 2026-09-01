@@ -35,7 +35,14 @@ class ListCandidatesController extends Controller
             ->where('profile_status', ProfileStatus::Live->value)
             ->where('gender', $preference->preferred_gender->value)
             ->whereBetween('date_of_birth', [$oldest, $youngest])
-            ->whereHas('user', fn ($query) => $query->where('status', User::STATUS_ACTIVE));
+            ->whereHas('user', fn ($query) => $query->where('status', User::STATUS_ACTIVE))
+            ->whereNotExists(fn ($query) => $query->selectRaw('1')->from('user_blocks')
+                ->where(fn ($query) => $query
+                    ->whereColumn('blocker_user_id', 'user_profiles.user_id')
+                    ->where('blocked_user_id', $user->id))
+                ->orWhere(fn ($query) => $query
+                    ->where('blocker_user_id', $user->id)
+                    ->whereColumn('blocked_user_id', 'user_profiles.user_id')));
 
         if ($preference->same_country_only) {
             $query->where('country_code', $viewer->country_code);
