@@ -11,7 +11,7 @@
 - [x] Phase 9 — Discovery preferences and candidate eligibility
 - [x] Phase 10 — Likes, passes and matches
 - [x] Phase 11 — Messaging, blocking and reporting
-- [ ] Phase 12 — Safety, verification and appeals
+- [x] Phase 12 — Safety, verification and appeals
 - [ ] Phase 13 — Notifications
 - [ ] Phase 14 — Admin panel
 - [ ] Phase 15 — Privacy and account data controls

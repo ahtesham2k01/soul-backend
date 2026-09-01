@@ -33,6 +33,8 @@ use App\Http\Controllers\Api\V1\Onboarding\UpdateProfileDraftController;
 use App\Http\Controllers\Api\V1\ResolveLocationController;
 use App\Http\Controllers\Api\V1\Safety\BlockUserController;
 use App\Http\Controllers\Api\V1\Safety\ReportUserController;
+use App\Http\Controllers\Api\V1\Safety\ProfileVerificationController;
+use App\Http\Controllers\Api\V1\Safety\SubmitVerificationAppealController;
 use App\Http\Controllers\Api\V1\Webhooks\CloudinaryModerationController;
 use App\Support\ApiResponse;
 use Illuminate\Support\Facades\Route;
@@ -61,6 +63,12 @@ Route::prefix('v1')->group(function (): void {
             ->middleware('throttle:20,1')->name('api.v1.safety.blocks.store');
         Route::post('/profiles/{profile}/report', ReportUserController::class)
             ->middleware('throttle:10,1')->name('api.v1.safety.reports.store');
+        Route::get('/verification/cases', [ProfileVerificationController::class, 'index'])
+            ->middleware('throttle:60,1')->name('api.v1.verification.cases.index');
+        Route::post('/verification/cases', [ProfileVerificationController::class, 'store'])
+            ->middleware('throttle:10,1')->name('api.v1.verification.cases.store');
+        Route::post('/verification/cases/{case}/appeal', SubmitVerificationAppealController::class)
+            ->middleware('throttle:5,1')->name('api.v1.verification.appeals.store');
     });
     Route::get(
         '/health',
