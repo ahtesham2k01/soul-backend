@@ -57,6 +57,11 @@ class User extends Authenticatable
         return $this->hasOne(UserReligionProfile::class);
     }
 
+    public function discoveryPreference(): HasOne
+    {
+        return $this->hasOne(DiscoveryPreference::class);
+    }
+
     /** @return HasOne<UserProfile, $this> */
     public function profile(): HasOne
     {
