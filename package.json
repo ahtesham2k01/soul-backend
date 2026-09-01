@@ -4,6 +4,7 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
+        "contracts:generate": "node scripts/generate-api-contracts.mjs",
         "dev": "vite"
     },
     "devDependencies": {

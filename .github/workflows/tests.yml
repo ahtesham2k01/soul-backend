@@ -47,6 +47,8 @@ jobs:
       - name: Build admin frontend
         run: |
           npm ci
+          npm run contracts:generate
+          git diff --exit-code -- docs/contracts
           npm run build
 
       - name: Audit locked production dependencies

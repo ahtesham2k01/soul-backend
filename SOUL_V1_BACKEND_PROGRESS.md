@@ -35,3 +35,10 @@
 - [x] Cloudinary direct-upload sequence documented
 - [x] Stable V1 enums and compatibility rules documented
 - [x] Automated route-to-handoff drift test
+
+## Machine-readable client contracts
+
+- [x] OpenAPI 3.1 contract generated from handoff source
+- [x] Importable Postman 2.1 collection
+- [x] Safe request examples and bearer-token variables
+- [x] Automated Laravel-route/OpenAPI/Postman parity tests

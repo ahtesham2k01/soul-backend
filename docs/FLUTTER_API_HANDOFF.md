@@ -120,7 +120,11 @@ The React admin uses same-origin secure session cookies, not mobile bearer token
 
 ## Provider-only endpoint
 
-`POST /webhooks/cloudinary/moderation` (`api.v1.webhooks.cloudinary.moderation`) is for signed Cloudinary notifications only. Flutter must never call it.
+| Method | Path | Route contract | Purpose |
+|---|---|---|---|
+| POST | `/webhooks/cloudinary/moderation` | `api.v1.webhooks.cloudinary.moderation` | Ingest signed Cloudinary moderation notification |
+
+This endpoint is for signed Cloudinary notifications only. Flutter must never call it.
 
 ## Stable V1 enums
 
