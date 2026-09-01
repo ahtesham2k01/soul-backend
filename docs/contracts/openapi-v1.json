@@ -2065,6 +2065,181 @@
         }
       }
     },
+    "/admin/admins": {
+      "get": {
+        "operationId": "api.v1.admin.admins.index",
+        "summary": "Super-admin account directory",
+        "tags": [
+          "Admin"
+        ],
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      },
+      "post": {
+        "operationId": "api.v1.admin.admins.store",
+        "summary": "Create secure moderator or super-admin account",
+        "tags": [
+          "Admin"
+        ],
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "name": "Safety Moderator",
+                "email": "moderator@example.com",
+                "password": "<strong-password>",
+                "password_confirmation": "<strong-password>",
+                "role": "moderator",
+                "reason": "Joining safety operations"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/admin/admins/{admin}/role": {
+      "put": {
+        "operationId": "api.v1.admin.admins.role.update",
+        "summary": "Change another admin role and revoke sessions",
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "admin",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "role": "super_admin",
+                "reason": "Promoted to operations lead"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/admin/admins/{admin}": {
+      "delete": {
+        "operationId": "api.v1.admin.admins.destroy",
+        "summary": "Remove another admin's access safely",
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "admin",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "reason": "Admin left operations"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
     "/webhooks/cloudinary/moderation": {
       "post": {
         "operationId": "api.v1.webhooks.cloudinary.moderation",

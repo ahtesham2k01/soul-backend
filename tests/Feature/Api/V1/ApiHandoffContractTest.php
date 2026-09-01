@@ -14,7 +14,7 @@ class ApiHandoffContractTest extends TestCase
         $routes = collect(Route::getRoutes()->getRoutes())
             ->filter(fn ($route): bool => str_starts_with((string) $route->getName(), 'api.v1.'));
 
-        $this->assertGreaterThanOrEqual(63, $routes->count());
+        $this->assertGreaterThanOrEqual(67, $routes->count());
 
         $routes->each(function ($route) use ($handoff): void {
             $this->assertStringContainsString(

@@ -1746,6 +1746,140 @@
             },
             "description": "api.v1.admin.audit-logs.index: Filtered immutable operations history"
           }
+        },
+        {
+          "name": "Super-admin account directory",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/admins",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "admins"
+              ]
+            },
+            "description": "api.v1.admin.admins.index: Super-admin account directory"
+          }
+        },
+        {
+          "name": "Create secure moderator or super-admin account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Safety Moderator\",\n  \"email\": \"moderator@example.com\",\n  \"password\": \"<strong-password>\",\n  \"password_confirmation\": \"<strong-password>\",\n  \"role\": \"moderator\",\n  \"reason\": \"Joining safety operations\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/admins",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "admins"
+              ]
+            },
+            "description": "api.v1.admin.admins.store: Create secure moderator or super-admin account"
+          }
+        },
+        {
+          "name": "Change another admin role and revoke sessions",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"super_admin\",\n  \"reason\": \"Promoted to operations lead\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/admins/{admin}/role",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "admins",
+                "{admin}",
+                "role"
+              ]
+            },
+            "description": "api.v1.admin.admins.role.update: Change another admin role and revoke sessions"
+          }
+        },
+        {
+          "name": "Remove another admin's access safely",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Admin left operations\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/admins/{admin}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "admins",
+                "{admin}"
+              ]
+            },
+            "description": "api.v1.admin.admins.destroy: Remove another admin's access safely"
+          }
         }
       ]
     },

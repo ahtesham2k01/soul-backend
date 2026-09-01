@@ -121,6 +121,10 @@ The React admin uses same-origin secure session cookies, not mobile bearer token
 | GET | `/admin/users/{user}` | `api.v1.admin.users.show` | Inspect account, profile, photo and safety summary |
 | PUT | `/admin/users/{user}/status` | `api.v1.admin.users.status.update` | Super-admin suspend, block or restore |
 | GET | `/admin/audit-logs` | `api.v1.admin.audit-logs.index` | Filtered immutable operations history |
+| GET | `/admin/admins` | `api.v1.admin.admins.index` | Super-admin account directory |
+| POST | `/admin/admins` | `api.v1.admin.admins.store` | Create secure moderator or super-admin account |
+| PUT | `/admin/admins/{admin}/role` | `api.v1.admin.admins.role.update` | Change another admin role and revoke sessions |
+| DELETE | `/admin/admins/{admin}` | `api.v1.admin.admins.destroy` | Remove another admin's access safely |
 
 ## Provider-only endpoint
 

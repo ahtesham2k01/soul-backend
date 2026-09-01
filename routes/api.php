@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\AppBootstrapController;
 use App\Http\Controllers\Api\V1\Admin\ModerationController;
 use App\Http\Controllers\Api\V1\Admin\AdminAuditLogController;
+use App\Http\Controllers\Api\V1\Admin\AdminAccountController;
 use App\Http\Controllers\Api\V1\Admin\AdminUserController;
 use App\Http\Controllers\Api\V1\Auth\AppleSignInController;
 use App\Http\Controllers\Api\V1\Auth\CurrentUserController;
@@ -59,6 +60,12 @@ Route::prefix('v1')->group(function (): void {
         Route::put('/users/{user}/status', [AdminUserController::class, 'updateStatus'])
             ->middleware('admin:super_admin')->name('api.v1.admin.users.status.update');
         Route::get('/audit-logs', AdminAuditLogController::class)->name('api.v1.admin.audit-logs.index');
+        Route::middleware('admin:super_admin')->group(function (): void {
+            Route::get('/admins', [AdminAccountController::class, 'index'])->name('api.v1.admin.admins.index');
+            Route::post('/admins', [AdminAccountController::class, 'store'])->name('api.v1.admin.admins.store');
+            Route::put('/admins/{admin}/role', [AdminAccountController::class, 'updateRole'])->name('api.v1.admin.admins.role.update');
+            Route::delete('/admins/{admin}', [AdminAccountController::class, 'destroy'])->name('api.v1.admin.admins.destroy');
+        });
     });
     Route::middleware(['auth:sanctum', 'active.account'])->group(function (): void {
         Route::get('/discovery/preferences', [DiscoveryPreferenceController::class, 'show'])

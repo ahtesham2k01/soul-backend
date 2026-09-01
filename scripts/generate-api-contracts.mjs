@@ -11,8 +11,8 @@ const endpoints = [...handoff.matchAll(endpointPattern)].map((match) => ({
     summary: match[4].trim(),
 }));
 
-if (endpoints.length !== 63) {
-    throw new Error(`Expected 63 documented endpoints, found ${endpoints.length}.`);
+if (endpoints.length !== 67) {
+    throw new Error(`Expected 67 documented endpoints, found ${endpoints.length}.`);
 }
 
 const publicOperations = new Set([
@@ -48,6 +48,9 @@ const requestExamples = {
     'api.v1.devices.store': { platform: 'android', push_token: '<provider-token>', device_name: 'Pixel' },
     'api.v1.privacy.deletion.store': { confirmation: 'DELETE MY ACCOUNT' },
     'api.v1.admin.users.status.update': { status: 'suspended', reason: 'Confirmed safety escalation' },
+    'api.v1.admin.admins.store': { name: 'Safety Moderator', email: 'moderator@example.com', password: '<strong-password>', password_confirmation: '<strong-password>', role: 'moderator', reason: 'Joining safety operations' },
+    'api.v1.admin.admins.role.update': { role: 'super_admin', reason: 'Promoted to operations lead' },
+    'api.v1.admin.admins.destroy': { reason: 'Admin left operations' },
 };
 
 const tags = (operationId) => {
