@@ -2,7 +2,7 @@
 
 namespace App\Support\Media;
 
-class CloudinaryUploadVerifier
+final class CloudinaryUploadVerifier
 {
     public function isConfigured(): bool
     {
