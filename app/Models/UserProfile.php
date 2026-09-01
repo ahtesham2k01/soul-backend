@@ -73,10 +73,31 @@ class UserProfile extends Model
             ->orderBy('position');
     }
 
+    /** @return HasMany<ProfileStatusTransition, $this> */
+    public function statusTransitions(): HasMany
+    {
+        return $this->hasMany(ProfileStatusTransition::class)->latest('id');
+    }
+
     protected static function booted(): void
     {
         static::creating(function (UserProfile $profile): void {
             $profile->public_id ??= (string) Str::ulid();
+        });
+
+        static::updated(function (UserProfile $profile): void {
+            if (! $profile->wasChanged('profile_status')) {
+                return;
+            }
+
+            $profile->statusTransitions()->create([
+                'actor_user_id' => auth()->id(),
+                'from_status' => (string) $profile->getRawOriginal('profile_status'),
+                'to_status' => $profile->profile_status->value,
+                'source' => request()?->route()?->getName() ?? 'system',
+                'reason' => $profile->status_reason,
+                'correction_screen' => $profile->correction_screen,
+            ]);
         });
     }
 

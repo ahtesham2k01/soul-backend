@@ -26,6 +26,7 @@ class ProfileSubmissionEndpointTest extends TestCase
     public function test_submission_and_status_endpoints_require_authentication(): void
     {
         $this->postJson('/api/v1/onboarding/submit')->assertUnauthorized();
+        $this->postJson('/api/v1/onboarding/resubmit')->assertUnauthorized();
         $this->getJson('/api/v1/onboarding/status')->assertUnauthorized();
     }
 
@@ -108,6 +109,68 @@ class ProfileSubmissionEndpointTest extends TestCase
 
         $this->assertDatabaseCount('legal_acceptances', 2);
         Bus::assertDispatchedTimes(RunProfileAutomatedChecks::class, 1);
+    }
+
+    public function test_only_changes_required_profile_can_be_resubmitted(): void
+    {
+        $user = User::factory()->create(['status' => User::STATUS_ACTIVE]);
+        $this->makeReady($user);
+        Sanctum::actingAs($user);
+
+        $this->postJson('/api/v1/onboarding/resubmit')
+            ->assertConflict()
+            ->assertJsonPath('error.code', 'PROFILE_NOT_CORRECTABLE');
+    }
+
+    public function test_profile_cannot_be_resubmitted_until_corrections_are_complete(): void
+    {
+        $user = User::factory()->create(['status' => User::STATUS_ACTIVE]);
+        UserProfile::factory()->for($user)->create([
+            'profile_status' => 'changes_required',
+            'status_reason' => 'Add a suitable cover photo.',
+            'correction_screen' => 'onboarding.photos',
+        ]);
+        Sanctum::actingAs($user);
+
+        $this->postJson('/api/v1/onboarding/resubmit')
+            ->assertUnprocessable()
+            ->assertJsonPath('error.code', 'CORRECTIONS_INCOMPLETE');
+    }
+
+    public function test_corrected_profile_is_resubmitted_and_lifecycle_history_is_returned(): void
+    {
+        Bus::fake();
+        $user = User::factory()->create(['status' => User::STATUS_ACTIVE]);
+        $profile = $this->makeReady($user);
+        $profile->update([
+            'profile_status' => 'changes_required',
+            'status_reason' => 'Replace the rejected photo.',
+            'correction_screen' => 'onboarding.photos',
+        ]);
+        Sanctum::actingAs($user);
+
+        $this->postJson('/api/v1/onboarding/resubmit')
+            ->assertStatus(202)
+            ->assertJsonPath('data.profile.status', 'submitted')
+            ->assertJsonPath('data.profile.reason', null);
+
+        Bus::assertDispatched(
+            RunProfileAutomatedChecks::class,
+            fn (RunProfileAutomatedChecks $job): bool => $job->profileId === $profile->id,
+        );
+        $this->assertDatabaseHas('profile_status_transitions', [
+            'user_profile_id' => $profile->id,
+            'actor_user_id' => $user->id,
+            'from_status' => 'changes_required',
+            'to_status' => 'submitted',
+            'source' => 'api.v1.onboarding.resubmit',
+        ]);
+
+        $this->getJson('/api/v1/onboarding/status')
+            ->assertOk()
+            ->assertJsonPath('data.profile.history.0.from', 'changes_required')
+            ->assertJsonPath('data.profile.history.0.to', 'submitted')
+            ->assertJsonPath('data.profile.history.0.source', 'api.v1.onboarding.resubmit');
     }
 
     private function makeReady(User $user): UserProfile

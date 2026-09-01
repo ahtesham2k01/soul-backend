@@ -15,7 +15,9 @@ class ShowProfileStatusController extends Controller
         // Lifecycle transitions are performed asynchronously. Always query the
         // latest persisted state instead of returning a relation that may have
         // been loaded before the automated-check job completed.
-        $profile = $request->user()->profile()->first();
+        $profile = $request->user()->profile()
+            ->with(['statusTransitions' => fn ($query) => $query->limit(20)])
+            ->first();
 
         return ApiResponse::success(
             data: [

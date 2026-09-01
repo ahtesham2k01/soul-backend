@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\V1\Onboarding\DeleteProfilePhotoController;
 use App\Http\Controllers\Api\V1\Onboarding\ListProfilePhotosController;
 use App\Http\Controllers\Api\V1\Onboarding\RegisterProfilePhotoController;
 use App\Http\Controllers\Api\V1\Onboarding\ReligionOptionsController;
+use App\Http\Controllers\Api\V1\Onboarding\ResubmitProfileController;
 use App\Http\Controllers\Api\V1\Onboarding\ShowProfileDraftController;
 use App\Http\Controllers\Api\V1\Onboarding\ShowProfileStatusController;
 use App\Http\Controllers\Api\V1\Onboarding\ShowReadinessController;
@@ -198,6 +199,17 @@ Route::prefix('v1')->group(function (): void {
             'throttle:60,1',
         ])
         ->name('api.v1.onboarding.status');
+
+    Route::post(
+        '/onboarding/resubmit',
+        ResubmitProfileController::class,
+    )
+        ->middleware([
+            'auth:sanctum',
+            'active.account',
+            'throttle:10,1',
+        ])
+        ->name('api.v1.onboarding.resubmit');
 
     Route::get(
         '/onboarding/photos',

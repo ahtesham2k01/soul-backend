@@ -18,6 +18,16 @@ class ProfileLifecycleResource extends JsonResource
             'live_at' => $this->live_at?->toIso8601String(),
             'reason' => $this->status_reason,
             'correction_screen' => $this->correction_screen,
+            'history' => $this->whenLoaded('statusTransitions', fn () => $this->statusTransitions
+                ->take(20)
+                ->map(fn ($transition): array => [
+                    'from' => $transition->from_status,
+                    'to' => $transition->to_status,
+                    'source' => $transition->source,
+                    'reason' => $transition->reason,
+                    'correction_screen' => $transition->correction_screen,
+                    'occurred_at' => $transition->created_at->toIso8601String(),
+                ])->values()),
         ];
     }
 }
