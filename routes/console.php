@@ -19,7 +19,7 @@ Artisan::command('soul:cleanup', function (): void {
         ->where('expires_at', '<=', now())
         ->each(function (DataExportRequest $export) use (&$expiredExports): void {
             if ($export->file_path !== null) {
-                Storage::disk('local')->delete($export->file_path);
+                Storage::disk(config('soul.privacy.export_disk'))->delete($export->file_path);
             }
 
             $export->forceFill([

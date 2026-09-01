@@ -42,3 +42,12 @@
 - [x] Importable Postman 2.1 collection
 - [x] Safe request examples and bearer-token variables
 - [x] Automated Laravel-route/OpenAPI/Postman parity tests
+
+## Environment and staging readiness
+
+- [x] Secret-safe configuration validator
+- [x] Strict production-mode requirements
+- [x] Non-destructive staging smoke command
+- [x] Configurable private export storage disk
+- [x] CI configuration validation
+- [x] Automated command tests and operations runbook

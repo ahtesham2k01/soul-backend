@@ -61,5 +61,8 @@ jobs:
           cp .env.example .env
           php artisan key:generate
 
+      - name: Validate application configuration
+        run: php artisan soul:config-check
+
       - name: Run test suite
         run: php artisan test

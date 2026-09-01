@@ -253,6 +253,10 @@ return [
         ),
     ],
 
+    'privacy' => [
+        'export_disk' => env('SOUL_PRIVATE_EXPORT_DISK', 'local'),
+    ],
+
     'media' => [
         'cloudinary' => [
             'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),
