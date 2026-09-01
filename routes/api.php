@@ -34,6 +34,7 @@ use App\Http\Controllers\Api\V1\Onboarding\ShowReligionProfileController;
 use App\Http\Controllers\Api\V1\Onboarding\StoreReligionProfileController;
 use App\Http\Controllers\Api\V1\Onboarding\SubmitProfileController;
 use App\Http\Controllers\Api\V1\Onboarding\UpdateProfileDraftController;
+use App\Http\Controllers\Api\V1\Privacy\PrivacyController;
 use App\Http\Controllers\Api\V1\ResolveLocationController;
 use App\Http\Controllers\Api\V1\Safety\BlockUserController;
 use App\Http\Controllers\Api\V1\Safety\ReportUserController;
@@ -86,6 +87,16 @@ Route::prefix('v1')->group(function (): void {
         Route::put('/notification-preferences', [PreferenceController::class, 'update'])->middleware('throttle:30,1')->name('api.v1.notification-preferences.update');
         Route::get('/notifications', [NotificationFeedController::class, 'index'])->name('api.v1.notifications.index');
         Route::post('/notifications/{notification}/read', [NotificationFeedController::class, 'read'])->middleware('throttle:120,1')->name('api.v1.notifications.read');
+        Route::get('/privacy/settings', [PrivacyController::class, 'showSettings'])->name('api.v1.privacy.settings.show');
+        Route::put('/privacy/settings', [PrivacyController::class, 'updateSettings'])->name('api.v1.privacy.settings.update');
+        Route::post('/privacy/exports', [PrivacyController::class, 'requestExport'])->middleware('throttle:2,60')->name('api.v1.privacy.exports.store');
+        Route::get('/privacy/exports', [PrivacyController::class, 'exports'])->name('api.v1.privacy.exports.index');
+        Route::get('/privacy/exports/{export}/download', [PrivacyController::class, 'download'])->name('api.v1.privacy.exports.download');
+        Route::post('/privacy/deletion', [PrivacyController::class, 'scheduleDeletion'])->middleware('throttle:3,60')->name('api.v1.privacy.deletion.store');
+    });
+    Route::middleware(['auth:sanctum'])->group(function (): void {
+        Route::get('/privacy/deletion', [PrivacyController::class, 'deletionStatus'])->name('api.v1.privacy.deletion.show');
+        Route::delete('/privacy/deletion', [PrivacyController::class, 'cancelDeletion'])->name('api.v1.privacy.deletion.destroy');
     });
     Route::get(
         '/health',

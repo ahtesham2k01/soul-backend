@@ -83,6 +83,9 @@ class User extends Authenticatable
     public function devices(): HasMany { return $this->hasMany(UserDevice::class); }
     public function notificationPreference(): HasOne { return $this->hasOne(NotificationPreference::class); }
     public function notifications(): HasMany { return $this->hasMany(UserNotification::class); }
+    public function privacySetting(): HasOne { return $this->hasOne(AccountPrivacySetting::class); }
+    public function dataExportRequests(): HasMany { return $this->hasMany(DataExportRequest::class); }
+    public function deletionRequests(): HasMany { return $this->hasMany(AccountDeletionRequest::class); }
 
     /**
      * Use public ULIDs for route model binding.

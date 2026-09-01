@@ -14,5 +14,5 @@
 - [x] Phase 12 — Safety, verification and appeals
 - [x] Phase 13 — Notifications
 - [x] Phase 14 — Custom React admin panel, moderation queues and audit controls
-- [ ] Phase 15 — Privacy and account data controls
+- [x] Phase 15 — Privacy settings, data export and deletion controls
 - [ ] Phase 16 — Performance, security and V1 release readiness

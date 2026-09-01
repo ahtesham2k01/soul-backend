@@ -36,6 +36,7 @@ class ListCandidatesController extends Controller
             ->where('gender', $preference->preferred_gender->value)
             ->whereBetween('date_of_birth', [$oldest, $youngest])
             ->whereHas('user', fn ($query) => $query->where('status', User::STATUS_ACTIVE))
+            ->whereDoesntHave('user.privacySetting', fn ($query) => $query->where('discoverable', false))
             ->whereNotExists(fn ($query) => $query->selectRaw('1')->from('user_blocks')
                 ->where(fn ($query) => $query
                     ->whereColumn('blocker_user_id', 'user_profiles.user_id')
@@ -48,7 +49,7 @@ class ListCandidatesController extends Controller
             $query->where('country_code', $viewer->country_code);
         }
 
-        $page = $query->with(['photos' => fn ($query) => $query
+        $page = $query->with(['user.privacySetting', 'photos' => fn ($query) => $query
             ->where('visibility', ProfilePhotoVisibility::Public->value)
             ->where('moderation_status', ProfilePhotoModerationStatus::Approved->value)])
             ->orderByDesc('id')->cursorPaginate(20);
@@ -57,8 +58,8 @@ class ListCandidatesController extends Controller
             'candidates' => collect($page->items())->map(fn (UserProfile $profile): array => [
                 'id' => $profile->public_id,
                 'first_name' => $profile->first_name,
-                'age' => $profile->date_of_birth->age,
-                'city' => $profile->city_name,
+                'age' => $profile->user->privacySetting?->show_age === false ? null : $profile->date_of_birth->age,
+                'city' => $profile->user->privacySetting?->show_city === false ? null : $profile->city_name,
                 'country' => $profile->country_code,
                 'photos' => $profile->photos->map(fn ($photo): array => [
                     'id' => $photo->public_id,
