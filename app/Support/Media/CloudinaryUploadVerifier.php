@@ -43,6 +43,30 @@ final class CloudinaryUploadVerifier
         return hash_equals($expected, strtolower($signature));
     }
 
+    public function verifyNotification(
+        string $body,
+        int $timestamp,
+        string $signature,
+    ): bool {
+        if (! $this->isConfigured()) {
+            return false;
+        }
+
+        $tolerance = max(60, (int) config(
+            'soul.media.cloudinary.webhook_tolerance_seconds',
+            7200,
+        ));
+
+        if (abs(now()->timestamp - $timestamp) > $tolerance) {
+            return false;
+        }
+
+        return hash_equals(
+            $this->digest($body.$timestamp),
+            strtolower($signature),
+        );
+    }
+
     private function digest(string $payload): string
     {
         $secret = (string) config('soul.media.cloudinary.api_secret');

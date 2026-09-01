@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Api\V1;
 
 use App\Models\ProfilePhoto;
+use App\Enums\Profile\ProfilePhotoModerationStatus;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -22,6 +23,10 @@ class ProfilePhotoResource extends JsonResource
             'visibility' => $this->visibility->value,
             'moderation_status' => $this->moderation_status->value,
             'rejection_reason' => $this->rejection_reason,
+            'correction_screen' => $this->moderation_status
+                === ProfilePhotoModerationStatus::Rejected
+                    ? 'onboarding.photos'
+                    : null,
             'face_detected' => $this->face_detected,
             'screenshot_protection_enabled' => $this->screenshot_protection_enabled,
         ];

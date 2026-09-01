@@ -257,6 +257,10 @@ return [
                 'CLOUDINARY_UPLOAD_SESSION_TTL_MINUTES',
                 10,
             ),
+            'webhook_tolerance_seconds' => (int) env(
+                'CLOUDINARY_WEBHOOK_TOLERANCE_SECONDS',
+                7200,
+            ),
             'response_signature_algorithm' => env(
                 'CLOUDINARY_RESPONSE_SIGNATURE_ALGORITHM',
                 'sha1',

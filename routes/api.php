@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\V1\Onboarding\ShowReligionProfileController;
 use App\Http\Controllers\Api\V1\Onboarding\StoreReligionProfileController;
 use App\Http\Controllers\Api\V1\Onboarding\UpdateProfileDraftController;
 use App\Http\Controllers\Api\V1\ResolveLocationController;
+use App\Http\Controllers\Api\V1\Webhooks\CloudinaryModerationController;
 use App\Support\ApiResponse;
 use Illuminate\Support\Facades\Route;
 
@@ -104,6 +105,13 @@ Route::prefix('v1')->group(function (): void {
     )
         ->middleware('throttle:location-resolution')
         ->name('api.v1.location.resolve');
+
+    Route::post(
+        '/webhooks/cloudinary/moderation',
+        CloudinaryModerationController::class,
+    )
+        ->middleware('throttle:120,1')
+        ->name('api.v1.webhooks.cloudinary.moderation');
 
     Route::get(
         '/onboarding/religion-options',
