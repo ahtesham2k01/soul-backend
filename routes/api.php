@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AppBootstrapController;
+use App\Http\Controllers\Api\V1\Auth\AppleSignInController;
 use App\Http\Controllers\Api\V1\Auth\CurrentUserController;
 use App\Http\Controllers\Api\V1\Auth\GoogleSignInController;
 use App\Http\Controllers\Api\V1\Auth\LoginRequestOtpController;
@@ -11,10 +12,11 @@ use App\Http\Controllers\Api\V1\Auth\RegisterRequestOtpController;
 use App\Http\Controllers\Api\V1\Auth\RegisterVerifyOtpController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\Onboarding\ReligionOptionsController;
+use App\Http\Controllers\Api\V1\Onboarding\ShowProfileDraftController;
 use App\Http\Controllers\Api\V1\Onboarding\ShowReligionProfileController;
 use App\Http\Controllers\Api\V1\Onboarding\StoreReligionProfileController;
+use App\Http\Controllers\Api\V1\Onboarding\UpdateProfileDraftController;
 use App\Http\Controllers\Api\V1\ResolveLocationController;
-use App\Http\Controllers\Api\V1\Auth\AppleSignInController;
 use App\Support\ApiResponse;
 use Illuminate\Support\Facades\Route;
 
@@ -127,8 +129,30 @@ Route::prefix('v1')->group(function (): void {
         ])
         ->name('api.v1.onboarding.religion-profile.show');
 
+    Route::get(
+        '/onboarding/profile',
+        ShowProfileDraftController::class,
+    )
+        ->middleware([
+            'auth:sanctum',
+            'active.account',
+            'throttle:60,1',
+        ])
+        ->name('api.v1.onboarding.profile.show');
+
+    Route::put(
+        '/onboarding/profile',
+        UpdateProfileDraftController::class,
+    )
+        ->middleware([
+            'auth:sanctum',
+            'active.account',
+            'throttle:30,1',
+        ])
+        ->name('api.v1.onboarding.profile.update');
+
     Route::fallback(
-        fn() => ApiResponse::error(
+        fn () => ApiResponse::error(
             code: 'route_not_found',
             message: 'The requested API endpoint does not exist.',
             status: 404,
