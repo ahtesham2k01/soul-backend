@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Middleware\ApplySecurityHeaders;
 use App\Http\Middleware\AttachRequestId;
 use App\Http\Middleware\EnsureAccountIsActive;
 use App\Http\Middleware\EnsureUserIsAdmin;
+use App\Http\Middleware\RecordRequestTelemetry;
 use App\Support\ApiResponse;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
@@ -26,6 +28,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'api',
             AttachRequestId::class,
         );
+        $middleware->appendToGroup('api', [
+            RecordRequestTelemetry::class,
+            ApplySecurityHeaders::class,
+        ]);
+        $middleware->appendToGroup('web', ApplySecurityHeaders::class);
 
         $middleware->alias([
             'active.account' => EnsureAccountIsActive::class,

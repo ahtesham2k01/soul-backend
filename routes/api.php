@@ -35,6 +35,7 @@ use App\Http\Controllers\Api\V1\Onboarding\StoreReligionProfileController;
 use App\Http\Controllers\Api\V1\Onboarding\SubmitProfileController;
 use App\Http\Controllers\Api\V1\Onboarding\UpdateProfileDraftController;
 use App\Http\Controllers\Api\V1\Privacy\PrivacyController;
+use App\Http\Controllers\Api\V1\ReadinessController;
 use App\Http\Controllers\Api\V1\ResolveLocationController;
 use App\Http\Controllers\Api\V1\Safety\BlockUserController;
 use App\Http\Controllers\Api\V1\Safety\ReportUserController;
@@ -102,6 +103,11 @@ Route::prefix('v1')->group(function (): void {
         '/health',
         HealthController::class,
     )->name('api.v1.health');
+
+    Route::get(
+        '/health/ready',
+        ReadinessController::class,
+    )->name('api.v1.health.ready');
 
     Route::get(
         '/bootstrap',

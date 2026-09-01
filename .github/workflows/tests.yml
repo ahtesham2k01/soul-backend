@@ -49,6 +49,11 @@ jobs:
           npm ci
           npm run build
 
+      - name: Audit locked production dependencies
+        run: |
+          composer audit --locked
+          npm audit --omit=dev --audit-level=high
+
       - name: Prepare test environment
         run: |
           cp .env.example .env
