@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\V1\Admin\ModerationController;
 use App\Http\Controllers\Api\V1\Admin\AdminAuditLogController;
 use App\Http\Controllers\Api\V1\Admin\AdminAccountController;
 use App\Http\Controllers\Api\V1\Admin\ReligionTaxonomyController;
+use App\Http\Controllers\Api\V1\Admin\NotificationBroadcastController;
 use App\Http\Controllers\Api\V1\Admin\AdminUserController;
 use App\Http\Controllers\Api\V1\Auth\AppleSignInController;
 use App\Http\Controllers\Api\V1\Auth\CurrentUserController;
@@ -69,6 +70,9 @@ Route::prefix('v1')->group(function (): void {
             Route::get('/religion-taxonomy', [ReligionTaxonomyController::class, 'index'])->name('api.v1.admin.religion-taxonomy.index');
             Route::post('/religion-taxonomy', [ReligionTaxonomyController::class, 'store'])->name('api.v1.admin.religion-taxonomy.store');
             Route::put('/religion-taxonomy/{node}', [ReligionTaxonomyController::class, 'update'])->name('api.v1.admin.religion-taxonomy.update');
+            Route::get('/notification-broadcasts', [NotificationBroadcastController::class, 'index'])->name('api.v1.admin.notification-broadcasts.index');
+            Route::post('/notification-broadcasts', [NotificationBroadcastController::class, 'store'])->name('api.v1.admin.notification-broadcasts.store');
+            Route::post('/notification-broadcasts/{broadcast}/send', [NotificationBroadcastController::class, 'send'])->name('api.v1.admin.notification-broadcasts.send');
         });
     });
     Route::middleware(['auth:sanctum', 'active.account'])->group(function (): void {

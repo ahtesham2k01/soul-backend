@@ -1977,6 +1977,104 @@
             },
             "description": "api.v1.admin.religion-taxonomy.update: Update hierarchy, translations, availability and ordering"
           }
+        },
+        {
+          "name": "Browse broadcast lifecycle and delivery/read analytics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/notification-broadcasts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "notification-broadcasts"
+              ]
+            },
+            "description": "api.v1.admin.notification-broadcasts.index: Browse broadcast lifecycle and delivery/read analytics"
+          }
+        },
+        {
+          "name": "Create a preference-aware targeted draft with recipient estimate",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Safety update\",\n  \"body\": \"Important information for SOUL members.\",\n  \"category\": \"safety\",\n  \"audience_type\": \"country\",\n  \"audience_value\": \"PK\",\n  \"reason\": \"Approved member communication\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/notification-broadcasts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "notification-broadcasts"
+              ]
+            },
+            "description": "api.v1.admin.notification-broadcasts.store: Create a preference-aware targeted draft with recipient estimate"
+          }
+        },
+        {
+          "name": "Explicitly confirm and queue an idempotent broadcast",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"confirmation\": \"SEND\",\n  \"reason\": \"Approved member communication\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/notification-broadcasts/{broadcast}/send",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "notification-broadcasts",
+                "{broadcast}",
+                "send"
+              ]
+            },
+            "description": "api.v1.admin.notification-broadcasts.send: Explicitly confirm and queue an idempotent broadcast"
+          }
         }
       ]
     },

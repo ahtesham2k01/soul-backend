@@ -2386,6 +2386,130 @@
         }
       }
     },
+    "/admin/notification-broadcasts": {
+      "get": {
+        "operationId": "api.v1.admin.notification-broadcasts.index",
+        "summary": "Browse broadcast lifecycle and delivery/read analytics",
+        "tags": [
+          "Admin"
+        ],
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      },
+      "post": {
+        "operationId": "api.v1.admin.notification-broadcasts.store",
+        "summary": "Create a preference-aware targeted draft with recipient estimate",
+        "tags": [
+          "Admin"
+        ],
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "title": "Safety update",
+                "body": "Important information for SOUL members.",
+                "category": "safety",
+                "audience_type": "country",
+                "audience_value": "PK",
+                "reason": "Approved member communication"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/admin/notification-broadcasts/{broadcast}/send": {
+      "post": {
+        "operationId": "api.v1.admin.notification-broadcasts.send",
+        "summary": "Explicitly confirm and queue an idempotent broadcast",
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "broadcast",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "confirmation": "SEND",
+                "reason": "Approved member communication"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
     "/webhooks/cloudinary/moderation": {
       "post": {
         "operationId": "api.v1.webhooks.cloudinary.moderation",

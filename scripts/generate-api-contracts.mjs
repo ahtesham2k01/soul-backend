@@ -11,8 +11,8 @@ const endpoints = [...handoff.matchAll(endpointPattern)].map((match) => ({
     summary: match[4].trim(),
 }));
 
-if (endpoints.length !== 70) {
-    throw new Error(`Expected 70 documented endpoints, found ${endpoints.length}.`);
+if (endpoints.length !== 73) {
+    throw new Error(`Expected 73 documented endpoints, found ${endpoints.length}.`);
 }
 
 const publicOperations = new Set([
@@ -53,6 +53,8 @@ const requestExamples = {
     'api.v1.admin.admins.destroy': { reason: 'Admin left operations' },
     'api.v1.admin.religion-taxonomy.store': { parent_id: null, type: 'religion', slug: 'islam', is_active: true, sort_order: 0, translations: [{ locale: 'en', label: 'Islam', description: null }], country_codes: [], reason: 'Approved taxonomy maintenance' },
     'api.v1.admin.religion-taxonomy.update': { parent_id: null, type: 'religion', slug: 'islam', is_active: true, sort_order: 0, translations: [{ locale: 'en', label: 'Islam', description: null }], country_codes: ['PK'], reason: 'Approved taxonomy maintenance' },
+    'api.v1.admin.notification-broadcasts.store': { title: 'Safety update', body: 'Important information for SOUL members.', category: 'safety', audience_type: 'country', audience_value: 'PK', reason: 'Approved member communication' },
+    'api.v1.admin.notification-broadcasts.send': { confirmation: 'SEND', reason: 'Approved member communication' },
 };
 
 const tags = (operationId) => {

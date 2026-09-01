@@ -11,6 +11,7 @@ type UserDetail = UserSummary & { preferred_locale:string; created_at:string; la
 type Audit = { id:string; action:string; admin:{email:string}; subject_type:string; reason:string|null; created_at:string };
 type AdminAccount = { id:string; name:string|null; email:string; role:'moderator'|'super_admin'; status:string };
 type ReligionNode = { id:string; parent_id:string|null; type:string; slug:string; path:string; is_active:boolean; sort_order:number; translations:Array<{locale:string;label:string;description:string|null}>; country_codes:string[] };
+type Broadcast = { id:string; title:string; body:string; category:string; audience_type:string; audience_value:string|null; status:string; estimated_recipients:number; delivered_count:number; read_count:number };
 const csrf = () => document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content ?? '';
 
 async function api(path:string, options:RequestInit = {}) {
@@ -49,6 +50,7 @@ function App() {
     const [audits,setAudits] = useState<Audit[]>([]);
     const [admins,setAdmins] = useState<AdminAccount[]>([]);
     const [religionNodes,setReligionNodes] = useState<ReligionNode[]>([]);
+    const [broadcasts,setBroadcasts] = useState<Broadcast[]>([]);
     const [selected,setSelected] = useState<UserDetail|null>(null);
     const [search,setSearch] = useState('');
     const [authorized,setAuthorized] = useState(true);
@@ -61,6 +63,7 @@ function App() {
     const loadAudits = async () => setAudits((await api('/audit-logs')).data.audit_logs);
     const loadAdmins = async () => setAdmins((await api('/admins')).data.admins);
     const loadReligion = async () => setReligionNodes((await api('/religion-taxonomy')).data.nodes);
+    const loadBroadcasts = async () => setBroadcasts((await api('/notification-broadcasts')).data.broadcasts);
     const loadDetail = async (id:string) => setSelected((await api('/users/'+id)).data.user);
     const reloadQueues = async () => {
         const [dashboard,reportData,caseData] = await Promise.all([api('/dashboard'),api('/reports'),api('/verifications')]);
@@ -70,7 +73,7 @@ function App() {
     };
     useEffect(() => { (async () => {
         const current = await reloadQueues();
-        await Promise.all([loadUsers(),loadAudits(),...(current.role==='super_admin' ? [loadAdmins(),loadReligion()] : [])]);
+        await Promise.all([loadUsers(),loadAudits(),...(current.role==='super_admin' ? [loadAdmins(),loadReligion(),loadBroadcasts()] : [])]);
     })().catch(error => error.message === 'AUTH' && setAuthorized(false)); }, []);
 
     const searchUsers = async (event:FormEvent) => { event.preventDefault(); await loadUsers(search); };
@@ -114,11 +117,13 @@ function App() {
         await api('/religion-taxonomy/'+node.id,{method:'PUT',body:JSON.stringify({...node,is_active:!node.is_active,translations:node.translations,country_codes:node.country_codes,reason})});
         await Promise.all([loadReligion(),loadAudits()]); setNotice('Religion option updated.');
     };
+    const createBroadcast = async (event:FormEvent<HTMLFormElement>) => { event.preventDefault(); const form=event.currentTarget; const data=Object.fromEntries(new FormData(form).entries()) as Record<string,string>; const reason=window.prompt('Reason for creating this broadcast:'); if(!reason)return; await api('/notification-broadcasts',{method:'POST',body:JSON.stringify({...data,audience_value:data.audience_value||null,reason})}); form.reset(); await Promise.all([loadBroadcasts(),loadAudits()]); setNotice('Broadcast draft created. Review it before sending.'); };
+    const sendBroadcast = async (item:Broadcast) => { if(!window.confirm(`Send “${item.title}” to approximately ${item.estimated_recipients} users?`))return; const reason=window.prompt('Reason for sending this broadcast:'); if(!reason)return; await api('/notification-broadcasts/'+item.id+'/send',{method:'POST',body:JSON.stringify({confirmation:'SEND',reason})}); await Promise.all([loadBroadcasts(),loadAudits()]); setNotice('Broadcast queued safely.'); };
 
     if (! authorized) return <Login />;
     if (! counts || ! actor) return <main className="loading">Loading secure workspace…</main>;
     return <div className="shell"><aside><div className="brand">SOUL</div><span>Operations</span>
-        <nav><a href="#overview">Overview</a><a href="#users">Users</a>{actor.role==='super_admin'&&<><a href="#admins">Admin access</a><a href="#religion">Religion taxonomy</a></>}<a href="#reports">Reports</a><a href="#verification">Verification</a><a href="#audit">Audit log</a></nav>
+        <nav><a href="#overview">Overview</a><a href="#users">Users</a>{actor.role==='super_admin'&&<><a href="#admins">Admin access</a><a href="#religion">Religion taxonomy</a><a href="#broadcasts">Broadcasts</a></>}<a href="#reports">Reports</a><a href="#verification">Verification</a><a href="#audit">Audit log</a></nav>
         <div className="operator"><b>{actor.role.replaceAll('_',' ')}</b><small>{actor.email}</small></div>
         <form method="post" action="/admin/session"><input type="hidden" name="_token" value={csrf()} /><input type="hidden" name="_method" value="DELETE" /><button>Sign out</button></form></aside>
         <main><header id="overview"><div><small>SOUL OPERATIONS</small><h1>Safety command center</h1></div><span className="secure">● Secure session</span></header>
@@ -132,6 +137,7 @@ function App() {
             {actor.role==='super_admin' && <section className="panel" id="admins"><h2>Admin access</h2><div className="admin-grid"><div>{admins.map(admin=><div className="row" key={admin.id}><div><b>{admin.name || admin.email}</b><p>{admin.email} · {admin.role.replaceAll('_',' ')}</p></div>{admin.id!==actor.id&&<div className="actions"><button onClick={()=>changeAdminRole(admin,'moderator')}>Moderator</button><button onClick={()=>changeAdminRole(admin,'super_admin')}>Super admin</button><button className="danger" onClick={()=>removeAdmin(admin)}>Remove</button></div>}</div>)}</div>
                 <form className="detail admin-form" onSubmit={createAdmin}><h3>Create admin</h3><label>Name<input name="name" required maxLength={120}/></label><label>Email<input name="email" type="email" required/></label><label>Temporary password<input name="password" type="password" required minLength={12}/></label><label>Role<select name="role" defaultValue="moderator"><option value="moderator">Moderator</option><option value="super_admin">Super admin</option></select></label><button>Create secure account</button></form></div></section>}
             {actor.role==='super_admin' && <section className="panel" id="religion"><h2>Religion taxonomy & translations</h2><div className="admin-grid"><div>{religionNodes.map(node=><div className="row" key={node.id}><div><b>{node.translations.find(t=>t.locale==='en')?.label||node.slug}</b><p>{node.path} · {node.country_codes.length?node.country_codes.join(', '):'Global'} · {node.is_active?'active':'inactive'}</p></div><button className={node.is_active?'warning':''} onClick={()=>toggleReligion(node)}>{node.is_active?'Deactivate':'Activate'}</button></div>)}</div><form className="detail admin-form" onSubmit={saveReligion}><h3>Add taxonomy option</h3><label>English label<input name="label" required maxLength={120}/></label><label>Slug<input name="slug" required pattern="[A-Za-z0-9_-]+"/></label><label>Type<select name="type"><option value="religion">Religion</option><option value="belief">Belief</option><option value="sect">Sect</option><option value="tradition">Tradition</option><option value="denomination">Denomination</option><option value="sub_sect">Sub-sect</option><option value="school">School</option><option value="movement">Movement</option><option value="community">Community</option><option value="caste">Caste</option></select></label><label>Parent<select name="parent_id"><option value="">Root</option>{religionNodes.map(node=><option key={node.id} value={node.id}>{node.path}</option>)}</select></label><label>Country codes (blank = global)<input name="country_codes" placeholder="PK, AE"/></label><label>Sort order<input name="sort_order" type="number" min="0" defaultValue="0"/></label><button>Create option</button></form></div></section>}
+            {actor.role==='super_admin' && <section className="panel" id="broadcasts"><h2>Notification broadcasts & analytics</h2><div className="admin-grid"><div>{broadcasts.map(item=><div className="row" key={item.id}><div><b>{item.title}</b><p>{item.status} · target {item.estimated_recipients} · delivered {item.delivered_count} · read {item.read_count}</p></div>{item.status==='draft'&&<button onClick={()=>sendBroadcast(item)}>Review & send</button>}</div>)}</div><form className="detail admin-form" onSubmit={createBroadcast}><h3>Create safe draft</h3><label>Title<input name="title" required maxLength={120}/></label><label>Message<textarea name="body" required maxLength={1000}/></label><label>Category<select name="category"><option value="safety">Safety update</option><option value="marketing">Marketing</option></select></label><label>Audience<select name="audience_type"><option value="all_active">All active users</option><option value="country">Country</option><option value="locale">Locale</option></select></label><label>Country/locale value<input name="audience_value" placeholder="PK or ur"/></label><button>Save draft</button></form></div></section>}
             <section className="panel" id="reports"><h2>Pending reports</h2>{reports.length ? reports.map(report => <div className="row" key={report.id}><div><b>{report.category.replaceAll('_',' ')}</b><p>{report.details || 'No additional details'}</p></div><div><button onClick={() => moderate('/reports/'+report.id,'resolved')}>Resolve</button> <button className="warning" onClick={() => moderate('/reports/'+report.id,'dismissed')}>Dismiss</button></div></div>) : <p className="empty">Queue is clear.</p>}</section>
             <section className="panel" id="verification"><h2>Verification queue</h2>{cases.length ? cases.map(item => <div className="row" key={item.id}><div><b>{item.type.replaceAll('_',' ')}</b><p>{item.status.replaceAll('_',' ')}</p></div><div><button onClick={() => moderate('/verifications/'+item.id,'approved')}>Approve</button> <button className="warning" onClick={() => moderate('/verifications/'+item.id,'appeal_available')}>Correction</button></div></div>) : <p className="empty">Queue is clear.</p>}</section>
             <section className="panel" id="audit"><h2>Immutable audit log</h2>{audits.length ? audits.map(log=><div className="row audit" key={log.id}><div><b>{log.action.replaceAll('.',' ')}</b><p>{log.subject_type} · {log.reason || 'No reason recorded'}</p></div><div><small>{log.admin.email}</small><time>{new Date(log.created_at).toLocaleString()}</time></div></div>) : <p className="empty">No audit events.</p>}</section>

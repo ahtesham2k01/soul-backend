@@ -63,4 +63,4 @@
 - [x] Admin authorization and regression tests
 - [x] Religion taxonomy and translation management
 - [x] Admin account and role management
-- [ ] Notification broadcast and analytics
+- [x] Notification broadcast and analytics
