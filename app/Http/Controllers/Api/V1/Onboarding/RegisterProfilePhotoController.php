@@ -6,6 +6,7 @@ use App\Enums\Profile\ProfilePhotoModerationStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\Onboarding\RegisterProfilePhotoRequest;
 use App\Http\Resources\Api\V1\ProfilePhotoResource;
+use App\Jobs\DestroyCloudinaryAsset;
 use App\Models\ProfilePhoto;
 use App\Models\ProfilePhotoUpload;
 use App\Support\ApiResponse;
@@ -136,8 +137,14 @@ class RegisterProfilePhotoController extends Controller
                 return $photo;
             }
 
+            $replacedProviderAssetId = $existing->provider_asset_id;
             $existing->update($attributes);
             $upload->update(['consumed_at' => now()]);
+            DB::afterCommit(
+                fn () => DestroyCloudinaryAsset::dispatch(
+                    $replacedProviderAssetId,
+                ),
+            );
 
             return $existing->refresh();
         });

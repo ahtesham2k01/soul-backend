@@ -3,11 +3,13 @@
 namespace Tests\Feature\Api\V1\Onboarding;
 
 use App\Enums\Profile\ProfilePhotoModerationStatus;
+use App\Jobs\DestroyCloudinaryAsset;
 use App\Models\ProfilePhoto;
 use App\Models\ProfilePhotoUpload;
 use App\Models\User;
 use App\Models\UserProfile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Bus;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -97,6 +99,7 @@ class ProfilePhotoEndpointTest extends TestCase
 
     public function test_idempotent_retry_preserves_moderation_but_replacement_resets_it(): void
     {
+        Bus::fake();
         $user = User::factory()->create(['status' => User::STATUS_ACTIVE]);
         $profile = UserProfile::factory()->for($user)->create();
         Sanctum::actingAs($user);
@@ -131,6 +134,10 @@ class ProfilePhotoEndpointTest extends TestCase
             'moderation_status' => 'pending',
             'face_detected' => null,
         ]);
+        Bus::assertDispatched(
+            DestroyCloudinaryAsset::class,
+            fn (DestroyCloudinaryAsset $job): bool => $job->providerAssetId === 'soul/users/existing',
+        );
     }
 
     public function test_asset_cannot_be_registered_to_two_photo_slots(): void

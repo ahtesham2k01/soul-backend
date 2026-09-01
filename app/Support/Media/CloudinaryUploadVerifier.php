@@ -23,6 +23,13 @@ final class CloudinaryUploadVerifier
         );
     }
 
+    public function signDestroy(string $publicId, int $timestamp): string
+    {
+        return $this->digest(
+            "invalidate=true&public_id={$publicId}&timestamp={$timestamp}",
+        );
+    }
+
     public function verify(string $publicId, int $version, string $signature): bool
     {
         if (! $this->isConfigured()) {

@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\V1\Auth\RegisterRequestOtpController;
 use App\Http\Controllers\Api\V1\Auth\RegisterVerifyOtpController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\Onboarding\CreateProfilePhotoUploadController;
+use App\Http\Controllers\Api\V1\Onboarding\DeleteProfilePhotoController;
 use App\Http\Controllers\Api\V1\Onboarding\ListProfilePhotosController;
 use App\Http\Controllers\Api\V1\Onboarding\RegisterProfilePhotoController;
 use App\Http\Controllers\Api\V1\Onboarding\ReligionOptionsController;
@@ -198,6 +199,17 @@ Route::prefix('v1')->group(function (): void {
             'throttle:20,1',
         ])
         ->name('api.v1.onboarding.photos.register');
+
+    Route::delete(
+        '/onboarding/photos/{position}',
+        DeleteProfilePhotoController::class,
+    )
+        ->middleware([
+            'auth:sanctum',
+            'active.account',
+            'throttle:20,1',
+        ])
+        ->name('api.v1.onboarding.photos.delete');
 
     Route::fallback(
         fn () => ApiResponse::error(
