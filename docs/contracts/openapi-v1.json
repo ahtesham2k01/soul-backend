@@ -1919,6 +1919,152 @@
         }
       }
     },
+    "/admin/users": {
+      "get": {
+        "operationId": "api.v1.admin.users.index",
+        "summary": "Search and filter user directory",
+        "tags": [
+          "Admin"
+        ],
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/admin/users/{user}": {
+      "get": {
+        "operationId": "api.v1.admin.users.show",
+        "summary": "Inspect account, profile, photo and safety summary",
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "user",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/admin/users/{user}/status": {
+      "put": {
+        "operationId": "api.v1.admin.users.status.update",
+        "summary": "Super-admin suspend, block or restore",
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "user",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "status": "suspended",
+                "reason": "Confirmed safety escalation"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/admin/audit-logs": {
+      "get": {
+        "operationId": "api.v1.admin.audit-logs.index",
+        "summary": "Filtered immutable operations history",
+        "tags": [
+          "Admin"
+        ],
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
     "/webhooks/cloudinary/moderation": {
       "post": {
         "operationId": "api.v1.webhooks.cloudinary.moderation",

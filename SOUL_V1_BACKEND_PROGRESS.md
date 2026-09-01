@@ -51,3 +51,16 @@
 - [x] Configurable private export storage disk
 - [x] CI configuration validation
 - [x] Automated command tests and operations runbook
+
+## Operational admin expansion
+
+- [x] Searchable and filterable user directory
+- [x] User account, profile, photo and safety detail
+- [x] Super-admin-only suspend, block and restore controls
+- [x] Immediate token revocation and discovery pause
+- [x] Filtered immutable audit-log browser
+- [x] Responsive React operations workspace
+- [x] Admin authorization and regression tests
+- [ ] Religion taxonomy and translation management
+- [ ] Admin account and role management
+- [ ] Notification broadcast and analytics

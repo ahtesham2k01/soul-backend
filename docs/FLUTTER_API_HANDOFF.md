@@ -117,6 +117,10 @@ The React admin uses same-origin secure session cookies, not mobile bearer token
 | PUT | `/admin/reports/{report}` | `api.v1.admin.reports.update` | Moderation decision with reason |
 | GET | `/admin/verifications` | `api.v1.admin.verifications.index` | Reviewable verification cases |
 | PUT | `/admin/verifications/{case}` | `api.v1.admin.verifications.update` | Verification decision with audit event |
+| GET | `/admin/users` | `api.v1.admin.users.index` | Search and filter user directory |
+| GET | `/admin/users/{user}` | `api.v1.admin.users.show` | Inspect account, profile, photo and safety summary |
+| PUT | `/admin/users/{user}/status` | `api.v1.admin.users.status.update` | Super-admin suspend, block or restore |
+| GET | `/admin/audit-logs` | `api.v1.admin.audit-logs.index` | Filtered immutable operations history |
 
 ## Provider-only endpoint
 

@@ -1630,6 +1630,122 @@
             },
             "description": "api.v1.admin.verifications.update: Verification decision with audit event"
           }
+        },
+        {
+          "name": "Search and filter user directory",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users"
+              ]
+            },
+            "description": "api.v1.admin.users.index: Search and filter user directory"
+          }
+        },
+        {
+          "name": "Inspect account, profile, photo and safety summary",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/{user}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                "{user}"
+              ]
+            },
+            "description": "api.v1.admin.users.show: Inspect account, profile, photo and safety summary"
+          }
+        },
+        {
+          "name": "Super-admin suspend, block or restore",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"suspended\",\n  \"reason\": \"Confirmed safety escalation\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/{user}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                "{user}",
+                "status"
+              ]
+            },
+            "description": "api.v1.admin.users.status.update: Super-admin suspend, block or restore"
+          }
+        },
+        {
+          "name": "Filtered immutable operations history",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/audit-logs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "audit-logs"
+              ]
+            },
+            "description": "api.v1.admin.audit-logs.index: Filtered immutable operations history"
+          }
         }
       ]
     },

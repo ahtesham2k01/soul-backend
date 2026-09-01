@@ -11,8 +11,8 @@ const endpoints = [...handoff.matchAll(endpointPattern)].map((match) => ({
     summary: match[4].trim(),
 }));
 
-if (endpoints.length !== 59) {
-    throw new Error(`Expected 59 documented endpoints, found ${endpoints.length}.`);
+if (endpoints.length !== 63) {
+    throw new Error(`Expected 63 documented endpoints, found ${endpoints.length}.`);
 }
 
 const publicOperations = new Set([
@@ -47,6 +47,7 @@ const requestExamples = {
     'api.v1.verification.appeals.store': { statement: 'Please review this verification decision again.' },
     'api.v1.devices.store': { platform: 'android', push_token: '<provider-token>', device_name: 'Pixel' },
     'api.v1.privacy.deletion.store': { confirmation: 'DELETE MY ACCOUNT' },
+    'api.v1.admin.users.status.update': { status: 'suspended', reason: 'Confirmed safety escalation' },
 };
 
 const tags = (operationId) => {

@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Api\V1\AppBootstrapController;
 use App\Http\Controllers\Api\V1\Admin\ModerationController;
+use App\Http\Controllers\Api\V1\Admin\AdminAuditLogController;
+use App\Http\Controllers\Api\V1\Admin\AdminUserController;
 use App\Http\Controllers\Api\V1\Auth\AppleSignInController;
 use App\Http\Controllers\Api\V1\Auth\CurrentUserController;
 use App\Http\Controllers\Api\V1\Auth\GoogleSignInController;
@@ -52,6 +54,11 @@ Route::prefix('v1')->group(function (): void {
         Route::put('/reports/{report}', [ModerationController::class, 'decideReport'])->name('api.v1.admin.reports.update');
         Route::get('/verifications', [ModerationController::class, 'verifications'])->name('api.v1.admin.verifications.index');
         Route::put('/verifications/{case}', [ModerationController::class, 'decideVerification'])->name('api.v1.admin.verifications.update');
+        Route::get('/users', [AdminUserController::class, 'index'])->name('api.v1.admin.users.index');
+        Route::get('/users/{user}', [AdminUserController::class, 'show'])->name('api.v1.admin.users.show');
+        Route::put('/users/{user}/status', [AdminUserController::class, 'updateStatus'])
+            ->middleware('admin:super_admin')->name('api.v1.admin.users.status.update');
+        Route::get('/audit-logs', AdminAuditLogController::class)->name('api.v1.admin.audit-logs.index');
     });
     Route::middleware(['auth:sanctum', 'active.account'])->group(function (): void {
         Route::get('/discovery/preferences', [DiscoveryPreferenceController::class, 'show'])
