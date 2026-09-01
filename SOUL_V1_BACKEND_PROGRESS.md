@@ -26,3 +26,12 @@
 - [x] Candidate lookup query index added
 - [x] Production health, cleanup and security controls documented
 - [ ] Final PHP/React CI verification for release-candidate head
+
+## Flutter handoff
+
+- [x] Mobile authentication and response-envelope contract
+- [x] All named V1 endpoints catalogued by feature
+- [x] Cursor, retry, privacy and error-handling guidance
+- [x] Cloudinary direct-upload sequence documented
+- [x] Stable V1 enums and compatibility rules documented
+- [x] Automated route-to-handoff drift test
