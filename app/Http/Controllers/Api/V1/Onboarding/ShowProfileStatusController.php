@@ -12,7 +12,10 @@ class ShowProfileStatusController extends Controller
 {
     public function __invoke(Request $request): JsonResponse
     {
-        $profile = $request->user()->profile;
+        // Lifecycle transitions are performed asynchronously. Always query the
+        // latest persisted state instead of returning a relation that may have
+        // been loaded before the automated-check job completed.
+        $profile = $request->user()->profile()->first();
 
         return ApiResponse::success(
             data: [
