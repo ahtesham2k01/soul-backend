@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\V1\Auth\RegisterVerifyOtpController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\Onboarding\ReligionOptionsController;
 use App\Http\Controllers\Api\V1\Onboarding\ShowProfileDraftController;
+use App\Http\Controllers\Api\V1\Onboarding\ShowReadinessController;
 use App\Http\Controllers\Api\V1\Onboarding\ShowReligionProfileController;
 use App\Http\Controllers\Api\V1\Onboarding\StoreReligionProfileController;
 use App\Http\Controllers\Api\V1\Onboarding\UpdateProfileDraftController;
@@ -150,6 +151,17 @@ Route::prefix('v1')->group(function (): void {
             'throttle:30,1',
         ])
         ->name('api.v1.onboarding.profile.update');
+
+    Route::get(
+        '/onboarding/readiness',
+        ShowReadinessController::class,
+    )
+        ->middleware([
+            'auth:sanctum',
+            'active.account',
+            'throttle:60,1',
+        ])
+        ->name('api.v1.onboarding.readiness.show');
 
     Route::fallback(
         fn () => ApiResponse::error(
