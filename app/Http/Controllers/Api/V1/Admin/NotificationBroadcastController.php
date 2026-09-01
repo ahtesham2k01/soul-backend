@@ -31,7 +31,7 @@ class NotificationBroadcastController extends Controller {
    $locked=NotificationBroadcast::lockForUpdate()->findOrFail($broadcast->id); if($locked->status!=='draft')return false;
    $before=$locked->only(['status']); $locked->update(['status'=>'queued','sent_at'=>now(),'estimated_recipients'=>$this->audience($locked->toArray())->count()]);
    $this->audit($request,$locked,'notification_broadcast.queued',$before,$locked->only(['status','estimated_recipients']),$v['reason']);
-   DeliverNotificationBroadcast::dispatch($locked->id); return true;
+   DeliverNotificationBroadcast::dispatch($locked->id)->afterCommit(); return true;
   });
   if(!$queued)return ApiResponse::error('BROADCAST_ALREADY_SENT','Only a draft broadcast can be sent.',409);
   return ApiResponse::success(['broadcast'=>$this->serialize($broadcast->refresh())],'Broadcast queued safely.');

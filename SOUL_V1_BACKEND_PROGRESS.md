@@ -25,7 +25,7 @@
 - [x] Suspended counterparts removed from matches and messaging
 - [x] Candidate lookup query index added
 - [x] Production health, cleanup and security controls documented
-- [ ] Final PHP/React CI verification for release-candidate head
+- [x] Final PHP/React release-candidate verification
 
 ## Flutter handoff
 

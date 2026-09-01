@@ -21,7 +21,7 @@ class ReligionTaxonomyEndpointTest extends TestCase
     public function test_super_admin_can_create_localized_country_restricted_hierarchy(): void
     {
         $actor = $this->admin('super_admin'); Sanctum::actingAs($actor);
-        $root = $this->createNode(['slug' => 'islam', 'type' => 'religion', 'country_codes' => []]);
+        $root = $this->createNode(['slug' => 'islam', 'type' => 'religion', 'country_codes' => []])->json('data.node.id');
         $child = $this->createNode(['parent_id' => $root, 'slug' => 'sunni', 'type' => 'sect', 'country_codes' => ['pk', 'AE']]);
 
         $child->assertCreated()->assertJsonPath('data.node.path', 'islam/sunni')->assertJsonPath('data.node.country_codes.0', 'AE')->assertJsonPath('data.node.country_codes.1', 'PK');

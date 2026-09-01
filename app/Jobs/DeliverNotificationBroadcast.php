@@ -12,7 +12,7 @@ use Illuminate\Queue\SerializesModels;
 
 class DeliverNotificationBroadcast implements ShouldQueue {
  use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
- public int $tries=5; public array $backoff=[60,300,900,3600]; public bool $afterCommit=true;
+ public int $tries=5; public array $backoff=[60,300,900,3600];
  public function __construct(public int $broadcastId) {}
  public function handle(): void {
   $broadcast=NotificationBroadcast::find($this->broadcastId); if(!$broadcast||!in_array($broadcast->status,['queued','processing'],true))return;
@@ -25,7 +25,7 @@ class DeliverNotificationBroadcast implements ShouldQueue {
   $query->select('id')->chunkById(500,function($users)use($broadcast){
    $now=now(); DB::table('user_notifications')->insertOrIgnore($users->map(fn($user)=>['public_id'=>(string)Str::ulid(),'broadcast_id'=>$broadcast->id,'user_id'=>$user->id,'type'=>'broadcast','data'=>json_encode(['title'=>$broadcast->title,'body'=>$broadcast->body,'category'=>$broadcast->category],JSON_THROW_ON_ERROR),'created_at'=>$now,'updated_at'=>$now])->all());
   });
-  $delivered=UserNotification::where('broadcast_id',$broadcast->id)->count();
+  $delivered=DB::table('user_notifications')->where('broadcast_id',$broadcast->id)->count();
   $broadcast->update(['status'=>'completed','delivered_count'=>$delivered,'completed_at'=>now()]);
  }
 }
