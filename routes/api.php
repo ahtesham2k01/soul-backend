@@ -13,6 +13,9 @@ use App\Http\Controllers\Api\V1\Auth\RegisterVerifyOtpController;
 use App\Http\Controllers\Api\V1\Discovery\DiscoveryPreferenceController;
 use App\Http\Controllers\Api\V1\Discovery\ListCandidatesController;
 use App\Http\Controllers\Api\V1\HealthController;
+use App\Http\Controllers\Api\V1\Matching\ListMatchesController;
+use App\Http\Controllers\Api\V1\Matching\StoreProfileDecisionController;
+use App\Http\Controllers\Api\V1\Matching\UnmatchController;
 use App\Http\Controllers\Api\V1\Onboarding\CreateProfilePhotoUploadController;
 use App\Http\Controllers\Api\V1\Onboarding\DeleteProfilePhotoController;
 use App\Http\Controllers\Api\V1\Onboarding\ListProfilePhotosController;
@@ -41,6 +44,12 @@ Route::prefix('v1')->group(function (): void {
         Route::get('/discovery/candidates', ListCandidatesController::class)
             ->middleware('throttle:60,1')
             ->name('api.v1.discovery.candidates.index');
+        Route::post('/profiles/{profile}/decision', StoreProfileDecisionController::class)
+            ->middleware('throttle:120,1')->name('api.v1.matching.decisions.store');
+        Route::get('/matches', ListMatchesController::class)
+            ->middleware('throttle:60,1')->name('api.v1.matches.index');
+        Route::delete('/matches/{match}', UnmatchController::class)
+            ->middleware('throttle:30,1')->name('api.v1.matches.destroy');
     });
     Route::get(
         '/health',

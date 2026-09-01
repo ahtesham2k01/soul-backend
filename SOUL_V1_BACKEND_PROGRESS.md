@@ -9,7 +9,7 @@
 - [x] Phase 7 — Photo moderation and corrections
 - [x] Phase 8 — Submission, readiness, resubmission and audit history
 - [x] Phase 9 — Discovery preferences and candidate eligibility
-- [ ] Phase 10 — Likes, passes and matches
+- [x] Phase 10 — Likes, passes and matches
 - [ ] Phase 11 — Messaging, blocking and reporting
 - [ ] Phase 12 — Safety, verification and appeals
 - [ ] Phase 13 — Notifications
