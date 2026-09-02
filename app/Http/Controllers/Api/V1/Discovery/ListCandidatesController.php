@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\Discovery;
 use App\Enums\Profile\ProfilePhotoModerationStatus;
 use App\Enums\Profile\ProfilePhotoVisibility;
 use App\Enums\Profile\ProfileStatus;
+use App\Enums\Profile\ReligionDiscoveryMode;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\UserProfile;
@@ -58,7 +59,22 @@ class ListCandidatesController extends Controller
             $query->where('country_code', $viewer->country_code);
         }
 
-        $page = $query->with(['user.privacySetting', 'photos' => fn ($query) => $query
+        if ($preference->religion_mode === ReligionDiscoveryMode::MyReligion) {
+            $rootNodeId = $user->religionProfile?->root_node_id;
+
+            if ($rootNodeId === null) {
+                return ApiResponse::error(
+                    code: 'DISCOVERY_RELIGION_REQUIRED',
+                    message: 'Complete your religion selection before using My Religion discovery.',
+                    status: 409,
+                );
+            }
+
+            $query->whereHas('user.religionProfile', fn ($religion) => $religion
+                ->where('root_node_id', $rootNodeId));
+        }
+
+        $page = $query->with(['user.privacySetting', 'user.religionProfile.rootNode', 'photos' => fn ($query) => $query
             ->where('visibility', ProfilePhotoVisibility::Public->value)
             ->where('moderation_status', ProfilePhotoModerationStatus::Approved->value)])
             ->orderByDesc('id')->cursorPaginate(20);
@@ -70,6 +86,10 @@ class ListCandidatesController extends Controller
                 'age' => $profile->date_of_birth->age,
                 'city' => $profile->user->privacySetting?->show_city === false ? null : $profile->city_name,
                 'country' => $profile->country_code,
+                'religion' => $profile->user->religionProfile?->rootNode === null ? null : [
+                    'id' => $profile->user->religionProfile->rootNode->public_id,
+                    'slug' => $profile->user->religionProfile->rootNode->slug,
+                ],
                 'photos' => $profile->photos->map(fn ($photo): array => [
                     'id' => $photo->public_id,
                     'position' => $photo->position,

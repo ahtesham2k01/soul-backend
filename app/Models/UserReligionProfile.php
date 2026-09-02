@@ -11,12 +11,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable([
     'user_id',
     'selected_node_id',
+    'root_node_id',
     'country_code',
 ])]
 #[Hidden([
     'id',
     'user_id',
     'selected_node_id',
+    'root_node_id',
 ])]
 class UserReligionProfile extends Model
 {
@@ -35,5 +37,11 @@ class UserReligionProfile extends Model
             ReligionTaxonomyNode::class,
             'selected_node_id',
         );
+    }
+
+    /** @return BelongsTo<ReligionTaxonomyNode, $this> */
+    public function rootNode(): BelongsTo
+    {
+        return $this->belongsTo(ReligionTaxonomyNode::class, 'root_node_id');
     }
 }

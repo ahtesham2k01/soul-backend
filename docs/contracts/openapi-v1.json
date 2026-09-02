@@ -877,7 +877,8 @@
                 "preferred_gender": "woman",
                 "minimum_age": 24,
                 "maximum_age": 35,
-                "same_country_only": true
+                "same_country_only": true,
+                "religion_mode": "my_religion"
               }
             }
           }

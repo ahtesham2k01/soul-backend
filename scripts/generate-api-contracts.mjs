@@ -39,7 +39,7 @@ const requestExamples = {
     'api.v1.auth.apple': { identity_token: '<apple-identity-token>', device_name: 'iPhone' },
     'api.v1.location.resolve': { latitude: 24.8607, longitude: 67.0011, accuracy_meters: 25 },
     'api.v1.onboarding.profile.update': { first_name: 'Ayesha', marital_status: 'never_married', profession_status: 'employed', smoking: 'no', alcohol: 'no', current_children: 'no', future_children: 'want_children', intentions: ['marriage'], spoken_language_ids: [1], interests: ['Reading'], personality_traits: ['Kind'], prefer_not_to_say_fields: [] },
-    'api.v1.discovery.preferences.update': { preferred_gender: 'woman', minimum_age: 24, maximum_age: 35, same_country_only: true },
+    'api.v1.discovery.preferences.update': { preferred_gender: 'woman', minimum_age: 24, maximum_age: 35, same_country_only: true, religion_mode: 'my_religion' },
     'api.v1.matching.decisions.store': { decision: 'like' },
     'api.v1.messages.store': { body: 'Salam' },
     'api.v1.safety.blocks.store': { reason: 'Harassment' },

@@ -7,9 +7,10 @@ This is the implementation guide for the Android/iOS client. Laravel is the auth
 1. Read `APP_FLOW.md` for screen order, branches and lifecycle states.
 2. Read `FLUTTER_API_HANDOFF.md` for all versioned routes and stable enums.
 3. Read `PROFILE_INFORMATION_CONTRACT.md` before building onboarding/profile forms.
-4. Import `contracts/openapi-v1.json` or `contracts/postman-v1.collection.json` while building the API client.
-5. Read `DATABASE_DESIGN.md` only to understand ownership and relationships; Flutter never uses internal database IDs.
-6. Read `BACKEND_SCOPE.md` before implementing a screen so unfinished gap-closure modules are not mistaken for available APIs.
+4. Read `RELIGION_DISCOVERY_CONTRACT.md` before building religion or discovery-mode screens.
+5. Import `contracts/openapi-v1.json` or `contracts/postman-v1.collection.json` while building the API client.
+6. Read `DATABASE_DESIGN.md` only to understand ownership and relationships; Flutter never uses internal database IDs.
+7. Read `BACKEND_SCOPE.md` before implementing a screen so unfinished gap-closure modules are not mistaken for available APIs.
 
 ## Client architecture
 
@@ -88,6 +89,7 @@ Use `PROFILE_INFORMATION_CONTRACT.md` for field names, enums, collection limits 
 
 - Location: attempt device permission, call `/location/resolve`, and offer manual city selection when unavailable. Never insert a default city.
 - Religion: fetch country-aware options, traverse only returned children, skip absent layers and save the complete selected path.
+- Religion discovery: default to the returned `my_religion` mode and offer `all_religions`; never add a sect filter in V1.
 - Photos: request a signed upload session, upload directly to Cloudinary, then register the exact response. Show upload, pending, approved, rejected and replacement states.
 - Submission: use readiness to focus the first missing/correction screen, then submit. Poll or refresh `/onboarding/status` after automated checks.
 - Do not assume selfie/phone verification is required for every user; follow the returned risk/profile state.

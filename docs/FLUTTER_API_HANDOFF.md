@@ -144,6 +144,7 @@ This endpoint is for signed Cloudinary notifications only. Flutter must never ca
 ## Stable V1 enums
 
 - Gender: `man`, `woman`
+- Religion discovery mode: `my_religion`, `all_religions`
 - Marital status: `never_married`, `married`, `separated`, `divorced`, `widowed`
 - Profession/status: `employed`, `self_employed`, `student`, `homemaker`, `unemployed`, `retired`, `other`
 - Smoking/alcohol: `no`, `occasionally`, `yes`, `prefer_not_to_say`
@@ -158,3 +159,4 @@ This endpoint is for signed Cloudinary notifications only. Flutter must never ca
 Clients must tolerate additive response fields and new enum values by showing a safe fallback. Removing/renaming fields or changing their meaning requires a new API version.
 
 The complete profile request, optional-field limits and Skip/Prefer-not-to-say behavior are maintained in `PROFILE_INFORMATION_CONTRACT.md`.
+Religion root matching, hierarchy and country behavior are maintained in `RELIGION_DISCOVERY_CONTRACT.md`.

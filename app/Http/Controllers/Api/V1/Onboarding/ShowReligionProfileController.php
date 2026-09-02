@@ -14,7 +14,7 @@ class ShowReligionProfileController extends Controller
     public function __invoke(Request $request): JsonResponse
     {
         $profile = UserReligionProfile::query()
-            ->with('selectedNode')
+            ->with(['selectedNode', 'rootNode'])
             ->where('user_id', $request->user()->getKey())
             ->first();
 
@@ -53,6 +53,7 @@ class ShowReligionProfileController extends Controller
             data: [
                 'religion_profile' => [
                     'selected_node_id' => $selectedNode->public_id,
+                    'root_node_id' => $profile->rootNode?->public_id,
                     'country' => $profile->country_code,
                     'path' => $path,
                 ],

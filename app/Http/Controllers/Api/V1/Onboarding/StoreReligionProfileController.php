@@ -38,6 +38,35 @@ class StoreReligionProfileController extends Controller
             );
         }
 
+        $segments = explode('/', $node->path);
+        $ancestorPaths = [];
+
+        foreach (array_keys($segments) as $index) {
+            $ancestorPaths[] = implode('/', array_slice($segments, 0, $index + 1));
+        }
+
+        $pathQuery = ReligionTaxonomyNode::query()
+            ->whereIn('path', $ancestorPaths)
+            ->where('is_active', true);
+
+        if ($countryCode !== null) {
+            $pathQuery->availableInCountry($countryCode);
+        } else {
+            $pathQuery->whereDoesntHave('countries');
+        }
+
+        $availablePath = $pathQuery->get();
+
+        if ($availablePath->count() !== count($ancestorPaths)) {
+            return ApiResponse::error(
+                code: 'RELIGION_OPTION_UNAVAILABLE',
+                message: 'The complete religion path is not available for this country.',
+                status: 422,
+            );
+        }
+
+        $rootNode = $availablePath->firstWhere('path', $segments[0]);
+
         $childrenQuery = $node->children()
             ->where('is_active', true);
 
@@ -61,20 +90,11 @@ class StoreReligionProfileController extends Controller
                     ['user_id' => $request->user()->getKey()],
                     [
                         'selected_node_id' => $node->getKey(),
+                        'root_node_id' => $rootNode?->getKey(),
                         'country_code' => $countryCode,
                     ],
                 ),
         );
-
-        $segments = explode('/', $node->path);
-        $ancestorPaths = [];
-
-        foreach (array_keys($segments) as $index) {
-            $ancestorPaths[] = implode(
-                '/',
-                array_slice($segments, 0, $index + 1),
-            );
-        }
 
         $path = ReligionTaxonomyNode::query()
             ->whereIn('path', $ancestorPaths)
@@ -94,6 +114,7 @@ class StoreReligionProfileController extends Controller
             data: [
                 'religion_profile' => [
                     'selected_node_id' => $node->public_id,
+                    'root_node_id' => $rootNode?->public_id,
                     'country' => $profile->country_code,
                     'path' => $path,
                 ],

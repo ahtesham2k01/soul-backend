@@ -796,7 +796,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"preferred_gender\": \"woman\",\n  \"minimum_age\": 24,\n  \"maximum_age\": 35,\n  \"same_country_only\": true\n}",
+              "raw": "{\n  \"preferred_gender\": \"woman\",\n  \"minimum_age\": 24,\n  \"maximum_age\": 35,\n  \"same_country_only\": true,\n  \"religion_mode\": \"my_religion\"\n}",
               "options": {
                 "raw": {
                   "language": "json"

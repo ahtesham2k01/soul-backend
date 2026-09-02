@@ -36,6 +36,7 @@ class DiscoveryEndpointTest extends TestCase
             'same_country_only' => true,
         ])->assertOk()
             ->assertJsonPath('data.preferences.minimum_age', 24)
+            ->assertJsonPath('data.preferences.religion_mode', 'my_religion')
             ->assertJsonMissingPath('data.preferences.user_id');
 
         $this->getJson('/api/v1/discovery/preferences')
@@ -69,6 +70,7 @@ class DiscoveryEndpointTest extends TestCase
         $viewer->discoveryPreference()->create([
             'preferred_gender' => 'woman', 'minimum_age' => 25,
             'maximum_age' => 35, 'same_country_only' => true,
+            'religion_mode' => 'all_religions',
         ]);
         $candidate = User::factory()->create(['status' => User::STATUS_ACTIVE]);
         $candidateProfile = UserProfile::factory()->for($candidate)->create([
@@ -112,6 +114,7 @@ class DiscoveryEndpointTest extends TestCase
             'minimum_age' => 18,
             'maximum_age' => 60,
             'same_country_only' => false,
+            'religion_mode' => 'all_religions',
         ]);
         $candidate = User::factory()->create(['status' => User::STATUS_ACTIVE]);
         UserProfile::factory()->for($candidate)->create([
@@ -136,7 +139,7 @@ class DiscoveryEndpointTest extends TestCase
         Carbon::setTestNow('2026-09-02 12:00:00');
         $viewer = User::factory()->create(['status' => User::STATUS_ACTIVE]);
         UserProfile::factory()->for($viewer)->create(['profile_status' => 'live', 'gender' => 'man']);
-        $viewer->discoveryPreference()->create(['preferred_gender' => 'woman', 'minimum_age' => 18, 'maximum_age' => 60, 'same_country_only' => false]);
+        $viewer->discoveryPreference()->create(['preferred_gender' => 'woman', 'minimum_age' => 18, 'maximum_age' => 60, 'same_country_only' => false, 'religion_mode' => 'all_religions']);
         $recentPass = User::factory()->create(['status' => User::STATUS_ACTIVE]);
         $expiredPass = User::factory()->create(['status' => User::STATUS_ACTIVE]);
         $liked = User::factory()->create(['status' => User::STATUS_ACTIVE]);

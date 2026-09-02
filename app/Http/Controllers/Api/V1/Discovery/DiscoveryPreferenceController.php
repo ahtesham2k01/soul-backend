@@ -36,6 +36,7 @@ class DiscoveryPreferenceController extends Controller
             'minimum_age' => $preference->minimum_age,
             'maximum_age' => $preference->maximum_age,
             'same_country_only' => $preference->same_country_only,
+            'religion_mode' => $preference->religion_mode->value,
         ];
     }
 }

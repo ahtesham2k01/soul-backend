@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api\V1\Discovery;
 
 use App\Enums\Profile\Gender;
+use App\Enums\Profile\ReligionDiscoveryMode;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -15,6 +16,7 @@ class UpdateDiscoveryPreferenceRequest extends FormRequest
             'minimum_age' => ['required', 'integer', 'between:18,100'],
             'maximum_age' => ['required', 'integer', 'between:18,100', 'gte:minimum_age'],
             'same_country_only' => ['required', 'boolean'],
+            'religion_mode' => ['sometimes', Rule::enum(ReligionDiscoveryMode::class)],
         ];
     }
 }
