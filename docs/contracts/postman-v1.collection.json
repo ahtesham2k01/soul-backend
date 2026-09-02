@@ -547,6 +547,15 @@
                 "value": "application/json"
               }
             ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"Ayesha\",\n  \"marital_status\": \"never_married\",\n  \"profession_status\": \"employed\",\n  \"smoking\": \"no\",\n  \"alcohol\": \"no\",\n  \"current_children\": \"no\",\n  \"future_children\": \"want_children\",\n  \"intentions\": [\n    \"marriage\"\n  ],\n  \"spoken_language_ids\": [\n    1\n  ],\n  \"interests\": [\n    \"Reading\"\n  ],\n  \"personality_traits\": [\n    \"Kind\"\n  ],\n  \"prefer_not_to_say_fields\": []\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
               "raw": "{{baseUrl}}/onboarding/profile",
               "host": [

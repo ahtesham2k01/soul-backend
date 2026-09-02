@@ -22,6 +22,9 @@ erDiagram
     USER_PROFILES ||--o{ PROFILE_PHOTOS : contains
     USER_PROFILES ||--o{ USER_PROFILE_INTENTIONS : selects
     USER_PROFILES }o--o{ SPOKEN_LANGUAGES : speaks
+    USER_PROFILES ||--o{ USER_PROFILE_INTERESTS : lists
+    USER_PROFILES ||--o{ USER_PROFILE_TRAITS : describes
+    USER_PROFILES ||--o{ USER_PROFILE_WITHHELD_FIELDS : withholds
     USERS ||--o| USER_RELIGION_PROFILES : selects
     RELIGION_TAXONOMY_NODES ||--o{ RELIGION_TAXONOMY_NODES : parent
     RELIGION_TAXONOMY_NODES ||--o{ RELIGION_TAXONOMY_TRANSLATIONS : labels
@@ -59,7 +62,7 @@ erDiagram
 | Domain | Tables | Ownership/constraints |
 |---|---|---|
 | Identity | `users`, `social_accounts`, `email_verification_codes`, `personal_access_tokens` | Unique email/public ID/provider identity; account cascades identities and tokens |
-| Profile | `user_profiles`, `user_profile_intentions`, `spoken_languages`, `spoken_language_user_profile` | One profile per user; normalized multi-select intentions/languages |
+| Profile | `user_profiles`, `user_profile_intentions`, `spoken_languages`, `spoken_language_user_profile`, `user_profile_interests`, `user_profile_traits`, `user_profile_withheld_fields` | One profile per user; normalized multi-select intentions/languages; bounded interests/traits; explicit optional answer state |
 | Religion | `religion_taxonomy_nodes`, `religion_taxonomy_translations`, `religion_taxonomy_countries`, `user_religion_profiles` | Hierarchical path, localized labels, country availability, one selection per user |
 | Photos | `profile_photos`, `profile_photo_uploads` | Slots 1–3 unique per profile; provider asset globally unique; short-lived upload sessions |
 | Lifecycle/legal | `profile_status_transitions`, `legal_acceptances` | Append-style state history and versioned consent |
@@ -90,7 +93,6 @@ These are required by the confirmed PRD but are not represented by complete curr
 
 | Phase | Planned storage |
 |---|---|
-| Profile parity | Optional-answer values/status, interests, traits, religion-practice fields, nationality/location references |
 | Discovery/privacy | Radius/selected locations, religion mode, incognito, pause, contact hashes, activity timestamps, safe distance cache |
 | Private photos | Access requests, grants, decisions, revocation timestamps and match ownership |
 | Chat presence | Presence/last-seen and ephemeral typing state (cache preferred for typing) |
@@ -110,4 +112,3 @@ Each extension must include reversible migrations, foreign keys, production-safe
 - Contact discovery should store normalized keyed hashes, not a reusable address book.
 - Exact location requires restricted storage, retention and access logging before its discovery phase ships.
 - Backup/restore, retention and regional compliance are deployment gates, not assumptions encoded in Flutter.
-

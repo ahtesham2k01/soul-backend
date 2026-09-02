@@ -144,6 +144,11 @@ This endpoint is for signed Cloudinary notifications only. Flutter must never ca
 ## Stable V1 enums
 
 - Gender: `man`, `woman`
+- Marital status: `never_married`, `married`, `separated`, `divorced`, `widowed`
+- Profession/status: `employed`, `self_employed`, `student`, `homemaker`, `unemployed`, `retired`, `other`
+- Smoking/alcohol: `no`, `occasionally`, `yes`, `prefer_not_to_say`
+- Current children: `no`, `yes_living_with_me`, `yes_not_living_with_me`, `prefer_not_to_say`
+- Future children: `want_children`, `do_not_want_children`, `open_to_children`, `not_sure`, `prefer_not_to_say`
 - Profile decision: `like`, `pass`
 - Device platform: `ios`, `android`
 - Verification type: `identity`, `selfie_review`
@@ -151,3 +156,5 @@ This endpoint is for signed Cloudinary notifications only. Flutter must never ca
 - Profile lifecycle: `draft`, `submitted`, `automated_checks`, `live`, plus correction/paused states returned by the status endpoint
 
 Clients must tolerate additive response fields and new enum values by showing a safe fallback. Removing/renaming fields or changing their meaning requires a new API version.
+
+The complete profile request, optional-field limits and Skip/Prefer-not-to-say behavior are maintained in `PROFILE_INFORMATION_CONTRACT.md`.

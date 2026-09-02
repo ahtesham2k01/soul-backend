@@ -538,6 +538,38 @@
             "bearerAuth": []
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "first_name": "Ayesha",
+                "marital_status": "never_married",
+                "profession_status": "employed",
+                "smoking": "no",
+                "alcohol": "no",
+                "current_children": "no",
+                "future_children": "want_children",
+                "intentions": [
+                  "marriage"
+                ],
+                "spoken_language_ids": [
+                  1
+                ],
+                "interests": [
+                  "Reading"
+                ],
+                "personality_traits": [
+                  "Kind"
+                ],
+                "prefer_not_to_say_fields": []
+              }
+            }
+          }
+        },
         "responses": {
           "401": {
             "$ref": "#/components/responses/Error"

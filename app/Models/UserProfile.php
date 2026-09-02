@@ -37,6 +37,11 @@ class UserProfile extends Model
         'employer',
         'grew_up_in',
         'ethnic_origin',
+        'religious_practice',
+        'prayer',
+        'diet',
+        'dress',
+        'detailed_religion_visible',
         'relocation_preference',
         'family_involvement_preference',
         'profile_status',
@@ -71,6 +76,24 @@ class UserProfile extends Model
     {
         return $this->hasMany(ProfilePhoto::class)
             ->orderBy('position');
+    }
+
+    /** @return HasMany<UserProfileInterest, $this> */
+    public function interests(): HasMany
+    {
+        return $this->hasMany(UserProfileInterest::class)->orderBy('id');
+    }
+
+    /** @return HasMany<UserProfileTrait, $this> */
+    public function personalityTraits(): HasMany
+    {
+        return $this->hasMany(UserProfileTrait::class)->orderBy('id');
+    }
+
+    /** @return HasMany<UserProfileWithheldField, $this> */
+    public function withheldFields(): HasMany
+    {
+        return $this->hasMany(UserProfileWithheldField::class)->orderBy('field');
     }
 
     /** @return HasMany<ProfileStatusTransition, $this> */
@@ -109,6 +132,7 @@ class UserProfile extends Model
             'gender' => Gender::class,
             'profile_status' => ProfileStatus::class,
             'height_cm' => 'integer',
+            'detailed_religion_visible' => 'boolean',
             'submitted_at' => 'immutable_datetime',
             'checks_completed_at' => 'immutable_datetime',
             'live_at' => 'immutable_datetime',

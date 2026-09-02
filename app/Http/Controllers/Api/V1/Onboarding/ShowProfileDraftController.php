@@ -14,7 +14,10 @@ class ShowProfileDraftController extends Controller
     {
         $profile = $request->user()
             ->profile()
-            ->with(['intentions', 'spokenLanguages'])
+            ->with([
+                'intentions', 'spokenLanguages', 'interests',
+                'personalityTraits', 'withheldFields',
+            ])
             ->first();
 
         return ApiResponse::success(

@@ -6,9 +6,10 @@ This is the implementation guide for the Android/iOS client. Laravel is the auth
 
 1. Read `APP_FLOW.md` for screen order, branches and lifecycle states.
 2. Read `FLUTTER_API_HANDOFF.md` for all versioned routes and stable enums.
-3. Import `contracts/openapi-v1.json` or `contracts/postman-v1.collection.json` while building the API client.
-4. Read `DATABASE_DESIGN.md` only to understand ownership and relationships; Flutter never uses internal database IDs.
-5. Read `BACKEND_SCOPE.md` before implementing a screen so unfinished gap-closure modules are not mistaken for available APIs.
+3. Read `PROFILE_INFORMATION_CONTRACT.md` before building onboarding/profile forms.
+4. Import `contracts/openapi-v1.json` or `contracts/postman-v1.collection.json` while building the API client.
+5. Read `DATABASE_DESIGN.md` only to understand ownership and relationships; Flutter never uses internal database IDs.
+6. Read `BACKEND_SCOPE.md` before implementing a screen so unfinished gap-closure modules are not mistaken for available APIs.
 
 ## Client architecture
 
@@ -82,6 +83,8 @@ Keep one small translation helper around this lookup. Widgets should request a k
 ## Onboarding implementation
 
 Persist each screen with partial profile updates and resume from server state. Required completion is determined only by `/onboarding/readiness`.
+
+Use `PROFILE_INFORMATION_CONTRACT.md` for field names, enums, collection limits and the important difference between Skip and Prefer not to say. Model optional answers as three states instead of using one nullable string for everything.
 
 - Location: attempt device permission, call `/location/resolve`, and offer manual city selection when unavailable. Never insert a default city.
 - Religion: fetch country-aware options, traverse only returned children, skip absent layers and save the complete selected path.

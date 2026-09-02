@@ -18,9 +18,9 @@ Laravel owns every protected decision. Flutter owns presentation, platform permi
 
 | Area | Implemented now | Remaining V1 scope |
 |---|---|---|
-| Bootstrap/localization | Locale negotiation, version/hash, direction, 252-key V1 catalog, complete English/Roman Urdu copy and React admin language switching | Human-reviewed copy for remaining configured languages as translation work becomes available |
+| Bootstrap/localization | Locale negotiation, version/hash, direction, 282-key V1 catalog, complete English/Roman Urdu copy and React admin language switching | Human-reviewed copy for remaining configured languages as translation work becomes available |
 | Authentication | Email registration/login OTP, Apple, Google, linked social identities, tokens, current user, logout/all | Active-device session listing/remote logout parity and duplicate merge hardening where needed |
-| Profile onboarding | Draft save/resume, required core fields, intentions, languages, religion selection, readiness/lifecycle | Full required/optional field and answer-state parity (Phase 14) |
+| Profile onboarding | Draft save/resume, all required V1 answers, optional details, interests/traits, Skip versus Prefer-not-to-say state, religion selection, readiness/lifecycle | Public full-profile presentation continues with discovery/privacy phases |
 | Religion | Future-ready hierarchy, translations, country rules, saved selection, admin taxonomy | Discovery-mode and display/privacy parity (Phase 15) |
 | Photos | Three slots, signed upload sessions, moderation webhook, replacement/deletion cleanup, clear-face readiness | Private access grants and full screenshot contracts (Phase 17) |
 | Discovery | Preferences, live eligibility, candidates, pass resurfacing, likes exclusion | Radius/locations, intentions, religion mode, incognito, contacts, inactivity and distance bands (Phase 16) |
@@ -36,7 +36,7 @@ Laravel owns every protected decision. Flutter owns presentation, platform permi
 
 - [x] Phase 12 — Core rule corrections
 - [x] Phase 13 — Complete English/Roman Urdu localization across mobile API and React admin
-- [ ] Phase 14 — Required/optional profile-field parity
+- [x] Phase 14 — Required/optional profile-field parity
 - [ ] Phase 15 — Religion discovery hierarchy and country-rule parity
 - [ ] Phase 16 — Discovery filters, ranking and distance privacy
 - [ ] Phase 17 — Public/private photo access and screenshot protection

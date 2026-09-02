@@ -7,6 +7,7 @@
 | `APP_FLOW.md` | Flutter, backend, design, QA | Screen/state sequence and product branches |
 | `FLUTTER_DEVELOPER_GUIDE.md` | Flutter engineers | Client architecture and implementation rules |
 | `FLUTTER_API_HANDOFF.md` | Flutter/backend engineers | Endpoint, enum and transport contract |
+| `PROFILE_INFORMATION_CONTRACT.md` | Flutter, backend and QA | Profile fields, values, limits and answer states |
 | `LOCALIZATION_GUIDE.md` | Flutter, React and backend engineers | Simple translation setup, examples and update checklist |
 | `contracts/openapi-v1.json` | Tools and client generation | Machine-readable API contract |
 | `contracts/postman-v1.collection.json` | QA and integration | Executable request collection |

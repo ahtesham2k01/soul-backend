@@ -49,6 +49,8 @@ The client saves a draft after each meaningful step. It may combine presentation
 15. Neutral legal promises, Terms and Privacy acceptance with versions.
 16. Readiness, submission and automated checks.
 
+For every optional question, the UI must keep Skip separate from Prefer not to say. Skip means no answer was supplied; Prefer not to say is an intentional saved state. If the member later answers, the normal value replaces that state. See `PROFILE_INFORMATION_CONTRACT.md` for the payload.
+
 ```mermaid
 stateDiagram-v2
     [*] --> Draft

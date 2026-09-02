@@ -27,11 +27,11 @@ class UserProfileFactory extends Factory
             'city_name' => fake()->city(),
             'country_code' => fake()->countryCode(),
             'nationality_country_code' => fake()->countryCode(),
-            'marital_status' => 'single',
+            'marital_status' => 'never_married',
             'profession_status' => 'employed',
             'smoking' => 'no',
             'alcohol' => 'no',
-            'current_children' => 'none',
+            'current_children' => 'no',
             'future_children' => 'open_to_children',
         ];
     }
