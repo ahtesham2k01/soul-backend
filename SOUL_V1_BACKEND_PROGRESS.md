@@ -70,7 +70,7 @@
 The original 16 phases established the backend and admin foundation. A fresh requirement-by-requirement audit identified the following product-completion phases; this checklist is now the release progress source of truth.
 
 - [x] Phase 12 — Core V1 rule corrections: 30-day deletion recovery, mandatory age/read receipts, 30-day pass resurfacing and exact report categories
-- [ ] Phase 13 — Complete English/Urdu localization across mobile API and React admin
+- [x] Phase 13 — Complete English/Roman Urdu localization across mobile API and React admin
 - [ ] Phase 14 — Required and optional profile-field parity
 - [ ] Phase 15 — Religion discovery hierarchy and country-rule parity
 - [ ] Phase 16 — Discovery filters, ranking and distance-privacy parity
@@ -86,7 +86,7 @@ The original 16 phases established the backend and admin foundation. A fresh req
 - [ ] Phase 26 — Full React admin coverage for all configurable V1 modules
 - [ ] Phase 27 — End-to-end PRD audit, integration tests and release closure
 
-Gap closure: **1/16 phases complete (6.25%)**.
+Gap closure: **2/16 phases complete (12.5%)**.
 
 ## Architecture and developer handoff documentation
 

@@ -19,7 +19,7 @@ return [
 
     'translations' => [
         'fallback_locale' => 'en',
-        'catalog_version' => '5',
+        'catalog_version' => '6',
 
         'locales' => [
             'en' => [

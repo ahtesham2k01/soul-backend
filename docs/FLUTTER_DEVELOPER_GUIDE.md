@@ -51,6 +51,16 @@ flowchart TD
 - If a key is absent in a newly added client screen, show the server-provided English fallback and report the missing key in non-sensitive telemetry.
 - Locale switching must rebuild navigation, validation copy, dates and layout direction without signing the user out.
 
+### Simple Flutter example
+
+```dart
+final values = bootstrap.translations.values;
+
+Text(values['profile.first_name'] ?? 'First name');
+```
+
+Keep one small translation helper around this lookup. Widgets should request a key such as `profile.first_name`; they should not contain separate English and Urdu sentences. English and simple Roman Urdu cover all current V1 feature areas. Other configured catalogs safely use English for newly added keys until their human-reviewed translations are ready.
+
 ## API rules
 
 - Base prefix: `/api/v1`.
@@ -114,4 +124,3 @@ Route guards should be data-driven: a profile in correction or verification paus
 - Offline and retry behavior tested for bootstrap, profile draft, upload registration and message send.
 - Deep links cannot bypass onboarding, subscription or safety authorization.
 - Store builds point to the intended environment and use environment-specific social/provider identifiers.
-

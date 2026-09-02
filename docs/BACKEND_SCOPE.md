@@ -18,7 +18,7 @@ Laravel owns every protected decision. Flutter owns presentation, platform permi
 
 | Area | Implemented now | Remaining V1 scope |
 |---|---|---|
-| Bootstrap/localization | Locale negotiation, catalog/version/hash, direction, brand and location boundary | Full screen-copy coverage and complete React admin localization (Phase 13) |
+| Bootstrap/localization | Locale negotiation, version/hash, direction, 252-key V1 catalog, complete English/Roman Urdu copy and React admin language switching | Human-reviewed copy for remaining configured languages as translation work becomes available |
 | Authentication | Email registration/login OTP, Apple, Google, linked social identities, tokens, current user, logout/all | Active-device session listing/remote logout parity and duplicate merge hardening where needed |
 | Profile onboarding | Draft save/resume, required core fields, intentions, languages, religion selection, readiness/lifecycle | Full required/optional field and answer-state parity (Phase 14) |
 | Religion | Future-ready hierarchy, translations, country rules, saved selection, admin taxonomy | Discovery-mode and display/privacy parity (Phase 15) |
@@ -35,7 +35,7 @@ Laravel owns every protected decision. Flutter owns presentation, platform permi
 ## Gap-closure phases
 
 - [x] Phase 12 — Core rule corrections
-- [ ] Phase 13 — Complete English/Roman Urdu localization across mobile API and React admin
+- [x] Phase 13 — Complete English/Roman Urdu localization across mobile API and React admin
 - [ ] Phase 14 — Required/optional profile-field parity
 - [ ] Phase 15 — Religion discovery hierarchy and country-rule parity
 - [ ] Phase 16 — Discovery filters, ranking and distance privacy
@@ -79,4 +79,3 @@ Moderator scope: report/verification review and allowed safety actions. Super-ad
 ## Definition of complete
 
 A phase is checked only when its migrations/models/services, authorized APIs, React administration where applicable, Flutter contract, automated tests, documentation and CI are complete. A local implementation without provider/staging verification is reported separately rather than called production-ready.
-

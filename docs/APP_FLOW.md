@@ -26,6 +26,8 @@ flowchart TD
 
 Language is detected on first launch and remains user-changeable. Laravel returns catalog values and direction. Location must be resolved from real provider/device input or manually selected; no default city/country is allowed.
 
+For a junior developer: first call bootstrap, save `translations.values`, then build the first screen. Do not write English/Urdu conditions inside individual widgets. Changing the selected language should fetch bootstrap again and rebuild the app without logging the user out.
+
 ## Onboarding screens
 
 The client saves a draft after each meaningful step. It may combine presentation screens, but it must preserve these data decisions:
