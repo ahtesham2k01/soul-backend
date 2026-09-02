@@ -23,6 +23,8 @@ class UserProfile extends Model
         'gender',
         'city_name',
         'country_code',
+        'latitude',
+        'longitude',
         'nationality_country_code',
         'marital_status',
         'profession_status',
@@ -48,6 +50,7 @@ class UserProfile extends Model
         'submitted_at',
         'checks_completed_at',
         'live_at',
+        'last_active_at',
         'status_reason',
         'correction_screen',
     ];
@@ -136,6 +139,9 @@ class UserProfile extends Model
             'submitted_at' => 'immutable_datetime',
             'checks_completed_at' => 'immutable_datetime',
             'live_at' => 'immutable_datetime',
+            'last_active_at' => 'immutable_datetime',
+            'latitude' => 'decimal:6',
+            'longitude' => 'decimal:6',
         ];
     }
 }

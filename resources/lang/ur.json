@@ -298,5 +298,12 @@
   "admin.value.selfie_review": "Selfie review",
   "admin.value.appeal_available": "Appeal available",
   "admin.value.approved": "Approved",
-  "admin.value.rejected": "Rejected"
+  "admin.value.rejected": "Rejected",
+  "distance.less_than_1_km": "1 km se kam",
+  "distance.about_2_km": "Taqreeban 2 km",
+  "distance.about_5_km": "Taqreeban 5 km",
+  "distance.about_10_km": "Taqreeban 10 km",
+  "distance.about_20_km": "Taqreeban 20 km",
+  "distance.about_50_km": "Taqreeban 50 km",
+  "distance.more_than_50_km": "50 km se zyada"
 }

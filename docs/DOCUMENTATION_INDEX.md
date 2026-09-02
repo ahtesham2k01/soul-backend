@@ -9,6 +9,7 @@
 | `FLUTTER_API_HANDOFF.md` | Flutter/backend engineers | Endpoint, enum and transport contract |
 | `PROFILE_INFORMATION_CONTRACT.md` | Flutter, backend and QA | Profile fields, values, limits and answer states |
 | `RELIGION_DISCOVERY_CONTRACT.md` | Flutter, backend and QA | Religion modes, root matching and country rules |
+| `DISCOVERY_PRIVACY_CONTRACT.md` | Flutter, backend and QA | Filters, activity, distance bands, incognito and contacts |
 | `LOCALIZATION_GUIDE.md` | Flutter, React and backend engineers | Simple translation setup, examples and update checklist |
 | `contracts/openapi-v1.json` | Tools and client generation | Machine-readable API contract |
 | `contracts/postman-v1.collection.json` | QA and integration | Executable request collection |

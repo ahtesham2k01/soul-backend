@@ -15,6 +15,7 @@ class DocumentationArchitectureTest extends TestCase
             'docs/LOCALIZATION_GUIDE.md' => ['## Flutter: load translations', '## React admin', '## Add a new translation'],
             'docs/PROFILE_INFORMATION_CONTRACT.md' => ['## Endpoints and save behavior', '## Required fields', '## Optional fields and limits', '## Skip versus prefer not to say'],
             'docs/RELIGION_DISCOVERY_CONTRACT.md' => ['## Product rule', '## Data flow', '## Flutter API usage', '## Important errors'],
+            'docs/DISCOVERY_PRIVACY_CONTRACT.md' => ['## Discovery preferences', '## Eligibility and ranking', '## Distance privacy', '## Contact privacy'],
             'docs/APP_FLOW.md' => ['## Onboarding screens', '## Discovery flow', '## Safety flow', '## Events flow', '## Subscription flow'],
             'docs/DATABASE_DESIGN.md' => ['## Current domain map', '## Current tables by ownership', '## Planned V1 schema extensions'],
             'docs/BACKEND_SCOPE.md' => ['## Current implemented foundation', '## Gap-closure phases', '## Definition of complete'],

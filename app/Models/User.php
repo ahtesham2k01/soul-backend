@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\Privacy\PhoneLookupHasher;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -80,12 +81,40 @@ class User extends Authenticatable
         return $this->hasMany(LegalAcceptance::class);
     }
 
-    public function devices(): HasMany { return $this->hasMany(UserDevice::class); }
-    public function notificationPreference(): HasOne { return $this->hasOne(NotificationPreference::class); }
-    public function notifications(): HasMany { return $this->hasMany(UserNotification::class); }
-    public function privacySetting(): HasOne { return $this->hasOne(AccountPrivacySetting::class); }
-    public function dataExportRequests(): HasMany { return $this->hasMany(DataExportRequest::class); }
-    public function deletionRequests(): HasMany { return $this->hasMany(AccountDeletionRequest::class); }
+    public function devices(): HasMany
+    {
+        return $this->hasMany(UserDevice::class);
+    }
+
+    public function notificationPreference(): HasOne
+    {
+        return $this->hasOne(NotificationPreference::class);
+    }
+
+    public function notifications(): HasMany
+    {
+        return $this->hasMany(UserNotification::class);
+    }
+
+    public function privacySetting(): HasOne
+    {
+        return $this->hasOne(AccountPrivacySetting::class);
+    }
+
+    public function dataExportRequests(): HasMany
+    {
+        return $this->hasMany(DataExportRequest::class);
+    }
+
+    public function deletionRequests(): HasMany
+    {
+        return $this->hasMany(AccountDeletionRequest::class);
+    }
+
+    public function hiddenContactHashes(): HasMany
+    {
+        return $this->hasMany(HiddenContactHash::class);
+    }
 
     /**
      * Use public ULIDs for route model binding.
@@ -103,6 +132,15 @@ class User extends Authenticatable
         static::creating(function (User $user): void {
             if ($user->public_id === null) {
                 $user->public_id = (string) Str::ulid();
+            }
+            if ($user->phone !== null) {
+                $user->phone_lookup_hash = app(PhoneLookupHasher::class)->hash($user->phone);
+            }
+        });
+
+        static::updating(function (User $user): void {
+            if ($user->isDirty('phone')) {
+                $user->phone_lookup_hash = $user->phone === null ? null : app(PhoneLookupHasher::class)->hash($user->phone);
             }
         });
     }

@@ -878,7 +878,13 @@
                 "minimum_age": 24,
                 "maximum_age": 35,
                 "same_country_only": true,
-                "religion_mode": "my_religion"
+                "religion_mode": "my_religion",
+                "location_mode": "current",
+                "radius_km": 50,
+                "selected_locations": [],
+                "intentions": [
+                  "marriage"
+                ]
               }
             }
           }
@@ -1629,6 +1635,49 @@
             "bearerAuth": []
           }
         ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/privacy/contacts": {
+      "put": {
+        "operationId": "api.v1.privacy.contacts.update",
+        "summary": "Replace privacy-safe contact hashes",
+        "tags": [
+          "Privacy"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "phone_numbers": [
+                  "+923001112233"
+                ]
+              }
+            }
+          }
+        },
         "responses": {
           "401": {
             "$ref": "#/components/responses/Error"

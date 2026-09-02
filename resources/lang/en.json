@@ -298,5 +298,12 @@
   "admin.value.selfie_review": "Selfie review",
   "admin.value.appeal_available": "Appeal available",
   "admin.value.approved": "Approved",
-  "admin.value.rejected": "Rejected"
+  "admin.value.rejected": "Rejected",
+  "distance.less_than_1_km": "Less than 1 km",
+  "distance.about_2_km": "About 2 km",
+  "distance.about_5_km": "About 5 km",
+  "distance.about_10_km": "About 10 km",
+  "distance.about_20_km": "About 20 km",
+  "distance.about_50_km": "About 50 km",
+  "distance.more_than_50_km": "More than 50 km"
 }

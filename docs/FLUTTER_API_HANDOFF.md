@@ -98,6 +98,7 @@ Do not cache candidate, match or message pages across users. A 404 for a profile
 | POST | `/notifications/{notification}/read` | `api.v1.notifications.read` | Idempotent read state |
 | GET | `/privacy/settings` | `api.v1.privacy.settings.show` | Load privacy defaults |
 | PUT | `/privacy/settings` | `api.v1.privacy.settings.update` | Partial privacy update |
+| PUT | `/privacy/contacts` | `api.v1.privacy.contacts.update` | Replace privacy-safe contact hashes |
 | POST | `/privacy/exports` | `api.v1.privacy.exports.store` | Idempotently request export |
 | GET | `/privacy/exports` | `api.v1.privacy.exports.index` | Poll export status |
 | GET | `/privacy/exports/{export}/download` | `api.v1.privacy.exports.download` | Owner-only private download |
@@ -160,3 +161,4 @@ Clients must tolerate additive response fields and new enum values by showing a 
 
 The complete profile request, optional-field limits and Skip/Prefer-not-to-say behavior are maintained in `PROFILE_INFORMATION_CONTRACT.md`.
 Religion root matching, hierarchy and country behavior are maintained in `RELIGION_DISCOVERY_CONTRACT.md`.
+Discovery filters, distance bands, activity and privacy behavior are maintained in `DISCOVERY_PRIVACY_CONTRACT.md`.

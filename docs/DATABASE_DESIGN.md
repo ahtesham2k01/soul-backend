@@ -66,11 +66,11 @@ erDiagram
 | Religion | `religion_taxonomy_nodes`, `religion_taxonomy_translations`, `religion_taxonomy_countries`, `user_religion_profiles` | Hierarchical path, localized labels, country availability, selected leaf plus denormalized V1 root per user |
 | Photos | `profile_photos`, `profile_photo_uploads` | Slots 1–3 unique per profile; provider asset globally unique; short-lived upload sessions |
 | Lifecycle/legal | `profile_status_transitions`, `legal_acceptances` | Append-style state history and versioned consent |
-| Discovery | `discovery_preferences`, `profile_decisions`, `user_matches` | One preference row; one current decision per actor/target; normalized match pair |
+| Discovery | `discovery_preferences`, `discovery_preference_locations`, `discovery_preference_intentions`, `profile_decisions`, `user_matches` | One preference row; normalized multi-location/intention filters; one current decision per actor/target; normalized match pair |
 | Chat/safety | `conversations`, `messages`, `user_blocks`, `user_reports` | One conversation per match; indexed message feed; directional blocks and review queue |
 | Verification | `profile_verification_cases`, `verification_appeals` | Multiple cases per user; at most one appeal per case |
 | Notifications | `user_devices`, `notification_preferences`, `user_notifications`, `notification_broadcasts` | Encrypted token plus unique hash; one preference row; idempotent broadcast recipient |
-| Privacy | `account_privacy_settings`, `data_export_requests`, `account_deletion_requests` | One settings row; export/deletion lifecycle rows |
+| Privacy | `account_privacy_settings`, `hidden_contact_hashes`, `data_export_requests`, `account_deletion_requests` | One settings row; keyed non-reversible contact hashes; export/deletion lifecycle rows |
 | Admin/operations | `admin_audit_logs`, user `admin_role` | Restricted admin actor deletion and immutable operation evidence |
 | Infrastructure | `cache`, `cache_locks`, `jobs`, `job_batches`, `failed_jobs` | Laravel cache, locks and asynchronous work |
 
@@ -79,6 +79,7 @@ erDiagram
 - Candidate discovery indexes lifecycle, gender, country, birth date and activity-oriented filters.
 - `profile_decisions_visibility_expiry_index` supports permanent like exclusion and 30-day pass expiry.
 - `user_religion_root_user_index` supports V1 My Religion filtering without deep-tree joins.
+- Profile activity and coordinate indexes support inactivity ordering and radius bounding-box scans.
 - Match member IDs are stored in normalized order with a unique pair.
 - Messages use `(conversation_id, id)` for cursor reads.
 - Notifications use `(user_id, read_at, id)` for unread feeds.
@@ -94,7 +95,6 @@ These are required by the confirmed PRD but are not represented by complete curr
 
 | Phase | Planned storage |
 |---|---|
-| Discovery/privacy | Radius/selected locations, incognito, pause, contact hashes, activity timestamps, safe distance cache |
 | Private photos | Access requests, grants, decisions, revocation timestamps and match ownership |
 | Chat presence | Presence/last-seen and ephemeral typing state (cache preferred for typing) |
 | Safety | Risk signals/actions, moderation cases, ban appeals and report action linkage |

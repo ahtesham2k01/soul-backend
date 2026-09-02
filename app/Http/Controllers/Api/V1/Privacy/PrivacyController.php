@@ -9,6 +9,7 @@ use App\Jobs\DeleteScheduledAccount;
 use App\Models\AccountDeletionRequest;
 use App\Models\User;
 use App\Support\ApiResponse;
+use App\Support\Privacy\PhoneLookupHasher;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -21,16 +22,34 @@ class PrivacyController extends Controller
         $p = $r->user()->privacySetting()->firstOrCreate([]);
         $p->forceFill(['show_age' => true, 'read_receipts' => true])->save();
 
-        return ApiResponse::success(['privacy' => $p->fresh()->only(['show_age', 'show_city', 'read_receipts', 'discoverable'])]);
+        return ApiResponse::success(['privacy' => $this->settings($p->fresh())]);
     }
 
     public function updateSettings(Request $r): JsonResponse
     {
-        $v = $r->validate(['show_age' => ['sometimes', 'accepted'], 'show_city' => ['sometimes', 'boolean'], 'read_receipts' => ['sometimes', 'accepted'], 'discoverable' => ['sometimes', 'boolean']]);
+        $v = $r->validate(['show_age' => ['sometimes', 'accepted'], 'show_city' => ['sometimes', 'boolean'], 'read_receipts' => ['sometimes', 'accepted'], 'discoverable' => ['sometimes', 'boolean'], 'incognito' => ['sometimes', 'boolean'], 'profile_paused' => ['sometimes', 'boolean'], 'hide_contacts' => ['sometimes', 'boolean']]);
         $p = $r->user()->privacySetting()->firstOrCreate([]);
         $p->update([...$v, 'show_age' => true, 'read_receipts' => true]);
 
-        return ApiResponse::success(['privacy' => $p->fresh()->only(['show_age', 'show_city', 'read_receipts', 'discoverable'])]);
+        return ApiResponse::success(['privacy' => $this->settings($p->fresh())]);
+    }
+
+    public function replaceContacts(Request $r, PhoneLookupHasher $hasher): JsonResponse
+    {
+        $validated = $r->validate(['phone_numbers' => ['required', 'array', 'max:500'], 'phone_numbers.*' => ['string', 'max:32', 'distinct']]);
+        $hashes = collect($validated['phone_numbers'])->map(fn (string $phone) => $hasher->hash($phone))->unique()->map(fn (string $hash) => ['phone_hash' => $hash])->values()->all();
+
+        DB::transaction(function () use ($r, $hashes): void {
+            $r->user()->hiddenContactHashes()->delete();
+            $r->user()->hiddenContactHashes()->createMany($hashes);
+        });
+
+        return ApiResponse::success(['hidden_contacts_count' => count($hashes)], 'Hidden contacts replaced successfully.');
+    }
+
+    private function settings($setting): array
+    {
+        return $setting->only(['show_age', 'show_city', 'read_receipts', 'discoverable', 'incognito', 'profile_paused', 'hide_contacts']);
     }
 
     public function requestExport(Request $r): JsonResponse
@@ -41,7 +60,7 @@ class PrivacyController extends Controller
             DB::afterCommit(fn () => BuildUserDataExport::dispatch($export->id));
         }
 
-return ApiResponse::success(['export' => ['id' => $export->public_id, 'status' => $export->status]], 'Data export requested.', 202);
+        return ApiResponse::success(['export' => ['id' => $export->public_id, 'status' => $export->status]], 'Data export requested.', 202);
     }
 
     public function exports(Request $r): JsonResponse
@@ -59,7 +78,7 @@ return ApiResponse::success(['export' => ['id' => $export->public_id, 'status' =
             return ApiResponse::error('EXPORT_NOT_AVAILABLE', 'Export is not available.', 404);
         }
 
-return $disk->download($x->file_path, 'soul-data-export.json', ['Content-Type' => 'application/json']);
+        return $disk->download($x->file_path, 'soul-data-export.json', ['Content-Type' => 'application/json']);
     }
 
     public function scheduleDeletion(Request $r): JsonResponse

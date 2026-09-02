@@ -23,12 +23,12 @@ Laravel owns every protected decision. Flutter owns presentation, platform permi
 | Profile onboarding | Draft save/resume, all required V1 answers, optional details, interests/traits, Skip versus Prefer-not-to-say state, religion selection, readiness/lifecycle | Public full-profile presentation continues with discovery/privacy phases |
 | Religion | Future-ready hierarchy, translations, complete-path country validation, saved leaf/root selection, persistent My Religion/All Religions discovery and admin taxonomy | Full-profile detailed-field presentation remains coupled to public-profile/privacy work |
 | Photos | Three slots, signed upload sessions, moderation webhook, replacement/deletion cleanup, clear-face readiness | Private access grants and full screenshot contracts (Phase 17) |
-| Discovery | Preferences, live eligibility, candidates, pass resurfacing, likes exclusion | Radius/locations, intentions, religion mode, incognito, contacts, inactivity and distance bands (Phase 16) |
+| Discovery | Gender/age/religion/intention/location/radius filters, activity ranking, 90-day hiding, safe distance bands, pass resurfacing and likes exclusion | Entitlement-dependent filter limits remain dynamic subscription work |
 | Likes/matches/chat | Like/pass, mutual match, matches, unmatch, text messages, mandatory read receipts | Like withdrawal, request acceptance semantics, presence/typing and private-photo revocation integration (Phase 18) |
 | Verification | Cases, review states and one appeal | Separate badge/risk semantics and underage escalation parity (Phases 19–20) |
 | Safety | Block, report categories, moderation queues and account actions | Report & Block transaction, risk cases, ban appeal and complete moderator tools (Phase 21) |
 | Notifications | Devices, push preferences, feed, match/message events and admin broadcasts | Push/email separation and complete event coverage (Phase 22) |
-| Privacy/account | Settings, private export, 30-day deletion recovery | Pause, incognito/contact privacy, detailed religion privacy and screenshot setting parity |
+| Privacy/account | Settings, profile pause, incognito, keyed contact hiding, private export and 30-day deletion recovery | Detailed religion presentation and screenshot setting parity continue with public-profile/photo phases |
 | Admin | Dashboard, users, reports, verification, admins/roles, taxonomy, broadcasts, audit | Events, entitlements, configuration, localization and remaining domain management (Phase 26) |
 | Operations | Health/readiness, telemetry, security headers, cleanup schedules, CI audits and runbook | Staging/provider credentials, load tests, observability targets and deployment approval |
 
@@ -38,7 +38,7 @@ Laravel owns every protected decision. Flutter owns presentation, platform permi
 - [x] Phase 13 — Complete English/Roman Urdu localization across mobile API and React admin
 - [x] Phase 14 — Required/optional profile-field parity
 - [x] Phase 15 — Religion discovery hierarchy and country-rule parity
-- [ ] Phase 16 — Discovery filters, ranking and distance privacy
+- [x] Phase 16 — Discovery filters, ranking and distance privacy
 - [ ] Phase 17 — Public/private photo access and screenshot protection
 - [ ] Phase 18 — Likes, requests, matches and chat parity
 - [ ] Phase 19 — Marital-status visibility and rules

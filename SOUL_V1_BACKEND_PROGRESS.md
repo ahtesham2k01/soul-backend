@@ -73,7 +73,7 @@ The original 16 phases established the backend and admin foundation. A fresh req
 - [x] Phase 13 — Complete English/Roman Urdu localization across mobile API and React admin
 - [x] Phase 14 — Required and optional profile-field parity
 - [x] Phase 15 — Religion discovery hierarchy and country-rule parity
-- [ ] Phase 16 — Discovery filters, ranking and distance-privacy parity
+- [x] Phase 16 — Discovery filters, ranking and distance-privacy parity
 - [ ] Phase 17 — Public/private photo access and screenshot-protection contracts
 - [ ] Phase 18 — Likes, requests, matches and chat flow parity
 - [ ] Phase 19 — Marital-status visibility and verification rules
@@ -86,7 +86,7 @@ The original 16 phases established the backend and admin foundation. A fresh req
 - [ ] Phase 26 — Full React admin coverage for all configurable V1 modules
 - [ ] Phase 27 — End-to-end PRD audit, integration tests and release closure
 
-Gap closure: **4/16 phases complete (25%)**.
+Gap closure: **5/16 phases complete (31.25%)**.
 
 ## Architecture and developer handoff documentation
 

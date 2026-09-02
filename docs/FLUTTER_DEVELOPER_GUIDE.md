@@ -8,9 +8,10 @@ This is the implementation guide for the Android/iOS client. Laravel is the auth
 2. Read `FLUTTER_API_HANDOFF.md` for all versioned routes and stable enums.
 3. Read `PROFILE_INFORMATION_CONTRACT.md` before building onboarding/profile forms.
 4. Read `RELIGION_DISCOVERY_CONTRACT.md` before building religion or discovery-mode screens.
-5. Import `contracts/openapi-v1.json` or `contracts/postman-v1.collection.json` while building the API client.
-6. Read `DATABASE_DESIGN.md` only to understand ownership and relationships; Flutter never uses internal database IDs.
-7. Read `BACKEND_SCOPE.md` before implementing a screen so unfinished gap-closure modules are not mistaken for available APIs.
+5. Read `DISCOVERY_PRIVACY_CONTRACT.md` before building filters, distance or privacy screens.
+6. Import `contracts/openapi-v1.json` or `contracts/postman-v1.collection.json` while building the API client.
+7. Read `DATABASE_DESIGN.md` only to understand ownership and relationships; Flutter never uses internal database IDs.
+8. Read `BACKEND_SCOPE.md` before implementing a screen so unfinished gap-closure modules are not mistaken for available APIs.
 
 ## Client architecture
 
@@ -97,7 +98,7 @@ Use `PROFILE_INFORMATION_CONTRACT.md` for field names, enums, collection limits 
 ## Discovery and interaction
 
 - Candidate cards display calculated age; date of birth never appears.
-- Never calculate or display exact coordinates. Render the distance band supplied by Laravel when that phase is available.
+- Never calculate or display exact coordinates. Render the localized distance-band key supplied by Laravel.
 - A pass can resurface after 30 days. A like remains excluded unless withdrawn before matching when the withdrawal API is added.
 - Treat profile/match 404 responses as non-enumerating unavailable states.
 - Read receipts are always on. Call `POST /matches/{match}/messages/read` when received messages become visible.

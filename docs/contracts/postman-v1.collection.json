@@ -796,7 +796,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"preferred_gender\": \"woman\",\n  \"minimum_age\": 24,\n  \"maximum_age\": 35,\n  \"same_country_only\": true,\n  \"religion_mode\": \"my_religion\"\n}",
+              "raw": "{\n  \"preferred_gender\": \"woman\",\n  \"minimum_age\": 24,\n  \"maximum_age\": 35,\n  \"same_country_only\": true,\n  \"religion_mode\": \"my_religion\",\n  \"location_mode\": \"current\",\n  \"radius_km\": 50,\n  \"selected_locations\": [],\n  \"intentions\": [\n    \"marriage\"\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1377,6 +1377,38 @@
               ]
             },
             "description": "api.v1.privacy.settings.update: Partial privacy update"
+          }
+        },
+        {
+          "name": "Replace privacy-safe contact hashes",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone_numbers\": [\n    \"+923001112233\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/privacy/contacts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "privacy",
+                "contacts"
+              ]
+            },
+            "description": "api.v1.privacy.contacts.update: Replace privacy-safe contact hashes"
           }
         },
         {

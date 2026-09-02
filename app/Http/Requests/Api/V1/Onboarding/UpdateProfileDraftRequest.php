@@ -41,6 +41,8 @@ class UpdateProfileDraftRequest extends FormRequest
             'gender' => ['sometimes', 'nullable', Rule::enum(Gender::class)],
             'city_name' => ['sometimes', 'nullable', 'string', 'max:120'],
             'country_code' => ['sometimes', 'nullable', 'string', 'size:2', 'regex:/^[A-Za-z]{2}$/'],
+            'latitude' => ['sometimes', 'nullable', 'numeric', 'between:-90,90', 'required_with:longitude'],
+            'longitude' => ['sometimes', 'nullable', 'numeric', 'between:-180,180', 'required_with:latitude'],
             'nationality_country_code' => ['sometimes', 'nullable', 'string', 'size:2', 'regex:/^[A-Za-z]{2}$/'],
             'marital_status' => ['sometimes', 'nullable', Rule::enum(MaritalStatus::class)],
             'profession_status' => ['sometimes', 'nullable', Rule::enum(ProfessionStatus::class)],

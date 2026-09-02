@@ -27,7 +27,7 @@ class MachineReadableApiContractTest extends TestCase
         $routes = collect(Route::getRoutes()->getRoutes())
             ->filter(fn ($route): bool => str_starts_with((string) $route->getName(), 'api.v1.'));
 
-        $this->assertCount(74, $operations);
+        $this->assertCount(75, $operations);
         $this->assertCount($routes->count(), $operations);
 
         $routes->each(function ($route) use ($operations): void {

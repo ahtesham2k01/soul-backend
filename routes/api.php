@@ -75,7 +75,7 @@ Route::prefix('v1')->group(function (): void {
             Route::post('/notification-broadcasts/{broadcast}/send', [NotificationBroadcastController::class, 'send'])->name('api.v1.admin.notification-broadcasts.send');
         });
     });
-    Route::middleware(['auth:sanctum', 'active.account'])->group(function (): void {
+    Route::middleware(['auth:sanctum', 'active.account', 'record.activity'])->group(function (): void {
         Route::get('/discovery/preferences', [DiscoveryPreferenceController::class, 'show'])
             ->name('api.v1.discovery.preferences.show');
         Route::put('/discovery/preferences', [DiscoveryPreferenceController::class, 'update'])
@@ -114,6 +114,7 @@ Route::prefix('v1')->group(function (): void {
         Route::post('/notifications/{notification}/read', [NotificationFeedController::class, 'read'])->middleware('throttle:120,1')->name('api.v1.notifications.read');
         Route::get('/privacy/settings', [PrivacyController::class, 'showSettings'])->name('api.v1.privacy.settings.show');
         Route::put('/privacy/settings', [PrivacyController::class, 'updateSettings'])->name('api.v1.privacy.settings.update');
+        Route::put('/privacy/contacts', [PrivacyController::class, 'replaceContacts'])->middleware('throttle:5,60')->name('api.v1.privacy.contacts.update');
         Route::post('/privacy/exports', [PrivacyController::class, 'requestExport'])->middleware('throttle:2,60')->name('api.v1.privacy.exports.store');
         Route::get('/privacy/exports', [PrivacyController::class, 'exports'])->name('api.v1.privacy.exports.index');
         Route::get('/privacy/exports/{export}/download', [PrivacyController::class, 'download'])->name('api.v1.privacy.exports.download');

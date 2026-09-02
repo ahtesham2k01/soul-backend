@@ -33,6 +33,7 @@ class UserProfileFactory extends Factory
             'alcohol' => 'no',
             'current_children' => 'no',
             'future_children' => 'open_to_children',
+            'last_active_at' => now(),
         ];
     }
 }

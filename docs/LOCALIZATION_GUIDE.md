@@ -33,7 +33,7 @@ Important response fields:
       "direction": "ltr"
     },
     "translations": {
-      "version": "7",
+      "version": "8",
       "hash": "...",
       "values": {
         "common.continue": "Continue karein"
