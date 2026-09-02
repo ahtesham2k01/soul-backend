@@ -40,7 +40,12 @@ class ListCandidatesController extends Controller
             ->whereNotExists(fn ($query) => $query->selectRaw('1')
                 ->from('profile_decisions')
                 ->where('actor_user_id', $user->id)
-                ->whereColumn('target_user_id', 'user_profiles.user_id'))
+                ->whereColumn('target_user_id', 'user_profiles.user_id')
+                ->where(fn ($decision) => $decision
+                    ->where('decision', 'like')
+                    ->orWhere(fn ($pass) => $pass
+                        ->where('decision', 'pass')
+                        ->where('updated_at', '>', now()->subDays(30)))))
             ->whereNotExists(fn ($query) => $query->selectRaw('1')->from('user_blocks')
                 ->where(fn ($query) => $query
                     ->whereColumn('blocker_user_id', 'user_profiles.user_id')
@@ -62,7 +67,7 @@ class ListCandidatesController extends Controller
             'candidates' => collect($page->items())->map(fn (UserProfile $profile): array => [
                 'id' => $profile->public_id,
                 'first_name' => $profile->first_name,
-                'age' => $profile->user->privacySetting?->show_age === false ? null : $profile->date_of_birth->age,
+                'age' => $profile->date_of_birth->age,
                 'city' => $profile->user->privacySetting?->show_city === false ? null : $profile->city_name,
                 'country' => $profile->country_code,
                 'photos' => $profile->photos->map(fn ($photo): array => [

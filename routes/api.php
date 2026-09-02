@@ -1,12 +1,12 @@
 <?php
 
-use App\Http\Controllers\Api\V1\AppBootstrapController;
-use App\Http\Controllers\Api\V1\Admin\ModerationController;
-use App\Http\Controllers\Api\V1\Admin\AdminAuditLogController;
 use App\Http\Controllers\Api\V1\Admin\AdminAccountController;
-use App\Http\Controllers\Api\V1\Admin\ReligionTaxonomyController;
-use App\Http\Controllers\Api\V1\Admin\NotificationBroadcastController;
+use App\Http\Controllers\Api\V1\Admin\AdminAuditLogController;
 use App\Http\Controllers\Api\V1\Admin\AdminUserController;
+use App\Http\Controllers\Api\V1\Admin\ModerationController;
+use App\Http\Controllers\Api\V1\Admin\NotificationBroadcastController;
+use App\Http\Controllers\Api\V1\Admin\ReligionTaxonomyController;
+use App\Http\Controllers\Api\V1\AppBootstrapController;
 use App\Http\Controllers\Api\V1\Auth\AppleSignInController;
 use App\Http\Controllers\Api\V1\Auth\CurrentUserController;
 use App\Http\Controllers\Api\V1\Auth\GoogleSignInController;
@@ -43,8 +43,8 @@ use App\Http\Controllers\Api\V1\Privacy\PrivacyController;
 use App\Http\Controllers\Api\V1\ReadinessController;
 use App\Http\Controllers\Api\V1\ResolveLocationController;
 use App\Http\Controllers\Api\V1\Safety\BlockUserController;
-use App\Http\Controllers\Api\V1\Safety\ReportUserController;
 use App\Http\Controllers\Api\V1\Safety\ProfileVerificationController;
+use App\Http\Controllers\Api\V1\Safety\ReportUserController;
 use App\Http\Controllers\Api\V1\Safety\SubmitVerificationAppealController;
 use App\Http\Controllers\Api\V1\Webhooks\CloudinaryModerationController;
 use App\Support\ApiResponse;
@@ -94,6 +94,8 @@ Route::prefix('v1')->group(function (): void {
             ->middleware('throttle:120,1')->name('api.v1.messages.index');
         Route::post('/matches/{match}/messages', [MatchMessagesController::class, 'store'])
             ->middleware('throttle:60,1')->name('api.v1.messages.store');
+        Route::post('/matches/{match}/messages/read', [MatchMessagesController::class, 'read'])
+            ->middleware('throttle:120,1')->name('api.v1.messages.read');
         Route::post('/profiles/{profile}/block', BlockUserController::class)
             ->middleware('throttle:20,1')->name('api.v1.safety.blocks.store');
         Route::post('/profiles/{profile}/report', ReportUserController::class)

@@ -1098,6 +1098,44 @@
         }
       }
     },
+    "/matches/{match}/messages/read": {
+      "post": {
+        "operationId": "api.v1.messages.read",
+        "summary": "Mark received messages read and expose receipts",
+        "tags": [
+          "Interactions"
+        ],
+        "parameters": [
+          {
+            "name": "match",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
     "/profiles/{profile}/block": {
       "post": {
         "operationId": "api.v1.safety.blocks.store",

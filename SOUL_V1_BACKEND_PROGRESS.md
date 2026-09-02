@@ -64,3 +64,26 @@
 - [x] Religion taxonomy and translation management
 - [x] Admin account and role management
 - [x] Notification broadcast and analytics
+
+## PRD gap-closure roadmap
+
+The original 16 phases established the backend and admin foundation. A fresh requirement-by-requirement audit identified the following product-completion phases; this checklist is now the release progress source of truth.
+
+- [x] Phase 12 — Core V1 rule corrections: 30-day deletion recovery, mandatory age/read receipts, 30-day pass resurfacing and exact report categories
+- [ ] Phase 13 — Complete English/Urdu localization across mobile API and React admin
+- [ ] Phase 14 — Required and optional profile-field parity
+- [ ] Phase 15 — Religion discovery hierarchy and country-rule parity
+- [ ] Phase 16 — Discovery filters, ranking and distance-privacy parity
+- [ ] Phase 17 — Public/private photo access and screenshot-protection contracts
+- [ ] Phase 18 — Likes, requests, matches and chat flow parity
+- [ ] Phase 19 — Marital-status visibility and verification rules
+- [ ] Phase 20 — Identity verification, appeals and badge behavior
+- [ ] Phase 21 — Safety, reporting, blocking and moderation completion
+- [ ] Phase 22 — Notification event and preference coverage
+- [ ] Phase 23 — Events foundation and admin management
+- [ ] Phase 24 — Subscription plans and dynamic entitlement engine
+- [ ] Phase 25 — Legal consent, policy versions and account lifecycle
+- [ ] Phase 26 — Full React admin coverage for all configurable V1 modules
+- [ ] Phase 27 — End-to-end PRD audit, integration tests and release closure
+
+Gap closure: **1/16 phases complete (6.25%)**.

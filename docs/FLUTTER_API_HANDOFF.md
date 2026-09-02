@@ -77,6 +77,7 @@ Photo upload sequence: request a session for position 1–3, upload directly usi
 | DELETE | `/matches/{match}` | `api.v1.matches.destroy` | Idempotent unmatch |
 | GET | `/matches/{match}/messages` | `api.v1.messages.index` | Cursor-paginated conversation |
 | POST | `/matches/{match}/messages` | `api.v1.messages.store` | Send trimmed non-empty message |
+| POST | `/matches/{match}/messages/read` | `api.v1.messages.read` | Mark received messages read and expose receipts |
 
 Do not cache candidate, match or message pages across users. A 404 for a profile or match is intentionally non-enumerating and can mean unavailable, hidden, blocked, suspended or not owned.
 
@@ -104,7 +105,7 @@ Do not cache candidate, match or message pages across users. A 404 for a profile
 | GET | `/privacy/deletion` | `api.v1.privacy.deletion.show` | Resume scheduled-deletion state |
 | DELETE | `/privacy/deletion` | `api.v1.privacy.deletion.destroy` | Cancel inside grace period |
 
-Safety notifications cannot be disabled. The app must not log push tokens, export contents, OTPs, OAuth tokens, message bodies or raw identity-provider payloads.
+Age and read receipts are mandatory V1 behavior and cannot be disabled. Account deletion has a 30-day recovery period. Safety notifications cannot be disabled. The app must not log push tokens, export contents, OTPs, OAuth tokens, message bodies or raw identity-provider payloads.
 
 ## Custom React administration endpoints
 
@@ -146,7 +147,7 @@ This endpoint is for signed Cloudinary notifications only. Flutter must never ca
 - Profile decision: `like`, `pass`
 - Device platform: `ios`, `android`
 - Verification type: `identity`, `selfie_review`
-- Report category: `fake_profile`, `harassment`, `inappropriate_content`, `scam`, `underage`, `other`
+- Report category: `fake_profile`, `scam`, `harassment`, `nudity_sexual_content`, `underage`, `false_marital_status`, `other`
 - Profile lifecycle: `draft`, `submitted`, `automated_checks`, `live`, plus correction/paused states returned by the status endpoint
 
 Clients must tolerate additive response fields and new enum values by showing a safe fallback. Removing/renaming fields or changing their meaning requires a new API version.

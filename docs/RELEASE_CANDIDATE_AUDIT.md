@@ -22,7 +22,7 @@ This audit records backend checks completed after the sixteen planned V1 phases.
 - Blocking closes an active match and prevents discovery, decisions and messaging in both directions.
 - Reports, verification cases, appeals and moderation decisions have authenticated ownership or role checks.
 - Data exports use private storage, expire after seven days and are owner-downloadable only.
-- Account deletion has an explicit confirmation phrase and a seven-day cancellation window.
+- Account deletion has an explicit confirmation phrase and a 30-day recovery window.
 - Expired exports and stale OTP records are removed by scheduled maintenance.
 
 ## Scale and operations

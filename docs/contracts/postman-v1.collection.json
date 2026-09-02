@@ -969,6 +969,31 @@
             },
             "description": "api.v1.messages.store: Send trimmed non-empty message"
           }
+        },
+        {
+          "name": "Mark received messages read and expose receipts",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/matches/{match}/messages/read",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "matches",
+                "{match}",
+                "messages",
+                "read"
+              ]
+            },
+            "description": "api.v1.messages.read: Mark received messages read and expose receipts"
+          }
         }
       ]
     },

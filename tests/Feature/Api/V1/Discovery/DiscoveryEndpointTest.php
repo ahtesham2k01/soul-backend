@@ -4,11 +4,12 @@ namespace Tests\Feature\Api\V1\Discovery;
 
 use App\Enums\Profile\ProfilePhotoModerationStatus;
 use App\Enums\Profile\ProfilePhotoVisibility;
-use App\Models\ProfilePhoto;
 use App\Models\ProfileDecision;
+use App\Models\ProfilePhoto;
 use App\Models\User;
 use App\Models\UserProfile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -128,5 +129,28 @@ class DiscoveryEndpointTest extends TestCase
         $this->getJson('/api/v1/discovery/candidates')
             ->assertOk()
             ->assertJsonCount(0, 'data.candidates');
+    }
+
+    public function test_passed_profiles_resurface_after_thirty_days_but_liked_profiles_do_not(): void
+    {
+        Carbon::setTestNow('2026-09-02 12:00:00');
+        $viewer = User::factory()->create(['status' => User::STATUS_ACTIVE]);
+        UserProfile::factory()->for($viewer)->create(['profile_status' => 'live', 'gender' => 'man']);
+        $viewer->discoveryPreference()->create(['preferred_gender' => 'woman', 'minimum_age' => 18, 'maximum_age' => 60, 'same_country_only' => false]);
+        $recentPass = User::factory()->create(['status' => User::STATUS_ACTIVE]);
+        $expiredPass = User::factory()->create(['status' => User::STATUS_ACTIVE]);
+        $liked = User::factory()->create(['status' => User::STATUS_ACTIVE]);
+        foreach ([$recentPass, $expiredPass, $liked] as $candidate) {
+            UserProfile::factory()->for($candidate)->create(['profile_status' => 'live', 'gender' => 'woman', 'date_of_birth' => now()->subYears(30)]);
+        }
+        ProfileDecision::query()->create(['actor_user_id' => $viewer->id, 'target_user_id' => $recentPass->id, 'decision' => 'pass'])->forceFill(['updated_at' => now()->subDays(29)])->save();
+        ProfileDecision::query()->create(['actor_user_id' => $viewer->id, 'target_user_id' => $expiredPass->id, 'decision' => 'pass'])->forceFill(['updated_at' => now()->subDays(31)])->save();
+        ProfileDecision::query()->create(['actor_user_id' => $viewer->id, 'target_user_id' => $liked->id, 'decision' => 'like'])->forceFill(['updated_at' => now()->subDays(31)])->save();
+        Sanctum::actingAs($viewer);
+
+        $this->getJson('/api/v1/discovery/candidates')->assertOk()
+            ->assertJsonCount(1, 'data.candidates')
+            ->assertJsonPath('data.candidates.0.id', $expiredPass->profile->public_id)
+            ->assertJsonPath('data.candidates.0.age', 30);
     }
 }
