@@ -2,6 +2,11 @@
 
 return [
 
+    'legal' => [
+        'terms_version' => env('SOUL_TERMS_VERSION', '1.0'),
+        'privacy_version' => env('SOUL_PRIVACY_VERSION', '1.0'),
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Translation catalog
@@ -14,7 +19,7 @@ return [
 
     'translations' => [
         'fallback_locale' => 'en',
-        'catalog_version' => '5',
+        'catalog_version' => '8',
 
         'locales' => [
             'en' => [
@@ -246,6 +251,30 @@ return [
             ),
             FILTER_VALIDATE_BOOL,
         ),
+    ],
+
+    'privacy' => [
+        'export_disk' => env('SOUL_PRIVATE_EXPORT_DISK', 'local'),
+    ],
+
+    'media' => [
+        'cloudinary' => [
+            'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),
+            'api_key' => env('CLOUDINARY_API_KEY'),
+            'api_secret' => env('CLOUDINARY_API_SECRET'),
+            'upload_session_ttl_minutes' => (int) env(
+                'CLOUDINARY_UPLOAD_SESSION_TTL_MINUTES',
+                10,
+            ),
+            'webhook_tolerance_seconds' => (int) env(
+                'CLOUDINARY_WEBHOOK_TOLERANCE_SECONDS',
+                7200,
+            ),
+            'response_signature_algorithm' => env(
+                'CLOUDINARY_RESPONSE_SIGNATURE_ALGORITHM',
+                'sha1',
+            ),
+        ],
     ],
 
 ];
