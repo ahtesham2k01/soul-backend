@@ -11,8 +11,8 @@ const endpoints = [...handoff.matchAll(endpointPattern)].map((match) => ({
     summary: match[4].trim(),
 }));
 
-if (endpoints.length !== 82) {
-    throw new Error(`Expected 82 documented endpoints, found ${endpoints.length}.`);
+if (endpoints.length !== 87) {
+    throw new Error(`Expected 87 documented endpoints, found ${endpoints.length}.`);
 }
 
 const publicOperations = new Set([
@@ -43,6 +43,8 @@ const requestExamples = {
     'api.v1.discovery.preferences.update': { preferred_gender: 'woman', minimum_age: 24, maximum_age: 35, same_country_only: true, religion_mode: 'my_religion', location_mode: 'current', radius_km: 50, selected_locations: [], intentions: ['marriage'] },
     'api.v1.privacy.contacts.update': { phone_numbers: ['<e164-phone-number>'] },
     'api.v1.matching.decisions.store': { decision: 'like' },
+    'api.v1.likes.update': { decision: 'accept' },
+    'api.v1.chat.typing.update': { is_typing: true },
     'api.v1.private-photo-access.store': {},
     'api.v1.private-photo-access.update': { decision: 'approve' },
     'api.v1.private-photos.capture-events.store': { client_event_id: '01K...', event_type: 'screenshot' },

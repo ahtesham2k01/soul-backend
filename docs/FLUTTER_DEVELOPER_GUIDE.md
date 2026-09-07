@@ -10,6 +10,7 @@ This is the implementation guide for the Android/iOS client. Laravel is the auth
 4. Read `RELIGION_DISCOVERY_CONTRACT.md` before building religion or discovery-mode screens.
 5. Read `DISCOVERY_PRIVACY_CONTRACT.md` before building filters, distance or privacy screens.
 6. Read `PRIVATE_PHOTO_CONTRACT.md` before building private-photo requests or protected viewers.
+7. Read `LIKE_MATCH_CHAT_CONTRACT.md` before building Likes, match lists, presence or chat.
 7. Import `contracts/openapi-v1.json` or `contracts/postman-v1.collection.json` while building the API client.
 8. Read `DATABASE_DESIGN.md` only to understand ownership and relationships; Flutter never uses internal database IDs.
 9. Read `BACKEND_SCOPE.md` before implementing a screen so unfinished gap-closure modules are not mistaken for available APIs.
@@ -103,6 +104,8 @@ Use `PROFILE_INFORMATION_CONTRACT.md` for field names, enums, collection limits 
 - A pass can resurface after 30 days. A like remains excluded unless withdrawn before matching when the withdrawal API is added.
 - Treat profile/match 404 responses as non-enumerating unavailable states.
 - Read receipts are always on. Call `POST /matches/{match}/messages/read` when received messages become visible.
+- Keep incoming Likes separate from matches. Accept/decline uses the sender profile ID; a pending outgoing Like can be withdrawn before matching.
+- Refresh typing while the user is composing and clear it on send/exit. Treat online status as recent activity, not a guaranteed socket connection.
 - V1 chat accepts text and emoji only. Do not expose photo, audio or calling controls.
 
 ## Private media and safety

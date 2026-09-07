@@ -80,6 +80,8 @@ erDiagram
 
 - Candidate discovery indexes lifecycle, gender, country, birth date and activity-oriented filters.
 - `profile_decisions_visibility_expiry_index` supports permanent like exclusion and 30-day pass expiry.
+- Incoming Likes reuse the directional `profile_decisions` pair: no reverse decision means pending, reverse `like` means accepted/matched, and reverse `pass` means declined. This keeps pending requests non-expiring without a duplicate request table.
+- Typing state is deliberately short-lived cache data rather than a database row. Match activity, messages and read timestamps remain durable.
 - `user_religion_root_user_index` supports V1 My Religion filtering without deep-tree joins.
 - Profile activity and coordinate indexes support inactivity ordering and radius bounding-box scans.
 - Match member IDs are stored in normalized order with a unique pair.

@@ -1002,6 +1002,121 @@
         }
       }
     },
+    "/likes/received": {
+      "get": {
+        "operationId": "api.v1.likes.received.index",
+        "summary": "Cursor-paginated pending incoming Likes",
+        "tags": [
+          "Likes"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/profiles/{profile}/like": {
+      "put": {
+        "operationId": "api.v1.likes.update",
+        "summary": "Accept or decline a pending Like",
+        "tags": [
+          "Likes"
+        ],
+        "parameters": [
+          {
+            "name": "profile",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "decision": "accept"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "api.v1.likes.destroy",
+        "summary": "Withdraw a pending outgoing Like",
+        "tags": [
+          "Likes"
+        ],
+        "parameters": [
+          {
+            "name": "profile",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
     "/matches": {
       "get": {
         "operationId": "api.v1.matches.index",
@@ -1477,6 +1592,95 @@
             "bearerAuth": []
           }
         ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/matches/{match}/presence": {
+      "get": {
+        "operationId": "api.v1.chat.presence.show",
+        "summary": "Counterpart online, last-seen and typing state",
+        "tags": [
+          "Chat"
+        ],
+        "parameters": [
+          {
+            "name": "match",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/matches/{match}/typing": {
+      "put": {
+        "operationId": "api.v1.chat.typing.update",
+        "summary": "Refresh or clear the short-lived typing signal",
+        "tags": [
+          "Chat"
+        ],
+        "parameters": [
+          {
+            "name": "match",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "is_typing": true
+              }
+            }
+          }
+        },
         "responses": {
           "401": {
             "$ref": "#/components/responses/Error"

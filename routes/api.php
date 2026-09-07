@@ -19,10 +19,12 @@ use App\Http\Controllers\Api\V1\Auth\RegisterVerifyOtpController;
 use App\Http\Controllers\Api\V1\Discovery\DiscoveryPreferenceController;
 use App\Http\Controllers\Api\V1\Discovery\ListCandidatesController;
 use App\Http\Controllers\Api\V1\HealthController;
+use App\Http\Controllers\Api\V1\Matching\LikeRequestController;
 use App\Http\Controllers\Api\V1\Matching\ListMatchesController;
 use App\Http\Controllers\Api\V1\Matching\PrivatePhotoAccessController;
 use App\Http\Controllers\Api\V1\Matching\StoreProfileDecisionController;
 use App\Http\Controllers\Api\V1\Matching\UnmatchController;
+use App\Http\Controllers\Api\V1\Messaging\ChatPresenceController;
 use App\Http\Controllers\Api\V1\Messaging\MatchMessagesController;
 use App\Http\Controllers\Api\V1\Notifications\DeviceController;
 use App\Http\Controllers\Api\V1\Notifications\NotificationFeedController;
@@ -87,6 +89,12 @@ Route::prefix('v1')->group(function (): void {
             ->name('api.v1.discovery.candidates.index');
         Route::post('/profiles/{profile}/decision', StoreProfileDecisionController::class)
             ->middleware('throttle:120,1')->name('api.v1.matching.decisions.store');
+        Route::get('/likes/received', [LikeRequestController::class, 'index'])
+            ->middleware('throttle:60,1')->name('api.v1.likes.received.index');
+        Route::put('/profiles/{profile}/like', [LikeRequestController::class, 'respond'])
+            ->middleware('throttle:60,1')->name('api.v1.likes.update');
+        Route::delete('/profiles/{profile}/like', [LikeRequestController::class, 'withdraw'])
+            ->middleware('throttle:60,1')->name('api.v1.likes.destroy');
         Route::get('/matches', ListMatchesController::class)
             ->middleware('throttle:60,1')->name('api.v1.matches.index');
         Route::delete('/matches/{match}', UnmatchController::class)
@@ -111,6 +119,10 @@ Route::prefix('v1')->group(function (): void {
             ->middleware('throttle:60,1')->name('api.v1.messages.store');
         Route::post('/matches/{match}/messages/read', [MatchMessagesController::class, 'read'])
             ->middleware('throttle:120,1')->name('api.v1.messages.read');
+        Route::get('/matches/{match}/presence', [ChatPresenceController::class, 'show'])
+            ->middleware('throttle:120,1')->name('api.v1.chat.presence.show');
+        Route::put('/matches/{match}/typing', [ChatPresenceController::class, 'typing'])
+            ->middleware('throttle:120,1')->name('api.v1.chat.typing.update');
         Route::post('/profiles/{profile}/block', BlockUserController::class)
             ->middleware('throttle:20,1')->name('api.v1.safety.blocks.store');
         Route::post('/profiles/{profile}/report', ReportUserController::class)

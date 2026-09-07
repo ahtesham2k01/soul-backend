@@ -114,7 +114,7 @@ flowchart TD
     I --> J[Access revoked and chat removed]
 ```
 
-Pending requests do not expire. V1 chat is text/emoji only. Online/last-seen and typing are visible when their backend phase is complete. Unmatch removes the conversation for both users and revokes private-photo access.
+Pending requests do not expire. The sender can withdraw before acceptance; the recipient can accept or decline from the incoming Likes list. V1 chat is text/emoji only. Match summaries include latest-message, unread-count and online/last-seen state. Typing signals expire automatically after eight seconds. Unmatch removes the conversation from both users' visible API results and revokes private-photo access while retaining safety/audit records.
 
 Private photos are delivered only through the backend after approval. Protected viewers use Android secure-window behavior or iOS detection, masking and a viewer watermark. Capture notifications are best-effort because mobile operating systems cannot detect every screenshot method.
 

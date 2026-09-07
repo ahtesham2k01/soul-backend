@@ -24,7 +24,7 @@ Laravel owns every protected decision. Flutter owns presentation, platform permi
 | Religion | Future-ready hierarchy, translations, complete-path country validation, saved leaf/root selection, persistent My Religion/All Religions discovery and admin taxonomy | Full-profile detailed-field presentation remains coupled to public-profile/privacy work |
 | Photos | Three slots, authenticated secondary uploads, moderation, private access request/approval/revocation, protected no-store delivery, screenshot controls/signals | Provider staging verification and mobile-native protected-view implementation |
 | Discovery | Gender/age/religion/intention/location/radius filters, activity ranking, 90-day hiding, safe distance bands, pass resurfacing and likes exclusion | Entitlement-dependent filter limits remain dynamic subscription work |
-| Likes/matches/chat | Like/pass, mutual match, matches, unmatch, text messages, mandatory read receipts | Like withdrawal, request acceptance semantics, presence/typing and private-photo revocation integration (Phase 18) |
+| Likes/matches/chat | Like/pass, incoming requests, accept/decline/withdraw, matches, summaries, unmatch, text messages, mandatory read receipts, online/last-seen and expiring typing signals | Provider-backed real-time transport may later replace polling without changing the V1 API contract |
 | Verification | Cases, review states and one appeal | Separate badge/risk semantics and underage escalation parity (Phases 19–20) |
 | Safety | Block, report categories, moderation queues and account actions | Report & Block transaction, risk cases, ban appeal and complete moderator tools (Phase 21) |
 | Notifications | Devices, push preferences, feed, match/message events and admin broadcasts | Push/email separation and complete event coverage (Phase 22) |
@@ -40,7 +40,7 @@ Laravel owns every protected decision. Flutter owns presentation, platform permi
 - [x] Phase 15 — Religion discovery hierarchy and country-rule parity
 - [x] Phase 16 — Discovery filters, ranking and distance privacy
 - [x] Phase 17 — Public/private photo access and screenshot protection
-- [ ] Phase 18 — Likes, requests, matches and chat parity
+- [x] Phase 18 — Likes, requests, matches and chat parity
 - [ ] Phase 19 — Marital-status visibility and rules
 - [ ] Phase 20 — Verification and badge behavior
 - [ ] Phase 21 — Safety and moderation completion

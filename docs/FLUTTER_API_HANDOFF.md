@@ -75,6 +75,9 @@ Positions 2 and 3 use authenticated Cloudinary delivery even when currently publ
 | PUT | `/discovery/preferences` | `api.v1.discovery.preferences.update` | Save age, gender and country filters |
 | GET | `/discovery/candidates` | `api.v1.discovery.candidates.index` | Cursor-paginated eligible profiles |
 | POST | `/profiles/{profile}/decision` | `api.v1.matching.decisions.store` | Idempotent like/pass and mutual match |
+| GET | `/likes/received` | `api.v1.likes.received.index` | Cursor-paginated pending incoming Likes |
+| PUT | `/profiles/{profile}/like` | `api.v1.likes.update` | Accept or decline a pending Like |
+| DELETE | `/profiles/{profile}/like` | `api.v1.likes.destroy` | Withdraw a pending outgoing Like |
 | GET | `/matches` | `api.v1.matches.index` | Cursor-paginated active matches |
 | DELETE | `/matches/{match}` | `api.v1.matches.destroy` | Idempotent unmatch |
 | GET | `/private-photo-access` | `api.v1.private-photo-access.index` | List incoming and outgoing access requests |
@@ -87,6 +90,8 @@ Positions 2 and 3 use authenticated Cloudinary delivery even when currently publ
 | GET | `/matches/{match}/messages` | `api.v1.messages.index` | Cursor-paginated conversation |
 | POST | `/matches/{match}/messages` | `api.v1.messages.store` | Send trimmed non-empty message |
 | POST | `/matches/{match}/messages/read` | `api.v1.messages.read` | Mark received messages read and expose receipts |
+| GET | `/matches/{match}/presence` | `api.v1.chat.presence.show` | Counterpart online, last-seen and typing state |
+| PUT | `/matches/{match}/typing` | `api.v1.chat.typing.update` | Refresh or clear the short-lived typing signal |
 
 Do not cache candidate, match or message pages across users. A 404 for a profile or match is intentionally non-enumerating and can mean unavailable, hidden, blocked, suspended or not owned.
 

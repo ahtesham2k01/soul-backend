@@ -299,5 +299,12 @@
   "private_photos.protected": "Screenshot protection is on",
   "private_photos.capture_warning": "Screenshots or recordings may notify the photo owner",
   "private_photos.capture_detected": "A viewer captured your private photo",
-  "private_photos.legacy_reupload": "Replace this photo to enable secure private viewing"
+  "private_photos.legacy_reupload": "Replace this photo to enable secure private viewing",
+  "likes.received": "Likes received",
+  "likes.accept": "Accept like",
+  "likes.decline": "Decline like",
+  "likes.withdraw": "Withdraw like",
+  "chat.online": "Online now",
+  "chat.offline": "Offline",
+  "chat.last_seen": "Last seen"
 }

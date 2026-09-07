@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
 
 class UserMatch extends Model
@@ -27,6 +28,11 @@ class UserMatch extends Model
     public function privatePhotoAccessRequests(): HasMany
     {
         return $this->hasMany(PrivatePhotoAccessRequest::class, 'match_id');
+    }
+
+    public function conversation(): HasOne
+    {
+        return $this->hasOne(Conversation::class);
     }
 
     protected static function booted(): void

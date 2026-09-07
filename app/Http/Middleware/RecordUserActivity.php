@@ -12,7 +12,7 @@ class RecordUserActivity
     {
         $profile = $request->user()?->profile;
 
-        if ($profile !== null && ($profile->last_active_at === null || $profile->last_active_at->lt(now()->subMinutes(15)))) {
+        if ($profile !== null && ($profile->last_active_at === null || $profile->last_active_at->lt(now()->subMinute()))) {
             $profile->forceFill(['last_active_at' => now()])->saveQuietly();
         }
 

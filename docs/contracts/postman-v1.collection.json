@@ -1016,6 +1016,91 @@
       ]
     },
     {
+      "name": "Likes",
+      "item": [
+        {
+          "name": "Cursor-paginated pending incoming Likes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/likes/received",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "likes",
+                "received"
+              ]
+            },
+            "description": "api.v1.likes.received.index: Cursor-paginated pending incoming Likes"
+          }
+        },
+        {
+          "name": "Accept or decline a pending Like",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"decision\": \"accept\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/profiles/{profile}/like",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profiles",
+                "{profile}",
+                "like"
+              ]
+            },
+            "description": "api.v1.likes.update: Accept or decline a pending Like"
+          }
+        },
+        {
+          "name": "Withdraw a pending outgoing Like",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profiles/{profile}/like",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profiles",
+                "{profile}",
+                "like"
+              ]
+            },
+            "description": "api.v1.likes.destroy: Withdraw a pending outgoing Like"
+          }
+        }
+      ]
+    },
+    {
       "name": "Private-photo-access",
       "item": [
         {
@@ -1212,6 +1297,68 @@
               ]
             },
             "description": "api.v1.private-photos.capture-events.store: Idempotent best-effort capture signal"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Chat",
+      "item": [
+        {
+          "name": "Counterpart online, last-seen and typing state",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/matches/{match}/presence",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "matches",
+                "{match}",
+                "presence"
+              ]
+            },
+            "description": "api.v1.chat.presence.show: Counterpart online, last-seen and typing state"
+          }
+        },
+        {
+          "name": "Refresh or clear the short-lived typing signal",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"is_typing\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/matches/{match}/typing",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "matches",
+                "{match}",
+                "typing"
+              ]
+            },
+            "description": "api.v1.chat.typing.update: Refresh or clear the short-lived typing signal"
           }
         }
       ]
