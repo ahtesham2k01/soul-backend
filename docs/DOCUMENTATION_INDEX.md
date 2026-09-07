@@ -26,6 +26,8 @@
 | `DATABASE_DESIGN.md` | Backend, data, operations | Current relational design and planned extensions |
 | `PRODUCTION_READINESS.md` | DevOps and release owners | Environment, deployment and rollback controls |
 | `RELEASE_CANDIDATE_AUDIT.md` | Engineering and reviewers | Security and release verification |
+| `PRD_TRACEABILITY_MATRIX.md` | Product, engineering and QA | Every numbered PRD section mapped to delivery evidence |
+| `RELEASE_CLOSURE.md` | Engineering, QA and release owners | Completed software evidence and external staging gates |
 | `../SOUL_V1_BACKEND_PROGRESS.md` | Product and engineering | Persistent phase checklist |
 
 Documentation changes ship in the same complete feature package as behavior changes. Route contracts and required document sections are covered by automated tests to catch drift.

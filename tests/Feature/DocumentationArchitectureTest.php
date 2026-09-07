@@ -24,6 +24,8 @@ class DocumentationArchitectureTest extends TestCase
             'docs/DATABASE_DESIGN.md' => ['## Current domain map', '## Current tables by ownership', '## Planned V1 schema extensions'],
             'docs/BACKEND_SCOPE.md' => ['## Current implemented foundation', '## Gap-closure phases', '## Definition of complete'],
             'docs/DOCUMENTATION_INDEX.md' => ['FLUTTER_API_HANDOFF.md', 'openapi-v1.json', 'SOUL_V1_BACKEND_PROGRESS.md'],
+            'docs/PRD_TRACEABILITY_MATRIX.md' => ['1. Product scope', '22. Explicitly deferred decisions', '23. Implementation principles'],
+            'docs/RELEASE_CLOSURE.md' => ['## Completed release-candidate evidence', '## Staging gates before approval', '## Authenticated staging journeys'],
         ];
 
         foreach ($documents as $path => $requiredSections) {
@@ -44,6 +46,35 @@ class DocumentationArchitectureTest extends TestCase
         foreach (range(12, 27) as $phase) {
             $this->assertStringContainsString("Phase {$phase} —", $scope);
             $this->assertStringContainsString("Phase {$phase} —", $progress);
+        }
+    }
+
+    public function test_every_numbered_prd_section_has_traceability_evidence(): void
+    {
+        $requirements = File::get(base_path('docs/Soul_V1_Product_Requirements.md'));
+        $matrix = File::get(base_path('docs/PRD_TRACEABILITY_MATRIX.md'));
+
+        preg_match_all('/^## (\d+)\. (.+)$/m', $requirements, $matches, PREG_SET_ORDER);
+
+        $this->assertCount(23, $matches);
+
+        foreach ($matches as $match) {
+            $this->assertStringContainsString("| {$match[1]}. {$match[2]} |", $matrix);
+        }
+    }
+
+    public function test_every_migration_has_an_explicit_rollback_method(): void
+    {
+        $migrations = File::files(database_path('migrations'));
+
+        $this->assertNotEmpty($migrations);
+
+        foreach ($migrations as $migration) {
+            $this->assertStringContainsString(
+                'function down(',
+                $migration->getContents(),
+                "Migration [{$migration->getFilename()}] has no explicit rollback method.",
+            );
         }
     }
 }
