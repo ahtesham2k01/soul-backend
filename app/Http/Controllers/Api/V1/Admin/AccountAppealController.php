@@ -7,6 +7,7 @@ use App\Models\AccountAppeal;
 use App\Models\AdminAuditLog;
 use App\Models\User;
 use App\Support\ApiResponse;
+use App\Support\Notifications\UserNotifier;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -14,6 +15,8 @@ use Illuminate\Validation\Rule;
 
 class AccountAppealController extends Controller
 {
+    public function __construct(private readonly UserNotifier $notifier) {}
+
     public function index(): JsonResponse
     {
         $page = AccountAppeal::query()->where('status', 'pending')->with('user:id,public_id,email')
@@ -61,6 +64,7 @@ class AccountAppealController extends Controller
                 'reason' => $validated['reason'], 'ip_address' => $request->ip(),
             ]);
         });
+        $this->notifier->send($record->user_id, 'account_appeal_'.$validated['decision'], ['appeal_id' => $record->public_id], 'account', 'account-appeal:'.$record->public_id.':'.$validated['decision']);
 
         return ApiResponse::success(['id' => $record->public_id, 'status' => $record->status]);
     }

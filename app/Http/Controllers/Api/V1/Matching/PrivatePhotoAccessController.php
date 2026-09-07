@@ -9,9 +9,9 @@ use App\Models\PrivatePhotoAccessRequest as AccessRequest;
 use App\Models\PrivatePhotoCaptureEvent;
 use App\Models\ProfilePhoto;
 use App\Models\UserMatch;
-use App\Models\UserNotification;
 use App\Support\ApiResponse;
 use App\Support\Media\CloudinaryDeliveryUrl;
+use App\Support\Notifications\UserNotifier;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -21,6 +21,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class PrivatePhotoAccessController extends Controller
 {
+    public function __construct(private readonly UserNotifier $notifier) {}
+
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -61,7 +63,7 @@ class PrivatePhotoAccessController extends Controller
             return [$access->fresh(['owner.profile', 'requester.profile', 'match']), $notify];
         });
         if ($notify) {
-            UserNotification::query()->create(['user_id' => $ownerId, 'type' => 'private_photo_access_requested', 'data' => ['request_id' => $access->public_id, 'match_id' => $record->public_id, 'requester_profile_id' => $user->profile?->public_id]]);
+            $this->notifier->send($ownerId, 'private_photo_access_requested', ['request_id' => $access->public_id, 'match_id' => $record->public_id, 'requester_profile_id' => $user->profile?->public_id], 'private_photos', 'private-photo:'.$access->public_id.':requested');
         }
 
         return ApiResponse::success(['request' => $this->serialize($access, $user->id)], 'Private photo access requested.');
@@ -96,7 +98,7 @@ class PrivatePhotoAccessController extends Controller
         }
         $access->refresh();
         if ($outcome === 'changed') {
-            UserNotification::query()->create(['user_id' => $access->requester_user_id, 'type' => "private_photo_access_{$access->status}", 'data' => ['request_id' => $access->public_id, 'match_id' => $access->match->public_id, 'owner_profile_id' => $request->user()->profile?->public_id]]);
+            $this->notifier->send($access->requester_user_id, "private_photo_access_{$access->status}", ['request_id' => $access->public_id, 'match_id' => $access->match->public_id, 'owner_profile_id' => $request->user()->profile?->public_id], 'private_photos', 'private-photo:'.$access->public_id.':'.$access->status);
         }
 
         return ApiResponse::success(['request' => $this->serialize($access, $request->user()->id)], 'Private photo request updated.');
@@ -111,7 +113,7 @@ class PrivatePhotoAccessController extends Controller
         $changed = AccessRequest::query()->whereKey($access->id)->whereIn('status', ['pending', 'approved'])->update(['status' => 'revoked', 'revoked_at' => now()]);
         $access->refresh();
         if ($changed) {
-            UserNotification::query()->create(['user_id' => $access->requester_user_id, 'type' => 'private_photo_access_revoked', 'data' => ['request_id' => $access->public_id, 'match_id' => $access->match->public_id]]);
+            $this->notifier->send($access->requester_user_id, 'private_photo_access_revoked', ['request_id' => $access->public_id, 'match_id' => $access->match->public_id], 'private_photos', 'private-photo:'.$access->public_id.':revoked');
         }
 
         return ApiResponse::success(['request' => $this->serialize($access, $request->user()->id)], 'Private photo access revoked.');
@@ -180,7 +182,7 @@ class PrivatePhotoAccessController extends Controller
             ['private_photo_access_request_id' => $access->id, 'profile_photo_id' => $record->id, 'owner_user_id' => $access->owner_user_id, 'event_type' => $validated['event_type'], 'occurred_at' => now()],
         );
         if ($event->wasRecentlyCreated) {
-            UserNotification::query()->create(['user_id' => $access->owner_user_id, 'type' => 'private_photo_capture_detected', 'data' => ['request_id' => $access->public_id, 'event_type' => $event->event_type, 'viewer_profile_id' => $request->user()->profile?->public_id]]);
+            $this->notifier->send($access->owner_user_id, 'private_photo_capture_detected', ['request_id' => $access->public_id, 'event_type' => $event->event_type, 'viewer_profile_id' => $request->user()->profile?->public_id], 'safety', 'private-photo-capture:'.$event->client_event_id);
         }
 
         return ApiResponse::success(['recorded' => true, 'duplicate' => ! $event->wasRecentlyCreated], 'Capture signal recorded.');

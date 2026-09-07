@@ -2136,7 +2136,7 @@
     "/notification-preferences": {
       "get": {
         "operationId": "api.v1.notification-preferences.show",
-        "summary": "Load safe defaults",
+        "summary": "Load separate push/email defaults and locked safety category",
         "tags": [
           "Notification-preferences"
         ],
@@ -2162,7 +2162,7 @@
       },
       "put": {
         "operationId": "api.v1.notification-preferences.update",
-        "summary": "Partial preference update",
+        "summary": "Partial channel update; marketing opt-in records consent",
         "tags": [
           "Notification-preferences"
         ],

@@ -9,6 +9,7 @@ use App\Models\SafetyCase;
 use App\Models\User;
 use App\Models\UserReport;
 use App\Support\ApiResponse;
+use App\Support\Notifications\UserNotifier;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +17,8 @@ use Illuminate\Validation\Rule;
 
 class ModerationController extends Controller
 {
+    public function __construct(private readonly UserNotifier $notifier) {}
+
     public function dashboard(Request $r): JsonResponse
     {
         return ApiResponse::success(['actor' => ['id' => $r->user()->public_id, 'email' => $r->user()->email, 'role' => $r->user()->admin_role], 'counts' => ['pending_reports' => UserReport::where('status', 'pending')->count(), 'open_safety_cases' => SafetyCase::where('status', 'open')->count(), 'pending_verifications' => ProfileVerificationCase::whereIn('status', ['pending', 'under_review'])->count(), 'pending_appeals' => ProfileVerificationCase::where('status', 'appeal_pending')->count(), 'active_users' => User::where('status', User::STATUS_ACTIVE)->count()]]);
@@ -49,6 +52,7 @@ class ModerationController extends Controller
                     'type' => 'moderator_risk_review', 'severity' => 'high', 'status' => 'open', 'reason' => $v['reason'],
                     'previous_profile_status' => $previousStatus,
                 ]);
+                $this->notifier->send($record->reported_user_id, 'profile_paused_for_safety_review', ['action_required' => false], 'safety', 'report-review:'.$record->public_id);
             }
         });
 
@@ -96,6 +100,8 @@ class ModerationController extends Controller
                     'status' => 'pending', 'reason' => $validated['reason'], 'submitted_at' => now(),
                 ]);
             }
+            $type = $validated['decision'] === 'cleared' ? 'safety_case_cleared' : 'identity_verification_required';
+            $this->notifier->send($record->user_id, $type, ['action_required' => $validated['decision'] === 'verification_required'], 'safety', 'safety-case:'.$record->public_id.':'.$validated['decision']);
         });
 
         return ApiResponse::success(['id' => $record->public_id, 'status' => $record->status]);
@@ -115,6 +121,7 @@ class ModerationController extends Controller
         if (! $record) {
             return ApiResponse::error('VERIFICATION_CASE_NOT_FOUND', 'Verification case not found.', 404);
         } $this->auditUpdate($r, $record, 'verification.'.$v['decision'], ['status' => $v['decision'], 'reason' => $v['reason'] ?? null, 'reviewed_at' => now(), 'verified_at' => $v['decision'] === 'approved' ? now() : null], $v['reason'] ?? null);
+        $this->notifier->send($record->user_id, 'verification_'.$v['decision'], ['verification_type' => $record->type, 'action_required' => $v['decision'] !== 'approved'], 'verification', 'verification:'.$record->public_id.':'.$v['decision']);
 
         return ApiResponse::success(['id' => $record->public_id, 'status' => $record->status]);
     }

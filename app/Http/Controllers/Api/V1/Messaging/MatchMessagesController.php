@@ -4,16 +4,17 @@ namespace App\Http\Controllers\Api\V1\Messaging;
 
 use App\Http\Controllers\Controller;
 use App\Models\Conversation;
-use App\Models\NotificationPreference;
 use App\Models\UserMatch;
-use App\Models\UserNotification;
 use App\Support\ApiResponse;
+use App\Support\Notifications\UserNotifier;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class MatchMessagesController extends Controller
 {
+    public function __construct(private readonly UserNotifier $notifier) {}
+
     public function index(Request $request, string $match): JsonResponse
     {
         $record = $this->activeMatch($request, $match);
@@ -56,14 +57,7 @@ class MatchMessagesController extends Controller
         });
         $recipientId = $record->first_user_id === $request->user()->id
             ? $record->second_user_id : $record->first_user_id;
-        $enabled = NotificationPreference::query()
-            ->where('user_id', $recipientId)->value('new_messages');
-        if ($enabled !== false && $enabled !== 0) {
-            UserNotification::query()->create([
-                'user_id' => $recipientId, 'type' => 'new_message',
-                'data' => ['match_id' => $record->public_id, 'message_id' => $message->public_id],
-            ]);
-        }
+        $this->notifier->send($recipientId, 'new_message', ['match_id' => $record->public_id, 'message_id' => $message->public_id], 'new_messages', 'message:'.$message->public_id);
 
         return ApiResponse::success([
             'message' => ['id' => $message->public_id, 'body' => $message->body, 'is_mine' => true,

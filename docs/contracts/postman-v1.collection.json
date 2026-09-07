@@ -1700,7 +1700,7 @@
       "name": "Notification-preferences",
       "item": [
         {
-          "name": "Load safe defaults",
+          "name": "Load separate push/email defaults and locked safety category",
           "request": {
             "method": "GET",
             "header": [
@@ -1718,11 +1718,11 @@
                 "notification-preferences"
               ]
             },
-            "description": "api.v1.notification-preferences.show: Load safe defaults"
+            "description": "api.v1.notification-preferences.show: Load separate push/email defaults and locked safety category"
           }
         },
         {
-          "name": "Partial preference update",
+          "name": "Partial channel update; marketing opt-in records consent",
           "request": {
             "method": "PUT",
             "header": [
@@ -1740,7 +1740,7 @@
                 "notification-preferences"
               ]
             },
-            "description": "api.v1.notification-preferences.update: Partial preference update"
+            "description": "api.v1.notification-preferences.update: Partial channel update; marketing opt-in records consent"
           }
         }
       ]

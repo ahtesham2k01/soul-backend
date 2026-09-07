@@ -4,14 +4,13 @@ namespace App\Http\Controllers\Api\V1\Matching;
 
 use App\Enums\Profile\ProfileStatus;
 use App\Http\Controllers\Controller;
-use App\Models\NotificationPreference;
 use App\Models\ProfileDecision;
 use App\Models\User;
 use App\Models\UserBlock;
 use App\Models\UserMatch;
-use App\Models\UserNotification;
 use App\Models\UserProfile;
 use App\Support\ApiResponse;
+use App\Support\Notifications\UserNotifier;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -19,7 +18,7 @@ use Illuminate\Validation\Rule;
 
 class StoreProfileDecisionController extends Controller
 {
-    public function __invoke(Request $request, string $profile): JsonResponse
+    public function __invoke(Request $request, string $profile, UserNotifier $notifier): JsonResponse
     {
         $validated = $request->validate(['decision' => ['required', Rule::in(['like', 'pass'])]]);
         $actor = $request->user();
@@ -93,14 +92,7 @@ class StoreProfileDecisionController extends Controller
 
         if ($match?->wasRecentlyCreated) {
             foreach ([$actor->id, $target->user_id] as $userId) {
-                $enabled = NotificationPreference::query()
-                    ->where('user_id', $userId)->value('new_matches');
-                if ($enabled !== false && $enabled !== 0) {
-                    UserNotification::query()->create([
-                        'user_id' => $userId, 'type' => 'new_match',
-                        'data' => ['match_id' => $match->public_id],
-                    ]);
-                }
+                $notifier->send($userId, 'new_match', ['match_id' => $match->public_id], 'new_matches', 'match:'.$match->public_id);
             }
         }
 

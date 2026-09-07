@@ -9,6 +9,7 @@ use App\Models\SafetyCase;
 use App\Models\UserProfile;
 use App\Models\UserReport;
 use App\Support\ApiResponse;
+use App\Support\Notifications\UserNotifier;
 use App\Support\Safety\CloseUserInteraction;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -17,7 +18,7 @@ use Illuminate\Validation\Rule;
 
 class ReportUserController extends Controller
 {
-    public function __invoke(Request $request, string $profile, CloseUserInteraction $closer): JsonResponse
+    public function __invoke(Request $request, string $profile, CloseUserInteraction $closer, UserNotifier $notifier): JsonResponse
     {
         $validated = $request->validate([
             'category' => ['required', Rule::enum(ReportCategory::class)],
@@ -29,7 +30,7 @@ class ReportUserController extends Controller
             return ApiResponse::error('PROFILE_UNAVAILABLE', 'Profile unavailable.', 404);
         }
         $action = $validated['action'] ?? 'report_only';
-        $report = DB::transaction(function () use ($request, $target, $validated, $action, $closer): UserReport {
+        $report = DB::transaction(function () use ($request, $target, $validated, $action, $closer, $notifier): UserReport {
             $report = UserReport::query()->create([
                 'reporter_user_id' => $request->user()->id, 'reported_user_id' => $target->user_id,
                 'category' => $validated['category'], 'details' => $validated['details'] ?? null,
@@ -54,6 +55,7 @@ class ReportUserController extends Controller
                     'user_id' => $target->user_id, 'type' => 'identity', 'requirement' => 'required',
                     'status' => 'pending', 'reason' => 'Age verification is required.', 'submitted_at' => now(),
                 ]);
+                $notifier->send($target->user_id, 'identity_verification_required', ['action_required' => true], 'safety', 'underage-report:'.$report->public_id);
             }
 
             return $report;

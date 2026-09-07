@@ -73,7 +73,7 @@ erDiagram
 | Discovery | `discovery_preferences`, `discovery_preference_locations`, `discovery_preference_intentions`, `profile_decisions`, `user_matches` | One preference row; normalized multi-location/intention filters; one current decision per actor/target; normalized match pair |
 | Chat/safety | `conversations`, `messages`, `user_blocks`, `user_reports`, `safety_cases`, `account_appeals` | One conversation per match; directional blocks; durable risk queue; one account appeal per user |
 | Verification | `profile_verification_cases`, `verification_appeals` | Multiple typed cases per user; optional/risk-required semantics; explicit verified timestamp; at most one appeal per case |
-| Notifications | `user_devices`, `notification_preferences`, `user_notifications`, `notification_broadcasts` | Encrypted token plus unique hash; one preference row; idempotent broadcast recipient |
+| Notifications | `user_devices`, `notification_preferences`, `user_notifications`, `notification_broadcasts` | Encrypted token plus unique hash; separate push/email settings; consent timestamp; mandatory safety channels; globally unique event deduplication key; idempotent broadcast recipient |
 | Privacy | `account_privacy_settings`, `hidden_contact_hashes`, `data_export_requests`, `account_deletion_requests` | One settings row; keyed non-reversible contact hashes; export/deletion lifecycle rows |
 | Admin/operations | `admin_audit_logs`, user `admin_role` | Restricted admin actor deletion and immutable operation evidence |
 | Infrastructure | `cache`, `cache_locks`, `jobs`, `job_batches`, `failed_jobs` | Laravel cache, locks and asynchronous work |
@@ -90,7 +90,7 @@ erDiagram
 - Match member IDs are stored in normalized order with a unique pair.
 - Private-photo request inbox/outbox indexes support both users; capture event ULIDs are unique per viewer.
 - Messages use `(conversation_id, id)` for cursor reads.
-- Notifications use `(user_id, read_at, id)` for unread feeds.
+- Notifications use `(user_id, read_at, id)` for unread feeds. A unique hashed `deduplication_key` makes repeated domain-event delivery safe, while `delivery_channels` records the channel decision made at creation time.
 - Reports and verification cases index status/time for moderator queues.
 - Safety cases separate risk decisions from raw reports and retain the previous profile state for safe restoration. Account appeals enforce one lifetime appeal row per blocked member and store audited resolution metadata. Open safety or required-verification cases always prevent automatic profile restoration.
 - Verification cases also index user/type/status so each badge request is idempotent without coupling unrelated checks.
@@ -106,7 +106,6 @@ These are required by the confirmed PRD but are not represented by complete curr
 | Phase | Planned storage |
 |---|---|
 | Chat presence | Presence/last-seen and ephemeral typing state (cache preferred for typing) |
-| Notifications | Separate push/email channel preferences and consent timestamps |
 | Events | Events, localized details, registrations, capacity counters and reports |
 | Subscription | Features, plans, products, entitlements, limits/counters, country overrides, promotions, rollouts and user overrides |
 | Legal | Community-guideline acceptance and versioned policy/commitment records where not covered by current document types |

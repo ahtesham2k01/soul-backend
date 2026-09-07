@@ -110,8 +110,8 @@ Do not cache candidate, match or message pages across users. A 404 for a profile
 | POST | `/verification/cases/{case}/appeal` | `api.v1.verification.appeals.store` | Submit one eligible appeal |
 | POST | `/devices` | `api.v1.devices.store` | Register encrypted iOS/Android push token |
 | DELETE | `/devices/{device}` | `api.v1.devices.destroy` | Revoke owned device |
-| GET | `/notification-preferences` | `api.v1.notification-preferences.show` | Load safe defaults |
-| PUT | `/notification-preferences` | `api.v1.notification-preferences.update` | Partial preference update |
+| GET | `/notification-preferences` | `api.v1.notification-preferences.show` | Load separate push/email defaults and locked safety category |
+| PUT | `/notification-preferences` | `api.v1.notification-preferences.update` | Partial channel update; marketing opt-in records consent |
 | GET | `/notifications` | `api.v1.notifications.index` | Cursor-paginated private feed |
 | POST | `/notifications/{notification}/read` | `api.v1.notifications.read` | Idempotent read state |
 | GET | `/privacy/settings` | `api.v1.privacy.settings.show` | Load privacy defaults |

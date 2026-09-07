@@ -86,6 +86,7 @@ Keep one small translation helper around this lookup. Widgets should request a k
 - Use `GET /auth/me` after token issue and on resume.
 - Logout revokes the current token; logout-all revokes every mobile session.
 - Device/push registration happens only after notification permission is answered. Permission denial must not block onboarding.
+- Use `NOTIFICATION_CONTRACT.md` for separate push/email settings. Safety channels are locked on, marketing starts off, and enabling marketing records explicit consent.
 
 ## Onboarding implementation
 
