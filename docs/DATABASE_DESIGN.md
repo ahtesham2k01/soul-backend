@@ -54,6 +54,9 @@ erDiagram
     USERS ||--o| NOTIFICATION_PREFERENCES : chooses
     USERS ||--o{ USER_NOTIFICATIONS : receives
     NOTIFICATION_BROADCASTS ||--o{ USER_NOTIFICATIONS : delivers
+    EVENTS ||--o{ EVENT_TRANSLATIONS : localizes
+    EVENTS ||--o{ EVENT_REGISTRATIONS : receives
+    EVENTS ||--o{ EVENT_REPORTS : reviewed_for
     USERS ||--o| ACCOUNT_PRIVACY_SETTINGS : configures
     USERS ||--o{ DATA_EXPORT_REQUESTS : requests
     USERS ||--o{ ACCOUNT_DELETION_REQUESTS : schedules
@@ -74,6 +77,7 @@ erDiagram
 | Chat/safety | `conversations`, `messages`, `user_blocks`, `user_reports`, `safety_cases`, `account_appeals` | One conversation per match; directional blocks; durable risk queue; one account appeal per user |
 | Verification | `profile_verification_cases`, `verification_appeals` | Multiple typed cases per user; optional/risk-required semantics; explicit verified timestamp; at most one appeal per case |
 | Notifications | `user_devices`, `notification_preferences`, `user_notifications`, `notification_broadcasts` | Encrypted token plus unique hash; separate push/email settings; consent timestamp; mandatory safety channels; globally unique event deduplication key; idempotent broadcast recipient |
+| Events | `events`, `event_translations`, `event_registrations`, `event_reports` | Admin ownership; localized copy; unique member registration; locked capacity counter; private report queue |
 | Privacy | `account_privacy_settings`, `hidden_contact_hashes`, `data_export_requests`, `account_deletion_requests` | One settings row; keyed non-reversible contact hashes; export/deletion lifecycle rows |
 | Admin/operations | `admin_audit_logs`, user `admin_role` | Restricted admin actor deletion and immutable operation evidence |
 | Infrastructure | `cache`, `cache_locks`, `jobs`, `job_batches`, `failed_jobs` | Laravel cache, locks and asynchronous work |
@@ -106,7 +110,6 @@ These are required by the confirmed PRD but are not represented by complete curr
 | Phase | Planned storage |
 |---|---|
 | Chat presence | Presence/last-seen and ephemeral typing state (cache preferred for typing) |
-| Events | Events, localized details, registrations, capacity counters and reports |
 | Subscription | Features, plans, products, entitlements, limits/counters, country overrides, promotions, rollouts and user overrides |
 | Legal | Community-guideline acceptance and versioned policy/commitment records where not covered by current document types |
 

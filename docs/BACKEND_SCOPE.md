@@ -28,6 +28,7 @@ Laravel owns every protected decision. Flutter owns presentation, platform permi
 | Verification | Separate email, phone, selfie and ID/age states; optional/required semantics; safe public badges; cases, review and one appeal | Underage escalation and broader risk automation (Phase 21) |
 | Safety | Atomic Report/Report & Block, underage pause, risk cases, moderator decisions, blocked-account appeal and immutable audit | Provider-assisted risk signals can be added without changing the case contract |
 | Notifications | Devices, separate push/email preferences, mandatory safety alerts, in-app feed, idempotent event creation, moderation/verification/account events and admin broadcasts | APNs/FCM and email provider credentials plus staging delivery verification |
+| Events | Admin-created online/physical events, localization, publishing, capacity-safe registration, attendee privacy and report moderation | Provider-specific streaming/venue integrations are outside the V1 contract |
 | Privacy/account | Settings, screenshot protection, profile pause, incognito, keyed contact hiding, private export and 30-day deletion recovery | Remaining legal/account lifecycle parity continues in Phase 25 |
 | Admin | Dashboard, users, reports, safety cases, verification, account appeals, admins/roles, taxonomy, broadcasts and audit | Events, entitlements, configuration, localization and remaining domain management (Phase 26) |
 | Operations | Health/readiness, telemetry, security headers, cleanup schedules, CI audits and runbook | Staging/provider credentials, load tests, observability targets and deployment approval |
@@ -45,7 +46,7 @@ Laravel owns every protected decision. Flutter owns presentation, platform permi
 - [x] Phase 20 — Verification and badge behavior
 - [x] Phase 21 — Safety and moderation completion
 - [x] Phase 22 — Notification event/channel coverage
-- [ ] Phase 23 — Events and admin management
+- [x] Phase 23 — Events and admin management
 - [ ] Phase 24 — Subscription and dynamic entitlements
 - [ ] Phase 25 — Legal consent and account lifecycle
 - [ ] Phase 26 — Complete React admin module coverage

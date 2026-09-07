@@ -318,5 +318,18 @@
   "admin.value.underage_suspicion": "Kam umri ka shak",
   "admin.value.moderator_risk_review": "Moderator risk review",
   "admin.value.critical": "Bohat serious",
-  "admin.value.high": "High"
+  "admin.value.high": "High",
+  "admin.events": "Events",
+  "admin.create_event": "Event banayein",
+  "admin.starts_at": "Shuru hone ka waqt",
+  "admin.online_url": "Online link",
+  "admin.capacity": "Capacity",
+  "admin.publish": "Publish karein",
+  "admin.cancel": "Cancel karein",
+  "admin.event_reports": "Event reports",
+  "admin.notice_event_created": "Event draft ban gaya",
+  "admin.notice_event_updated": "Event update ho gaya",
+  "admin.value.physical": "Physical",
+  "admin.value.online": "Online",
+  "admin.city": "Shehar"
 }

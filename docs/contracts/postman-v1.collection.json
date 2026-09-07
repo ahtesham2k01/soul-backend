@@ -2765,6 +2765,275 @@
           }
         }
       ]
+    },
+    {
+      "name": "Events",
+      "item": [
+        {
+          "name": "Upcoming published events",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/events",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "events"
+              ]
+            },
+            "description": "api.v1.events.index: Upcoming published events"
+          }
+        },
+        {
+          "name": "Localized event details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/events/{event}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "events",
+                "{event}"
+              ]
+            },
+            "description": "api.v1.events.show: Localized event details"
+          }
+        },
+        {
+          "name": "Join event",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/events/{event}/registration",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "events",
+                "{event}",
+                "registration"
+              ]
+            },
+            "description": "api.v1.events.registration.store: Join event"
+          }
+        },
+        {
+          "name": "Leave event",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/events/{event}/registration",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "events",
+                "{event}",
+                "registration"
+              ]
+            },
+            "description": "api.v1.events.registration.destroy: Leave event"
+          }
+        },
+        {
+          "name": "Report event",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/events/{event}/report",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "events",
+                "{event}",
+                "report"
+              ]
+            },
+            "description": "api.v1.events.reports.store: Report event"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin-events",
+      "item": [
+        {
+          "name": "Manage events",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/events",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "events"
+              ]
+            },
+            "description": "api.v1.admin.events.index: Manage events"
+          }
+        },
+        {
+          "name": "Create event draft",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/events",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "events"
+              ]
+            },
+            "description": "api.v1.admin.events.store: Create event draft"
+          }
+        },
+        {
+          "name": "Update event",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/events/{event}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "events",
+                "{event}"
+              ]
+            },
+            "description": "api.v1.admin.events.update: Update event"
+          }
+        },
+        {
+          "name": "Change event status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/events/{event}/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "events",
+                "{event}",
+                "status"
+              ]
+            },
+            "description": "api.v1.admin.events.status.update: Change event status"
+          }
+        },
+        {
+          "name": "Review event reports",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/event-reports",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "event-reports"
+              ]
+            },
+            "description": "api.v1.admin.event-reports.index: Review event reports"
+          }
+        },
+        {
+          "name": "Decide event report",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/event-reports/{report}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "event-reports",
+                "{report}"
+              ]
+            },
+            "description": "api.v1.admin.event-reports.update: Decide event report"
+          }
+        }
+      ]
     }
   ]
 }

@@ -318,5 +318,18 @@
   "admin.value.underage_suspicion": "Underage suspicion",
   "admin.value.moderator_risk_review": "Moderator risk review",
   "admin.value.critical": "Critical",
-  "admin.value.high": "High"
+  "admin.value.high": "High",
+  "admin.events": "Events",
+  "admin.create_event": "Create event",
+  "admin.starts_at": "Starts at",
+  "admin.online_url": "Online link",
+  "admin.capacity": "Capacity",
+  "admin.publish": "Publish",
+  "admin.cancel": "Cancel",
+  "admin.event_reports": "Event reports",
+  "admin.notice_event_created": "Event draft created",
+  "admin.notice_event_updated": "Event updated",
+  "admin.value.physical": "Physical",
+  "admin.value.online": "Online",
+  "admin.city": "City"
 }

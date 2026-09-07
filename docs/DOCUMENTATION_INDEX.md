@@ -16,6 +16,7 @@
 | `VERIFICATION_BADGES_CONTRACT.md` | Flutter, backend and QA | Separate checks, badge privacy and optional/required behavior |
 | `SAFETY_MODERATION_CONTRACT.md` | Flutter, React, backend and QA | Atomic reporting/blocking, risk review, underage escalation and account appeals |
 | `NOTIFICATION_CONTRACT.md` | Flutter, backend and QA | Permission prompt, push/email settings, mandatory safety events and retry behavior |
+| `EVENTS_CONTRACT.md` | Flutter, React, backend and QA | Event discovery, registration, privacy, reporting and admin publishing |
 | `LOCALIZATION_GUIDE.md` | Flutter, React and backend engineers | Simple translation setup, examples and update checklist |
 | `contracts/openapi-v1.json` | Tools and client generation | Machine-readable API contract |
 | `contracts/postman-v1.collection.json` | QA and integration | Executable request collection |

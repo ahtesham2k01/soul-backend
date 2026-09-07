@@ -130,6 +130,8 @@ Use `PROFILE_INFORMATION_CONTRACT.md` for field names, enums, collection limits 
 3. Chat: matches, requests and conversations.
 4. Profile: profile editing, verification, subscription, privacy, notifications, devices, export and deletion.
 
+Events appear in Explore. Follow `EVENTS_CONTRACT.md`: use server-localized text, never reveal attendee identities, and show an online link only when the response includes it after joining.
+
 Route guards should be data-driven: a profile in correction or verification pause goes to the relevant correction screen instead of main discovery.
 
 ## Release checklist for Flutter

@@ -3473,6 +3473,310 @@
           }
         }
       }
+    },
+    "/events": {
+      "get": {
+        "operationId": "api.v1.events.index",
+        "summary": "Upcoming published events",
+        "tags": [
+          "Events"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/events/{event}": {
+      "get": {
+        "operationId": "api.v1.events.show",
+        "summary": "Localized event details",
+        "tags": [
+          "Events"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/events/{event}/registration": {
+      "post": {
+        "operationId": "api.v1.events.registration.store",
+        "summary": "Join event",
+        "tags": [
+          "Events"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "api.v1.events.registration.destroy",
+        "summary": "Leave event",
+        "tags": [
+          "Events"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/events/{event}/report": {
+      "post": {
+        "operationId": "api.v1.events.reports.store",
+        "summary": "Report event",
+        "tags": [
+          "Events"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/admin/events": {
+      "get": {
+        "operationId": "api.v1.admin.events.index",
+        "summary": "Manage events",
+        "tags": [
+          "Admin-events"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      },
+      "post": {
+        "operationId": "api.v1.admin.events.store",
+        "summary": "Create event draft",
+        "tags": [
+          "Admin-events"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/admin/events/{event}": {
+      "put": {
+        "operationId": "api.v1.admin.events.update",
+        "summary": "Update event",
+        "tags": [
+          "Admin-events"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/admin/events/{event}/status": {
+      "put": {
+        "operationId": "api.v1.admin.events.status.update",
+        "summary": "Change event status",
+        "tags": [
+          "Admin-events"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/admin/event-reports": {
+      "get": {
+        "operationId": "api.v1.admin.event-reports.index",
+        "summary": "Review event reports",
+        "tags": [
+          "Admin-events"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/admin/event-reports/{report}": {
+      "put": {
+        "operationId": "api.v1.admin.event-reports.update",
+        "summary": "Decide event report",
+        "tags": [
+          "Admin-events"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
     }
   },
   "components": {

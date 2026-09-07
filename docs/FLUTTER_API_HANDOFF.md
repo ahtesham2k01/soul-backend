@@ -114,6 +114,11 @@ Do not cache candidate, match or message pages across users. A 404 for a profile
 | PUT | `/notification-preferences` | `api.v1.notification-preferences.update` | Partial channel update; marketing opt-in records consent |
 | GET | `/notifications` | `api.v1.notifications.index` | Cursor-paginated private feed |
 | POST | `/notifications/{notification}/read` | `api.v1.notifications.read` | Idempotent read state |
+| GET | `/events` | `api.v1.events.index` | Upcoming published events |
+| GET | `/events/{event}` | `api.v1.events.show` | Localized event details; online URL only after joining |
+| POST | `/events/{event}/registration` | `api.v1.events.registration.store` | Capacity-safe idempotent join |
+| DELETE | `/events/{event}/registration` | `api.v1.events.registration.destroy` | Idempotent leave |
+| POST | `/events/{event}/report` | `api.v1.events.reports.store` | Private idempotent event report |
 | GET | `/privacy/settings` | `api.v1.privacy.settings.show` | Load privacy defaults |
 | PUT | `/privacy/settings` | `api.v1.privacy.settings.update` | Partial privacy update |
 | PUT | `/privacy/contacts` | `api.v1.privacy.contacts.update` | Replace privacy-safe contact hashes |
@@ -157,6 +162,12 @@ The React admin uses same-origin secure session cookies, not mobile bearer token
 | GET | `/admin/notification-broadcasts` | `api.v1.admin.notification-broadcasts.index` | Browse broadcast lifecycle and delivery/read analytics |
 | POST | `/admin/notification-broadcasts` | `api.v1.admin.notification-broadcasts.store` | Create a preference-aware targeted draft with recipient estimate |
 | POST | `/admin/notification-broadcasts/{broadcast}/send` | `api.v1.admin.notification-broadcasts.send` | Explicitly confirm and queue an idempotent broadcast |
+| GET | `/admin/events` | `api.v1.admin.events.index` | Browse all event states and registration counts |
+| POST | `/admin/events` | `api.v1.admin.events.store` | Create localized event draft |
+| PUT | `/admin/events/{event}` | `api.v1.admin.events.update` | Update event content and logistics |
+| PUT | `/admin/events/{event}/status` | `api.v1.admin.events.status.update` | Publish, return to draft or cancel with audit reason |
+| GET | `/admin/event-reports` | `api.v1.admin.event-reports.index` | Private pending event-report queue |
+| PUT | `/admin/event-reports/{report}` | `api.v1.admin.event-reports.update` | Resolve, dismiss or cancel event |
 
 ## Provider-only endpoint
 

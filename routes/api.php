@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\Admin\AccountAppealController as AdminAccountApp
 use App\Http\Controllers\Api\V1\Admin\AdminAccountController;
 use App\Http\Controllers\Api\V1\Admin\AdminAuditLogController;
 use App\Http\Controllers\Api\V1\Admin\AdminUserController;
+use App\Http\Controllers\Api\V1\Admin\EventController as AdminEventController;
 use App\Http\Controllers\Api\V1\Admin\ModerationController;
 use App\Http\Controllers\Api\V1\Admin\NotificationBroadcastController;
 use App\Http\Controllers\Api\V1\Admin\ReligionTaxonomyController;
@@ -20,6 +21,9 @@ use App\Http\Controllers\Api\V1\Auth\RegisterVerifyOtpController;
 use App\Http\Controllers\Api\V1\Discovery\DiscoveryPreferenceController;
 use App\Http\Controllers\Api\V1\Discovery\ListCandidatesController;
 use App\Http\Controllers\Api\V1\Discovery\ShowProfileController;
+use App\Http\Controllers\Api\V1\Events\EventController;
+use App\Http\Controllers\Api\V1\Events\EventRegistrationController;
+use App\Http\Controllers\Api\V1\Events\EventReportController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\Matching\LikeRequestController;
 use App\Http\Controllers\Api\V1\Matching\ListMatchesController;
@@ -84,6 +88,12 @@ Route::prefix('v1')->group(function (): void {
             Route::get('/notification-broadcasts', [NotificationBroadcastController::class, 'index'])->name('api.v1.admin.notification-broadcasts.index');
             Route::post('/notification-broadcasts', [NotificationBroadcastController::class, 'store'])->name('api.v1.admin.notification-broadcasts.store');
             Route::post('/notification-broadcasts/{broadcast}/send', [NotificationBroadcastController::class, 'send'])->name('api.v1.admin.notification-broadcasts.send');
+            Route::get('/events', [AdminEventController::class, 'index'])->name('api.v1.admin.events.index');
+            Route::post('/events', [AdminEventController::class, 'store'])->name('api.v1.admin.events.store');
+            Route::put('/events/{event}', [AdminEventController::class, 'update'])->name('api.v1.admin.events.update');
+            Route::put('/events/{event}/status', [AdminEventController::class, 'status'])->name('api.v1.admin.events.status.update');
+            Route::get('/event-reports', [AdminEventController::class, 'reports'])->name('api.v1.admin.event-reports.index');
+            Route::put('/event-reports/{report}', [AdminEventController::class, 'decideReport'])->name('api.v1.admin.event-reports.update');
         });
     });
     Route::middleware(['auth:sanctum', 'active.account', 'record.activity'])->group(function (): void {
@@ -151,6 +161,11 @@ Route::prefix('v1')->group(function (): void {
         Route::put('/notification-preferences', [PreferenceController::class, 'update'])->middleware('throttle:30,1')->name('api.v1.notification-preferences.update');
         Route::get('/notifications', [NotificationFeedController::class, 'index'])->name('api.v1.notifications.index');
         Route::post('/notifications/{notification}/read', [NotificationFeedController::class, 'read'])->middleware('throttle:120,1')->name('api.v1.notifications.read');
+        Route::get('/events', [EventController::class, 'index'])->name('api.v1.events.index');
+        Route::get('/events/{event}', [EventController::class, 'show'])->name('api.v1.events.show');
+        Route::post('/events/{event}/registration', [EventRegistrationController::class, 'store'])->middleware('throttle:20,1')->name('api.v1.events.registration.store');
+        Route::delete('/events/{event}/registration', [EventRegistrationController::class, 'destroy'])->middleware('throttle:20,1')->name('api.v1.events.registration.destroy');
+        Route::post('/events/{event}/report', EventReportController::class)->middleware('throttle:5,60')->name('api.v1.events.reports.store');
         Route::get('/privacy/settings', [PrivacyController::class, 'showSettings'])->name('api.v1.privacy.settings.show');
         Route::put('/privacy/settings', [PrivacyController::class, 'updateSettings'])->name('api.v1.privacy.settings.update');
         Route::put('/privacy/contacts', [PrivacyController::class, 'replaceContacts'])->middleware('throttle:5,60')->name('api.v1.privacy.contacts.update');
