@@ -11,8 +11,8 @@ const endpoints = [...handoff.matchAll(endpointPattern)].map((match) => ({
     summary: match[4].trim(),
 }));
 
-if (endpoints.length !== 89) {
-    throw new Error(`Expected 89 documented endpoints, found ${endpoints.length}.`);
+if (endpoints.length !== 95) {
+    throw new Error(`Expected 95 documented endpoints, found ${endpoints.length}.`);
 }
 
 const publicOperations = new Set([
@@ -50,7 +50,10 @@ const requestExamples = {
     'api.v1.private-photos.capture-events.store': { client_event_id: '01K...', event_type: 'screenshot' },
     'api.v1.messages.store': { body: 'Salam' },
     'api.v1.safety.blocks.store': { reason: 'Harassment' },
-    'api.v1.safety.reports.store': { category: 'harassment', details: 'Repeated unwanted messages' },
+    'api.v1.safety.reports.store': { category: 'harassment', details: 'Repeated unwanted messages', action: 'report_and_block' },
+    'api.v1.account-appeal.store': { statement: 'Please review this account restriction and the available evidence.' },
+    'api.v1.admin.safety-cases.update': { decision: 'verification_required', reason: 'Identity and age evidence is required' },
+    'api.v1.admin.account-appeals.update': { decision: 'accepted', reason: 'Restriction reviewed and overturned' },
     'api.v1.verification.cases.store': { type: 'selfie_review' },
     'api.v1.verification.appeals.store': { statement: 'Please review this verification decision again.' },
     'api.v1.devices.store': { platform: 'android', push_token: '<provider-token>', device_name: 'Pixel' },

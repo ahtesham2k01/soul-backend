@@ -306,5 +306,17 @@
   "likes.withdraw": "Withdraw like",
   "chat.online": "Online now",
   "chat.offline": "Offline",
-  "chat.last_seen": "Last seen"
+  "chat.last_seen": "Last seen",
+  "admin.safety_cases": "Safety cases",
+  "admin.account_appeals": "Account appeals",
+  "admin.pause_for_review": "Pause for review",
+  "admin.clear": "Clear",
+  "admin.require_verification": "Require verification",
+  "admin.accept": "Accept",
+  "admin.reject": "Reject",
+  "admin.value.open_safety_cases": "Open safety cases",
+  "admin.value.underage_suspicion": "Underage suspicion",
+  "admin.value.moderator_risk_review": "Moderator risk review",
+  "admin.value.critical": "Critical",
+  "admin.value.high": "High"
 }

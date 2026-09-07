@@ -129,6 +129,8 @@ Verification is shown as four independent states: account email, phone badge, se
 - A banned user receives one proper appeal path when eligible.
 - Safety actions and appeals can never be paywalled.
 
+Report & Block is one server transaction: it records the report, closes the match, revokes private-photo access and blocks further interaction. An underage report immediately pauses the target and opens required age/ID review. A blocked user sees one appeal form and appeal status; normal navigation stays unavailable. Moderator decisions and super-admin appeal decisions always require a written reason and audit event.
+
 ## Events flow
 
 Admin creates/approves an online or physical event with date, city, capacity and attendee privacy. Users browse details, join if capacity/eligibility allows, leave, and report an event. Public user-created events are deferred.

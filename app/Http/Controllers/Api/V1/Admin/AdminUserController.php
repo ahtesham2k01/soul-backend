@@ -99,8 +99,10 @@ class AdminUserController extends Controller
             $before = ['status' => $record->status];
             $record->forceFill(['status' => $validated['status']])->save();
 
-            if ($validated['status'] !== User::STATUS_ACTIVE) {
+            if ($validated['status'] === User::STATUS_SUSPENDED) {
                 $record->tokens()->delete();
+            }
+            if ($validated['status'] !== User::STATUS_ACTIVE) {
                 $record->devices()->update(['revoked_at' => now()]);
                 $record->profile()->where('profile_status', ProfileStatus::Live->value)
                     ->update(['profile_status' => ProfileStatus::PausedVerification->value]);

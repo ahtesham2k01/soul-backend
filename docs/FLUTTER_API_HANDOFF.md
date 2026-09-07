@@ -102,6 +102,8 @@ Do not cache candidate, match or message pages across users. A 404 for a profile
 |---|---|---|---|
 | POST | `/profiles/{profile}/block` | `api.v1.safety.blocks.store` | Block and close interaction |
 | POST | `/profiles/{profile}/report` | `api.v1.safety.reports.store` | Submit safe report receipt |
+| GET | `/account-appeal` | `api.v1.account-appeal.show` | Resume the blocked-account appeal state |
+| POST | `/account-appeal` | `api.v1.account-appeal.store` | Submit the one allowed blocked-account appeal |
 | GET | `/verification/cases` | `api.v1.verification.cases.index` | List owned verification cases |
 | GET | `/verification/summary` | `api.v1.verification.summary` | Separate account checks and public badge states |
 | POST | `/verification/cases` | `api.v1.verification.cases.store` | Request identity/selfie review |
@@ -135,8 +137,12 @@ The React admin uses same-origin secure session cookies, not mobile bearer token
 | GET | `/admin/dashboard` | `api.v1.admin.dashboard` | Queue counts |
 | GET | `/admin/reports` | `api.v1.admin.reports.index` | Pending reports |
 | PUT | `/admin/reports/{report}` | `api.v1.admin.reports.update` | Moderation decision with reason |
+| GET | `/admin/safety-cases` | `api.v1.admin.safety-cases.index` | Risk and underage review queue |
+| PUT | `/admin/safety-cases/{case}` | `api.v1.admin.safety-cases.update` | Clear or require verification with audit evidence |
 | GET | `/admin/verifications` | `api.v1.admin.verifications.index` | Reviewable verification cases |
 | PUT | `/admin/verifications/{case}` | `api.v1.admin.verifications.update` | Verification decision with audit event |
+| GET | `/admin/account-appeals` | `api.v1.admin.account-appeals.index` | Pending banned-account appeals |
+| PUT | `/admin/account-appeals/{appeal}` | `api.v1.admin.account-appeals.update` | Super-admin accepts or rejects an appeal once |
 | GET | `/admin/users` | `api.v1.admin.users.index` | Search and filter user directory |
 | GET | `/admin/users/{user}` | `api.v1.admin.users.show` | Inspect account, profile, photo and safety summary |
 | PUT | `/admin/users/{user}/status` | `api.v1.admin.users.status.update` | Super-admin suspend, block or restore |
@@ -173,6 +179,7 @@ This endpoint is for signed Cloudinary notifications only. Flutter must never ca
 - Device platform: `ios`, `android`
 - Verification type: `identity`, `selfie_review`
 - Report category: `fake_profile`, `scam`, `harassment`, `nudity_sexual_content`, `underage`, `false_marital_status`, `other`
+- Report action: `report_only`, `report_and_block`
 - Profile lifecycle: `draft`, `submitted`, `automated_checks`, `live`, plus correction/paused states returned by the status endpoint
 
 Clients must tolerate additive response fields and new enum values by showing a safe fallback. Removing/renaming fields or changing their meaning requires a new API version.

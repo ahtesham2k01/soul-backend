@@ -13,9 +13,10 @@ This is the implementation guide for the Android/iOS client. Laravel is the auth
 7. Read `LIKE_MATCH_CHAT_CONTRACT.md` before building Likes, match lists, presence or chat.
 8. Read `MARITAL_STATUS_CONTRACT.md` before building discovery cards or full profiles.
 9. Read `VERIFICATION_BADGES_CONTRACT.md` before building verification or public badges.
-10. Import `contracts/openapi-v1.json` or `contracts/postman-v1.collection.json` while building the API client.
-11. Read `DATABASE_DESIGN.md` only to understand ownership and relationships; Flutter never uses internal database IDs.
-12. Read `BACKEND_SCOPE.md` before implementing a screen so unfinished gap-closure modules are not mistaken for available APIs.
+10. Read `SAFETY_MODERATION_CONTRACT.md` before building reports, blocks or account appeals.
+11. Import `contracts/openapi-v1.json` or `contracts/postman-v1.collection.json` while building the API client.
+12. Read `DATABASE_DESIGN.md` only to understand ownership and relationships; Flutter never uses internal database IDs.
+13. Read `BACKEND_SCOPE.md` before implementing a screen so unfinished gap-closure modules are not mistaken for available APIs.
 
 ## Client architecture
 
@@ -118,7 +119,8 @@ Use `PROFILE_INFORMATION_CONTRACT.md` for field names, enums, collection limits 
 - Apply Android secure-window behavior and iOS masking/detection/watermark behavior where supported, without promising impossible prevention.
 - Use one ULID per reliable screenshot/recording signal so event retries stay idempotent.
 - Report and block actions must remain available regardless of subscription.
-- Reporting UI must use server enum values and offer both Report only and Report & Block when the supporting API phase is complete.
+- Reporting UI must use server enum values and offer Report only or atomic Report & Block through one request.
+- A blocked account may call only the restricted appeal/status endpoints. Preserve its token until that state is resolved; never attempt normal app APIs.
 
 ## Four-tab navigation
 

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\Admin\AccountAppealController as AdminAccountAppealController;
 use App\Http\Controllers\Api\V1\Admin\AdminAccountController;
 use App\Http\Controllers\Api\V1\Admin\AdminAuditLogController;
 use App\Http\Controllers\Api\V1\Admin\AdminUserController;
@@ -46,6 +47,7 @@ use App\Http\Controllers\Api\V1\Onboarding\UpdateProfileDraftController;
 use App\Http\Controllers\Api\V1\Privacy\PrivacyController;
 use App\Http\Controllers\Api\V1\ReadinessController;
 use App\Http\Controllers\Api\V1\ResolveLocationController;
+use App\Http\Controllers\Api\V1\Safety\AccountAppealController;
 use App\Http\Controllers\Api\V1\Safety\BlockUserController;
 use App\Http\Controllers\Api\V1\Safety\ProfileVerificationController;
 use App\Http\Controllers\Api\V1\Safety\ReportUserController;
@@ -59,8 +61,13 @@ Route::prefix('v1')->group(function (): void {
         Route::get('/dashboard', [ModerationController::class, 'dashboard'])->name('api.v1.admin.dashboard');
         Route::get('/reports', [ModerationController::class, 'reports'])->name('api.v1.admin.reports.index');
         Route::put('/reports/{report}', [ModerationController::class, 'decideReport'])->name('api.v1.admin.reports.update');
+        Route::get('/safety-cases', [ModerationController::class, 'safetyCases'])->name('api.v1.admin.safety-cases.index');
+        Route::put('/safety-cases/{case}', [ModerationController::class, 'decideSafetyCase'])->name('api.v1.admin.safety-cases.update');
         Route::get('/verifications', [ModerationController::class, 'verifications'])->name('api.v1.admin.verifications.index');
         Route::put('/verifications/{case}', [ModerationController::class, 'decideVerification'])->name('api.v1.admin.verifications.update');
+        Route::get('/account-appeals', [AdminAccountAppealController::class, 'index'])->name('api.v1.admin.account-appeals.index');
+        Route::put('/account-appeals/{appeal}', [AdminAccountAppealController::class, 'update'])
+            ->middleware('admin:super_admin')->name('api.v1.admin.account-appeals.update');
         Route::get('/users', [AdminUserController::class, 'index'])->name('api.v1.admin.users.index');
         Route::get('/users/{user}', [AdminUserController::class, 'show'])->name('api.v1.admin.users.show');
         Route::put('/users/{user}/status', [AdminUserController::class, 'updateStatus'])
@@ -155,6 +162,10 @@ Route::prefix('v1')->group(function (): void {
     Route::middleware(['auth:sanctum'])->group(function (): void {
         Route::get('/privacy/deletion', [PrivacyController::class, 'deletionStatus'])->name('api.v1.privacy.deletion.show');
         Route::delete('/privacy/deletion', [PrivacyController::class, 'cancelDeletion'])->name('api.v1.privacy.deletion.destroy');
+        Route::get('/account-appeal', [AccountAppealController::class, 'show'])
+            ->middleware('throttle:30,1')->name('api.v1.account-appeal.show');
+        Route::post('/account-appeal', [AccountAppealController::class, 'store'])
+            ->middleware('throttle:3,60')->name('api.v1.account-appeal.store');
     });
     Route::get(
         '/health',

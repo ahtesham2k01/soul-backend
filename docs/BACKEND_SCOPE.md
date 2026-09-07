@@ -18,7 +18,7 @@ Laravel owns every protected decision. Flutter owns presentation, platform permi
 
 | Area | Implemented now | Remaining V1 scope |
 |---|---|---|
-| Bootstrap/localization | Locale negotiation, version/hash, direction, 294-key V1 catalog, complete English/Roman Urdu copy and React admin language switching | Human-reviewed copy for remaining configured languages as translation work becomes available |
+| Bootstrap/localization | Locale negotiation, version/hash, direction, 320-key V1 catalog, complete English/Roman Urdu copy and React admin language switching | Human-reviewed copy for remaining configured languages as translation work becomes available |
 | Authentication | Email registration/login OTP, Apple, Google, linked social identities, tokens, current user, logout/all | Active-device session listing/remote logout parity and duplicate merge hardening where needed |
 | Profile onboarding | Draft save/resume, all required V1 answers, optional details, interests/traits, Skip versus Prefer-not-to-say state, religion selection, readiness/lifecycle | Public full-profile presentation continues with discovery/privacy phases |
 | Religion | Future-ready hierarchy, translations, complete-path country validation, saved leaf/root selection, persistent My Religion/All Religions discovery and admin taxonomy | Full-profile detailed-field presentation remains coupled to public-profile/privacy work |
@@ -26,10 +26,10 @@ Laravel owns every protected decision. Flutter owns presentation, platform permi
 | Discovery | Gender/age/religion/intention/location/radius filters, activity ranking, 90-day hiding, safe distance bands, pass resurfacing and likes exclusion | Entitlement-dependent filter limits remain dynamic subscription work |
 | Likes/matches/chat | Like/pass, incoming requests, accept/decline/withdraw, matches, summaries, unmatch, text messages, mandatory read receipts, online/last-seen and expiring typing signals | Provider-backed real-time transport may later replace polling without changing the V1 API contract |
 | Verification | Separate email, phone, selfie and ID/age states; optional/required semantics; safe public badges; cases, review and one appeal | Underage escalation and broader risk automation (Phase 21) |
-| Safety | Block, report categories, moderation queues and account actions | Report & Block transaction, risk cases, ban appeal and complete moderator tools (Phase 21) |
+| Safety | Atomic Report/Report & Block, underage pause, risk cases, moderator decisions, blocked-account appeal and immutable audit | Provider-assisted risk signals can be added without changing the case contract |
 | Notifications | Devices, push preferences, feed, match/message events and admin broadcasts | Push/email separation and complete event coverage (Phase 22) |
 | Privacy/account | Settings, screenshot protection, profile pause, incognito, keyed contact hiding, private export and 30-day deletion recovery | Remaining legal/account lifecycle parity continues in Phase 25 |
-| Admin | Dashboard, users, reports, verification, admins/roles, taxonomy, broadcasts, audit | Events, entitlements, configuration, localization and remaining domain management (Phase 26) |
+| Admin | Dashboard, users, reports, safety cases, verification, account appeals, admins/roles, taxonomy, broadcasts and audit | Events, entitlements, configuration, localization and remaining domain management (Phase 26) |
 | Operations | Health/readiness, telemetry, security headers, cleanup schedules, CI audits and runbook | Staging/provider credentials, load tests, observability targets and deployment approval |
 
 ## Gap-closure phases
@@ -43,7 +43,7 @@ Laravel owns every protected decision. Flutter owns presentation, platform permi
 - [x] Phase 18 — Likes, requests, matches and chat parity
 - [x] Phase 19 — Marital-status visibility and rules
 - [x] Phase 20 — Verification and badge behavior
-- [ ] Phase 21 — Safety and moderation completion
+- [x] Phase 21 — Safety and moderation completion
 - [ ] Phase 22 — Notification event/channel coverage
 - [ ] Phase 23 — Events and admin management
 - [ ] Phase 24 — Subscription and dynamic entitlements

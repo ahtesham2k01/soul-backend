@@ -89,6 +89,25 @@ class AdminUserOperationsEndpointTest extends TestCase
         ])->assertConflict()->assertJsonPath('error.code', 'ADMIN_SELF_STATUS_CHANGE');
     }
 
+    public function test_blocked_member_keeps_restricted_token_for_the_single_appeal_flow(): void
+    {
+        $admin = $this->admin('super_admin');
+        $user = User::factory()->create(['status' => User::STATUS_ACTIVE]);
+        UserProfile::factory()->for($user)->create(['profile_status' => 'live']);
+        $token = $user->createToken('mobile')->plainTextToken;
+        Sanctum::actingAs($admin);
+
+        $this->putJson("/api/v1/admin/users/{$user->public_id}/status", [
+            'status' => User::STATUS_BLOCKED, 'reason' => 'Confirmed serious policy violation',
+        ])->assertOk();
+
+        auth()->forgetGuards();
+        $this->withToken($token)->getJson('/api/v1/auth/me')->assertForbidden();
+        $this->withToken($token)->postJson('/api/v1/account-appeal', [
+            'statement' => 'Please review the evidence and this restriction again.',
+        ])->assertStatus(202);
+    }
+
     public function test_admin_accounts_cannot_be_changed_through_member_status_controls(): void
     {
         $admin = $this->admin('super_admin');

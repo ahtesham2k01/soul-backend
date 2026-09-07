@@ -1817,7 +1817,75 @@
               },
               "example": {
                 "category": "harassment",
-                "details": "Repeated unwanted messages"
+                "details": "Repeated unwanted messages",
+                "action": "report_and_block"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/account-appeal": {
+      "get": {
+        "operationId": "api.v1.account-appeal.show",
+        "summary": "Resume the blocked-account appeal state",
+        "tags": [
+          "Account-appeal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      },
+      "post": {
+        "operationId": "api.v1.account-appeal.store",
+        "summary": "Submit the one allowed blocked-account appeal",
+        "tags": [
+          "Account-appeal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "statement": "Please review this account restriction and the available evidence."
               }
             }
           }
@@ -2561,6 +2629,86 @@
         }
       }
     },
+    "/admin/safety-cases": {
+      "get": {
+        "operationId": "api.v1.admin.safety-cases.index",
+        "summary": "Risk and underage review queue",
+        "tags": [
+          "Admin"
+        ],
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/admin/safety-cases/{case}": {
+      "put": {
+        "operationId": "api.v1.admin.safety-cases.update",
+        "summary": "Clear or require verification with audit evidence",
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "case",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "decision": "verification_required",
+                "reason": "Identity and age evidence is required"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
     "/admin/verifications": {
       "get": {
         "operationId": "api.v1.admin.verifications.index",
@@ -2611,6 +2759,86 @@
             "adminSession": []
           }
         ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/admin/account-appeals": {
+      "get": {
+        "operationId": "api.v1.admin.account-appeals.index",
+        "summary": "Pending banned-account appeals",
+        "tags": [
+          "Admin"
+        ],
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/admin/account-appeals/{appeal}": {
+      "put": {
+        "operationId": "api.v1.admin.account-appeals.update",
+        "summary": "Super-admin accepts or rejects an appeal once",
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "appeal",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "decision": "accepted",
+                "reason": "Restriction reviewed and overturned"
+              }
+            }
+          }
+        },
         "responses": {
           "401": {
             "$ref": "#/components/responses/Error"

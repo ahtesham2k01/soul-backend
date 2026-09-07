@@ -42,6 +42,8 @@ erDiagram
     CONVERSATIONS ||--o{ MESSAGES : contains
     USERS ||--o{ USER_BLOCKS : blocks
     USERS ||--o{ USER_REPORTS : reports
+    USERS ||--o{ SAFETY_CASES : reviewed_for
+    USERS ||--o| ACCOUNT_APPEALS : may_submit
     USERS ||--o{ PROFILE_VERIFICATION_CASES : submits
     PROFILE_VERIFICATION_CASES ||--o| VERIFICATION_APPEALS : may_have
 ```
@@ -69,7 +71,7 @@ erDiagram
 | Photos | `profile_photos`, `profile_photo_uploads`, `private_photo_access_requests`, `private_photo_capture_events` | Slots 1–3 unique; authenticated secondary delivery; one access lifecycle per match/direction; idempotent capture signals |
 | Lifecycle/legal | `profile_status_transitions`, `legal_acceptances` | Append-style state history and versioned consent |
 | Discovery | `discovery_preferences`, `discovery_preference_locations`, `discovery_preference_intentions`, `profile_decisions`, `user_matches` | One preference row; normalized multi-location/intention filters; one current decision per actor/target; normalized match pair |
-| Chat/safety | `conversations`, `messages`, `user_blocks`, `user_reports` | One conversation per match; indexed message feed; directional blocks and review queue |
+| Chat/safety | `conversations`, `messages`, `user_blocks`, `user_reports`, `safety_cases`, `account_appeals` | One conversation per match; directional blocks; durable risk queue; one account appeal per user |
 | Verification | `profile_verification_cases`, `verification_appeals` | Multiple typed cases per user; optional/risk-required semantics; explicit verified timestamp; at most one appeal per case |
 | Notifications | `user_devices`, `notification_preferences`, `user_notifications`, `notification_broadcasts` | Encrypted token plus unique hash; one preference row; idempotent broadcast recipient |
 | Privacy | `account_privacy_settings`, `hidden_contact_hashes`, `data_export_requests`, `account_deletion_requests` | One settings row; keyed non-reversible contact hashes; export/deletion lifecycle rows |
@@ -90,6 +92,7 @@ erDiagram
 - Messages use `(conversation_id, id)` for cursor reads.
 - Notifications use `(user_id, read_at, id)` for unread feeds.
 - Reports and verification cases index status/time for moderator queues.
+- Safety cases separate risk decisions from raw reports and retain the previous profile state for safe restoration. Account appeals enforce one lifetime appeal row per blocked member and store audited resolution metadata. Open safety or required-verification cases always prevent automatic profile restoration.
 - Verification cases also index user/type/status so each badge request is idempotent without coupling unrelated checks.
 - Deletion requests index status/scheduled time for cleanup jobs.
 - Audit events index subject and actor/time; audit public IDs are unique.
@@ -103,7 +106,6 @@ These are required by the confirmed PRD but are not represented by complete curr
 | Phase | Planned storage |
 |---|---|
 | Chat presence | Presence/last-seen and ephemeral typing state (cache preferred for typing) |
-| Safety | Risk signals/actions, moderation cases, ban appeals and report action linkage |
 | Notifications | Separate push/email channel preferences and consent timestamps |
 | Events | Events, localized details, registrations, capacity counters and reports |
 | Subscription | Features, plans, products, entitlements, limits/counters, country overrides, promotions, rollouts and user overrides |

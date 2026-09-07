@@ -2,32 +2,25 @@
   "common.continue": "Continue",
   "common.close": "Close",
   "common.retry": "Try again",
-
   "language.current": "English",
   "language.select": "Select language",
-
   "location.detecting": "Detecting your location...",
   "location.permission_required": "Allow location access to continue",
   "location.unavailable": "Location could not be detected",
-
   "onboarding.headline_highlight": "Swipe to Your",
   "onboarding.headline_rest": "Happily Ever After",
   "onboarding.subtitle": "Start your journey to meaningful connections and lasting relationships today",
-
   "auth.create_account": "Create Account",
   "auth.continue_with_google": "Continue with Google",
   "auth.continue_with_apple": "Continue with Apple",
   "auth.already_have_account": "Already have an account?",
   "auth.log_in": "Log in",
-
   "auth.error.google_failed": "Google sign-in could not be completed. Please try again.",
   "auth.error.apple_failed": "Apple sign-in could not be completed. Please try again.",
   "auth.error.account_unavailable": "This account is currently unavailable.",
   "auth.error.too_many_attempts": "Too many attempts. Please try again later.",
   "auth.error.apple_email_required": "Apple did not provide an email address. Please restart Apple sign-in.",
-
   "error.bootstrap_unavailable": "We could not load the app configuration. Please try again.",
-
   "common.back": "Back",
   "common.cancel": "Cancel",
   "common.confirm": "Confirm",
@@ -39,19 +32,16 @@
   "common.save": "Save",
   "common.search": "Search",
   "common.skip": "Skip",
-
   "auth.continue_with_email": "Continue with Email",
   "auth.email": "Email",
   "auth.enter_code": "Enter the verification code",
   "auth.log_out": "Log out",
   "auth.log_out_all": "Log out from all devices",
   "auth.send_code": "Send code",
-
   "nav.home": "Home",
   "nav.explore": "Explore",
   "nav.chat": "Chat",
   "nav.profile": "Profile",
-
   "profile.first_name": "First name",
   "profile.date_of_birth": "Date of birth",
   "profile.gender": "Gender",
@@ -109,7 +99,6 @@
   "profile.do_not_want_children": "Do not want children",
   "profile.open_to_children": "Open to children",
   "profile.not_sure": "Not sure",
-
   "photos.title": "Add your photos",
   "photos.cover": "Cover photo",
   "photos.public": "Public",
@@ -118,13 +107,11 @@
   "photos.approved": "Photo approved",
   "photos.rejected": "Photo needs to be replaced",
   "photos.replace": "Replace photo",
-
   "onboarding.review": "Review your profile",
   "onboarding.submit": "Submit profile",
   "onboarding.checking": "We are checking your profile",
   "onboarding.changes_required": "Changes are required",
   "onboarding.profile_live": "Your profile is live",
-
   "discovery.filters": "Filters",
   "discovery.like": "Like",
   "discovery.pass": "Pass",
@@ -132,27 +119,23 @@
   "discovery.my_religion": "My Religion",
   "discovery.all_religions": "All Religions",
   "discovery.anywhere": "Anywhere",
-
   "matches.title": "Matches",
   "matches.new_match": "It is a match!",
   "matches.unmatch": "Unmatch",
   "chat.message_hint": "Write a message",
   "chat.typing": "Typing...",
   "chat.read": "Read",
-
   "safety.block": "Block",
   "safety.report": "Report",
   "safety.report_and_block": "Report and Block",
   "safety.report_reason": "Why are you reporting this profile?",
   "safety.report_sent": "Your report has been sent",
-
   "notifications.title": "Notifications",
   "notifications.allow": "Allow notifications",
   "notifications.new_matches": "New matches",
   "notifications.new_messages": "New messages",
   "notifications.safety": "Safety updates",
   "notifications.marketing": "Marketing",
-
   "settings.title": "Settings",
   "settings.language": "Language",
   "settings.privacy": "Privacy",
@@ -160,7 +143,6 @@
   "settings.download_data": "Download my data",
   "settings.delete_account": "Delete account",
   "settings.deletion_recovery": "You can recover your account for 30 days.",
-
   "admin.language": "Language",
   "admin.english": "English",
   "admin.roman_urdu": "Roman Urdu",
@@ -324,5 +306,17 @@
   "private_photos.protected": "Screenshot protection is on",
   "private_photos.capture_warning": "Screenshots or recordings may notify the photo owner",
   "private_photos.capture_detected": "A viewer captured your private photo",
-  "private_photos.legacy_reupload": "Replace this photo to enable secure private viewing"
+  "private_photos.legacy_reupload": "Replace this photo to enable secure private viewing",
+  "admin.safety_cases": "Safety cases",
+  "admin.account_appeals": "Account appeals",
+  "admin.pause_for_review": "Pause for review",
+  "admin.clear": "Clear",
+  "admin.require_verification": "Require verification",
+  "admin.accept": "Accept",
+  "admin.reject": "Reject",
+  "admin.value.open_safety_cases": "Open safety cases",
+  "admin.value.underage_suspicion": "Underage suspicion",
+  "admin.value.moderator_risk_review": "Moderator risk review",
+  "admin.value.critical": "Critical",
+  "admin.value.high": "High"
 }

@@ -2,32 +2,25 @@
   "common.continue": "Continue karein",
   "common.close": "Band karein",
   "common.retry": "Dobara try karein",
-
   "language.current": "Roman Urdu",
   "language.select": "Language select karein",
-
   "location.detecting": "Aapki location check ho rahi hai...",
   "location.permission_required": "Continue karne ke liye location access allow karein",
   "location.unavailable": "Aapki location nahi mil saki",
-
   "onboarding.headline_highlight": "Apni Pasand ki Taraf Swipe Karein",
   "onboarding.headline_rest": "Aur Apna Humsafar Dhoondein",
   "onboarding.subtitle": "Achay aur lasting relationship ke liye apna safar aaj hi shuru karein",
-
   "auth.create_account": "Account banayein",
   "auth.continue_with_google": "Google se continue karein",
   "auth.continue_with_apple": "Apple se continue karein",
   "auth.already_have_account": "Pehle se account hai?",
   "auth.log_in": "Log in karein",
-
   "auth.error.google_failed": "Google se sign in nahi ho saka. Dobara try karein.",
   "auth.error.apple_failed": "Apple se sign in nahi ho saka. Dobara try karein.",
   "auth.error.account_unavailable": "Ye account abhi available nahi hai.",
   "auth.error.too_many_attempts": "Bohat zyada attempts ho gaye hain. Thori dair baad dobara try karein.",
   "auth.error.apple_email_required": "Apple se email nahi mili. Apple sign-in dobara shuru karein.",
-
   "error.bootstrap_unavailable": "App load nahi ho saki. Dobara try karein.",
-
   "common.back": "Wapas",
   "common.cancel": "Cancel karein",
   "common.confirm": "Confirm karein",
@@ -39,19 +32,16 @@
   "common.save": "Save karein",
   "common.search": "Search karein",
   "common.skip": "Skip karein",
-
   "auth.continue_with_email": "Email se continue karein",
   "auth.email": "Email",
   "auth.enter_code": "Verification code enter karein",
   "auth.log_out": "Log out karein",
   "auth.log_out_all": "Sab devices se log out karein",
   "auth.send_code": "Code bhejein",
-
   "nav.home": "Home",
   "nav.explore": "Explore",
   "nav.chat": "Chat",
   "nav.profile": "Profile",
-
   "profile.first_name": "Pehla naam",
   "profile.date_of_birth": "Date of birth",
   "profile.gender": "Gender",
@@ -109,7 +99,6 @@
   "profile.do_not_want_children": "Bachay nahi chahte",
   "profile.open_to_children": "Bachon ke liye open hain",
   "profile.not_sure": "Abhi confirm nahi",
-
   "photos.title": "Apni photos add karein",
   "photos.cover": "Cover photo",
   "photos.public": "Public",
@@ -118,13 +107,11 @@
   "photos.approved": "Photo approve ho gayi",
   "photos.rejected": "Photo replace karni hogi",
   "photos.replace": "Photo replace karein",
-
   "onboarding.review": "Apni profile check karein",
   "onboarding.submit": "Profile submit karein",
   "onboarding.checking": "Hum aapki profile check kar rahe hain",
   "onboarding.changes_required": "Kuch changes zaroori hain",
   "onboarding.profile_live": "Aapki profile live hai",
-
   "discovery.filters": "Filters",
   "discovery.like": "Like",
   "discovery.pass": "Pass",
@@ -132,27 +119,23 @@
   "discovery.my_religion": "Mera Mazhab",
   "discovery.all_religions": "Sab Mazhab",
   "discovery.anywhere": "Kahin bhi",
-
   "matches.title": "Matches",
   "matches.new_match": "Match ho gaya!",
   "matches.unmatch": "Unmatch karein",
   "chat.message_hint": "Message likhein",
   "chat.typing": "Type kar rahe hain...",
   "chat.read": "Parh liya",
-
   "safety.block": "Block karein",
   "safety.report": "Report karein",
   "safety.report_and_block": "Report aur Block karein",
   "safety.report_reason": "Aap is profile ko kyun report kar rahe hain?",
   "safety.report_sent": "Aapki report bhej di gayi hai",
-
   "notifications.title": "Notifications",
   "notifications.allow": "Notifications allow karein",
   "notifications.new_matches": "Naye matches",
   "notifications.new_messages": "Naye messages",
   "notifications.safety": "Safety updates",
   "notifications.marketing": "Marketing",
-
   "settings.title": "Settings",
   "settings.language": "Language",
   "settings.privacy": "Privacy",
@@ -160,7 +143,6 @@
   "settings.download_data": "Mera data download karein",
   "settings.delete_account": "Account delete karein",
   "settings.deletion_recovery": "Aap 30 din tak apna account recover kar sakte hain.",
-
   "admin.language": "Language",
   "admin.english": "English",
   "admin.roman_urdu": "Roman Urdu",
@@ -324,5 +306,17 @@
   "private_photos.protected": "Screenshot protection on hai",
   "private_photos.capture_warning": "Screenshot ya recording par photo owner ko notification mil sakti hai",
   "private_photos.capture_detected": "Ek viewer ne aapki private photo capture ki",
-  "private_photos.legacy_reupload": "Secure private viewing ke liye ye photo replace karein"
+  "private_photos.legacy_reupload": "Secure private viewing ke liye ye photo replace karein",
+  "admin.safety_cases": "Safety cases",
+  "admin.account_appeals": "Account appeals",
+  "admin.pause_for_review": "Review ke liye pause karein",
+  "admin.clear": "Clear karein",
+  "admin.require_verification": "Verification zaroori karein",
+  "admin.accept": "Accept karein",
+  "admin.reject": "Reject karein",
+  "admin.value.open_safety_cases": "Open safety cases",
+  "admin.value.underage_suspicion": "Kam umri ka shak",
+  "admin.value.moderator_risk_review": "Moderator risk review",
+  "admin.value.critical": "Bohat serious",
+  "admin.value.high": "High"
 }

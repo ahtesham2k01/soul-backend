@@ -1439,7 +1439,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"category\": \"harassment\",\n  \"details\": \"Repeated unwanted messages\"\n}",
+              "raw": "{\n  \"category\": \"harassment\",\n  \"details\": \"Repeated unwanted messages\",\n  \"action\": \"report_and_block\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1458,6 +1458,64 @@
               ]
             },
             "description": "api.v1.safety.reports.store: Submit safe report receipt"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Account-appeal",
+      "item": [
+        {
+          "name": "Resume the blocked-account appeal state",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/account-appeal",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "account-appeal"
+              ]
+            },
+            "description": "api.v1.account-appeal.show: Resume the blocked-account appeal state"
+          }
+        },
+        {
+          "name": "Submit the one allowed blocked-account appeal",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"statement\": \"Please review this account restriction and the available evidence.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/account-appeal",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "account-appeal"
+              ]
+            },
+            "description": "api.v1.account-appeal.store: Submit the one allowed blocked-account appeal"
           }
         }
       ]
@@ -2053,6 +2111,68 @@
           }
         },
         {
+          "name": "Risk and underage review queue",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/safety-cases",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "safety-cases"
+              ]
+            },
+            "description": "api.v1.admin.safety-cases.index: Risk and underage review queue"
+          }
+        },
+        {
+          "name": "Clear or require verification with audit evidence",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"decision\": \"verification_required\",\n  \"reason\": \"Identity and age evidence is required\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/safety-cases/{case}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "safety-cases",
+                "{case}"
+              ]
+            },
+            "description": "api.v1.admin.safety-cases.update: Clear or require verification with audit evidence"
+          }
+        },
+        {
           "name": "Reviewable verification cases",
           "request": {
             "method": "GET",
@@ -2103,6 +2223,68 @@
               ]
             },
             "description": "api.v1.admin.verifications.update: Verification decision with audit event"
+          }
+        },
+        {
+          "name": "Pending banned-account appeals",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/account-appeals",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "account-appeals"
+              ]
+            },
+            "description": "api.v1.admin.account-appeals.index: Pending banned-account appeals"
+          }
+        },
+        {
+          "name": "Super-admin accepts or rejects an appeal once",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"decision\": \"accepted\",\n  \"reason\": \"Restriction reviewed and overturned\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/account-appeals/{appeal}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "account-appeals",
+                "{appeal}"
+              ]
+            },
+            "description": "api.v1.admin.account-appeals.update: Super-admin accepts or rejects an appeal once"
           }
         },
         {

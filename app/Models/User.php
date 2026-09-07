@@ -131,6 +131,16 @@ class User extends Authenticatable
         return $this->hasMany(ProfileVerificationCase::class);
     }
 
+    public function safetyCases(): HasMany
+    {
+        return $this->hasMany(SafetyCase::class);
+    }
+
+    public function accountAppeal(): HasOne
+    {
+        return $this->hasOne(AccountAppeal::class);
+    }
+
     /**
      * Use public ULIDs for route model binding.
      */
