@@ -1797,6 +1797,137 @@
       ]
     },
     {
+      "name": "Events",
+      "item": [
+        {
+          "name": "Upcoming published events",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/events",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "events"
+              ]
+            },
+            "description": "api.v1.events.index: Upcoming published events"
+          }
+        },
+        {
+          "name": "Localized event details; online URL only after joining",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/events/{event}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "events",
+                "{event}"
+              ]
+            },
+            "description": "api.v1.events.show: Localized event details; online URL only after joining"
+          }
+        },
+        {
+          "name": "Capacity-safe idempotent join",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/events/{event}/registration",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "events",
+                "{event}",
+                "registration"
+              ]
+            },
+            "description": "api.v1.events.registration.store: Capacity-safe idempotent join"
+          }
+        },
+        {
+          "name": "Idempotent leave",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/events/{event}/registration",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "events",
+                "{event}",
+                "registration"
+              ]
+            },
+            "description": "api.v1.events.registration.destroy: Idempotent leave"
+          }
+        },
+        {
+          "name": "Private idempotent event report",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category\": \"unsafe\",\n  \"details\": \"This event needs review.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/events/{event}/report",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "events",
+                "{event}",
+                "report"
+              ]
+            },
+            "description": "api.v1.events.reports.store: Private idempotent event report"
+          }
+        }
+      ]
+    },
+    {
       "name": "Privacy",
       "item": [
         {
@@ -2731,6 +2862,202 @@
             },
             "description": "api.v1.admin.notification-broadcasts.send: Explicitly confirm and queue an idempotent broadcast"
           }
+        },
+        {
+          "name": "Browse all event states and registration counts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/events",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "events"
+              ]
+            },
+            "description": "api.v1.admin.events.index: Browse all event states and registration counts"
+          }
+        },
+        {
+          "name": "Create localized event draft",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"physical\",\n  \"starts_at\": \"2026-10-01T18:00:00+05:00\",\n  \"ends_at\": \"2026-10-01T20:00:00+05:00\",\n  \"timezone\": \"Asia/Karachi\",\n  \"city\": \"Karachi\",\n  \"country_code\": \"PK\",\n  \"capacity\": 100,\n  \"translations\": [\n    {\n      \"locale\": \"en\",\n      \"title\": \"SOUL Meetup\",\n      \"description\": \"A moderated community meetup.\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/events",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "events"
+              ]
+            },
+            "description": "api.v1.admin.events.store: Create localized event draft"
+          }
+        },
+        {
+          "name": "Update event content and logistics",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"physical\",\n  \"starts_at\": \"2026-10-01T18:00:00+05:00\",\n  \"ends_at\": \"2026-10-01T20:00:00+05:00\",\n  \"timezone\": \"Asia/Karachi\",\n  \"city\": \"Karachi\",\n  \"country_code\": \"PK\",\n  \"capacity\": 100,\n  \"translations\": [\n    {\n      \"locale\": \"en\",\n      \"title\": \"SOUL Meetup\",\n      \"description\": \"Updated details.\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/events/{event}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "events",
+                "{event}"
+              ]
+            },
+            "description": "api.v1.admin.events.update: Update event content and logistics"
+          }
+        },
+        {
+          "name": "Publish, return to draft or cancel with audit reason",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"published\",\n  \"reason\": \"Event reviewed and approved.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/events/{event}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "events",
+                "{event}",
+                "status"
+              ]
+            },
+            "description": "api.v1.admin.events.status.update: Publish, return to draft or cancel with audit reason"
+          }
+        },
+        {
+          "name": "Private pending event-report queue",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/event-reports",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "event-reports"
+              ]
+            },
+            "description": "api.v1.admin.event-reports.index: Private pending event-report queue"
+          }
+        },
+        {
+          "name": "Resolve, dismiss or cancel event",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"decision\": \"resolved\",\n  \"reason\": \"Report reviewed by operations.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/event-reports/{report}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "event-reports",
+                "{report}"
+              ]
+            },
+            "description": "api.v1.admin.event-reports.update: Resolve, dismiss or cancel event"
+          }
         }
       ]
     },
@@ -2762,275 +3089,6 @@
               ]
             },
             "description": "api.v1.webhooks.cloudinary.moderation: Ingest signed Cloudinary moderation notification"
-          }
-        }
-      ]
-    },
-    {
-      "name": "Events",
-      "item": [
-        {
-          "name": "Upcoming published events",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/events",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "events"
-              ]
-            },
-            "description": "api.v1.events.index: Upcoming published events"
-          }
-        },
-        {
-          "name": "Localized event details",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/events/{event}",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "events",
-                "{event}"
-              ]
-            },
-            "description": "api.v1.events.show: Localized event details"
-          }
-        },
-        {
-          "name": "Join event",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/events/{event}/registration",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "events",
-                "{event}",
-                "registration"
-              ]
-            },
-            "description": "api.v1.events.registration.store: Join event"
-          }
-        },
-        {
-          "name": "Leave event",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/events/{event}/registration",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "events",
-                "{event}",
-                "registration"
-              ]
-            },
-            "description": "api.v1.events.registration.destroy: Leave event"
-          }
-        },
-        {
-          "name": "Report event",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/events/{event}/report",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "events",
-                "{event}",
-                "report"
-              ]
-            },
-            "description": "api.v1.events.reports.store: Report event"
-          }
-        }
-      ]
-    },
-    {
-      "name": "Admin-events",
-      "item": [
-        {
-          "name": "Manage events",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/admin/events",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "admin",
-                "events"
-              ]
-            },
-            "description": "api.v1.admin.events.index: Manage events"
-          }
-        },
-        {
-          "name": "Create event draft",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/admin/events",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "admin",
-                "events"
-              ]
-            },
-            "description": "api.v1.admin.events.store: Create event draft"
-          }
-        },
-        {
-          "name": "Update event",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/admin/events/{event}",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "admin",
-                "events",
-                "{event}"
-              ]
-            },
-            "description": "api.v1.admin.events.update: Update event"
-          }
-        },
-        {
-          "name": "Change event status",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/admin/events/{event}/status",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "admin",
-                "events",
-                "{event}",
-                "status"
-              ]
-            },
-            "description": "api.v1.admin.events.status.update: Change event status"
-          }
-        },
-        {
-          "name": "Review event reports",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/admin/event-reports",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "admin",
-                "event-reports"
-              ]
-            },
-            "description": "api.v1.admin.event-reports.index: Review event reports"
-          }
-        },
-        {
-          "name": "Decide event report",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/admin/event-reports/{report}",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "admin",
-                "event-reports",
-                "{report}"
-              ]
-            },
-            "description": "api.v1.admin.event-reports.update: Decide event report"
           }
         }
       ]

@@ -11,8 +11,8 @@ const endpoints = [...handoff.matchAll(endpointPattern)].map((match) => ({
     summary: match[4].trim(),
 }));
 
-if (endpoints.length !== 95) {
-    throw new Error(`Expected 95 documented endpoints, found ${endpoints.length}.`);
+if (endpoints.length !== 106) {
+    throw new Error(`Expected 106 documented endpoints, found ${endpoints.length}.`);
 }
 
 const publicOperations = new Set([
@@ -66,6 +66,11 @@ const requestExamples = {
     'api.v1.admin.religion-taxonomy.update': { parent_id: null, type: 'religion', slug: 'islam', is_active: true, sort_order: 0, translations: [{ locale: 'en', label: 'Islam', description: null }], country_codes: ['PK'], reason: 'Approved taxonomy maintenance' },
     'api.v1.admin.notification-broadcasts.store': { title: 'Safety update', body: 'Important information for SOUL members.', category: 'safety', audience_type: 'country', audience_value: 'PK', reason: 'Approved member communication' },
     'api.v1.admin.notification-broadcasts.send': { confirmation: 'SEND', reason: 'Approved member communication' },
+    'api.v1.events.reports.store': { category: 'unsafe', details: 'This event needs review.' },
+    'api.v1.admin.events.store': { type: 'physical', starts_at: '2026-10-01T18:00:00+05:00', ends_at: '2026-10-01T20:00:00+05:00', timezone: 'Asia/Karachi', city: 'Karachi', country_code: 'PK', capacity: 100, translations: [{ locale: 'en', title: 'SOUL Meetup', description: 'A moderated community meetup.' }] },
+    'api.v1.admin.events.update': { type: 'physical', starts_at: '2026-10-01T18:00:00+05:00', ends_at: '2026-10-01T20:00:00+05:00', timezone: 'Asia/Karachi', city: 'Karachi', country_code: 'PK', capacity: 100, translations: [{ locale: 'en', title: 'SOUL Meetup', description: 'Updated details.' }] },
+    'api.v1.admin.events.status.update': { status: 'published', reason: 'Event reviewed and approved.' },
+    'api.v1.admin.event-reports.update': { decision: 'resolved', reason: 'Report reviewed by operations.' },
 };
 
 const tags = (operationId) => {

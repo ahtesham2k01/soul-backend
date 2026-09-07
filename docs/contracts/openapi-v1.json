@@ -2253,6 +2253,198 @@
         }
       }
     },
+    "/events": {
+      "get": {
+        "operationId": "api.v1.events.index",
+        "summary": "Upcoming published events",
+        "tags": [
+          "Events"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/events/{event}": {
+      "get": {
+        "operationId": "api.v1.events.show",
+        "summary": "Localized event details; online URL only after joining",
+        "tags": [
+          "Events"
+        ],
+        "parameters": [
+          {
+            "name": "event",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/events/{event}/registration": {
+      "post": {
+        "operationId": "api.v1.events.registration.store",
+        "summary": "Capacity-safe idempotent join",
+        "tags": [
+          "Events"
+        ],
+        "parameters": [
+          {
+            "name": "event",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "api.v1.events.registration.destroy",
+        "summary": "Idempotent leave",
+        "tags": [
+          "Events"
+        ],
+        "parameters": [
+          {
+            "name": "event",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/events/{event}/report": {
+      "post": {
+        "operationId": "api.v1.events.reports.store",
+        "summary": "Private idempotent event report",
+        "tags": [
+          "Events"
+        ],
+        "parameters": [
+          {
+            "name": "event",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "category": "unsafe",
+                "details": "This event needs review."
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
     "/privacy/settings": {
       "get": {
         "operationId": "api.v1.privacy.settings.show",
@@ -3446,182 +3638,16 @@
         }
       }
     },
-    "/webhooks/cloudinary/moderation": {
-      "post": {
-        "operationId": "api.v1.webhooks.cloudinary.moderation",
-        "summary": "Ingest signed Cloudinary moderation notification",
-        "tags": [
-          "Webhooks"
-        ],
-        "security": [
-          {
-            "cloudinarySignature": []
-          }
-        ],
-        "responses": {
-          "401": {
-            "$ref": "#/components/responses/Error"
-          },
-          "422": {
-            "$ref": "#/components/responses/Error"
-          },
-          "429": {
-            "$ref": "#/components/responses/Error"
-          },
-          "2XX": {
-            "$ref": "#/components/responses/Success"
-          }
-        }
-      }
-    },
-    "/events": {
-      "get": {
-        "operationId": "api.v1.events.index",
-        "summary": "Upcoming published events",
-        "tags": [
-          "Events"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "responses": {
-          "401": {
-            "$ref": "#/components/responses/Error"
-          },
-          "422": {
-            "$ref": "#/components/responses/Error"
-          },
-          "429": {
-            "$ref": "#/components/responses/Error"
-          },
-          "2XX": {
-            "$ref": "#/components/responses/Success"
-          }
-        }
-      }
-    },
-    "/events/{event}": {
-      "get": {
-        "operationId": "api.v1.events.show",
-        "summary": "Localized event details",
-        "tags": [
-          "Events"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "responses": {
-          "401": {
-            "$ref": "#/components/responses/Error"
-          },
-          "422": {
-            "$ref": "#/components/responses/Error"
-          },
-          "429": {
-            "$ref": "#/components/responses/Error"
-          },
-          "2XX": {
-            "$ref": "#/components/responses/Success"
-          }
-        }
-      }
-    },
-    "/events/{event}/registration": {
-      "post": {
-        "operationId": "api.v1.events.registration.store",
-        "summary": "Join event",
-        "tags": [
-          "Events"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "responses": {
-          "401": {
-            "$ref": "#/components/responses/Error"
-          },
-          "422": {
-            "$ref": "#/components/responses/Error"
-          },
-          "429": {
-            "$ref": "#/components/responses/Error"
-          },
-          "2XX": {
-            "$ref": "#/components/responses/Success"
-          }
-        }
-      },
-      "delete": {
-        "operationId": "api.v1.events.registration.destroy",
-        "summary": "Leave event",
-        "tags": [
-          "Events"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "responses": {
-          "401": {
-            "$ref": "#/components/responses/Error"
-          },
-          "422": {
-            "$ref": "#/components/responses/Error"
-          },
-          "429": {
-            "$ref": "#/components/responses/Error"
-          },
-          "2XX": {
-            "$ref": "#/components/responses/Success"
-          }
-        }
-      }
-    },
-    "/events/{event}/report": {
-      "post": {
-        "operationId": "api.v1.events.reports.store",
-        "summary": "Report event",
-        "tags": [
-          "Events"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "responses": {
-          "401": {
-            "$ref": "#/components/responses/Error"
-          },
-          "422": {
-            "$ref": "#/components/responses/Error"
-          },
-          "429": {
-            "$ref": "#/components/responses/Error"
-          },
-          "2XX": {
-            "$ref": "#/components/responses/Success"
-          }
-        }
-      }
-    },
     "/admin/events": {
       "get": {
         "operationId": "api.v1.admin.events.index",
-        "summary": "Manage events",
+        "summary": "Browse all event states and registration counts",
         "tags": [
-          "Admin-events"
+          "Admin"
         ],
         "security": [
           {
-            "bearerAuth": []
+            "adminSession": []
           }
         ],
         "responses": {
@@ -3641,15 +3667,41 @@
       },
       "post": {
         "operationId": "api.v1.admin.events.store",
-        "summary": "Create event draft",
+        "summary": "Create localized event draft",
         "tags": [
-          "Admin-events"
+          "Admin"
         ],
         "security": [
           {
-            "bearerAuth": []
+            "adminSession": []
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "type": "physical",
+                "starts_at": "2026-10-01T18:00:00+05:00",
+                "ends_at": "2026-10-01T20:00:00+05:00",
+                "timezone": "Asia/Karachi",
+                "city": "Karachi",
+                "country_code": "PK",
+                "capacity": 100,
+                "translations": [
+                  {
+                    "locale": "en",
+                    "title": "SOUL Meetup",
+                    "description": "A moderated community meetup."
+                  }
+                ]
+              }
+            }
+          }
+        },
         "responses": {
           "401": {
             "$ref": "#/components/responses/Error"
@@ -3669,15 +3721,51 @@
     "/admin/events/{event}": {
       "put": {
         "operationId": "api.v1.admin.events.update",
-        "summary": "Update event",
+        "summary": "Update event content and logistics",
         "tags": [
-          "Admin-events"
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "event",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "security": [
           {
-            "bearerAuth": []
+            "adminSession": []
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "type": "physical",
+                "starts_at": "2026-10-01T18:00:00+05:00",
+                "ends_at": "2026-10-01T20:00:00+05:00",
+                "timezone": "Asia/Karachi",
+                "city": "Karachi",
+                "country_code": "PK",
+                "capacity": 100,
+                "translations": [
+                  {
+                    "locale": "en",
+                    "title": "SOUL Meetup",
+                    "description": "Updated details."
+                  }
+                ]
+              }
+            }
+          }
+        },
         "responses": {
           "401": {
             "$ref": "#/components/responses/Error"
@@ -3697,15 +3785,39 @@
     "/admin/events/{event}/status": {
       "put": {
         "operationId": "api.v1.admin.events.status.update",
-        "summary": "Change event status",
+        "summary": "Publish, return to draft or cancel with audit reason",
         "tags": [
-          "Admin-events"
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "event",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "security": [
           {
-            "bearerAuth": []
+            "adminSession": []
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "status": "published",
+                "reason": "Event reviewed and approved."
+              }
+            }
+          }
+        },
         "responses": {
           "401": {
             "$ref": "#/components/responses/Error"
@@ -3725,13 +3837,13 @@
     "/admin/event-reports": {
       "get": {
         "operationId": "api.v1.admin.event-reports.index",
-        "summary": "Review event reports",
+        "summary": "Private pending event-report queue",
         "tags": [
-          "Admin-events"
+          "Admin"
         ],
         "security": [
           {
-            "bearerAuth": []
+            "adminSession": []
           }
         ],
         "responses": {
@@ -3753,13 +3865,65 @@
     "/admin/event-reports/{report}": {
       "put": {
         "operationId": "api.v1.admin.event-reports.update",
-        "summary": "Decide event report",
+        "summary": "Resolve, dismiss or cancel event",
         "tags": [
-          "Admin-events"
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "report",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "security": [
           {
-            "bearerAuth": []
+            "adminSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "decision": "resolved",
+                "reason": "Report reviewed by operations."
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/webhooks/cloudinary/moderation": {
+      "post": {
+        "operationId": "api.v1.webhooks.cloudinary.moderation",
+        "summary": "Ingest signed Cloudinary moderation notification",
+        "tags": [
+          "Webhooks"
+        ],
+        "security": [
+          {
+            "cloudinarySignature": []
           }
         ],
         "responses": {
