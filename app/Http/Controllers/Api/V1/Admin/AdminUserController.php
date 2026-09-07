@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AdminAuditLog;
 use App\Models\User;
 use App\Support\ApiResponse;
+use App\Support\Legal\LegalConsent;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -39,7 +40,7 @@ class AdminUserController extends Controller
         ]);
     }
 
-    public function show(string $user): JsonResponse
+    public function show(string $user, LegalConsent $legalConsent): JsonResponse
     {
         $record = User::query()->where('public_id', $user)->with([
             'profile.photos',
@@ -55,6 +56,7 @@ class AdminUserController extends Controller
             'preferred_locale' => $record->preferred_locale,
             'created_at' => $record->created_at->toIso8601String(),
             'last_login_at' => $record->last_login_at?->toIso8601String(),
+            'legal' => $legalConsent->status($record),
             'profile' => $record->profile ? [
                 'id' => $record->profile->public_id,
                 'first_name' => $record->profile->first_name,

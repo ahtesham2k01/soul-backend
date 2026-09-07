@@ -134,6 +134,8 @@ Events appear in Explore. Follow `EVENTS_CONTRACT.md`: use server-localized text
 
 Subscriptions follow `SUBSCRIPTION_ENTITLEMENTS_CONTRACT.md`. Never hard-code a plan, price, limit or paywall decision. Render server capabilities, use Apple/Google for localized display prices, and let Laravel authorize every action.
 
+Legal consent follows `LEGAL_CONSENT_CONTRACT.md`. Read current versions/status from bootstrap, render the returned commitment translation keys, and send all current versions together. Never cache consent as permanently complete.
+
 Route guards should be data-driven: a profile in correction or verification pause goes to the relevant correction screen instead of main discovery.
 
 ## Release checklist for Flutter

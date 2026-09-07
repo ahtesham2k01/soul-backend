@@ -8,6 +8,7 @@ use App\Http\Requests\Api\V1\Onboarding\SubmitProfileRequest;
 use App\Http\Resources\Api\V1\ProfileLifecycleResource;
 use App\Jobs\RunProfileAutomatedChecks;
 use App\Support\ApiResponse;
+use App\Support\Legal\LegalConsent;
 use App\Support\Onboarding\ProfileReadiness;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -17,6 +18,7 @@ class SubmitProfileController extends Controller
     public function __invoke(
         SubmitProfileRequest $request,
         ProfileReadiness $readiness,
+        LegalConsent $legalConsent,
     ): JsonResponse {
         $user = $request->user();
         $profile = $user->profile;
@@ -32,7 +34,7 @@ class SubmitProfileController extends Controller
         }
 
         $validated = $request->validated();
-        DB::transaction(function () use ($request, $user, $profile, $validated): void {
+        DB::transaction(function () use ($request, $user, $validated, $legalConsent): void {
             $lockedProfile = $user->profile()->lockForUpdate()->firstOrFail();
             if (in_array($lockedProfile->profile_status, [
                 ProfileStatus::Submitted,
@@ -42,20 +44,12 @@ class SubmitProfileController extends Controller
                 return;
             }
 
-            $context = trim((string) $request->userAgent().'|'.($validated['device_id'] ?? ''));
-            foreach ([
+            $legalConsent->record($user, $request, [
                 'terms' => $validated['terms_version'],
                 'privacy' => $validated['privacy_version'],
-            ] as $type => $version) {
-                $user->legalAcceptances()->firstOrCreate([
-                    'document_type' => $type,
-                    'document_version' => $version,
-                ], [
-                    'accepted_at' => now(),
-                    'ip_address' => $request->ip(),
-                    'device_context_hash' => $context === '' ? null : hash('sha256', $context),
-                ]);
-            }
+                'community_guidelines' => $validated['community_guidelines_version'],
+                'community_commitment' => $validated['community_commitment_version'],
+            ], 'onboarding');
 
             $lockedProfile->update([
                 'profile_status' => ProfileStatus::Submitted,
@@ -79,5 +73,4 @@ class SubmitProfileController extends Controller
             status: 202,
         );
     }
-
 }

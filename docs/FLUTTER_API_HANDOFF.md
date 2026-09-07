@@ -119,6 +119,8 @@ Do not cache candidate, match or message pages across users. A 404 for a profile
 | POST | `/events/{event}/registration` | `api.v1.events.registration.store` | Capacity-safe idempotent join |
 | DELETE | `/events/{event}/registration` | `api.v1.events.registration.destroy` | Idempotent leave |
 | POST | `/events/{event}/report` | `api.v1.events.reports.store` | Private idempotent event report |
+| GET | `/legal/consent` | `api.v1.legal.consent.show` | Current policy/commitment versions and acceptance status |
+| POST | `/legal/consent` | `api.v1.legal.consent.store` | Idempotently accept all current legal documents |
 | GET | `/subscription/entitlements` | `api.v1.subscription.entitlements.index` | Effective capability limits and usage for this member |
 | GET | `/subscription/products` | `api.v1.subscription.products.index` | Active Apple/Google product mappings for platform and country |
 | GET | `/privacy/settings` | `api.v1.privacy.settings.show` | Load privacy defaults |
@@ -211,4 +213,5 @@ Religion root matching, hierarchy and country behavior are maintained in `RELIGI
 Discovery filters, distance bands, activity and privacy behavior are maintained in `DISCOVERY_PRIVACY_CONTRACT.md`.
 Private access, authenticated media delivery and platform capture behavior are maintained in `PRIVATE_PHOTO_CONTRACT.md`.
 Subscription capabilities, limits and store presentation are maintained in `SUBSCRIPTION_ENTITLEMENTS_CONTRACT.md`.
+Legal versions, commitments, evidence privacy and re-consent are maintained in `LEGAL_CONSENT_CONTRACT.md`.
 Marital-status visibility and full-profile behavior are maintained in `MARITAL_STATUS_CONTRACT.md`.

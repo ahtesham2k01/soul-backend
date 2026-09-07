@@ -18,6 +18,7 @@
 | `NOTIFICATION_CONTRACT.md` | Flutter, backend and QA | Permission prompt, push/email settings, mandatory safety events and retry behavior |
 | `EVENTS_CONTRACT.md` | Flutter, React, backend and QA | Event discovery, registration, privacy, reporting and admin publishing |
 | `SUBSCRIPTION_ENTITLEMENTS_CONTRACT.md` | Flutter, React, backend and QA | Dynamic features, limits, plans, products, promotions and safety invariants |
+| `LEGAL_CONSENT_CONTRACT.md` | Flutter, React, backend and QA | Versioned policies, neutral commitments, re-consent and account lifecycle |
 | `LOCALIZATION_GUIDE.md` | Flutter, React and backend engineers | Simple translation setup, examples and update checklist |
 | `contracts/openapi-v1.json` | Tools and client generation | Machine-readable API contract |
 | `contracts/postman-v1.collection.json` | QA and integration | Executable request collection |

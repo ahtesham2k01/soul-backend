@@ -98,6 +98,7 @@ erDiagram
 - Reports and verification cases index status/time for moderator queues.
 - Safety cases separate risk decisions from raw reports and retain the previous profile state for safe restoration. Account appeals enforce one lifetime appeal row per blocked member and store audited resolution metadata. Open safety or required-verification cases always prevent automatic profile restoration.
 - Subscription configuration uses `features`, `subscription_plans`, `plan_entitlements`, `store_products`, `subscription_promotions`, country/platform/user overrides, active user subscriptions and daily usage counters. Exact prices are owned by Apple/Google products and are not stored as trusted client values.
+- `legal_acceptances` keeps immutable per-user evidence for each policy/commitment version, including acceptance route, locale, timestamp, IP and a one-way device-context hash. Raw device identifiers are not stored.
 - Verification cases also index user/type/status so each badge request is idempotent without coupling unrelated checks.
 - Deletion requests index status/scheduled time for cleanup jobs.
 - Audit events index subject and actor/time; audit public IDs are unique.
@@ -111,7 +112,6 @@ These are required by the confirmed PRD but are not represented by complete curr
 | Phase | Planned storage |
 |---|---|
 | Chat presence | Presence/last-seen and ephemeral typing state (cache preferred for typing) |
-| Legal | Community-guideline acceptance and versioned policy/commitment records where not covered by current document types |
 
 Each extension must include reversible migrations, foreign keys, production-safe indexes, factories and model/API tests. Pricing and exact plan allocation remain configuration data, not schema constants.
 

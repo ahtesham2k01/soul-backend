@@ -12,7 +12,7 @@ final class ReleaseConfigurationValidator
             $this->check('Application URL', filter_var(config('app.url'), FILTER_VALIDATE_URL) !== false, 'APP_URL must be a valid URL.'),
             $this->check('Export disk', config('filesystems.disks.'.config('soul.privacy.export_disk')) !== null, 'SOUL_PRIVATE_EXPORT_DISK must name a configured disk.'),
             $this->check('Cloudinary TTL', (int) config('soul.media.cloudinary.upload_session_ttl_minutes') > 0, 'Upload-session TTL must be positive.'),
-            $this->check('Legal versions', filled(config('soul.legal.terms_version')) && filled(config('soul.legal.privacy_version')), 'Terms and privacy versions are required.'),
+            $this->check('Legal versions', collect(['terms_version', 'privacy_version', 'community_guidelines_version', 'commitment_version'])->every(fn (string $key): bool => filled(config('soul.legal.'.$key))), 'Terms, privacy, guidelines and commitment versions are required.'),
         ];
 
         if (! $production) {

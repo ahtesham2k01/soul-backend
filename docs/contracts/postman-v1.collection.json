@@ -1928,6 +1928,57 @@
       ]
     },
     {
+      "name": "Legal",
+      "item": [
+        {
+          "name": "Current policy/commitment versions and acceptance status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/legal/consent",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "legal",
+                "consent"
+              ]
+            },
+            "description": "api.v1.legal.consent.show: Current policy/commitment versions and acceptance status"
+          }
+        },
+        {
+          "name": "Idempotently accept all current legal documents",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/legal/consent",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "legal",
+                "consent"
+              ]
+            },
+            "description": "api.v1.legal.consent.store: Idempotently accept all current legal documents"
+          }
+        }
+      ]
+    },
+    {
       "name": "Subscription",
       "item": [
         {

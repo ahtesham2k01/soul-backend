@@ -25,6 +25,16 @@ class SubmitProfileRequest extends FormRequest
                 'required', 'string',
                 Rule::in([(string) config('soul.legal.privacy_version')]),
             ],
+            'community_guidelines_accepted' => ['required', 'accepted'],
+            'community_guidelines_version' => [
+                'required', 'string',
+                Rule::in([(string) config('soul.legal.community_guidelines_version')]),
+            ],
+            'community_commitment_accepted' => ['required', 'accepted'],
+            'community_commitment_version' => [
+                'required', 'string',
+                Rule::in([(string) config('soul.legal.commitment_version')]),
+            ],
             'device_id' => ['nullable', 'string', 'max:255'],
         ];
     }

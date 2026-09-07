@@ -9,7 +9,7 @@ class LegalAcceptance extends Model
 {
     protected $fillable = [
         'document_type', 'document_version', 'accepted_at',
-        'ip_address', 'device_context_hash',
+        'accepted_via', 'locale', 'ip_address', 'device_context_hash',
     ];
 
     public function user(): BelongsTo

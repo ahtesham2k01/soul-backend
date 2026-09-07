@@ -14,6 +14,7 @@ use App\Models\User;
 use App\Models\UserProfile;
 use App\Models\UserProfileIntention;
 use App\Models\UserReligionProfile;
+use App\Support\Onboarding\ProfileReadiness;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Bus;
 use Laravel\Sanctum\Sanctum;
@@ -88,7 +89,7 @@ class ProfileSubmissionEndpointTest extends TestCase
         );
 
         (new RunProfileAutomatedChecks($profile->id))
-            ->handle(app(\App\Support\Onboarding\ProfileReadiness::class));
+            ->handle(app(ProfileReadiness::class));
         $this->getJson('/api/v1/onboarding/status')
             ->assertOk()
             ->assertJsonPath('data.profile.status', 'live')
@@ -107,7 +108,7 @@ class ProfileSubmissionEndpointTest extends TestCase
         $this->postJson('/api/v1/onboarding/submit', $this->acceptancePayload())
             ->assertStatus(202);
 
-        $this->assertDatabaseCount('legal_acceptances', 2);
+        $this->assertDatabaseCount('legal_acceptances', 4);
         Bus::assertDispatchedTimes(RunProfileAutomatedChecks::class, 1);
     }
 
@@ -208,6 +209,10 @@ class ProfileSubmissionEndpointTest extends TestCase
             'terms_version' => '1.0',
             'privacy_accepted' => true,
             'privacy_version' => '1.0',
+            'community_guidelines_accepted' => true,
+            'community_guidelines_version' => '1.0',
+            'community_commitment_accepted' => true,
+            'community_commitment_version' => '1.0',
             'device_id' => 'test-device',
         ];
     }

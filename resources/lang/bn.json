@@ -358,5 +358,17 @@
   "admin.notice_entitlement_created": "Entitlement configuration saved.",
   "admin.value.universal": "Universal",
   "admin.value.free": "Free",
-  "admin.value.paid": "Paid"
+  "admin.value.paid": "Paid",
+  "legal.commitment.respect": "Respect everyone",
+  "legal.commitment.honesty": "Provide identity and marital status honestly",
+  "legal.commitment.no_abuse": "No harassment, scams or inappropriate behaviour",
+  "legal.commitment.guidelines": "Follow the Community Guidelines",
+  "legal.commitment.policies": "Accept the Terms and Privacy Policy",
+  "legal.consent_required": "Review and accept the current policies to continue.",
+  "legal.accept_current": "Accept and continue",
+  "legal.current": "Up to date",
+  "legal.outdated": "Review required",
+  "admin.legal_consent": "Legal consent",
+  "admin.consent_current": "Current",
+  "admin.consent_outdated": "Re-consent required"
 }

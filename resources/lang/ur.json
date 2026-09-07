@@ -358,5 +358,17 @@
   "admin.notice_entitlement_created": "Entitlement configuration save ho gayi.",
   "admin.value.universal": "Universal",
   "admin.value.free": "Free",
-  "admin.value.paid": "Paid"
+  "admin.value.paid": "Paid",
+  "legal.commitment.respect": "Har kisi ki izzat karein",
+  "legal.commitment.honesty": "Apni identity aur marital status imandari se batayein",
+  "legal.commitment.no_abuse": "Harassment, scam ya ghair munasib rawayya na karein",
+  "legal.commitment.guidelines": "Community Guidelines follow karein",
+  "legal.commitment.policies": "Terms aur Privacy Policy accept karein",
+  "legal.consent_required": "Continue karne ke liye current policies review aur accept karein.",
+  "legal.accept_current": "Accept karke continue karein",
+  "legal.current": "Updated",
+  "legal.outdated": "Dobara review zaroori hai",
+  "admin.legal_consent": "Legal consent",
+  "admin.consent_current": "Current",
+  "admin.consent_outdated": "Dobara consent zaroori"
 }

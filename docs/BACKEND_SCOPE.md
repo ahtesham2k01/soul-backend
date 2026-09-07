@@ -30,7 +30,7 @@ Laravel owns every protected decision. Flutter owns presentation, platform permi
 | Notifications | Devices, separate push/email preferences, mandatory safety alerts, in-app feed, idempotent event creation, moderation/verification/account events and admin broadcasts | APNs/FCM and email provider credentials plus staging delivery verification |
 | Events | Admin-created online/physical events, localization, publishing, capacity-safe registration, attendee privacy and report moderation | Provider-specific streaming/venue integrations are outside the V1 contract |
 | Subscriptions | Dynamic features, plans, limits/counters, country/platform/user overrides, rollouts, trials/promotions and store-product catalog | Apple/Google credentials and server receipt-notification validation are staging/release gates; exact prices and allocations remain launch decisions |
-| Privacy/account | Settings, screenshot protection, profile pause, incognito, keyed contact hiding, private export and 30-day deletion recovery | Remaining legal/account lifecycle parity continues in Phase 25 |
+| Privacy/account | Settings, screenshot protection, profile pause, incognito, keyed contact hiding, private export, 30-day deletion recovery, versioned Terms/Privacy/Guidelines and community commitments | Provider/country-specific legal content publication remains a release-owner responsibility |
 | Admin | Dashboard, users, reports, safety cases, verification, account appeals, admins/roles, taxonomy, broadcasts, events, subscriptions/entitlements and audit | Remaining domain/configuration coverage is audited in Phase 26 |
 | Operations | Health/readiness, telemetry, security headers, cleanup schedules, CI audits and runbook | Staging/provider credentials, load tests, observability targets and deployment approval |
 
@@ -49,7 +49,7 @@ Laravel owns every protected decision. Flutter owns presentation, platform permi
 - [x] Phase 22 — Notification event/channel coverage
 - [x] Phase 23 — Events and admin management
 - [x] Phase 24 — Subscription and dynamic entitlements
-- [ ] Phase 25 — Legal consent and account lifecycle
+- [x] Phase 25 — Legal consent and account lifecycle
 - [ ] Phase 26 — Complete React admin module coverage
 - [ ] Phase 27 — End-to-end audit and release closure
 

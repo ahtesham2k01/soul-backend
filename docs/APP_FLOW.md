@@ -141,6 +141,8 @@ Flutter receives effective capabilities and limits from bootstrap/account config
 
 ## Settings and account lifecycle
 
+After sign-in, bootstrap may return `legal.requires_acceptance: true`. Flutter shows the current Terms, Privacy, Community Guidelines and five neutral commitments, then posts all current versions together. A future policy version triggers re-consent without repeating profile onboarding.
+
 - Language and direction.
 - Active login devices and remote sign-out.
 - Push/email category preferences; marketing separate and off by default.

@@ -26,6 +26,7 @@ use App\Http\Controllers\Api\V1\Events\EventController;
 use App\Http\Controllers\Api\V1\Events\EventRegistrationController;
 use App\Http\Controllers\Api\V1\Events\EventReportController;
 use App\Http\Controllers\Api\V1\HealthController;
+use App\Http\Controllers\Api\V1\Legal\LegalConsentController;
 use App\Http\Controllers\Api\V1\Matching\LikeRequestController;
 use App\Http\Controllers\Api\V1\Matching\ListMatchesController;
 use App\Http\Controllers\Api\V1\Matching\PrivatePhotoAccessController;
@@ -178,6 +179,8 @@ Route::prefix('v1')->group(function (): void {
         Route::post('/events/{event}/registration', [EventRegistrationController::class, 'store'])->middleware('throttle:20,1')->name('api.v1.events.registration.store');
         Route::delete('/events/{event}/registration', [EventRegistrationController::class, 'destroy'])->middleware('throttle:20,1')->name('api.v1.events.registration.destroy');
         Route::post('/events/{event}/report', EventReportController::class)->middleware('throttle:5,60')->name('api.v1.events.reports.store');
+        Route::get('/legal/consent', [LegalConsentController::class, 'show'])->name('api.v1.legal.consent.show');
+        Route::post('/legal/consent', [LegalConsentController::class, 'store'])->middleware('throttle:10,60')->name('api.v1.legal.consent.store');
         Route::get('/subscription/entitlements', EntitlementController::class)->name('api.v1.subscription.entitlements.index');
         Route::get('/subscription/products', ProductController::class)->name('api.v1.subscription.products.index');
         Route::get('/privacy/settings', [PrivacyController::class, 'showSettings'])->name('api.v1.privacy.settings.show');

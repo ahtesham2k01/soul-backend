@@ -5,6 +5,8 @@ return [
     'legal' => [
         'terms_version' => env('SOUL_TERMS_VERSION', '1.0'),
         'privacy_version' => env('SOUL_PRIVACY_VERSION', '1.0'),
+        'community_guidelines_version' => env('SOUL_COMMUNITY_GUIDELINES_VERSION', '1.0'),
+        'commitment_version' => env('SOUL_COMMITMENT_VERSION', '1.0'),
     ],
 
     /*
@@ -19,7 +21,7 @@ return [
 
     'translations' => [
         'fallback_locale' => 'en',
-        'catalog_version' => '13',
+        'catalog_version' => '14',
 
         'locales' => [
             'en' => [
