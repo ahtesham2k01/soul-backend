@@ -9,9 +9,10 @@ This is the implementation guide for the Android/iOS client. Laravel is the auth
 3. Read `PROFILE_INFORMATION_CONTRACT.md` before building onboarding/profile forms.
 4. Read `RELIGION_DISCOVERY_CONTRACT.md` before building religion or discovery-mode screens.
 5. Read `DISCOVERY_PRIVACY_CONTRACT.md` before building filters, distance or privacy screens.
-6. Import `contracts/openapi-v1.json` or `contracts/postman-v1.collection.json` while building the API client.
-7. Read `DATABASE_DESIGN.md` only to understand ownership and relationships; Flutter never uses internal database IDs.
-8. Read `BACKEND_SCOPE.md` before implementing a screen so unfinished gap-closure modules are not mistaken for available APIs.
+6. Read `PRIVATE_PHOTO_CONTRACT.md` before building private-photo requests or protected viewers.
+7. Import `contracts/openapi-v1.json` or `contracts/postman-v1.collection.json` while building the API client.
+8. Read `DATABASE_DESIGN.md` only to understand ownership and relationships; Flutter never uses internal database IDs.
+9. Read `BACKEND_SCOPE.md` before implementing a screen so unfinished gap-closure modules are not mistaken for available APIs.
 
 ## Client architecture
 
@@ -108,7 +109,9 @@ Use `PROFILE_INFORMATION_CONTRACT.md` for field names, enums, collection limits 
 
 - Never reveal provider asset identifiers.
 - Private-photo URLs/access must come from the backend after a mutual match and approval; do not cache beyond the server grant.
+- Load returned `content_path` with bearer authentication and never reconstruct a Cloudinary URL.
 - Apply Android secure-window behavior and iOS masking/detection/watermark behavior where supported, without promising impossible prevention.
+- Use one ULID per reliable screenshot/recording signal so event retries stay idempotent.
 - Report and block actions must remain available regardless of subscription.
 - Reporting UI must use server enum values and offer both Report only and Report & Block when the supporting API phase is complete.
 

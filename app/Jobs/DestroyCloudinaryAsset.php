@@ -17,7 +17,10 @@ class DestroyCloudinaryAsset implements ShouldQueue
     /** @var array<int, int> */
     public array $backoff = [60, 300, 900, 3600];
 
-    public function __construct(public readonly string $providerAssetId) {}
+    public function __construct(
+        public readonly string $providerAssetId,
+        public readonly string $deliveryType = 'upload',
+    ) {}
 
     public function handle(CloudinaryUploadVerifier $verifier): void
     {
@@ -38,9 +41,11 @@ class DestroyCloudinaryAsset implements ShouldQueue
                 'invalidate' => 'true',
                 'public_id' => $this->providerAssetId,
                 'timestamp' => $timestamp,
+                'type' => $this->deliveryType,
                 'signature' => $verifier->signDestroy(
                     $this->providerAssetId,
                     $timestamp,
+                    $this->deliveryType,
                 ),
             ])
             ->throw();

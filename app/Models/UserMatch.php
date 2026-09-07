@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
 class UserMatch extends Model
@@ -13,8 +14,20 @@ class UserMatch extends Model
         'ended_at', 'ended_by_user_id',
     ];
 
-    public function firstUser(): BelongsTo { return $this->belongsTo(User::class, 'first_user_id'); }
-    public function secondUser(): BelongsTo { return $this->belongsTo(User::class, 'second_user_id'); }
+    public function firstUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'first_user_id');
+    }
+
+    public function secondUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'second_user_id');
+    }
+
+    public function privatePhotoAccessRequests(): HasMany
+    {
+        return $this->hasMany(PrivatePhotoAccessRequest::class, 'match_id');
+    }
 
     protected static function booted(): void
     {

@@ -47,6 +47,7 @@ class CreateProfilePhotoUploadController extends Controller
             ),
         ));
         $expiresAt = now()->addMinutes($ttlMinutes);
+        $deliveryType = $position === 1 ? 'upload' : 'authenticated';
         $providerAssetId = sprintf(
             'soul/profile-photos/%s/%s',
             $user->public_id,
@@ -58,6 +59,7 @@ class CreateProfilePhotoUploadController extends Controller
             $position,
             $providerAssetId,
             $expiresAt,
+            $deliveryType,
         ): ProfilePhotoUpload {
             $user->profilePhotoUploads()
                 ->where('position', $position)
@@ -68,6 +70,7 @@ class CreateProfilePhotoUploadController extends Controller
             return $user->profilePhotoUploads()->create([
                 'position' => $position,
                 'provider_asset_id' => $providerAssetId,
+                'delivery_type' => $deliveryType,
                 'expires_at' => $expiresAt,
             ]);
         });
@@ -88,9 +91,11 @@ class CreateProfilePhotoUploadController extends Controller
                         'api_key' => (string) config('soul.media.cloudinary.api_key'),
                         'timestamp' => $timestamp,
                         'public_id' => $providerAssetId,
+                        'type' => $deliveryType,
                         'signature' => $verifier->signUpload(
                             $providerAssetId,
                             $timestamp,
+                            $deliveryType,
                         ),
                     ],
                 ],

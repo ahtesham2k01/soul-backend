@@ -287,5 +287,17 @@
   "distance.about_10_km": "About 10 km",
   "distance.about_20_km": "About 20 km",
   "distance.about_50_km": "About 50 km",
-  "distance.more_than_50_km": "More than 50 km"
+  "distance.more_than_50_km": "More than 50 km",
+  "private_photos.request": "Request private photos",
+  "private_photos.requested": "Private photo request sent",
+  "private_photos.pending": "Waiting for approval",
+  "private_photos.approve": "Approve access",
+  "private_photos.reject": "Reject request",
+  "private_photos.revoke": "Revoke access",
+  "private_photos.unlocked": "Private photos unlocked",
+  "private_photos.access_required": "Ask for access to view private photos",
+  "private_photos.protected": "Screenshot protection is on",
+  "private_photos.capture_warning": "Screenshots or recordings may notify the photo owner",
+  "private_photos.capture_detected": "A viewer captured your private photo",
+  "private_photos.legacy_reupload": "Replace this photo to enable secure private viewing"
 }

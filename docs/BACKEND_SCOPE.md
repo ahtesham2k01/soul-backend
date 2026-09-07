@@ -18,17 +18,17 @@ Laravel owns every protected decision. Flutter owns presentation, platform permi
 
 | Area | Implemented now | Remaining V1 scope |
 |---|---|---|
-| Bootstrap/localization | Locale negotiation, version/hash, direction, 282-key V1 catalog, complete English/Roman Urdu copy and React admin language switching | Human-reviewed copy for remaining configured languages as translation work becomes available |
+| Bootstrap/localization | Locale negotiation, version/hash, direction, 294-key V1 catalog, complete English/Roman Urdu copy and React admin language switching | Human-reviewed copy for remaining configured languages as translation work becomes available |
 | Authentication | Email registration/login OTP, Apple, Google, linked social identities, tokens, current user, logout/all | Active-device session listing/remote logout parity and duplicate merge hardening where needed |
 | Profile onboarding | Draft save/resume, all required V1 answers, optional details, interests/traits, Skip versus Prefer-not-to-say state, religion selection, readiness/lifecycle | Public full-profile presentation continues with discovery/privacy phases |
 | Religion | Future-ready hierarchy, translations, complete-path country validation, saved leaf/root selection, persistent My Religion/All Religions discovery and admin taxonomy | Full-profile detailed-field presentation remains coupled to public-profile/privacy work |
-| Photos | Three slots, signed upload sessions, moderation webhook, replacement/deletion cleanup, clear-face readiness | Private access grants and full screenshot contracts (Phase 17) |
+| Photos | Three slots, authenticated secondary uploads, moderation, private access request/approval/revocation, protected no-store delivery, screenshot controls/signals | Provider staging verification and mobile-native protected-view implementation |
 | Discovery | Gender/age/religion/intention/location/radius filters, activity ranking, 90-day hiding, safe distance bands, pass resurfacing and likes exclusion | Entitlement-dependent filter limits remain dynamic subscription work |
 | Likes/matches/chat | Like/pass, mutual match, matches, unmatch, text messages, mandatory read receipts | Like withdrawal, request acceptance semantics, presence/typing and private-photo revocation integration (Phase 18) |
 | Verification | Cases, review states and one appeal | Separate badge/risk semantics and underage escalation parity (Phases 19–20) |
 | Safety | Block, report categories, moderation queues and account actions | Report & Block transaction, risk cases, ban appeal and complete moderator tools (Phase 21) |
 | Notifications | Devices, push preferences, feed, match/message events and admin broadcasts | Push/email separation and complete event coverage (Phase 22) |
-| Privacy/account | Settings, profile pause, incognito, keyed contact hiding, private export and 30-day deletion recovery | Detailed religion presentation and screenshot setting parity continue with public-profile/photo phases |
+| Privacy/account | Settings, screenshot protection, profile pause, incognito, keyed contact hiding, private export and 30-day deletion recovery | Remaining legal/account lifecycle parity continues in Phase 25 |
 | Admin | Dashboard, users, reports, verification, admins/roles, taxonomy, broadcasts, audit | Events, entitlements, configuration, localization and remaining domain management (Phase 26) |
 | Operations | Health/readiness, telemetry, security headers, cleanup schedules, CI audits and runbook | Staging/provider credentials, load tests, observability targets and deployment approval |
 
@@ -39,7 +39,7 @@ Laravel owns every protected decision. Flutter owns presentation, platform permi
 - [x] Phase 14 — Required/optional profile-field parity
 - [x] Phase 15 — Religion discovery hierarchy and country-rule parity
 - [x] Phase 16 — Discovery filters, ranking and distance privacy
-- [ ] Phase 17 — Public/private photo access and screenshot protection
+- [x] Phase 17 — Public/private photo access and screenshot protection
 - [ ] Phase 18 — Likes, requests, matches and chat parity
 - [ ] Phase 19 — Marital-status visibility and rules
 - [ ] Phase 20 — Verification and badge behavior

@@ -20,6 +20,8 @@ class ProfilePhoto extends Model
         'visibility',
         'storage_provider',
         'provider_asset_id',
+        'delivery_type',
+        'format',
         'moderation_status',
         'rejection_reason',
         'face_detected',

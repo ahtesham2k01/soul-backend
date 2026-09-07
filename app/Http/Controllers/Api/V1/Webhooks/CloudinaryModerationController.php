@@ -33,6 +33,7 @@ class CloudinaryModerationController extends Controller
             'moderation_status' => ['required', 'in:approved,rejected'],
             'moderation_kind' => ['nullable', 'string', 'max:50'],
             'face_detected' => ['sometimes', 'boolean'],
+            'format' => ['sometimes', 'in:jpg,jpeg,png,webp,avif,heic'],
         ])->validate();
 
         $photo = ProfilePhoto::query()
@@ -51,6 +52,7 @@ class CloudinaryModerationController extends Controller
                     : null,
                 'face_detected' => $validated['face_detected']
                     ?? $photo->face_detected,
+                'format' => $validated['format'] ?? $photo->format,
             ]);
 
             if ($status === ProfilePhotoModerationStatus::Rejected) {

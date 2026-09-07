@@ -16,17 +16,17 @@ final class CloudinaryUploadVerifier
             && filled(config('soul.media.cloudinary.api_key'));
     }
 
-    public function signUpload(string $publicId, int $timestamp): string
+    public function signUpload(string $publicId, int $timestamp, string $deliveryType = 'upload'): string
     {
         return $this->digest(
-            "public_id={$publicId}&timestamp={$timestamp}",
+            "public_id={$publicId}&timestamp={$timestamp}&type={$deliveryType}",
         );
     }
 
-    public function signDestroy(string $publicId, int $timestamp): string
+    public function signDestroy(string $publicId, int $timestamp, string $deliveryType = 'upload'): string
     {
         return $this->digest(
-            "invalidate=true&public_id={$publicId}&timestamp={$timestamp}",
+            "invalidate=true&public_id={$publicId}&timestamp={$timestamp}&type={$deliveryType}",
         );
     }
 

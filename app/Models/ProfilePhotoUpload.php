@@ -16,6 +16,7 @@ class ProfilePhotoUpload extends Model
     protected $fillable = [
         'position',
         'provider_asset_id',
+        'delivery_type',
         'expires_at',
         'consumed_at',
     ];

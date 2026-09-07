@@ -129,7 +129,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"person@example.com\"\n}",
+              "raw": "{\n  \"email\": \"<user-email>\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -201,7 +201,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"person@example.com\"\n}",
+              "raw": "{\n  \"email\": \"<user-email>\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -718,6 +718,15 @@
                 "value": "application/json"
               }
             ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"upload_token\": \"01K...\",\n  \"provider_asset_id\": \"soul/profile-photos/USER/ASSET\",\n  \"provider_version\": 1788220800,\n  \"provider_format\": \"jpg\",\n  \"provider_signature\": \"<cloudinary-response-signature>\",\n  \"visibility\": \"private\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
               "raw": "{{baseUrl}}/onboarding/photos/{position}",
               "host": [
@@ -1002,6 +1011,207 @@
               ]
             },
             "description": "api.v1.messages.read: Mark received messages read and expose receipts"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Private-photo-access",
+      "item": [
+        {
+          "name": "List incoming and outgoing access requests",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/private-photo-access",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "private-photo-access"
+              ]
+            },
+            "description": "api.v1.private-photo-access.index: List incoming and outgoing access requests"
+          }
+        },
+        {
+          "name": "Request access with no message/reason",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/matches/{match}/private-photo-access",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "matches",
+                "{match}",
+                "private-photo-access"
+              ]
+            },
+            "description": "api.v1.private-photo-access.store: Request access with no message/reason"
+          }
+        },
+        {
+          "name": "Owner approves or rejects",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"decision\": \"approve\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/private-photo-access/{accessRequest}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "private-photo-access",
+                "{accessRequest}"
+              ]
+            },
+            "description": "api.v1.private-photo-access.update: Owner approves or rejects"
+          }
+        },
+        {
+          "name": "Owner revokes access",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/private-photo-access/{accessRequest}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "private-photo-access",
+                "{accessRequest}"
+              ]
+            },
+            "description": "api.v1.private-photo-access.destroy: Owner revokes access"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Private-photos",
+      "item": [
+        {
+          "name": "Approved private-photo metadata and protection contract",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/matches/{match}/private-photos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "matches",
+                "{match}",
+                "private-photos"
+              ]
+            },
+            "description": "api.v1.private-photos.index: Approved private-photo metadata and protection contract"
+          }
+        },
+        {
+          "name": "Authorized no-store image bytes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/private-photos/{photo}/content",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "private-photos",
+                "{photo}",
+                "content"
+              ]
+            },
+            "description": "api.v1.private-photos.content: Authorized no-store image bytes"
+          }
+        },
+        {
+          "name": "Idempotent best-effort capture signal",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"client_event_id\": \"01K...\",\n  \"event_type\": \"screenshot\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/private-photos/{photo}/capture-events",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "private-photos",
+                "{photo}",
+                "capture-events"
+              ]
+            },
+            "description": "api.v1.private-photos.capture-events.store: Idempotent best-effort capture signal"
           }
         }
       ]
@@ -1391,7 +1601,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"phone_numbers\": [\n    \"+923001112233\"\n  ]\n}",
+              "raw": "{\n  \"phone_numbers\": [\n    \"<e164-phone-number>\"\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1854,7 +2064,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Safety Moderator\",\n  \"email\": \"moderator@example.com\",\n  \"password\": \"<strong-password>\",\n  \"password_confirmation\": \"<strong-password>\",\n  \"role\": \"moderator\",\n  \"reason\": \"Joining safety operations\"\n}",
+              "raw": "{\n  \"name\": \"<admin-name>\",\n  \"email\": \"<admin-email>\",\n  \"password\": \"<strong-password>\",\n  \"password_confirmation\": \"<strong-password>\",\n  \"role\": \"moderator\",\n  \"reason\": \"<audited-creation-reason>\"\n}",
               "options": {
                 "raw": {
                   "language": "json"

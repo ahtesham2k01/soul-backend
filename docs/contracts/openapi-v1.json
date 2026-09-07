@@ -96,7 +96,7 @@
                 "type": "object"
               },
               "example": {
-                "email": "person@example.com"
+                "email": "<user-email>"
               }
             }
           }
@@ -169,7 +169,7 @@
                 "type": "object"
               },
               "example": {
-                "email": "person@example.com"
+                "email": "<user-email>"
               }
             }
           }
@@ -776,6 +776,24 @@
             "bearerAuth": []
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "upload_token": "01K...",
+                "provider_asset_id": "soul/profile-photos/USER/ASSET",
+                "provider_version": 1788220800,
+                "provider_format": "jpg",
+                "provider_signature": "<cloudinary-response-signature>",
+                "visibility": "private"
+              }
+            }
+          }
+        },
         "responses": {
           "401": {
             "$ref": "#/components/responses/Error"
@@ -1034,6 +1052,306 @@
             "bearerAuth": []
           }
         ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/private-photo-access": {
+      "get": {
+        "operationId": "api.v1.private-photo-access.index",
+        "summary": "List incoming and outgoing access requests",
+        "tags": [
+          "Private-photo-access"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/matches/{match}/private-photo-access": {
+      "post": {
+        "operationId": "api.v1.private-photo-access.store",
+        "summary": "Request access with no message/reason",
+        "tags": [
+          "Private-photo-access"
+        ],
+        "parameters": [
+          {
+            "name": "match",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {}
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/private-photo-access/{accessRequest}": {
+      "put": {
+        "operationId": "api.v1.private-photo-access.update",
+        "summary": "Owner approves or rejects",
+        "tags": [
+          "Private-photo-access"
+        ],
+        "parameters": [
+          {
+            "name": "accessRequest",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "decision": "approve"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "api.v1.private-photo-access.destroy",
+        "summary": "Owner revokes access",
+        "tags": [
+          "Private-photo-access"
+        ],
+        "parameters": [
+          {
+            "name": "accessRequest",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/matches/{match}/private-photos": {
+      "get": {
+        "operationId": "api.v1.private-photos.index",
+        "summary": "Approved private-photo metadata and protection contract",
+        "tags": [
+          "Private-photos"
+        ],
+        "parameters": [
+          {
+            "name": "match",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/private-photos/{photo}/content": {
+      "get": {
+        "operationId": "api.v1.private-photos.content",
+        "summary": "Authorized no-store image bytes",
+        "tags": [
+          "Private-photos"
+        ],
+        "parameters": [
+          {
+            "name": "photo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "description": "Authorized private image bytes",
+            "content": {
+              "image/*": {
+                "schema": {
+                  "type": "string",
+                  "contentEncoding": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/private-photos/{photo}/capture-events": {
+      "post": {
+        "operationId": "api.v1.private-photos.capture-events.store",
+        "summary": "Idempotent best-effort capture signal",
+        "tags": [
+          "Private-photos"
+        ],
+        "parameters": [
+          {
+            "name": "photo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "client_event_id": "01K...",
+                "event_type": "screenshot"
+              }
+            }
+          }
+        },
         "responses": {
           "401": {
             "$ref": "#/components/responses/Error"
@@ -1672,7 +1990,7 @@
               },
               "example": {
                 "phone_numbers": [
-                  "+923001112233"
+                  "<e164-phone-number>"
                 ]
               }
             }
@@ -2231,12 +2549,12 @@
                 "type": "object"
               },
               "example": {
-                "name": "Safety Moderator",
-                "email": "moderator@example.com",
+                "name": "<admin-name>",
+                "email": "<admin-email>",
                 "password": "<strong-password>",
                 "password_confirmation": "<strong-password>",
                 "role": "moderator",
-                "reason": "Joining safety operations"
+                "reason": "<audited-creation-reason>"
               }
             }
           }

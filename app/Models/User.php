@@ -116,6 +116,16 @@ class User extends Authenticatable
         return $this->hasMany(HiddenContactHash::class);
     }
 
+    public function ownedPrivatePhotoAccessRequests(): HasMany
+    {
+        return $this->hasMany(PrivatePhotoAccessRequest::class, 'owner_user_id');
+    }
+
+    public function requestedPrivatePhotoAccessRequests(): HasMany
+    {
+        return $this->hasMany(PrivatePhotoAccessRequest::class, 'requester_user_id');
+    }
+
     /**
      * Use public ULIDs for route model binding.
      */

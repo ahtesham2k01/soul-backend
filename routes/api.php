@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\V1\Discovery\DiscoveryPreferenceController;
 use App\Http\Controllers\Api\V1\Discovery\ListCandidatesController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\Matching\ListMatchesController;
+use App\Http\Controllers\Api\V1\Matching\PrivatePhotoAccessController;
 use App\Http\Controllers\Api\V1\Matching\StoreProfileDecisionController;
 use App\Http\Controllers\Api\V1\Matching\UnmatchController;
 use App\Http\Controllers\Api\V1\Messaging\MatchMessagesController;
@@ -90,6 +91,20 @@ Route::prefix('v1')->group(function (): void {
             ->middleware('throttle:60,1')->name('api.v1.matches.index');
         Route::delete('/matches/{match}', UnmatchController::class)
             ->middleware('throttle:30,1')->name('api.v1.matches.destroy');
+        Route::get('/private-photo-access', [PrivatePhotoAccessController::class, 'index'])
+            ->middleware('throttle:60,1')->name('api.v1.private-photo-access.index');
+        Route::post('/matches/{match}/private-photo-access', [PrivatePhotoAccessController::class, 'store'])
+            ->middleware('throttle:20,1')->name('api.v1.private-photo-access.store');
+        Route::put('/private-photo-access/{accessRequest}', [PrivatePhotoAccessController::class, 'decide'])
+            ->middleware('throttle:20,1')->name('api.v1.private-photo-access.update');
+        Route::delete('/private-photo-access/{accessRequest}', [PrivatePhotoAccessController::class, 'destroy'])
+            ->middleware('throttle:20,1')->name('api.v1.private-photo-access.destroy');
+        Route::get('/matches/{match}/private-photos', [PrivatePhotoAccessController::class, 'photos'])
+            ->middleware('throttle:60,1')->name('api.v1.private-photos.index');
+        Route::get('/private-photos/{photo}/content', [PrivatePhotoAccessController::class, 'content'])
+            ->middleware('throttle:120,1')->name('api.v1.private-photos.content');
+        Route::post('/private-photos/{photo}/capture-events', [PrivatePhotoAccessController::class, 'capture'])
+            ->middleware('throttle:30,1')->name('api.v1.private-photos.capture-events.store');
         Route::get('/matches/{match}/messages', [MatchMessagesController::class, 'index'])
             ->middleware('throttle:120,1')->name('api.v1.messages.index');
         Route::post('/matches/{match}/messages', [MatchMessagesController::class, 'store'])

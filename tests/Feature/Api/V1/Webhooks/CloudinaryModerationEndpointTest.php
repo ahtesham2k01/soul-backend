@@ -53,6 +53,7 @@ class CloudinaryModerationEndpointTest extends TestCase
             'moderation_status' => 'approved',
             'moderation_kind' => 'aws_rek',
             'face_detected' => true,
+            'format' => 'webp',
         ], JSON_THROW_ON_ERROR);
 
         $this->signedNotification($body)->assertOk()
@@ -63,6 +64,7 @@ class CloudinaryModerationEndpointTest extends TestCase
             'moderation_status' => 'approved',
             'rejection_reason' => null,
             'face_detected' => true,
+            'format' => 'webp',
         ]);
     }
 

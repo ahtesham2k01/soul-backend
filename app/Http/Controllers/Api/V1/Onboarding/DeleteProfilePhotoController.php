@@ -38,10 +38,11 @@ class DeleteProfilePhotoController extends Controller
             }
 
             $providerAssetId = $photo->provider_asset_id;
+            $deliveryType = $photo->delivery_type;
             $photo->delete();
 
             DB::afterCommit(
-                fn () => DestroyCloudinaryAsset::dispatch($providerAssetId),
+                fn () => DestroyCloudinaryAsset::dispatch($providerAssetId, $deliveryType),
             );
         });
 

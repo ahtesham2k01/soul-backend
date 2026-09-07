@@ -209,6 +209,19 @@ class ProfilePhotoEndpointTest extends TestCase
         $this->assertDatabaseCount('profile_photos', 1);
     }
 
+    public function test_private_photo_rejects_a_legacy_public_delivery_upload(): void
+    {
+        $user = User::factory()->create(['status' => User::STATUS_ACTIVE]);
+        UserProfile::factory()->for($user)->create();
+        Sanctum::actingAs($user);
+        $payload = $this->payload($user, 2, 'soul/users/legacy', 'private');
+        ProfilePhotoUpload::query()->where('public_id', $payload['upload_token'])->update(['delivery_type' => 'upload']);
+
+        $this->putJson('/api/v1/onboarding/photos/2', $payload)
+            ->assertUnprocessable()->assertJsonPath('error.code', 'VALIDATION_ERROR');
+        $this->assertDatabaseCount('profile_photos', 0);
+    }
+
     /** @return array<string, int|string> */
     private function payload(
         User $user,
@@ -220,12 +233,14 @@ class ProfilePhotoEndpointTest extends TestCase
         $upload = ProfilePhotoUpload::factory()->for($user)->create([
             'position' => $position,
             'provider_asset_id' => $assetId,
+            'delivery_type' => $position === 1 ? 'upload' : 'authenticated',
         ]);
 
         return [
             'upload_token' => $upload->public_id,
             'provider_asset_id' => $assetId,
             'provider_version' => $version,
+            'provider_format' => 'jpg',
             'provider_signature' => hash(
                 'sha1',
                 "public_id={$assetId}&version={$version}".self::SECRET,

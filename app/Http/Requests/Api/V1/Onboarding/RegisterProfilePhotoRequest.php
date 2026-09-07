@@ -31,6 +31,7 @@ class RegisterProfilePhotoRequest extends FormRequest
                 'required', 'string', 'max:255', 'regex:/^[A-Za-z0-9_\/.-]+$/',
             ],
             'provider_version' => ['required', 'integer', 'min:1'],
+            'provider_format' => ['required', 'string', Rule::in(['jpg', 'jpeg', 'png', 'webp', 'avif', 'heic'])],
             'provider_signature' => [
                 'required', 'string', 'regex:/^(?:[a-fA-F0-9]{40}|[a-fA-F0-9]{64})$/',
             ],

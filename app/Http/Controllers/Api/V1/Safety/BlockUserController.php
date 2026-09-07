@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Safety;
 
 use App\Http\Controllers\Controller;
+use App\Models\PrivatePhotoAccessRequest;
 use App\Models\ProfileDecision;
 use App\Models\UserBlock;
 use App\Models\UserMatch;
@@ -18,7 +19,9 @@ class BlockUserController extends Controller
     {
         $validated = $request->validate(['reason' => ['nullable', 'string', 'max:500']]);
         $target = UserProfile::query()->where('public_id', $profile)->first();
-        if ($target === null || $target->user_id === $request->user()->id) return ApiResponse::error('PROFILE_UNAVAILABLE', 'Profile unavailable.', 404);
+        if ($target === null || $target->user_id === $request->user()->id) {
+            return ApiResponse::error('PROFILE_UNAVAILABLE', 'Profile unavailable.', 404);
+        }
         DB::transaction(function () use ($request, $target, $validated): void {
             $actor = $request->user()->id;
             UserBlock::query()->firstOrCreate(['blocker_user_id' => $actor, 'blocked_user_id' => $target->user_id], ['reason' => $validated['reason'] ?? null]);
@@ -26,10 +29,16 @@ class BlockUserController extends Controller
                 ->where(fn ($q) => $q->where('first_user_id', $actor)->where('second_user_id', $target->user_id))
                 ->orWhere(fn ($q) => $q->where('first_user_id', $target->user_id)->where('second_user_id', $actor)))
                 ->update(['status' => 'blocked', 'ended_at' => now(), 'ended_by_user_id' => $actor]);
+            PrivatePhotoAccessRequest::query()->whereIn('status', ['pending', 'approved'])
+                ->where(fn ($q) => $q
+                    ->where(fn ($q) => $q->where('owner_user_id', $actor)->where('requester_user_id', $target->user_id))
+                    ->orWhere(fn ($q) => $q->where('owner_user_id', $target->user_id)->where('requester_user_id', $actor)))
+                ->update(['status' => 'revoked', 'revoked_at' => now()]);
             ProfileDecision::query()->where(fn ($q) => $q
                 ->where(['actor_user_id' => $actor, 'target_user_id' => $target->user_id])
                 ->orWhere(fn ($q) => $q->where(['actor_user_id' => $target->user_id, 'target_user_id' => $actor])))->delete();
         });
+
         return ApiResponse::success(['blocked' => true], 'User blocked successfully.');
     }
 }

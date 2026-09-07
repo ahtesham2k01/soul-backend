@@ -5,7 +5,7 @@ This is the versioned mobile-client contract for the SOUL V1 Laravel API. Mobile
 ## Transport contract
 
 - Base path: `/api/v1`
-- Content type: `application/json`
+- Content type: `application/json`; the authorized private-photo content route returns image bytes with its provider MIME type
 - Authentication: `Authorization: Bearer <token>` for authenticated mobile routes
 - Locale: send `Accept-Language`, or `locale` on bootstrap when the user explicitly selects a language
 - Dates: ISO 8601; clients should render them in the device timezone
@@ -65,6 +65,8 @@ Client behavior by status: 401 clears the invalid session, 403 shows account acc
 
 Photo upload sequence: request a session for position 1–3, upload directly using only returned signed fields, then register the exact response and session token. Position 1 is the public cover. Render moderation and `correction_screen` from the API instead of guessing approval state.
 
+Positions 2 and 3 use authenticated Cloudinary delivery even when currently public, so they can safely change to private later. Send every returned upload parameter, including `type`, unchanged.
+
 ## Discovery, matching and messaging endpoints
 
 | Method | Path | Route contract | Purpose |
@@ -75,6 +77,13 @@ Photo upload sequence: request a session for position 1–3, upload directly usi
 | POST | `/profiles/{profile}/decision` | `api.v1.matching.decisions.store` | Idempotent like/pass and mutual match |
 | GET | `/matches` | `api.v1.matches.index` | Cursor-paginated active matches |
 | DELETE | `/matches/{match}` | `api.v1.matches.destroy` | Idempotent unmatch |
+| GET | `/private-photo-access` | `api.v1.private-photo-access.index` | List incoming and outgoing access requests |
+| POST | `/matches/{match}/private-photo-access` | `api.v1.private-photo-access.store` | Request access with no message/reason |
+| PUT | `/private-photo-access/{accessRequest}` | `api.v1.private-photo-access.update` | Owner approves or rejects |
+| DELETE | `/private-photo-access/{accessRequest}` | `api.v1.private-photo-access.destroy` | Owner revokes access |
+| GET | `/matches/{match}/private-photos` | `api.v1.private-photos.index` | Approved private-photo metadata and protection contract |
+| GET | `/private-photos/{photo}/content` | `api.v1.private-photos.content` | Authorized no-store image bytes |
+| POST | `/private-photos/{photo}/capture-events` | `api.v1.private-photos.capture-events.store` | Idempotent best-effort capture signal |
 | GET | `/matches/{match}/messages` | `api.v1.messages.index` | Cursor-paginated conversation |
 | POST | `/matches/{match}/messages` | `api.v1.messages.store` | Send trimmed non-empty message |
 | POST | `/matches/{match}/messages/read` | `api.v1.messages.read` | Mark received messages read and expose receipts |
@@ -162,3 +171,4 @@ Clients must tolerate additive response fields and new enum values by showing a 
 The complete profile request, optional-field limits and Skip/Prefer-not-to-say behavior are maintained in `PROFILE_INFORMATION_CONTRACT.md`.
 Religion root matching, hierarchy and country behavior are maintained in `RELIGION_DISCOVERY_CONTRACT.md`.
 Discovery filters, distance bands, activity and privacy behavior are maintained in `DISCOVERY_PRIVACY_CONTRACT.md`.
+Private access, authenticated media delivery and platform capture behavior are maintained in `PRIVATE_PHOTO_CONTRACT.md`.

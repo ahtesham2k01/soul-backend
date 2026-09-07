@@ -37,6 +37,8 @@ erDiagram
     USERS ||--o{ PROFILE_DECISIONS : acts
     USERS ||--o{ USER_MATCHES : participates
     USER_MATCHES ||--o| CONVERSATIONS : opens
+    USER_MATCHES ||--o{ PRIVATE_PHOTO_ACCESS_REQUESTS : authorizes
+    PRIVATE_PHOTO_ACCESS_REQUESTS ||--o{ PRIVATE_PHOTO_CAPTURE_EVENTS : records
     CONVERSATIONS ||--o{ MESSAGES : contains
     USERS ||--o{ USER_BLOCKS : blocks
     USERS ||--o{ USER_REPORTS : reports
@@ -64,7 +66,7 @@ erDiagram
 | Identity | `users`, `social_accounts`, `email_verification_codes`, `personal_access_tokens` | Unique email/public ID/provider identity; account cascades identities and tokens |
 | Profile | `user_profiles`, `user_profile_intentions`, `spoken_languages`, `spoken_language_user_profile`, `user_profile_interests`, `user_profile_traits`, `user_profile_withheld_fields` | One profile per user; normalized multi-select intentions/languages; bounded interests/traits; explicit optional answer state |
 | Religion | `religion_taxonomy_nodes`, `religion_taxonomy_translations`, `religion_taxonomy_countries`, `user_religion_profiles` | Hierarchical path, localized labels, country availability, selected leaf plus denormalized V1 root per user |
-| Photos | `profile_photos`, `profile_photo_uploads` | Slots 1–3 unique per profile; provider asset globally unique; short-lived upload sessions |
+| Photos | `profile_photos`, `profile_photo_uploads`, `private_photo_access_requests`, `private_photo_capture_events` | Slots 1–3 unique; authenticated secondary delivery; one access lifecycle per match/direction; idempotent capture signals |
 | Lifecycle/legal | `profile_status_transitions`, `legal_acceptances` | Append-style state history and versioned consent |
 | Discovery | `discovery_preferences`, `discovery_preference_locations`, `discovery_preference_intentions`, `profile_decisions`, `user_matches` | One preference row; normalized multi-location/intention filters; one current decision per actor/target; normalized match pair |
 | Chat/safety | `conversations`, `messages`, `user_blocks`, `user_reports` | One conversation per match; indexed message feed; directional blocks and review queue |
@@ -81,6 +83,7 @@ erDiagram
 - `user_religion_root_user_index` supports V1 My Religion filtering without deep-tree joins.
 - Profile activity and coordinate indexes support inactivity ordering and radius bounding-box scans.
 - Match member IDs are stored in normalized order with a unique pair.
+- Private-photo request inbox/outbox indexes support both users; capture event ULIDs are unique per viewer.
 - Messages use `(conversation_id, id)` for cursor reads.
 - Notifications use `(user_id, read_at, id)` for unread feeds.
 - Reports and verification cases index status/time for moderator queues.
@@ -95,7 +98,6 @@ These are required by the confirmed PRD but are not represented by complete curr
 
 | Phase | Planned storage |
 |---|---|
-| Private photos | Access requests, grants, decisions, revocation timestamps and match ownership |
 | Chat presence | Presence/last-seen and ephemeral typing state (cache preferred for typing) |
 | Safety | Risk signals/actions, moderation cases, ban appeals and report action linkage |
 | Notifications | Separate push/email channel preferences and consent timestamps |

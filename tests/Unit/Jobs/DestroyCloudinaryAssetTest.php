@@ -21,7 +21,7 @@ class DestroyCloudinaryAssetTest extends TestCase
             'https://api.cloudinary.com/*' => Http::response(['result' => 'ok']),
         ]);
 
-        $job = new DestroyCloudinaryAsset('soul/profile-photos/old');
+        $job = new DestroyCloudinaryAsset('soul/profile-photos/old', 'authenticated');
         $job->handle(app(CloudinaryUploadVerifier::class));
 
         Http::assertSent(function ($request): bool {
@@ -30,9 +30,10 @@ class DestroyCloudinaryAssetTest extends TestCase
                 && $request['invalidate'] === 'true'
                 && $request['public_id'] === 'soul/profile-photos/old'
                 && $request['timestamp'] === 1788238800
+                && $request['type'] === 'authenticated'
                 && $request['signature'] === hash(
                     'sha1',
-                    'invalidate=true&public_id=soul/profile-photos/old&timestamp=1788238800test-secret',
+                    'invalidate=true&public_id=soul/profile-photos/old&timestamp=1788238800&type=authenticatedtest-secret',
                 );
         });
     }

@@ -116,6 +116,8 @@ flowchart TD
 
 Pending requests do not expire. V1 chat is text/emoji only. Online/last-seen and typing are visible when their backend phase is complete. Unmatch removes the conversation for both users and revokes private-photo access.
 
+Private photos are delivered only through the backend after approval. Protected viewers use Android secure-window behavior or iOS detection, masking and a viewer watermark. Capture notifications are best-effort because mobile operating systems cannot detect every screenshot method.
+
 ## Safety flow
 
 - Block immediately stops discovery and interaction.

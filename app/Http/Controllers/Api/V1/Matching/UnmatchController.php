@@ -7,6 +7,7 @@ use App\Models\UserMatch;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class UnmatchController extends Controller
 {
@@ -17,9 +18,14 @@ class UnmatchController extends Controller
             ->where(fn ($query) => $query->where('first_user_id', $user->id)->orWhere('second_user_id', $user->id))
             ->first();
 
-        if ($record === null) return ApiResponse::error('MATCH_NOT_FOUND', 'Match not found.', 404);
+        if ($record === null) {
+            return ApiResponse::error('MATCH_NOT_FOUND', 'Match not found.', 404);
+        }
         if ($record->status === 'active') {
-            $record->update(['status' => 'unmatched', 'ended_at' => now(), 'ended_by_user_id' => $user->id]);
+            DB::transaction(function () use ($record, $user): void {
+                $record->update(['status' => 'unmatched', 'ended_at' => now(), 'ended_by_user_id' => $user->id]);
+                $record->privatePhotoAccessRequests()->whereIn('status', ['pending', 'approved'])->update(['status' => 'revoked', 'revoked_at' => now()]);
+            });
         }
 
         return ApiResponse::success(['match_id' => $record->public_id, 'status' => 'unmatched'], 'Match ended successfully.');

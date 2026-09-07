@@ -78,6 +78,12 @@ class RegisterProfilePhotoController extends Controller
                 ]);
             }
 
+            if ($validated['visibility'] === 'private' && $upload->delivery_type !== 'authenticated') {
+                throw ValidationException::withMessages([
+                    'upload_token' => ['Private photos require a new secure upload session.'],
+                ]);
+            }
+
             $existing = $profile->photos()
                 ->where('position', $position)
                 ->lockForUpdate()
@@ -90,7 +96,7 @@ class RegisterProfilePhotoController extends Controller
                     ]);
                 }
 
-                $existing->update(['visibility' => $validated['visibility']]);
+                $existing->update(['visibility' => $validated['visibility'], 'delivery_type' => $upload->delivery_type]);
 
                 return $existing->refresh();
             }
@@ -113,7 +119,7 @@ class RegisterProfilePhotoController extends Controller
             }
 
             if ($existing?->provider_asset_id === $validated['provider_asset_id']) {
-                $existing->update(['visibility' => $validated['visibility']]);
+                $existing->update(['visibility' => $validated['visibility'], 'delivery_type' => $upload->delivery_type]);
                 $upload->update(['consumed_at' => now()]);
 
                 return $existing->refresh();
@@ -124,10 +130,12 @@ class RegisterProfilePhotoController extends Controller
                 'visibility' => $validated['visibility'],
                 'storage_provider' => 'cloudinary',
                 'provider_asset_id' => $validated['provider_asset_id'],
+                'delivery_type' => $upload->delivery_type,
+                'format' => $validated['provider_format'],
                 'moderation_status' => ProfilePhotoModerationStatus::Pending,
                 'rejection_reason' => null,
                 'face_detected' => null,
-                'screenshot_protection_enabled' => true,
+                'screenshot_protection_enabled' => $request->user()->privacySetting?->screenshot_protection_enabled ?? true,
             ];
 
             if ($existing === null) {
@@ -138,11 +146,13 @@ class RegisterProfilePhotoController extends Controller
             }
 
             $replacedProviderAssetId = $existing->provider_asset_id;
+            $replacedDeliveryType = $existing->delivery_type;
             $existing->update($attributes);
             $upload->update(['consumed_at' => now()]);
             DB::afterCommit(
                 fn () => DestroyCloudinaryAsset::dispatch(
                     $replacedProviderAssetId,
+                    $replacedDeliveryType,
                 ),
             );
 

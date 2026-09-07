@@ -305,5 +305,17 @@
   "distance.about_10_km": "Taqreeban 10 km",
   "distance.about_20_km": "Taqreeban 20 km",
   "distance.about_50_km": "Taqreeban 50 km",
-  "distance.more_than_50_km": "50 km se zyada"
+  "distance.more_than_50_km": "50 km se zyada",
+  "private_photos.request": "Private photos ki request karein",
+  "private_photos.requested": "Private photos ki request bhej di gayi",
+  "private_photos.pending": "Approval ka intezar hai",
+  "private_photos.approve": "Access approve karein",
+  "private_photos.reject": "Request reject karein",
+  "private_photos.revoke": "Access wapas lein",
+  "private_photos.unlocked": "Private photos unlock ho gayi hain",
+  "private_photos.access_required": "Private photos dekhne ke liye access mangein",
+  "private_photos.protected": "Screenshot protection on hai",
+  "private_photos.capture_warning": "Screenshot ya recording par photo owner ko notification mil sakti hai",
+  "private_photos.capture_detected": "Ek viewer ne aapki private photo capture ki",
+  "private_photos.legacy_reupload": "Secure private viewing ke liye ye photo replace karein"
 }

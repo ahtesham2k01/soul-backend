@@ -63,6 +63,7 @@ class ProfilePhotoUploadSessionEndpointTest extends TestCase
             ->assertJsonPath('data.upload.url', 'https://api.cloudinary.com/v1_1/soul-test/image/upload')
             ->assertJsonPath('data.upload.parameters.api_key', 'test-key')
             ->assertJsonPath('data.upload.parameters.timestamp', 1788237000)
+            ->assertJsonPath('data.upload.parameters.type', 'authenticated')
             ->assertJsonMissingPath('data.upload.parameters.api_secret');
 
         $upload = ProfilePhotoUpload::query()->sole();
@@ -71,9 +72,10 @@ class ProfilePhotoUploadSessionEndpointTest extends TestCase
         $this->assertSame($upload->provider_asset_id, $publicId);
         $this->assertStringStartsWith("soul/profile-photos/{$user->public_id}/", $publicId);
         $this->assertSame(
-            hash('sha1', "public_id={$publicId}&timestamp=1788237000".self::SECRET),
+            hash('sha1', "public_id={$publicId}&timestamp=1788237000&type=authenticated".self::SECRET),
             $response->json('data.upload.parameters.signature'),
         );
+        $this->assertSame('authenticated', $upload->delivery_type);
     }
 
     public function test_new_same_slot_session_expires_previous_session(): void
@@ -90,6 +92,18 @@ class ProfilePhotoUploadSessionEndpointTest extends TestCase
         $this->assertNotSame($firstToken, $secondToken);
         $this->assertFalse(ProfilePhotoUpload::where('public_id', $firstToken)->sole()->expires_at->isFuture());
         $this->assertTrue(ProfilePhotoUpload::where('public_id', $secondToken)->sole()->expires_at->isFuture());
+    }
+
+    public function test_cover_uses_public_delivery_while_secondary_slots_are_authenticated(): void
+    {
+        $user = User::factory()->create(['status' => User::STATUS_ACTIVE]);
+        UserProfile::factory()->for($user)->create();
+        Sanctum::actingAs($user);
+
+        $this->postJson('/api/v1/onboarding/photos/upload-session', ['position' => 1])
+            ->assertOk()->assertJsonPath('data.upload.parameters.type', 'upload');
+        $this->postJson('/api/v1/onboarding/photos/upload-session', ['position' => 3])
+            ->assertOk()->assertJsonPath('data.upload.parameters.type', 'authenticated');
     }
 
     public function test_position_must_be_one_to_three(): void

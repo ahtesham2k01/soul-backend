@@ -11,8 +11,8 @@ const endpoints = [...handoff.matchAll(endpointPattern)].map((match) => ({
     summary: match[4].trim(),
 }));
 
-if (endpoints.length !== 75) {
-    throw new Error(`Expected 75 documented endpoints, found ${endpoints.length}.`);
+if (endpoints.length !== 82) {
+    throw new Error(`Expected 82 documented endpoints, found ${endpoints.length}.`);
 }
 
 const publicOperations = new Set([
@@ -31,17 +31,21 @@ const publicOperations = new Set([
 ]);
 
 const requestExamples = {
-    'api.v1.auth.register.request-otp': { email: 'person@example.com' },
+    'api.v1.auth.register.request-otp': { email: '<user-email>' },
     'api.v1.auth.register.verify-otp': { verification_id: '01H...', code: '123456' },
-    'api.v1.auth.login.request-otp': { email: 'person@example.com' },
+    'api.v1.auth.login.request-otp': { email: '<user-email>' },
     'api.v1.auth.login.verify-otp': { verification_id: '01H...', code: '123456' },
     'api.v1.auth.google': { id_token: '<google-id-token>', device_name: 'Pixel' },
     'api.v1.auth.apple': { identity_token: '<apple-identity-token>', device_name: 'iPhone' },
     'api.v1.location.resolve': { latitude: 24.8607, longitude: 67.0011, accuracy_meters: 25 },
     'api.v1.onboarding.profile.update': { first_name: 'Ayesha', marital_status: 'never_married', profession_status: 'employed', smoking: 'no', alcohol: 'no', current_children: 'no', future_children: 'want_children', intentions: ['marriage'], spoken_language_ids: [1], interests: ['Reading'], personality_traits: ['Kind'], prefer_not_to_say_fields: [] },
+    'api.v1.onboarding.photos.register': { upload_token: '01K...', provider_asset_id: 'soul/profile-photos/USER/ASSET', provider_version: 1788220800, provider_format: 'jpg', provider_signature: '<cloudinary-response-signature>', visibility: 'private' },
     'api.v1.discovery.preferences.update': { preferred_gender: 'woman', minimum_age: 24, maximum_age: 35, same_country_only: true, religion_mode: 'my_religion', location_mode: 'current', radius_km: 50, selected_locations: [], intentions: ['marriage'] },
-    'api.v1.privacy.contacts.update': { phone_numbers: ['+923001112233'] },
+    'api.v1.privacy.contacts.update': { phone_numbers: ['<e164-phone-number>'] },
     'api.v1.matching.decisions.store': { decision: 'like' },
+    'api.v1.private-photo-access.store': {},
+    'api.v1.private-photo-access.update': { decision: 'approve' },
+    'api.v1.private-photos.capture-events.store': { client_event_id: '01K...', event_type: 'screenshot' },
     'api.v1.messages.store': { body: 'Salam' },
     'api.v1.safety.blocks.store': { reason: 'Harassment' },
     'api.v1.safety.reports.store': { category: 'harassment', details: 'Repeated unwanted messages' },
@@ -50,7 +54,7 @@ const requestExamples = {
     'api.v1.devices.store': { platform: 'android', push_token: '<provider-token>', device_name: 'Pixel' },
     'api.v1.privacy.deletion.store': { confirmation: 'DELETE MY ACCOUNT' },
     'api.v1.admin.users.status.update': { status: 'suspended', reason: 'Confirmed safety escalation' },
-    'api.v1.admin.admins.store': { name: 'Safety Moderator', email: 'moderator@example.com', password: '<strong-password>', password_confirmation: '<strong-password>', role: 'moderator', reason: 'Joining safety operations' },
+    'api.v1.admin.admins.store': { name: '<admin-name>', email: '<admin-email>', password: '<strong-password>', password_confirmation: '<strong-password>', role: 'moderator', reason: '<audited-creation-reason>' },
     'api.v1.admin.admins.role.update': { role: 'super_admin', reason: 'Promoted to operations lead' },
     'api.v1.admin.admins.destroy': { reason: 'Admin left operations' },
     'api.v1.admin.religion-taxonomy.store': { parent_id: null, type: 'religion', slug: 'islam', is_active: true, sort_order: 0, translations: [{ locale: 'en', label: 'Islam', description: null }], country_codes: [], reason: 'Approved taxonomy maintenance' },
@@ -94,7 +98,9 @@ for (const endpoint of endpoints) {
             },
         } : {}),
         responses: {
-            '2XX': { $ref: '#/components/responses/Success' },
+            '2XX': endpoint.operationId === 'api.v1.private-photos.content'
+                ? { description: 'Authorized private image bytes', content: { 'image/*': { schema: { type: 'string', contentEncoding: 'binary' } } } }
+                : { $ref: '#/components/responses/Success' },
             '401': { $ref: '#/components/responses/Error' },
             '422': { $ref: '#/components/responses/Error' },
             '429': { $ref: '#/components/responses/Error' },

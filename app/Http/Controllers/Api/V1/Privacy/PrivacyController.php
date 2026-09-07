@@ -27,9 +27,14 @@ class PrivacyController extends Controller
 
     public function updateSettings(Request $r): JsonResponse
     {
-        $v = $r->validate(['show_age' => ['sometimes', 'accepted'], 'show_city' => ['sometimes', 'boolean'], 'read_receipts' => ['sometimes', 'accepted'], 'discoverable' => ['sometimes', 'boolean'], 'incognito' => ['sometimes', 'boolean'], 'profile_paused' => ['sometimes', 'boolean'], 'hide_contacts' => ['sometimes', 'boolean']]);
+        $v = $r->validate(['show_age' => ['sometimes', 'accepted'], 'show_city' => ['sometimes', 'boolean'], 'read_receipts' => ['sometimes', 'accepted'], 'discoverable' => ['sometimes', 'boolean'], 'incognito' => ['sometimes', 'boolean'], 'profile_paused' => ['sometimes', 'boolean'], 'hide_contacts' => ['sometimes', 'boolean'], 'screenshot_protection_enabled' => ['sometimes', 'boolean']]);
         $p = $r->user()->privacySetting()->firstOrCreate([]);
-        $p->update([...$v, 'show_age' => true, 'read_receipts' => true]);
+        DB::transaction(function () use ($r, $p, $v): void {
+            $p->update([...$v, 'show_age' => true, 'read_receipts' => true]);
+            if (array_key_exists('screenshot_protection_enabled', $v)) {
+                $r->user()->profile?->photos()->update(['screenshot_protection_enabled' => $v['screenshot_protection_enabled']]);
+            }
+        });
 
         return ApiResponse::success(['privacy' => $this->settings($p->fresh())]);
     }
@@ -49,7 +54,7 @@ class PrivacyController extends Controller
 
     private function settings($setting): array
     {
-        return $setting->only(['show_age', 'show_city', 'read_receipts', 'discoverable', 'incognito', 'profile_paused', 'hide_contacts']);
+        return $setting->only(['show_age', 'show_city', 'read_receipts', 'discoverable', 'incognito', 'profile_paused', 'hide_contacts', 'screenshot_protection_enabled']);
     }
 
     public function requestExport(Request $r): JsonResponse

@@ -26,6 +26,7 @@ class ProfilePhotoFactory extends Factory
             'visibility' => ProfilePhotoVisibility::Public,
             'storage_provider' => 'cloudinary',
             'provider_asset_id' => fake()->unique()->uuid(),
+            'format' => 'jpg',
             'moderation_status' => ProfilePhotoModerationStatus::Pending,
             'face_detected' => null,
             'screenshot_protection_enabled' => true,
