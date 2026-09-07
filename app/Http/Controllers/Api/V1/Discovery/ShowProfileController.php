@@ -43,7 +43,7 @@ class ShowProfileController extends Controller
                         ->orWhere(fn ($reverse) => $reverse->where('first_user_id', $viewer->id)->whereColumn('second_user_id', 'user_profiles.user_id'))));
             })
             ->with([
-                'user.privacySetting', 'user.religionProfile.rootNode', 'user.religionProfile.selectedNode',
+                'user.privacySetting', 'user.religionProfile.rootNode', 'user.religionProfile.selectedNode', 'user.verificationCases',
                 'intentions', 'interests', 'personalityTraits', 'spokenLanguages', 'withheldFields',
                 'photos' => fn ($query) => $query->where('visibility', ProfilePhotoVisibility::Public->value)
                     ->where('moderation_status', ProfilePhotoModerationStatus::Approved->value),

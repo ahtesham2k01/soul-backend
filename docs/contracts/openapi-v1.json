@@ -1905,6 +1905,34 @@
         }
       }
     },
+    "/verification/summary": {
+      "get": {
+        "operationId": "api.v1.verification.summary",
+        "summary": "Separate account checks and public badge states",
+        "tags": [
+          "Verification"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
     "/verification/cases/{case}/appeal": {
       "post": {
         "operationId": "api.v1.verification.appeals.store",

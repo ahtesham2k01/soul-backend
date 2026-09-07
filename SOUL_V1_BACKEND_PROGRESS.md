@@ -77,7 +77,7 @@ The original 16 phases established the backend and admin foundation. A fresh req
 - [x] Phase 17 — Public/private photo access and screenshot-protection contracts
 - [x] Phase 18 — Likes, requests, matches and chat flow parity
 - [x] Phase 19 — Marital-status visibility and verification rules
-- [ ] Phase 20 — Identity verification, appeals and badge behavior
+- [x] Phase 20 — Identity verification, appeals and badge behavior
 - [ ] Phase 21 — Safety, reporting, blocking and moderation completion
 - [ ] Phase 22 — Notification event and preference coverage
 - [ ] Phase 23 — Events foundation and admin management
@@ -86,7 +86,7 @@ The original 16 phases established the backend and admin foundation. A fresh req
 - [ ] Phase 26 — Full React admin coverage for all configurable V1 modules
 - [ ] Phase 27 — End-to-end PRD audit, integration tests and release closure
 
-Gap closure: **8/16 phases complete (50%)**.
+Gap closure: **9/16 phases complete (56.25%)**.
 
 ## Architecture and developer handoff documentation
 

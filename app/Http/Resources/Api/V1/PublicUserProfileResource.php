@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Api\V1;
 
 use App\Models\UserProfile;
+use App\Support\Verification\VerificationSummary;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -15,6 +16,7 @@ class PublicUserProfileResource extends JsonResource
         $withheld = $this->withheldFields->pluck('field')->map->value->all();
         $optional = fn (string $field): mixed => in_array($field, $withheld, true) ? null : $this->{$field};
         $religion = $this->user->religionProfile;
+        $verification = app(VerificationSummary::class)->for($this->user);
 
         return [
             'id' => $this->public_id,
@@ -62,6 +64,11 @@ class PublicUserProfileResource extends JsonResource
                 'id' => $photo->public_id,
                 'position' => $photo->position,
             ])->values(),
+            'verification_badges' => [
+                'phone' => $verification['phone']['verified'],
+                'selfie' => $verification['selfie']['verified'],
+                'identity_age' => $verification['identity_age']['verified'],
+            ],
         ];
     }
 }

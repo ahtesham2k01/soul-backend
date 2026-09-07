@@ -1489,6 +1489,29 @@
           }
         },
         {
+          "name": "Separate account checks and public badge states",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/verification/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "verification",
+                "summary"
+              ]
+            },
+            "description": "api.v1.verification.summary: Separate account checks and public badge states"
+          }
+        },
+        {
           "name": "Request identity/selfie review",
           "request": {
             "method": "POST",

@@ -70,7 +70,7 @@ erDiagram
 | Lifecycle/legal | `profile_status_transitions`, `legal_acceptances` | Append-style state history and versioned consent |
 | Discovery | `discovery_preferences`, `discovery_preference_locations`, `discovery_preference_intentions`, `profile_decisions`, `user_matches` | One preference row; normalized multi-location/intention filters; one current decision per actor/target; normalized match pair |
 | Chat/safety | `conversations`, `messages`, `user_blocks`, `user_reports` | One conversation per match; indexed message feed; directional blocks and review queue |
-| Verification | `profile_verification_cases`, `verification_appeals` | Multiple cases per user; at most one appeal per case |
+| Verification | `profile_verification_cases`, `verification_appeals` | Multiple typed cases per user; optional/risk-required semantics; explicit verified timestamp; at most one appeal per case |
 | Notifications | `user_devices`, `notification_preferences`, `user_notifications`, `notification_broadcasts` | Encrypted token plus unique hash; one preference row; idempotent broadcast recipient |
 | Privacy | `account_privacy_settings`, `hidden_contact_hashes`, `data_export_requests`, `account_deletion_requests` | One settings row; keyed non-reversible contact hashes; export/deletion lifecycle rows |
 | Admin/operations | `admin_audit_logs`, user `admin_role` | Restricted admin actor deletion and immutable operation evidence |
@@ -90,6 +90,7 @@ erDiagram
 - Messages use `(conversation_id, id)` for cursor reads.
 - Notifications use `(user_id, read_at, id)` for unread feeds.
 - Reports and verification cases index status/time for moderator queues.
+- Verification cases also index user/type/status so each badge request is idempotent without coupling unrelated checks.
 - Deletion requests index status/scheduled time for cleanup jobs.
 - Audit events index subject and actor/time; audit public IDs are unique.
 

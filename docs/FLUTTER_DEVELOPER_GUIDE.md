@@ -12,9 +12,10 @@ This is the implementation guide for the Android/iOS client. Laravel is the auth
 6. Read `PRIVATE_PHOTO_CONTRACT.md` before building private-photo requests or protected viewers.
 7. Read `LIKE_MATCH_CHAT_CONTRACT.md` before building Likes, match lists, presence or chat.
 8. Read `MARITAL_STATUS_CONTRACT.md` before building discovery cards or full profiles.
-7. Import `contracts/openapi-v1.json` or `contracts/postman-v1.collection.json` while building the API client.
-8. Read `DATABASE_DESIGN.md` only to understand ownership and relationships; Flutter never uses internal database IDs.
-9. Read `BACKEND_SCOPE.md` before implementing a screen so unfinished gap-closure modules are not mistaken for available APIs.
+9. Read `VERIFICATION_BADGES_CONTRACT.md` before building verification or public badges.
+10. Import `contracts/openapi-v1.json` or `contracts/postman-v1.collection.json` while building the API client.
+11. Read `DATABASE_DESIGN.md` only to understand ownership and relationships; Flutter never uses internal database IDs.
+12. Read `BACKEND_SCOPE.md` before implementing a screen so unfinished gap-closure modules are not mistaken for available APIs.
 
 ## Client architecture
 

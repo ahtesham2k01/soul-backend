@@ -126,6 +126,11 @@ class User extends Authenticatable
         return $this->hasMany(PrivatePhotoAccessRequest::class, 'requester_user_id');
     }
 
+    public function verificationCases(): HasMany
+    {
+        return $this->hasMany(ProfileVerificationCase::class);
+    }
+
     /**
      * Use public ULIDs for route model binding.
      */

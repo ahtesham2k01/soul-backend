@@ -103,6 +103,7 @@ Do not cache candidate, match or message pages across users. A 404 for a profile
 | POST | `/profiles/{profile}/block` | `api.v1.safety.blocks.store` | Block and close interaction |
 | POST | `/profiles/{profile}/report` | `api.v1.safety.reports.store` | Submit safe report receipt |
 | GET | `/verification/cases` | `api.v1.verification.cases.index` | List owned verification cases |
+| GET | `/verification/summary` | `api.v1.verification.summary` | Separate account checks and public badge states |
 | POST | `/verification/cases` | `api.v1.verification.cases.store` | Request identity/selfie review |
 | POST | `/verification/cases/{case}/appeal` | `api.v1.verification.appeals.store` | Submit one eligible appeal |
 | POST | `/devices` | `api.v1.devices.store` | Register encrypted iOS/Android push token |
@@ -122,6 +123,8 @@ Do not cache candidate, match or message pages across users. A 404 for a profile
 | DELETE | `/privacy/deletion` | `api.v1.privacy.deletion.destroy` | Cancel inside grace period |
 
 Age and read receipts are mandatory V1 behavior and cannot be disabled. Account deletion has a 30-day recovery period. Safety notifications cannot be disabled. The app must not log push tokens, export contents, OTPs, OAuth tokens, message bodies or raw identity-provider payloads.
+
+Verification UI must render the four summary entries independently. Email is an account check. Phone, selfie and identity/age can earn public badges. A user-requested optional check never pauses a live profile; only a server-created risk-required case can return `blocks_profile: true`. Public profiles receive booleans only—never case reasons, reviewer notes or documents.
 
 ## Custom React administration endpoints
 

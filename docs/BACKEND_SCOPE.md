@@ -25,7 +25,7 @@ Laravel owns every protected decision. Flutter owns presentation, platform permi
 | Photos | Three slots, authenticated secondary uploads, moderation, private access request/approval/revocation, protected no-store delivery, screenshot controls/signals | Provider staging verification and mobile-native protected-view implementation |
 | Discovery | Gender/age/religion/intention/location/radius filters, activity ranking, 90-day hiding, safe distance bands, pass resurfacing and likes exclusion | Entitlement-dependent filter limits remain dynamic subscription work |
 | Likes/matches/chat | Like/pass, incoming requests, accept/decline/withdraw, matches, summaries, unmatch, text messages, mandatory read receipts, online/last-seen and expiring typing signals | Provider-backed real-time transport may later replace polling without changing the V1 API contract |
-| Verification | Cases, review states and one appeal | Separate badge/risk semantics and underage escalation parity (Phases 19–20) |
+| Verification | Separate email, phone, selfie and ID/age states; optional/required semantics; safe public badges; cases, review and one appeal | Underage escalation and broader risk automation (Phase 21) |
 | Safety | Block, report categories, moderation queues and account actions | Report & Block transaction, risk cases, ban appeal and complete moderator tools (Phase 21) |
 | Notifications | Devices, push preferences, feed, match/message events and admin broadcasts | Push/email separation and complete event coverage (Phase 22) |
 | Privacy/account | Settings, screenshot protection, profile pause, incognito, keyed contact hiding, private export and 30-day deletion recovery | Remaining legal/account lifecycle parity continues in Phase 25 |
@@ -42,7 +42,7 @@ Laravel owns every protected decision. Flutter owns presentation, platform permi
 - [x] Phase 17 — Public/private photo access and screenshot protection
 - [x] Phase 18 — Likes, requests, matches and chat parity
 - [x] Phase 19 — Marital-status visibility and rules
-- [ ] Phase 20 — Verification and badge behavior
+- [x] Phase 20 — Verification and badge behavior
 - [ ] Phase 21 — Safety and moderation completion
 - [ ] Phase 22 — Notification event/channel coverage
 - [ ] Phase 23 — Events and admin management

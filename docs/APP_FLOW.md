@@ -120,6 +120,8 @@ Private photos are delivered only through the backend after approval. Protected 
 
 ## Safety flow
 
+Verification is shown as four independent states: account email, phone badge, selfie badge and identity/age badge. User-requested badge reviews are optional and never pause a live profile. Only a risk-required case may block the profile. Other members see badge booleans only, never review details.
+
 - Block immediately stops discovery and interaction.
 - Report offers Report only or Report & Block.
 - Underage suspicion pauses the reported profile and starts age/ID verification.

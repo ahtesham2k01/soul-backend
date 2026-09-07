@@ -5,6 +5,7 @@ namespace Tests\Feature\Api\V1\Discovery;
 use App\Enums\Profile\ProfilePhotoModerationStatus;
 use App\Enums\Profile\ProfilePhotoVisibility;
 use App\Models\ProfilePhoto;
+use App\Models\ProfileVerificationCase;
 use App\Models\User;
 use App\Models\UserMatch;
 use App\Models\UserProfile;
@@ -68,6 +69,25 @@ class MaritalStatusVisibilityEndpointTest extends TestCase
         $this->getJson("/api/v1/profiles/{$profile->public_id}")->assertOk()
             ->assertJsonPath('data.profile.marital_status', 'divorced')
             ->assertJsonPath('data.profile.employer', null);
+    }
+
+    public function test_public_profile_exposes_only_safe_verified_badges(): void
+    {
+        [$viewer, $candidate, $profile] = $this->viewerAndCandidate();
+        $candidate->forceFill(['phone_verified_at' => now()])->save();
+        ProfileVerificationCase::query()->create([
+            'user_id' => $candidate->id, 'type' => 'selfie_review', 'status' => 'approved',
+            'requirement' => 'optional', 'reason' => 'Internal review note', 'submitted_at' => now(),
+            'reviewed_at' => now(), 'verified_at' => now(),
+        ]);
+        Sanctum::actingAs($viewer);
+
+        $this->getJson("/api/v1/profiles/{$profile->public_id}")->assertOk()
+            ->assertJsonPath('data.profile.verification_badges.phone', true)
+            ->assertJsonPath('data.profile.verification_badges.selfie', true)
+            ->assertJsonPath('data.profile.verification_badges.identity_age', false)
+            ->assertJsonMissing(['Internal review note'])
+            ->assertJsonMissingPath('data.profile.verification_cases');
     }
 
     public function test_paused_profile_stays_available_to_an_existing_match_but_not_other_users(): void

@@ -132,6 +132,8 @@ Route::prefix('v1')->group(function (): void {
             ->middleware('throttle:10,1')->name('api.v1.safety.reports.store');
         Route::get('/verification/cases', [ProfileVerificationController::class, 'index'])
             ->middleware('throttle:60,1')->name('api.v1.verification.cases.index');
+        Route::get('/verification/summary', [ProfileVerificationController::class, 'summary'])
+            ->middleware('throttle:60,1')->name('api.v1.verification.summary');
         Route::post('/verification/cases', [ProfileVerificationController::class, 'store'])
             ->middleware('throttle:10,1')->name('api.v1.verification.cases.store');
         Route::post('/verification/cases/{case}/appeal', SubmitVerificationAppealController::class)

@@ -18,7 +18,52 @@ class ProfileVerificationEndpointTest extends TestCase
     public function test_verification_endpoints_require_authentication(): void
     {
         $this->getJson('/api/v1/verification/cases')->assertUnauthorized();
+        $this->getJson('/api/v1/verification/summary')->assertUnauthorized();
         $this->postJson('/api/v1/verification/cases')->assertUnauthorized();
+    }
+
+    public function test_summary_keeps_account_and_optional_badges_separate(): void
+    {
+        $user = User::factory()->create([
+            'status' => User::STATUS_ACTIVE,
+            'email_verified_at' => now(),
+            'phone_verified_at' => null,
+        ]);
+        ProfileVerificationCase::query()->create([
+            'user_id' => $user->id, 'type' => 'selfie_review', 'requirement' => 'optional',
+            'status' => 'approved', 'submitted_at' => now(), 'reviewed_at' => now(), 'verified_at' => now(),
+        ]);
+        ProfileVerificationCase::query()->create([
+            'user_id' => $user->id, 'type' => 'identity', 'requirement' => 'required',
+            'status' => 'pending', 'submitted_at' => now(),
+        ]);
+        Sanctum::actingAs($user);
+
+        $this->getJson('/api/v1/verification/summary')->assertOk()
+            ->assertJsonPath('data.verification.email.verified', true)
+            ->assertJsonPath('data.verification.phone.status', 'not_verified')
+            ->assertJsonPath('data.verification.selfie.verified', true)
+            ->assertJsonPath('data.verification.selfie.blocks_profile', false)
+            ->assertJsonPath('data.verification.identity_age.requirement', 'required')
+            ->assertJsonPath('data.verification.identity_age.blocks_profile', true);
+    }
+
+    public function test_each_optional_badge_can_have_its_own_open_request_without_pausing_profile(): void
+    {
+        $user = User::factory()->create(['status' => User::STATUS_ACTIVE]);
+        $profile = UserProfile::factory()->for($user)->create(['profile_status' => 'live']);
+        ProfilePhoto::factory()->for($profile)->create([
+            'moderation_status' => ProfilePhotoModerationStatus::Approved, 'face_detected' => true,
+        ]);
+        Sanctum::actingAs($user);
+
+        $this->postJson('/api/v1/verification/cases', ['type' => 'identity'])->assertStatus(202)
+            ->assertJsonPath('data.verification_case.requirement', 'optional')
+            ->assertJsonPath('data.verification_case.blocks_profile', false);
+        $this->postJson('/api/v1/verification/cases', ['type' => 'selfie_review'])->assertStatus(202);
+
+        $this->assertDatabaseCount('profile_verification_cases', 2);
+        $this->assertSame('live', $profile->refresh()->profile_status->value);
     }
 
     public function test_clear_approved_face_is_required_and_open_request_is_idempotent(): void
