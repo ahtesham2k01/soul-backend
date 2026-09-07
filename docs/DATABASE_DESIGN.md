@@ -97,6 +97,7 @@ erDiagram
 - Notifications use `(user_id, read_at, id)` for unread feeds. A unique hashed `deduplication_key` makes repeated domain-event delivery safe, while `delivery_channels` records the channel decision made at creation time.
 - Reports and verification cases index status/time for moderator queues.
 - Safety cases separate risk decisions from raw reports and retain the previous profile state for safe restoration. Account appeals enforce one lifetime appeal row per blocked member and store audited resolution metadata. Open safety or required-verification cases always prevent automatic profile restoration.
+- Subscription configuration uses `features`, `subscription_plans`, `plan_entitlements`, `store_products`, `subscription_promotions`, country/platform/user overrides, active user subscriptions and daily usage counters. Exact prices are owned by Apple/Google products and are not stored as trusted client values.
 - Verification cases also index user/type/status so each badge request is idempotent without coupling unrelated checks.
 - Deletion requests index status/scheduled time for cleanup jobs.
 - Audit events index subject and actor/time; audit public IDs are unique.
@@ -110,7 +111,6 @@ These are required by the confirmed PRD but are not represented by complete curr
 | Phase | Planned storage |
 |---|---|
 | Chat presence | Presence/last-seen and ephemeral typing state (cache preferred for typing) |
-| Subscription | Features, plans, products, entitlements, limits/counters, country overrides, promotions, rollouts and user overrides |
 | Legal | Community-guideline acceptance and versioned policy/commitment records where not covered by current document types |
 
 Each extension must include reversible migrations, foreign keys, production-safe indexes, factories and model/API tests. Pricing and exact plan allocation remain configuration data, not schema constants.

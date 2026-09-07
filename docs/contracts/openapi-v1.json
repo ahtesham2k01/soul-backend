@@ -2445,6 +2445,62 @@
         }
       }
     },
+    "/subscription/entitlements": {
+      "get": {
+        "operationId": "api.v1.subscription.entitlements.index",
+        "summary": "Effective capability limits and usage for this member",
+        "tags": [
+          "Subscription"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/subscription/products": {
+      "get": {
+        "operationId": "api.v1.subscription.products.index",
+        "summary": "Active Apple/Google product mappings for platform and country",
+        "tags": [
+          "Subscription"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
     "/privacy/settings": {
       "get": {
         "operationId": "api.v1.privacy.settings.show",
@@ -3898,6 +3954,298 @@
             }
           }
         },
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/admin/entitlements": {
+      "get": {
+        "operationId": "api.v1.admin.entitlements.index",
+        "summary": "Features, plans, products and promotions workspace",
+        "tags": [
+          "Admin"
+        ],
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/admin/entitlements/features": {
+      "post": {
+        "operationId": "api.v1.admin.entitlements.features.store",
+        "summary": "Create a dynamic capability",
+        "tags": [
+          "Admin"
+        ],
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/admin/entitlements/features/{feature}": {
+      "put": {
+        "operationId": "api.v1.admin.entitlements.features.update",
+        "summary": "Change access, limits, schedule or rollout",
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "feature",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/admin/entitlements/features/{feature}/countries": {
+      "put": {
+        "operationId": "api.v1.admin.entitlements.countries.update",
+        "summary": "Set a country override",
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "feature",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/admin/entitlements/features/{feature}/platforms": {
+      "put": {
+        "operationId": "api.v1.admin.entitlements.platforms.update",
+        "summary": "Set an iOS/Android override",
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "feature",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/admin/entitlements/plans": {
+      "post": {
+        "operationId": "api.v1.admin.entitlements.plans.store",
+        "summary": "Create plan and entitlement allocation",
+        "tags": [
+          "Admin"
+        ],
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/admin/entitlements/products": {
+      "post": {
+        "operationId": "api.v1.admin.entitlements.products.store",
+        "summary": "Map an Apple/Google product to a plan",
+        "tags": [
+          "Admin"
+        ],
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/admin/entitlements/promotions": {
+      "post": {
+        "operationId": "api.v1.admin.entitlements.promotions.store",
+        "summary": "Create scheduled targeted trial promotion",
+        "tags": [
+          "Admin"
+        ],
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/admin/users/{user}/entitlements": {
+      "put": {
+        "operationId": "api.v1.admin.entitlements.users.update",
+        "summary": "Set an audited individual override",
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "user",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
         "responses": {
           "401": {
             "$ref": "#/components/responses/Error"

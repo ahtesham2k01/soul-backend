@@ -132,6 +132,8 @@ Use `PROFILE_INFORMATION_CONTRACT.md` for field names, enums, collection limits 
 
 Events appear in Explore. Follow `EVENTS_CONTRACT.md`: use server-localized text, never reveal attendee identities, and show an online link only when the response includes it after joining.
 
+Subscriptions follow `SUBSCRIPTION_ENTITLEMENTS_CONTRACT.md`. Never hard-code a plan, price, limit or paywall decision. Render server capabilities, use Apple/Google for localized display prices, and let Laravel authorize every action.
+
 Route guards should be data-driven: a profile in correction or verification pause goes to the relevant correction screen instead of main discovery.
 
 ## Release checklist for Flutter

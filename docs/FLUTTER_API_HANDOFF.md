@@ -119,6 +119,8 @@ Do not cache candidate, match or message pages across users. A 404 for a profile
 | POST | `/events/{event}/registration` | `api.v1.events.registration.store` | Capacity-safe idempotent join |
 | DELETE | `/events/{event}/registration` | `api.v1.events.registration.destroy` | Idempotent leave |
 | POST | `/events/{event}/report` | `api.v1.events.reports.store` | Private idempotent event report |
+| GET | `/subscription/entitlements` | `api.v1.subscription.entitlements.index` | Effective capability limits and usage for this member |
+| GET | `/subscription/products` | `api.v1.subscription.products.index` | Active Apple/Google product mappings for platform and country |
 | GET | `/privacy/settings` | `api.v1.privacy.settings.show` | Load privacy defaults |
 | PUT | `/privacy/settings` | `api.v1.privacy.settings.update` | Partial privacy update |
 | PUT | `/privacy/contacts` | `api.v1.privacy.contacts.update` | Replace privacy-safe contact hashes |
@@ -168,6 +170,15 @@ The React admin uses same-origin secure session cookies, not mobile bearer token
 | PUT | `/admin/events/{event}/status` | `api.v1.admin.events.status.update` | Publish, return to draft or cancel with audit reason |
 | GET | `/admin/event-reports` | `api.v1.admin.event-reports.index` | Private pending event-report queue |
 | PUT | `/admin/event-reports/{report}` | `api.v1.admin.event-reports.update` | Resolve, dismiss or cancel event |
+| GET | `/admin/entitlements` | `api.v1.admin.entitlements.index` | Features, plans, products and promotions workspace |
+| POST | `/admin/entitlements/features` | `api.v1.admin.entitlements.features.store` | Create a dynamic capability |
+| PUT | `/admin/entitlements/features/{feature}` | `api.v1.admin.entitlements.features.update` | Change access, limits, schedule or rollout |
+| PUT | `/admin/entitlements/features/{feature}/countries` | `api.v1.admin.entitlements.countries.update` | Set a country override |
+| PUT | `/admin/entitlements/features/{feature}/platforms` | `api.v1.admin.entitlements.platforms.update` | Set an iOS/Android override |
+| POST | `/admin/entitlements/plans` | `api.v1.admin.entitlements.plans.store` | Create plan and entitlement allocation |
+| POST | `/admin/entitlements/products` | `api.v1.admin.entitlements.products.store` | Map an Apple/Google product to a plan |
+| POST | `/admin/entitlements/promotions` | `api.v1.admin.entitlements.promotions.store` | Create scheduled targeted trial promotion |
+| PUT | `/admin/users/{user}/entitlements` | `api.v1.admin.entitlements.users.update` | Set an audited individual override |
 
 ## Provider-only endpoint
 
@@ -199,4 +210,5 @@ The complete profile request, optional-field limits and Skip/Prefer-not-to-say b
 Religion root matching, hierarchy and country behavior are maintained in `RELIGION_DISCOVERY_CONTRACT.md`.
 Discovery filters, distance bands, activity and privacy behavior are maintained in `DISCOVERY_PRIVACY_CONTRACT.md`.
 Private access, authenticated media delivery and platform capture behavior are maintained in `PRIVATE_PHOTO_CONTRACT.md`.
+Subscription capabilities, limits and store presentation are maintained in `SUBSCRIPTION_ENTITLEMENTS_CONTRACT.md`.
 Marital-status visibility and full-profile behavior are maintained in `MARITAL_STATUS_CONTRACT.md`.

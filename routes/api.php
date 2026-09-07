@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\Admin\AccountAppealController as AdminAccountApp
 use App\Http\Controllers\Api\V1\Admin\AdminAccountController;
 use App\Http\Controllers\Api\V1\Admin\AdminAuditLogController;
 use App\Http\Controllers\Api\V1\Admin\AdminUserController;
+use App\Http\Controllers\Api\V1\Admin\EntitlementController as AdminEntitlementController;
 use App\Http\Controllers\Api\V1\Admin\EventController as AdminEventController;
 use App\Http\Controllers\Api\V1\Admin\ModerationController;
 use App\Http\Controllers\Api\V1\Admin\NotificationBroadcastController;
@@ -56,6 +57,8 @@ use App\Http\Controllers\Api\V1\Safety\BlockUserController;
 use App\Http\Controllers\Api\V1\Safety\ProfileVerificationController;
 use App\Http\Controllers\Api\V1\Safety\ReportUserController;
 use App\Http\Controllers\Api\V1\Safety\SubmitVerificationAppealController;
+use App\Http\Controllers\Api\V1\Subscriptions\EntitlementController;
+use App\Http\Controllers\Api\V1\Subscriptions\ProductController;
 use App\Http\Controllers\Api\V1\Webhooks\CloudinaryModerationController;
 use App\Support\ApiResponse;
 use Illuminate\Support\Facades\Route;
@@ -94,6 +97,15 @@ Route::prefix('v1')->group(function (): void {
             Route::put('/events/{event}/status', [AdminEventController::class, 'status'])->name('api.v1.admin.events.status.update');
             Route::get('/event-reports', [AdminEventController::class, 'reports'])->name('api.v1.admin.event-reports.index');
             Route::put('/event-reports/{report}', [AdminEventController::class, 'decideReport'])->name('api.v1.admin.event-reports.update');
+            Route::get('/entitlements', [AdminEntitlementController::class, 'index'])->name('api.v1.admin.entitlements.index');
+            Route::post('/entitlements/features', [AdminEntitlementController::class, 'storeFeature'])->name('api.v1.admin.entitlements.features.store');
+            Route::put('/entitlements/features/{feature}', [AdminEntitlementController::class, 'updateFeature'])->name('api.v1.admin.entitlements.features.update');
+            Route::put('/entitlements/features/{feature}/countries', [AdminEntitlementController::class, 'countryOverride'])->name('api.v1.admin.entitlements.countries.update');
+            Route::put('/entitlements/features/{feature}/platforms', [AdminEntitlementController::class, 'platformOverride'])->name('api.v1.admin.entitlements.platforms.update');
+            Route::post('/entitlements/plans', [AdminEntitlementController::class, 'storePlan'])->name('api.v1.admin.entitlements.plans.store');
+            Route::post('/entitlements/products', [AdminEntitlementController::class, 'storeProduct'])->name('api.v1.admin.entitlements.products.store');
+            Route::post('/entitlements/promotions', [AdminEntitlementController::class, 'storePromotion'])->name('api.v1.admin.entitlements.promotions.store');
+            Route::put('/users/{user}/entitlements', [AdminEntitlementController::class, 'override'])->name('api.v1.admin.entitlements.users.update');
         });
     });
     Route::middleware(['auth:sanctum', 'active.account', 'record.activity'])->group(function (): void {
@@ -166,6 +178,8 @@ Route::prefix('v1')->group(function (): void {
         Route::post('/events/{event}/registration', [EventRegistrationController::class, 'store'])->middleware('throttle:20,1')->name('api.v1.events.registration.store');
         Route::delete('/events/{event}/registration', [EventRegistrationController::class, 'destroy'])->middleware('throttle:20,1')->name('api.v1.events.registration.destroy');
         Route::post('/events/{event}/report', EventReportController::class)->middleware('throttle:5,60')->name('api.v1.events.reports.store');
+        Route::get('/subscription/entitlements', EntitlementController::class)->name('api.v1.subscription.entitlements.index');
+        Route::get('/subscription/products', ProductController::class)->name('api.v1.subscription.products.index');
         Route::get('/privacy/settings', [PrivacyController::class, 'showSettings'])->name('api.v1.privacy.settings.show');
         Route::put('/privacy/settings', [PrivacyController::class, 'updateSettings'])->name('api.v1.privacy.settings.update');
         Route::put('/privacy/contacts', [PrivacyController::class, 'replaceContacts'])->middleware('throttle:5,60')->name('api.v1.privacy.contacts.update');

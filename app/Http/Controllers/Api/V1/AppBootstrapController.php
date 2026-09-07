@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Contracts\Location\GeolocationProvider;
 use App\Http\Controllers\Controller;
 use App\Support\ApiResponse;
+use App\Support\Entitlements\EntitlementResolver;
 use App\Support\Localization\LocaleResolver;
 use App\Support\Localization\TranslationCatalog;
 use Illuminate\Http\JsonResponse;
@@ -18,6 +19,7 @@ class AppBootstrapController extends Controller
         LocaleResolver $localeResolver,
         TranslationCatalog $translationCatalog,
         GeolocationProvider $geolocationProvider,
+        EntitlementResolver $entitlementResolver,
     ): JsonResponse {
         $queryLocale = $request->query('locale');
 
@@ -69,14 +71,17 @@ class AppBootstrapController extends Controller
                     'values' => $catalog['values'],
                 ],
 
-                'supported_languages' =>
-                    $this->availableLanguages(),
+                'supported_languages' => $this->availableLanguages(),
 
                 'location' => $location?->toArray(),
 
                 'location_status' => $location === null
                     ? 'unavailable'
                     : 'resolved',
+
+                'capabilities' => ($user = $request->user('sanctum'))
+                    ? $entitlementResolver->for($user, $request->query('platform'))
+                    : null,
             ],
             message: 'App bootstrap loaded successfully.',
         );

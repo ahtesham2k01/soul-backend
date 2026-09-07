@@ -81,12 +81,12 @@ The original 16 phases established the backend and admin foundation. A fresh req
 - [x] Phase 21 — Safety, reporting, blocking and moderation completion
 - [x] Phase 22 — Notification event and preference coverage
 - [x] Phase 23 — Events foundation and admin management
-- [ ] Phase 24 — Subscription plans and dynamic entitlement engine
+- [x] Phase 24 — Subscription plans and dynamic entitlement engine
 - [ ] Phase 25 — Legal consent, policy versions and account lifecycle
 - [ ] Phase 26 — Full React admin coverage for all configurable V1 modules
 - [ ] Phase 27 — End-to-end PRD audit, integration tests and release closure
 
-Gap closure: **12/16 phases complete (75%)**.
+Gap closure: **13/16 phases complete (81.25%)**.
 
 ## Architecture and developer handoff documentation
 

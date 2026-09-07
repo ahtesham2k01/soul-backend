@@ -1928,6 +1928,57 @@
       ]
     },
     {
+      "name": "Subscription",
+      "item": [
+        {
+          "name": "Effective capability limits and usage for this member",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/subscription/entitlements",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "subscription",
+                "entitlements"
+              ]
+            },
+            "description": "api.v1.subscription.entitlements.index: Effective capability limits and usage for this member"
+          }
+        },
+        {
+          "name": "Active Apple/Google product mappings for platform and country",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/subscription/products",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "subscription",
+                "products"
+              ]
+            },
+            "description": "api.v1.subscription.products.index: Active Apple/Google product mappings for platform and country"
+          }
+        }
+      ]
+    },
+    {
       "name": "Privacy",
       "item": [
         {
@@ -3057,6 +3108,254 @@
               ]
             },
             "description": "api.v1.admin.event-reports.update: Resolve, dismiss or cancel event"
+          }
+        },
+        {
+          "name": "Features, plans, products and promotions workspace",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/entitlements",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "entitlements"
+              ]
+            },
+            "description": "api.v1.admin.entitlements.index: Features, plans, products and promotions workspace"
+          }
+        },
+        {
+          "name": "Create a dynamic capability",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/entitlements/features",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "entitlements",
+                "features"
+              ]
+            },
+            "description": "api.v1.admin.entitlements.features.store: Create a dynamic capability"
+          }
+        },
+        {
+          "name": "Change access, limits, schedule or rollout",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/entitlements/features/{feature}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "entitlements",
+                "features",
+                "{feature}"
+              ]
+            },
+            "description": "api.v1.admin.entitlements.features.update: Change access, limits, schedule or rollout"
+          }
+        },
+        {
+          "name": "Set a country override",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/entitlements/features/{feature}/countries",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "entitlements",
+                "features",
+                "{feature}",
+                "countries"
+              ]
+            },
+            "description": "api.v1.admin.entitlements.countries.update: Set a country override"
+          }
+        },
+        {
+          "name": "Set an iOS/Android override",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/entitlements/features/{feature}/platforms",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "entitlements",
+                "features",
+                "{feature}",
+                "platforms"
+              ]
+            },
+            "description": "api.v1.admin.entitlements.platforms.update: Set an iOS/Android override"
+          }
+        },
+        {
+          "name": "Create plan and entitlement allocation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/entitlements/plans",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "entitlements",
+                "plans"
+              ]
+            },
+            "description": "api.v1.admin.entitlements.plans.store: Create plan and entitlement allocation"
+          }
+        },
+        {
+          "name": "Map an Apple/Google product to a plan",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/entitlements/products",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "entitlements",
+                "products"
+              ]
+            },
+            "description": "api.v1.admin.entitlements.products.store: Map an Apple/Google product to a plan"
+          }
+        },
+        {
+          "name": "Create scheduled targeted trial promotion",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/entitlements/promotions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "entitlements",
+                "promotions"
+              ]
+            },
+            "description": "api.v1.admin.entitlements.promotions.store: Create scheduled targeted trial promotion"
+          }
+        },
+        {
+          "name": "Set an audited individual override",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/{user}/entitlements",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                "{user}",
+                "entitlements"
+              ]
+            },
+            "description": "api.v1.admin.entitlements.users.update: Set an audited individual override"
           }
         }
       ]
