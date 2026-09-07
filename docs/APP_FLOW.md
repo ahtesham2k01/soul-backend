@@ -96,7 +96,7 @@ flowchart TD
     J -- Yes --> L[Mutual match]
 ```
 
-Marital status and intentions remain prominent. Age is always visible. Exact location is never exposed; only backend-provided distance bands may be shown. Inactive profiles rank lower after 30 days and disappear after 90 days.
+Marital status and intentions remain prominent on both the discovery card and full profile. Marital status cannot be hidden, does not restrict married/unmarried discovery and does not introduce partner-consent or polygamy questions. Age is always visible while date of birth stays private. Exact location is never exposed; only backend-provided distance bands may be shown. Inactive profiles rank lower after 30 days and disappear after 90 days.
 
 ## Match, chat and private photos
 

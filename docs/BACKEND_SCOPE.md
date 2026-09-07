@@ -41,7 +41,7 @@ Laravel owns every protected decision. Flutter owns presentation, platform permi
 - [x] Phase 16 — Discovery filters, ranking and distance privacy
 - [x] Phase 17 — Public/private photo access and screenshot protection
 - [x] Phase 18 — Likes, requests, matches and chat parity
-- [ ] Phase 19 — Marital-status visibility and rules
+- [x] Phase 19 — Marital-status visibility and rules
 - [ ] Phase 20 — Verification and badge behavior
 - [ ] Phase 21 — Safety and moderation completion
 - [ ] Phase 22 — Notification event/channel coverage

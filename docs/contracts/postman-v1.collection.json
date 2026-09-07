@@ -851,6 +851,34 @@
       ]
     },
     {
+      "name": "Profiles",
+      "item": [
+        {
+          "name": "Safe full public profile with prominent marital status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profiles/{profile}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profiles",
+                "{profile}"
+              ]
+            },
+            "description": "api.v1.profiles.show: Safe full public profile with prominent marital status"
+          }
+        }
+      ]
+    },
+    {
       "name": "Interactions",
       "item": [
         {

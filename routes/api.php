@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\V1\Auth\RegisterRequestOtpController;
 use App\Http\Controllers\Api\V1\Auth\RegisterVerifyOtpController;
 use App\Http\Controllers\Api\V1\Discovery\DiscoveryPreferenceController;
 use App\Http\Controllers\Api\V1\Discovery\ListCandidatesController;
+use App\Http\Controllers\Api\V1\Discovery\ShowProfileController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\Matching\LikeRequestController;
 use App\Http\Controllers\Api\V1\Matching\ListMatchesController;
@@ -87,6 +88,8 @@ Route::prefix('v1')->group(function (): void {
         Route::get('/discovery/candidates', ListCandidatesController::class)
             ->middleware('throttle:60,1')
             ->name('api.v1.discovery.candidates.index');
+        Route::get('/profiles/{profile}', ShowProfileController::class)
+            ->middleware('throttle:120,1')->name('api.v1.profiles.show');
         Route::post('/profiles/{profile}/decision', StoreProfileDecisionController::class)
             ->middleware('throttle:120,1')->name('api.v1.matching.decisions.store');
         Route::get('/likes/received', [LikeRequestController::class, 'index'])

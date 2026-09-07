@@ -74,6 +74,7 @@ Positions 2 and 3 use authenticated Cloudinary delivery even when currently publ
 | GET | `/discovery/preferences` | `api.v1.discovery.preferences.show` | Resume filters |
 | PUT | `/discovery/preferences` | `api.v1.discovery.preferences.update` | Save age, gender and country filters |
 | GET | `/discovery/candidates` | `api.v1.discovery.candidates.index` | Cursor-paginated eligible profiles |
+| GET | `/profiles/{profile}` | `api.v1.profiles.show` | Safe full public profile with prominent marital status |
 | POST | `/profiles/{profile}/decision` | `api.v1.matching.decisions.store` | Idempotent like/pass and mutual match |
 | GET | `/likes/received` | `api.v1.likes.received.index` | Cursor-paginated pending incoming Likes |
 | PUT | `/profiles/{profile}/like` | `api.v1.likes.update` | Accept or decline a pending Like |
@@ -177,3 +178,4 @@ The complete profile request, optional-field limits and Skip/Prefer-not-to-say b
 Religion root matching, hierarchy and country behavior are maintained in `RELIGION_DISCOVERY_CONTRACT.md`.
 Discovery filters, distance bands, activity and privacy behavior are maintained in `DISCOVERY_PRIVACY_CONTRACT.md`.
 Private access, authenticated media delivery and platform capture behavior are maintained in `PRIVATE_PHOTO_CONTRACT.md`.
+Marital-status visibility and full-profile behavior are maintained in `MARITAL_STATUS_CONTRACT.md`.

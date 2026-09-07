@@ -12,6 +12,7 @@
 | `DISCOVERY_PRIVACY_CONTRACT.md` | Flutter, backend and QA | Filters, activity, distance bands, incognito and contacts |
 | `PRIVATE_PHOTO_CONTRACT.md` | Flutter, backend and QA | Access requests, secure delivery and screenshot behavior |
 | `LIKE_MATCH_CHAT_CONTRACT.md` | Flutter, backend and QA | Pending Likes, acceptance, matches, presence, typing and chat |
+| `MARITAL_STATUS_CONTRACT.md` | Flutter, backend and QA | Required visibility, full-profile response and prohibited V1 questions |
 | `LOCALIZATION_GUIDE.md` | Flutter, React and backend engineers | Simple translation setup, examples and update checklist |
 | `contracts/openapi-v1.json` | Tools and client generation | Machine-readable API contract |
 | `contracts/postman-v1.collection.json` | QA and integration | Executable request collection |

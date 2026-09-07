@@ -951,6 +951,44 @@
         }
       }
     },
+    "/profiles/{profile}": {
+      "get": {
+        "operationId": "api.v1.profiles.show",
+        "summary": "Safe full public profile with prominent marital status",
+        "tags": [
+          "Profiles"
+        ],
+        "parameters": [
+          {
+            "name": "profile",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
     "/profiles/{profile}/decision": {
       "post": {
         "operationId": "api.v1.matching.decisions.store",

@@ -18,6 +18,7 @@ class DocumentationArchitectureTest extends TestCase
             'docs/DISCOVERY_PRIVACY_CONTRACT.md' => ['## Discovery preferences', '## Eligibility and ranking', '## Distance privacy', '## Contact privacy'],
             'docs/PRIVATE_PHOTO_CONTRACT.md' => ['## Product rules', '## Request and approval flow', '## Secure media delivery', '## Screenshot protection'],
             'docs/LIKE_MATCH_CHAT_CONTRACT.md' => ['## Product rules', '## Like request flow', '## Match and conversation flow', '## Presence and typing'],
+            'docs/MARITAL_STATUS_CONTRACT.md' => ['## Product rules', '## Discovery card', '## Full profile', '## Flutter checklist'],
             'docs/APP_FLOW.md' => ['## Onboarding screens', '## Discovery flow', '## Safety flow', '## Events flow', '## Subscription flow'],
             'docs/DATABASE_DESIGN.md' => ['## Current domain map', '## Current tables by ownership', '## Planned V1 schema extensions'],
             'docs/BACKEND_SCOPE.md' => ['## Current implemented foundation', '## Gap-closure phases', '## Definition of complete'],

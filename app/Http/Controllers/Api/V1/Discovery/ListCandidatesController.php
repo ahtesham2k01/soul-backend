@@ -140,6 +140,7 @@ class ListCandidatesController extends Controller
                 'id' => $profile->public_id,
                 'first_name' => $profile->first_name,
                 'age' => $profile->date_of_birth->age,
+                'marital_status' => $profile->marital_status,
                 'city' => $profile->user->privacySetting?->show_city === false ? null : $profile->city_name,
                 'country' => $profile->country_code,
                 'religion' => $profile->user->religionProfile?->rootNode === null ? null : [

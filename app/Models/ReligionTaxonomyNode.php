@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 #[Fillable([
@@ -77,11 +78,26 @@ class ReligionTaxonomyNode extends Model
         );
     }
 
+    /** @return Collection<int, ReligionTaxonomyNode> */
+    public function ancestorsAndSelf(): Collection
+    {
+        $segments = explode('/', $this->path);
+        $paths = [];
+
+        foreach (array_keys($segments) as $index) {
+            $paths[] = implode('/', array_slice($segments, 0, $index + 1));
+        }
+
+        return self::query()->whereIn('path', $paths)
+            ->orderByRaw("LENGTH(path) - LENGTH(REPLACE(path, '/', ''))")
+            ->get();
+    }
+
     /**
      * Limit a query to nodes available globally or in the given country.
      * A node without country rows is globally available.
      *
-     * @param Builder<ReligionTaxonomyNode> $query
+     * @param  Builder<ReligionTaxonomyNode>  $query
      */
     public function scopeAvailableInCountry(
         Builder $query,
