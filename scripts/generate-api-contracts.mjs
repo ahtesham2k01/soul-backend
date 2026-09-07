@@ -11,8 +11,8 @@ const endpoints = [...handoff.matchAll(endpointPattern)].map((match) => ({
     summary: match[4].trim(),
 }));
 
-if (endpoints.length !== 119) {
-    throw new Error(`Expected 119 documented endpoints, found ${endpoints.length}.`);
+if (endpoints.length !== 126) {
+    throw new Error(`Expected 126 documented endpoints, found ${endpoints.length}.`);
 }
 
 const publicOperations = new Set([

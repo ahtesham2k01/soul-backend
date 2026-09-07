@@ -4,10 +4,12 @@ use App\Http\Controllers\Api\V1\Admin\AccountAppealController as AdminAccountApp
 use App\Http\Controllers\Api\V1\Admin\AdminAccountController;
 use App\Http\Controllers\Api\V1\Admin\AdminAuditLogController;
 use App\Http\Controllers\Api\V1\Admin\AdminUserController;
+use App\Http\Controllers\Api\V1\Admin\CatalogController as AdminCatalogController;
 use App\Http\Controllers\Api\V1\Admin\EntitlementController as AdminEntitlementController;
 use App\Http\Controllers\Api\V1\Admin\EventController as AdminEventController;
 use App\Http\Controllers\Api\V1\Admin\ModerationController;
 use App\Http\Controllers\Api\V1\Admin\NotificationBroadcastController;
+use App\Http\Controllers\Api\V1\Admin\OperationsController as AdminOperationsController;
 use App\Http\Controllers\Api\V1\Admin\ReligionTaxonomyController;
 use App\Http\Controllers\Api\V1\AppBootstrapController;
 use App\Http\Controllers\Api\V1\Auth\AppleSignInController;
@@ -104,9 +106,16 @@ Route::prefix('v1')->group(function (): void {
             Route::put('/entitlements/features/{feature}/countries', [AdminEntitlementController::class, 'countryOverride'])->name('api.v1.admin.entitlements.countries.update');
             Route::put('/entitlements/features/{feature}/platforms', [AdminEntitlementController::class, 'platformOverride'])->name('api.v1.admin.entitlements.platforms.update');
             Route::post('/entitlements/plans', [AdminEntitlementController::class, 'storePlan'])->name('api.v1.admin.entitlements.plans.store');
+            Route::put('/entitlements/plans/{plan}', [AdminEntitlementController::class, 'updatePlan'])->name('api.v1.admin.entitlements.plans.update');
             Route::post('/entitlements/products', [AdminEntitlementController::class, 'storeProduct'])->name('api.v1.admin.entitlements.products.store');
+            Route::put('/entitlements/products/{product}', [AdminEntitlementController::class, 'updateProduct'])->name('api.v1.admin.entitlements.products.update');
             Route::post('/entitlements/promotions', [AdminEntitlementController::class, 'storePromotion'])->name('api.v1.admin.entitlements.promotions.store');
+            Route::put('/entitlements/promotions/{promotion}', [AdminEntitlementController::class, 'updatePromotion'])->name('api.v1.admin.entitlements.promotions.update');
             Route::put('/users/{user}/entitlements', [AdminEntitlementController::class, 'override'])->name('api.v1.admin.entitlements.users.update');
+            Route::get('/catalogs', [AdminCatalogController::class, 'index'])->name('api.v1.admin.catalogs.index');
+            Route::put('/catalogs/translations', [AdminCatalogController::class, 'updateTranslation'])->name('api.v1.admin.catalogs.translations.update');
+            Route::put('/catalogs/spoken-languages/{language}', [AdminCatalogController::class, 'updateLanguage'])->name('api.v1.admin.catalogs.spoken-languages.update');
+            Route::get('/operations', AdminOperationsController::class)->name('api.v1.admin.operations.index');
         });
     });
     Route::middleware(['auth:sanctum', 'active.account', 'record.activity'])->group(function (): void {

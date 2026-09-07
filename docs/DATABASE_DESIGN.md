@@ -99,6 +99,7 @@ erDiagram
 - Safety cases separate risk decisions from raw reports and retain the previous profile state for safe restoration. Account appeals enforce one lifetime appeal row per blocked member and store audited resolution metadata. Open safety or required-verification cases always prevent automatic profile restoration.
 - Subscription configuration uses `features`, `subscription_plans`, `plan_entitlements`, `store_products`, `subscription_promotions`, country/platform/user overrides, active user subscriptions and daily usage counters. Exact prices are owned by Apple/Google products and are not stored as trusted client values.
 - `legal_acceptances` keeps immutable per-user evidence for each policy/commitment version, including acceptance route, locale, timestamp, IP and a one-way device-context hash. Raw device identifiers are not stored.
+- `translation_overrides` stores audited runtime changes only for known source-catalog keys. Base JSON remains the fallback and source-code review boundary.
 - Verification cases also index user/type/status so each badge request is idempotent without coupling unrelated checks.
 - Deletion requests index status/scheduled time for cleanup jobs.
 - Audit events index subject and actor/time; audit public IDs are unique.

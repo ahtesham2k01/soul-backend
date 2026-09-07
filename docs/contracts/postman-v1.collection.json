@@ -3328,6 +3328,34 @@
           }
         },
         {
+          "name": "Update plan status and full allocation",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/entitlements/plans/{plan}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "entitlements",
+                "plans",
+                "{plan}"
+              ]
+            },
+            "description": "api.v1.admin.entitlements.plans.update: Update plan status and full allocation"
+          }
+        },
+        {
           "name": "Map an Apple/Google product to a plan",
           "request": {
             "method": "POST",
@@ -3352,6 +3380,34 @@
               ]
             },
             "description": "api.v1.admin.entitlements.products.store: Map an Apple/Google product to a plan"
+          }
+        },
+        {
+          "name": "Activate or deactivate a store mapping",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/entitlements/products/{product}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "entitlements",
+                "products",
+                "{product}"
+              ]
+            },
+            "description": "api.v1.admin.entitlements.products.update: Activate or deactivate a store mapping"
           }
         },
         {
@@ -3382,6 +3438,34 @@
           }
         },
         {
+          "name": "Change promotion lifecycle status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/entitlements/promotions/{promotion}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "entitlements",
+                "promotions",
+                "{promotion}"
+              ]
+            },
+            "description": "api.v1.admin.entitlements.promotions.update: Change promotion lifecycle status"
+          }
+        },
+        {
           "name": "Set an audited individual override",
           "request": {
             "method": "PUT",
@@ -3407,6 +3491,113 @@
               ]
             },
             "description": "api.v1.admin.entitlements.users.update: Set an audited individual override"
+          }
+        },
+        {
+          "name": "Localization and spoken-language workspace",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/catalogs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "catalogs"
+              ]
+            },
+            "description": "api.v1.admin.catalogs.index: Localization and spoken-language workspace"
+          }
+        },
+        {
+          "name": "Override a known translation key with audit evidence",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/catalogs/translations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "catalogs",
+                "translations"
+              ]
+            },
+            "description": "api.v1.admin.catalogs.translations.update: Override a known translation key with audit evidence"
+          }
+        },
+        {
+          "name": "Rename, order or deactivate a spoken language",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/catalogs/spoken-languages/{language}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "catalogs",
+                "spoken-languages",
+                "{language}"
+              ]
+            },
+            "description": "api.v1.admin.catalogs.spoken-languages.update: Rename, order or deactivate a spoken language"
+          }
+        },
+        {
+          "name": "Privacy, social-login, export and deletion summaries",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/operations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "operations"
+              ]
+            },
+            "description": "api.v1.admin.operations.index: Privacy, social-login, export and deletion summaries"
           }
         }
       ]

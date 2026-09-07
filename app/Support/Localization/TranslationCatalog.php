@@ -2,7 +2,9 @@
 
 namespace App\Support\Localization;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Schema;
 use RuntimeException;
 use UnexpectedValueException;
 
@@ -35,6 +37,12 @@ final class TranslationCatalog
             $fallbackTranslations,
             $requestedTranslations ?? [],
         );
+
+        if (Schema::hasTable('translation_overrides')) {
+            $overrides = DB::table('translation_overrides')->where('locale', $servedLocale)
+                ->where('is_active', true)->pluck('value', 'key')->all();
+            $translations = array_replace($translations, $overrides);
+        }
 
         ksort($translations);
 

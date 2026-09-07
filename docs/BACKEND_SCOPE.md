@@ -31,7 +31,7 @@ Laravel owns every protected decision. Flutter owns presentation, platform permi
 | Events | Admin-created online/physical events, localization, publishing, capacity-safe registration, attendee privacy and report moderation | Provider-specific streaming/venue integrations are outside the V1 contract |
 | Subscriptions | Dynamic features, plans, limits/counters, country/platform/user overrides, rollouts, trials/promotions and store-product catalog | Apple/Google credentials and server receipt-notification validation are staging/release gates; exact prices and allocations remain launch decisions |
 | Privacy/account | Settings, screenshot protection, profile pause, incognito, keyed contact hiding, private export, 30-day deletion recovery, versioned Terms/Privacy/Guidelines and community commitments | Provider/country-specific legal content publication remains a release-owner responsibility |
-| Admin | Dashboard, users, reports, safety cases, verification, account appeals, admins/roles, taxonomy, broadcasts, events, subscriptions/entitlements and audit | Remaining domain/configuration coverage is audited in Phase 26 |
+| Admin | Dashboard, users, reports, safety cases, verification, appeals, admins/roles, taxonomy, broadcasts, events, subscriptions, localization/spoken-language catalogs, privacy/account operations and audit | Provider secrets, raw identity documents, messages and arbitrary database editing are intentionally excluded |
 | Operations | Health/readiness, telemetry, security headers, cleanup schedules, CI audits and runbook | Staging/provider credentials, load tests, observability targets and deployment approval |
 
 ## Gap-closure phases
@@ -50,7 +50,7 @@ Laravel owns every protected decision. Flutter owns presentation, platform permi
 - [x] Phase 23 — Events and admin management
 - [x] Phase 24 — Subscription and dynamic entitlements
 - [x] Phase 25 — Legal consent and account lifecycle
-- [ ] Phase 26 — Complete React admin module coverage
+- [x] Phase 26 — Complete React admin module coverage
 - [ ] Phase 27 — End-to-end audit and release closure
 
 ## API and compatibility policy

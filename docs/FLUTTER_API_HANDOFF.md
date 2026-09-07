@@ -178,9 +178,16 @@ The React admin uses same-origin secure session cookies, not mobile bearer token
 | PUT | `/admin/entitlements/features/{feature}/countries` | `api.v1.admin.entitlements.countries.update` | Set a country override |
 | PUT | `/admin/entitlements/features/{feature}/platforms` | `api.v1.admin.entitlements.platforms.update` | Set an iOS/Android override |
 | POST | `/admin/entitlements/plans` | `api.v1.admin.entitlements.plans.store` | Create plan and entitlement allocation |
+| PUT | `/admin/entitlements/plans/{plan}` | `api.v1.admin.entitlements.plans.update` | Update plan status and full allocation |
 | POST | `/admin/entitlements/products` | `api.v1.admin.entitlements.products.store` | Map an Apple/Google product to a plan |
+| PUT | `/admin/entitlements/products/{product}` | `api.v1.admin.entitlements.products.update` | Activate or deactivate a store mapping |
 | POST | `/admin/entitlements/promotions` | `api.v1.admin.entitlements.promotions.store` | Create scheduled targeted trial promotion |
+| PUT | `/admin/entitlements/promotions/{promotion}` | `api.v1.admin.entitlements.promotions.update` | Change promotion lifecycle status |
 | PUT | `/admin/users/{user}/entitlements` | `api.v1.admin.entitlements.users.update` | Set an audited individual override |
+| GET | `/admin/catalogs` | `api.v1.admin.catalogs.index` | Localization and spoken-language workspace |
+| PUT | `/admin/catalogs/translations` | `api.v1.admin.catalogs.translations.update` | Override a known translation key with audit evidence |
+| PUT | `/admin/catalogs/spoken-languages/{language}` | `api.v1.admin.catalogs.spoken-languages.update` | Rename, order or deactivate a spoken language |
+| GET | `/admin/operations` | `api.v1.admin.operations.index` | Privacy, social-login, export and deletion summaries |
 
 ## Provider-only endpoint
 

@@ -132,6 +132,52 @@ class EntitlementController extends Controller
         return ApiResponse::success(['promotion_id' => $promotion->public_id], 'Promotion created.', 201);
     }
 
+    public function updatePlan(Request $request, string $plan): JsonResponse
+    {
+        $record = SubscriptionPlan::where('public_id', $plan)->first();
+        if (! $record) {
+            return ApiResponse::error('PLAN_NOT_FOUND', 'Plan not found.', 404);
+        }
+        $validated = $request->validate(['name' => ['required', 'string', 'max:120'], 'description' => ['nullable', 'string', 'max:1000'], 'status' => ['required', Rule::in(['draft', 'active', 'retired'])], 'trial_days' => ['required', 'integer', 'between:0,365'], 'sort_order' => ['required', 'integer', 'min:0'], 'entitlements' => ['required', 'array'], 'entitlements.*.feature_id' => ['required', 'ulid', 'distinct'], 'entitlements.*.is_enabled' => ['required', 'boolean'], 'entitlements.*.daily_limit' => ['nullable', 'integer', 'min:1'], 'entitlements.*.monthly_limit' => ['nullable', 'integer', 'min:1'], 'reason' => ['required', 'string', 'min:5', 'max:1000']]);
+        $before = $record->load('features')->toArray();
+        DB::transaction(function () use ($record, $validated): void {
+            $record->update(collect($validated)->except(['entitlements', 'reason'])->all());
+            $record->features()->detach();
+            $this->sync($record, $validated['entitlements']);
+        });
+        $this->audit($request, $record, 'plan.updated', $before, $record->fresh('features')->toArray(), $validated['reason']);
+
+        return ApiResponse::success(['plan_id' => $record->public_id]);
+    }
+
+    public function updateProduct(Request $request, string $product): JsonResponse
+    {
+        $record = StoreProduct::where('public_id', $product)->first();
+        if (! $record) {
+            return ApiResponse::error('STORE_PRODUCT_NOT_FOUND', 'Store product not found.', 404);
+        }
+        $validated = $request->validate(['is_active' => ['required', 'boolean'], 'reason' => ['required', 'string', 'min:5', 'max:1000']]);
+        $before = $record->toArray();
+        $record->update(['is_active' => $validated['is_active']]);
+        $this->audit($request, $record, 'store_product.updated', $before, $record->toArray(), $validated['reason']);
+
+        return ApiResponse::success(['product_id' => $record->public_id, 'is_active' => $record->is_active]);
+    }
+
+    public function updatePromotion(Request $request, string $promotion): JsonResponse
+    {
+        $record = SubscriptionPromotion::where('public_id', $promotion)->first();
+        if (! $record) {
+            return ApiResponse::error('PROMOTION_NOT_FOUND', 'Promotion not found.', 404);
+        }
+        $validated = $request->validate(['status' => ['required', Rule::in(['draft', 'active', 'retired'])], 'reason' => ['required', 'string', 'min:5', 'max:1000']]);
+        $before = $record->toArray();
+        $record->update(['status' => $validated['status']]);
+        $this->audit($request, $record, 'promotion.updated', $before, $record->toArray(), $validated['reason']);
+
+        return ApiResponse::success(['promotion_id' => $record->public_id, 'status' => $record->status]);
+    }
+
     private function sync(SubscriptionPlan $plan, array $items): void
     {
         foreach ($items as $item) {
@@ -147,7 +193,7 @@ class EntitlementController extends Controller
         }
     }
 
-    private function audit(Request $r,$subject,string $action,?array $before,array $after,string $reason): void
+    private function audit(Request $r, $subject, string $action, ?array $before, array $after, string $reason): void
     {
         AdminAuditLog::create(['admin_user_id' => $r->user()->id, 'action' => $action, 'subject_type' => $subject::class, 'subject_id' => $subject->id, 'before' => $before, 'after' => $after, 'reason' => $reason, 'ip_address' => $r->ip()]);
     }

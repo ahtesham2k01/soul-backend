@@ -4222,12 +4222,88 @@
         }
       }
     },
+    "/admin/entitlements/plans/{plan}": {
+      "put": {
+        "operationId": "api.v1.admin.entitlements.plans.update",
+        "summary": "Update plan status and full allocation",
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "plan",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
     "/admin/entitlements/products": {
       "post": {
         "operationId": "api.v1.admin.entitlements.products.store",
         "summary": "Map an Apple/Google product to a plan",
         "tags": [
           "Admin"
+        ],
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/admin/entitlements/products/{product}": {
+      "put": {
+        "operationId": "api.v1.admin.entitlements.products.update",
+        "summary": "Activate or deactivate a store mapping",
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "product",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "security": [
           {
@@ -4278,6 +4354,44 @@
         }
       }
     },
+    "/admin/entitlements/promotions/{promotion}": {
+      "put": {
+        "operationId": "api.v1.admin.entitlements.promotions.update",
+        "summary": "Change promotion lifecycle status",
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "promotion",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
     "/admin/users/{user}/entitlements": {
       "put": {
         "operationId": "api.v1.admin.entitlements.users.update",
@@ -4294,6 +4408,128 @@
               "type": "string"
             }
           }
+        ],
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/admin/catalogs": {
+      "get": {
+        "operationId": "api.v1.admin.catalogs.index",
+        "summary": "Localization and spoken-language workspace",
+        "tags": [
+          "Admin"
+        ],
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/admin/catalogs/translations": {
+      "put": {
+        "operationId": "api.v1.admin.catalogs.translations.update",
+        "summary": "Override a known translation key with audit evidence",
+        "tags": [
+          "Admin"
+        ],
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/admin/catalogs/spoken-languages/{language}": {
+      "put": {
+        "operationId": "api.v1.admin.catalogs.spoken-languages.update",
+        "summary": "Rename, order or deactivate a spoken language",
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "language",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/admin/operations": {
+      "get": {
+        "operationId": "api.v1.admin.operations.index",
+        "summary": "Privacy, social-login, export and deletion summaries",
+        "tags": [
+          "Admin"
         ],
         "security": [
           {
