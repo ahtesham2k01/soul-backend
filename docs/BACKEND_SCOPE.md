@@ -19,7 +19,7 @@ Laravel owns every protected decision. Flutter owns presentation, platform permi
 | Area | Implemented now | Remaining V1 scope |
 |---|---|---|
 | Bootstrap/localization | Locale negotiation, version/hash, direction, 320-key V1 catalog, complete English/Roman Urdu copy and React admin language switching | Human-reviewed copy for remaining configured languages as translation work becomes available |
-| Authentication | Email registration/login OTP, Apple, Google, linked social identities, tokens, current user, logout/all | Active-device session listing/remote logout parity and duplicate merge hardening where needed |
+| Authentication | Email registration/login OTP, Apple, Google, linked social identities, current user, active-device sessions, targeted remote logout and logout-all | Duplicate-account merge hardening remains a post-audit completion phase |
 | Profile onboarding | Draft save/resume, all required V1 answers, optional details, interests/traits, Skip versus Prefer-not-to-say state, religion selection, readiness/lifecycle | Public full-profile presentation continues with discovery/privacy phases |
 | Religion | Future-ready hierarchy, translations, complete-path country validation, saved leaf/root selection, persistent My Religion/All Religions discovery and admin taxonomy | Full-profile detailed-field presentation remains coupled to public-profile/privacy work |
 | Photos | Three slots, authenticated secondary uploads, moderation, private access request/approval/revocation, protected no-store delivery, screenshot controls/signals | Provider staging verification and mobile-native protected-view implementation |
@@ -81,3 +81,11 @@ Moderator scope: report/verification review and allowed safety actions. Super-ad
 ## Definition of complete
 
 A phase is checked only when its migrations/models/services, authorized APIs, React administration where applicable, Flutter contract, automated tests, documentation and CI are complete. A local implementation without provider/staging verification is reported separately rather than called production-ready.
+
+## Post-audit completion roadmap
+
+- [x] Phase 28 — Active device sessions and targeted remote logout
+- [ ] Phase 29 — Store receipt verification and subscription lifecycle webhooks
+- [ ] Phase 30 — APNs/FCM delivery workers and notification operations monitoring
+- [ ] Phase 31 — Admin-managed interests/traits plus member help/support
+- [ ] Phase 32 — Duplicate identity merge hardening and final staging automation

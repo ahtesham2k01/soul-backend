@@ -396,6 +396,53 @@
             },
             "description": "api.v1.auth.logout-all: Revoke all tokens"
           }
+        },
+        {
+          "name": "List active login sessions and identify the current device",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/devices",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "devices"
+              ]
+            },
+            "description": "api.v1.auth.devices.index: List active login sessions and identify the current device"
+          }
+        },
+        {
+          "name": "Remotely sign out one owned device session",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/devices/{session}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "devices",
+                "{session}"
+              ]
+            },
+            "description": "api.v1.auth.devices.destroy: Remotely sign out one owned device session"
+          }
         }
       ]
     },

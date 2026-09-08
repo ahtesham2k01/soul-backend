@@ -88,6 +88,18 @@ The original 16 phases established the backend and admin foundation. A fresh req
 
 Gap closure: **16/16 phases complete (100%)**.
 
+## Fresh-audit completion roadmap
+
+A stricter production-flow audit found provider and operational gaps beyond the original gap-closure checklist. These phases now prevent “release candidate” from being confused with fully integrated production behavior.
+
+- [x] Phase 28 — Active device sessions and targeted remote logout
+- [ ] Phase 29 — Store receipt verification and subscription lifecycle webhooks
+- [ ] Phase 30 — APNs/FCM delivery workers and notification operations monitoring
+- [ ] Phase 31 — Admin-managed interests/traits plus member help/support
+- [ ] Phase 32 — Duplicate identity merge hardening and final staging automation
+
+Fresh-audit completion: **1/5 phases complete (20%)**.
+
 ## Architecture and developer handoff documentation
 
 - [x] Confirmed V1 product requirements versioned inside the repository

@@ -43,6 +43,8 @@ Client behavior by status: 401 clears the invalid session, 403 shows account acc
 | GET | `/auth/me` | `api.v1.auth.me` | Resume current account |
 | POST | `/auth/logout` | `api.v1.auth.logout` | Revoke current token |
 | POST | `/auth/logout-all` | `api.v1.auth.logout-all` | Revoke all tokens |
+| GET | `/auth/devices` | `api.v1.auth.devices.index` | List active login sessions and identify the current device |
+| DELETE | `/auth/devices/{session}` | `api.v1.auth.devices.destroy` | Remotely sign out one owned device session |
 | POST | `/location/resolve` | `api.v1.location.resolve` | Resolve coordinates without inventing a fallback city |
 
 ## Onboarding and media endpoints

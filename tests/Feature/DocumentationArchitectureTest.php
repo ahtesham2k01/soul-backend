@@ -26,6 +26,7 @@ class DocumentationArchitectureTest extends TestCase
             'docs/DOCUMENTATION_INDEX.md' => ['FLUTTER_API_HANDOFF.md', 'openapi-v1.json', 'SOUL_V1_BACKEND_PROGRESS.md'],
             'docs/PRD_TRACEABILITY_MATRIX.md' => ['1. Product scope', '22. Explicitly deferred decisions', '23. Implementation principles'],
             'docs/RELEASE_CLOSURE.md' => ['## Completed release-candidate evidence', '## Staging gates before approval', '## Authenticated staging journeys'],
+            'docs/DEVICE_SESSION_CONTRACT.md' => ['## Flutter flow', '## Logout choices'],
         ];
 
         foreach ($documents as $path => $requiredSections) {

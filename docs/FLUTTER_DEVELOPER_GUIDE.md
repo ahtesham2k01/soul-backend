@@ -85,6 +85,7 @@ Keep one small translation helper around this lookup. Widgets should request a k
 - Google/Apple identity tokens go directly to Laravel; never trust provider profile data as an authenticated local session.
 - Use `GET /auth/me` after token issue and on resume.
 - Logout revokes the current token; logout-all revokes every mobile session.
+- Settings → Security lists `/auth/devices`; use the public session ID for remote logout. If the deleted session is current, clear the local token immediately. See `DEVICE_SESSION_CONTRACT.md`.
 - Device/push registration happens only after notification permission is answered. Permission denial must not block onboarding.
 - Use `NOTIFICATION_CONTRACT.md` for separate push/email settings. Safety channels are locked on, marketing starts off, and enabling marketing records explicit consent.
 

@@ -2,13 +2,14 @@
 
 namespace App\Providers;
 
+use App\Contracts\Auth\AppleTokenVerifier;
 use App\Contracts\Auth\GoogleTokenVerifier;
 use App\Contracts\Location\GeolocationProvider;
+use App\Infrastructure\Auth\AppleIdentityTokenVerifier;
 use App\Infrastructure\Auth\GoogleAuthTokenVerifier;
 use App\Infrastructure\Location\CloudflareGeolocationProvider;
 use App\Infrastructure\Location\NullGeolocationProvider;
-use App\Contracts\Auth\AppleTokenVerifier;
-use App\Infrastructure\Auth\AppleIdentityTokenVerifier;
+use App\Models\PersonalAccessToken;
 use App\Services\Auth\EmailOtpService;
 use App\Support\ApiResponse;
 use Google\Auth\AccessToken;
@@ -18,6 +19,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use InvalidArgumentException;
+use Laravel\Sanctum\Sanctum;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -49,9 +51,8 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->singleton(
             GoogleTokenVerifier::class,
-            static fn(): GoogleTokenVerifier =>
-            new GoogleAuthTokenVerifier(
-                new AccessToken(),
+            static fn (): GoogleTokenVerifier => new GoogleAuthTokenVerifier(
+                new AccessToken,
             ),
         );
 
@@ -63,6 +64,7 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
         $this->configureLocationRateLimiter();
         $this->configureEmailOtpRateLimiter();
         $this->configureEmailOtpVerificationRateLimiter();
@@ -78,10 +80,10 @@ class AppServiceProvider extends ServiceProvider
 
                 return [
                     Limit::perMinute(10)
-                        ->by('location-minute:' . $ipAddress),
+                        ->by('location-minute:'.$ipAddress),
 
                     Limit::perDay(100)
-                        ->by('location-day:' . $ipAddress),
+                        ->by('location-day:'.$ipAddress),
                 ];
             },
         );
@@ -126,19 +128,19 @@ class AppServiceProvider extends ServiceProvider
 
                 return [
                     Limit::perMinute(1)
-                        ->by('otp-email-minute:' . $emailHash)
+                        ->by('otp-email-minute:'.$emailHash)
                         ->response($rateLimitResponse),
 
                     Limit::perHour(5)
-                        ->by('otp-email-hour:' . $emailHash)
+                        ->by('otp-email-hour:'.$emailHash)
                         ->response($rateLimitResponse),
 
                     Limit::perMinute(10)
-                        ->by('otp-ip-minute:' . $ipAddress)
+                        ->by('otp-ip-minute:'.$ipAddress)
                         ->response($rateLimitResponse),
 
                     Limit::perDay(50)
-                        ->by('otp-ip-day:' . $ipAddress)
+                        ->by('otp-ip-day:'.$ipAddress)
                         ->response($rateLimitResponse),
                 ];
             },
@@ -177,21 +179,21 @@ class AppServiceProvider extends ServiceProvider
                     Limit::perMinute(10)
                         ->by(
                             'otp-verification-id:'
-                                . $verificationId,
+                                .$verificationId,
                         )
                         ->response($rateLimitResponse),
 
                     Limit::perMinute(30)
                         ->by(
                             'otp-verification-ip-minute:'
-                                . $ipAddress,
+                                .$ipAddress,
                         )
                         ->response($rateLimitResponse),
 
                     Limit::perDay(200)
                         ->by(
                             'otp-verification-ip-day:'
-                                . $ipAddress,
+                                .$ipAddress,
                         )
                         ->response($rateLimitResponse),
                 ];
@@ -226,14 +228,14 @@ class AppServiceProvider extends ServiceProvider
                     Limit::perMinute(10)
                         ->by(
                             'social-sign-in-minute:'
-                                . $ipAddress,
+                                .$ipAddress,
                         )
                         ->response($rateLimitResponse),
 
                     Limit::perDay(100)
                         ->by(
                             'social-sign-in-day:'
-                                . $ipAddress,
+                                .$ipAddress,
                         )
                         ->response($rateLimitResponse),
                 ];

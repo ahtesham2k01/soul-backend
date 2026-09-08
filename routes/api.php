@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\V1\Admin\ReligionTaxonomyController;
 use App\Http\Controllers\Api\V1\AppBootstrapController;
 use App\Http\Controllers\Api\V1\Auth\AppleSignInController;
 use App\Http\Controllers\Api\V1\Auth\CurrentUserController;
+use App\Http\Controllers\Api\V1\Auth\DeviceSessionController;
 use App\Http\Controllers\Api\V1\Auth\GoogleSignInController;
 use App\Http\Controllers\Api\V1\Auth\LoginRequestOtpController;
 use App\Http\Controllers\Api\V1\Auth\LoginVerifyOtpController;
@@ -283,6 +284,14 @@ Route::prefix('v1')->group(function (): void {
                 '/logout-all',
                 LogoutAllDevicesController::class,
             )->name('api.v1.auth.logout-all');
+
+            Route::get('/devices', [DeviceSessionController::class, 'index'])
+                ->middleware('throttle:60,1')
+                ->name('api.v1.auth.devices.index');
+
+            Route::delete('/devices/{session}', [DeviceSessionController::class, 'destroy'])
+                ->middleware('throttle:20,1')
+                ->name('api.v1.auth.devices.destroy');
         });
 
     Route::post(
