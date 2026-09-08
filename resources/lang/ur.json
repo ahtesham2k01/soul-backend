@@ -388,5 +388,16 @@
   "admin.value.contact_hiding_members": "Contact hiding",
   "admin.value.processing": "Processing",
   "admin.value.scheduled": "Scheduled",
-  "admin.value.cancelled": "Cancelled"
+  "admin.value.cancelled": "Cancelled",
+  "admin.support": "Member support",
+  "admin.support_reply": "Member ko jawab dein",
+  "admin.reply": "Jawab dein",
+  "admin.profile_catalogs": "Profile catalogs",
+  "admin.create_catalog_item": "Profile option banayein",
+  "admin.roman_urdu_label": "Roman Urdu label",
+  "admin.duplicate_accounts": "Duplicate accounts",
+  "admin.safe_to_merge": "Merge karna safe hai",
+  "admin.merge": "Merge karein",
+  "admin.not_duplicate": "Duplicate nahi",
+  "admin.merge_warning": "Duplicate login permanently band ho jayega. Jari rakhein?"
 }

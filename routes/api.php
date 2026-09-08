@@ -5,12 +5,15 @@ use App\Http\Controllers\Api\V1\Admin\AdminAccountController;
 use App\Http\Controllers\Api\V1\Admin\AdminAuditLogController;
 use App\Http\Controllers\Api\V1\Admin\AdminUserController;
 use App\Http\Controllers\Api\V1\Admin\CatalogController as AdminCatalogController;
+use App\Http\Controllers\Api\V1\Admin\DuplicateAccountController as AdminDuplicateAccountController;
 use App\Http\Controllers\Api\V1\Admin\EntitlementController as AdminEntitlementController;
 use App\Http\Controllers\Api\V1\Admin\EventController as AdminEventController;
 use App\Http\Controllers\Api\V1\Admin\ModerationController;
 use App\Http\Controllers\Api\V1\Admin\NotificationBroadcastController;
 use App\Http\Controllers\Api\V1\Admin\OperationsController as AdminOperationsController;
+use App\Http\Controllers\Api\V1\Admin\ProfileCatalogController as AdminProfileCatalogController;
 use App\Http\Controllers\Api\V1\Admin\ReligionTaxonomyController;
+use App\Http\Controllers\Api\V1\Admin\SupportTicketController as AdminSupportTicketController;
 use App\Http\Controllers\Api\V1\AppBootstrapController;
 use App\Http\Controllers\Api\V1\Auth\AppleSignInController;
 use App\Http\Controllers\Api\V1\Auth\CurrentUserController;
@@ -37,6 +40,7 @@ use App\Http\Controllers\Api\V1\Matching\StoreProfileDecisionController;
 use App\Http\Controllers\Api\V1\Matching\UnmatchController;
 use App\Http\Controllers\Api\V1\Messaging\ChatPresenceController;
 use App\Http\Controllers\Api\V1\Messaging\MatchMessagesController;
+use App\Http\Controllers\Api\V1\Messaging\RealtimeSubscriptionController;
 use App\Http\Controllers\Api\V1\Notifications\DeviceController;
 use App\Http\Controllers\Api\V1\Notifications\NotificationFeedController;
 use App\Http\Controllers\Api\V1\Notifications\PreferenceController;
@@ -54,6 +58,7 @@ use App\Http\Controllers\Api\V1\Onboarding\StoreReligionProfileController;
 use App\Http\Controllers\Api\V1\Onboarding\SubmitProfileController;
 use App\Http\Controllers\Api\V1\Onboarding\UpdateProfileDraftController;
 use App\Http\Controllers\Api\V1\Privacy\PrivacyController;
+use App\Http\Controllers\Api\V1\ProfileCatalogController;
 use App\Http\Controllers\Api\V1\ReadinessController;
 use App\Http\Controllers\Api\V1\ResolveLocationController;
 use App\Http\Controllers\Api\V1\Safety\AccountAppealController;
@@ -63,6 +68,8 @@ use App\Http\Controllers\Api\V1\Safety\ReportUserController;
 use App\Http\Controllers\Api\V1\Safety\SubmitVerificationAppealController;
 use App\Http\Controllers\Api\V1\Subscriptions\EntitlementController;
 use App\Http\Controllers\Api\V1\Subscriptions\ProductController;
+use App\Http\Controllers\Api\V1\SupportAttachmentController;
+use App\Http\Controllers\Api\V1\SupportTicketController;
 use App\Http\Controllers\Api\V1\Webhooks\CloudinaryModerationController;
 use App\Support\ApiResponse;
 use Illuminate\Support\Facades\Route;
@@ -84,6 +91,9 @@ Route::prefix('v1')->group(function (): void {
         Route::put('/users/{user}/status', [AdminUserController::class, 'updateStatus'])
             ->middleware('admin:super_admin')->name('api.v1.admin.users.status.update');
         Route::get('/audit-logs', AdminAuditLogController::class)->name('api.v1.admin.audit-logs.index');
+        Route::get('/support-tickets', [AdminSupportTicketController::class, 'index'])->name('api.v1.admin.support-tickets.index');
+        Route::get('/support-tickets/{ticket}', [AdminSupportTicketController::class, 'show'])->name('api.v1.admin.support-tickets.show');
+        Route::put('/support-tickets/{ticket}', [AdminSupportTicketController::class, 'update'])->name('api.v1.admin.support-tickets.update');
         Route::middleware('admin:super_admin')->group(function (): void {
             Route::get('/admins', [AdminAccountController::class, 'index'])->name('api.v1.admin.admins.index');
             Route::post('/admins', [AdminAccountController::class, 'store'])->name('api.v1.admin.admins.store');
@@ -117,6 +127,14 @@ Route::prefix('v1')->group(function (): void {
             Route::put('/catalogs/translations', [AdminCatalogController::class, 'updateTranslation'])->name('api.v1.admin.catalogs.translations.update');
             Route::put('/catalogs/spoken-languages/{language}', [AdminCatalogController::class, 'updateLanguage'])->name('api.v1.admin.catalogs.spoken-languages.update');
             Route::get('/operations', AdminOperationsController::class)->name('api.v1.admin.operations.index');
+            Route::get('/duplicate-accounts', [AdminDuplicateAccountController::class, 'index'])->name('api.v1.admin.duplicate-accounts.index');
+            Route::post('/duplicate-accounts', [AdminDuplicateAccountController::class, 'store'])->name('api.v1.admin.duplicate-accounts.store');
+            Route::put('/duplicate-accounts/{case}', [AdminDuplicateAccountController::class, 'resolve'])->name('api.v1.admin.duplicate-accounts.resolve');
+            Route::get('/profile-catalogs', [AdminProfileCatalogController::class, 'index'])->name('api.v1.admin.profile-catalogs.index');
+            Route::post('/profile-catalogs/items', [AdminProfileCatalogController::class, 'storeProfileItem'])->name('api.v1.admin.profile-catalogs.items.store');
+            Route::put('/profile-catalogs/items/{item}', [AdminProfileCatalogController::class, 'updateProfileItem'])->name('api.v1.admin.profile-catalogs.items.update');
+            Route::post('/profile-catalogs/help-categories', [AdminProfileCatalogController::class, 'storeHelpCategory'])->name('api.v1.admin.profile-catalogs.help-categories.store');
+            Route::put('/profile-catalogs/help-categories/{category}', [AdminProfileCatalogController::class, 'updateHelpCategory'])->name('api.v1.admin.profile-catalogs.help-categories.update');
         });
     });
     Route::middleware(['auth:sanctum', 'active.account', 'record.activity'])->group(function (): void {
@@ -166,6 +184,8 @@ Route::prefix('v1')->group(function (): void {
             ->middleware('throttle:120,1')->name('api.v1.chat.presence.show');
         Route::put('/matches/{match}/typing', [ChatPresenceController::class, 'typing'])
             ->middleware('throttle:120,1')->name('api.v1.chat.typing.update');
+        Route::get('/matches/{match}/realtime', RealtimeSubscriptionController::class)
+            ->middleware('throttle:60,1')->name('api.v1.chat.realtime.show');
         Route::post('/profiles/{profile}/block', BlockUserController::class)
             ->middleware('throttle:20,1')->name('api.v1.safety.blocks.store');
         Route::post('/profiles/{profile}/report', ReportUserController::class)
@@ -200,6 +220,12 @@ Route::prefix('v1')->group(function (): void {
         Route::get('/privacy/exports', [PrivacyController::class, 'exports'])->name('api.v1.privacy.exports.index');
         Route::get('/privacy/exports/{export}/download', [PrivacyController::class, 'download'])->name('api.v1.privacy.exports.download');
         Route::post('/privacy/deletion', [PrivacyController::class, 'scheduleDeletion'])->middleware('throttle:3,60')->name('api.v1.privacy.deletion.store');
+        Route::get('/support/tickets', [SupportTicketController::class, 'index'])->name('api.v1.support.tickets.index');
+        Route::post('/support/tickets', [SupportTicketController::class, 'store'])->middleware('throttle:5,60')->name('api.v1.support.tickets.store');
+        Route::get('/support/tickets/{ticket}', [SupportTicketController::class, 'show'])->name('api.v1.support.tickets.show');
+        Route::post('/support/tickets/{ticket}/replies', [SupportTicketController::class, 'reply'])->middleware('throttle:20,60')->name('api.v1.support.tickets.replies.store');
+        Route::post('/support/tickets/{ticket}/attachments', [SupportAttachmentController::class, 'store'])->middleware('throttle:10,60')->name('api.v1.support.attachments.store');
+        Route::get('/support/attachments/{attachment}', [SupportAttachmentController::class, 'show'])->name('api.v1.support.attachments.show');
     });
     Route::middleware(['auth:sanctum'])->group(function (): void {
         Route::get('/privacy/deletion', [PrivacyController::class, 'deletionStatus'])->name('api.v1.privacy.deletion.show');
@@ -223,6 +249,9 @@ Route::prefix('v1')->group(function (): void {
         '/bootstrap',
         AppBootstrapController::class,
     )->name('api.v1.bootstrap');
+
+    Route::get('/catalogs/profile', ProfileCatalogController::class)
+        ->middleware('throttle:60,1')->name('api.v1.catalogs.profile');
 
     Route::post(
         '/auth/register/request-otp',

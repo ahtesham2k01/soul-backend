@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1\Messaging;
 
+use App\Events\ChatTypingChanged;
 use App\Http\Controllers\Controller;
 use App\Models\UserMatch;
 use App\Support\ApiResponse;
@@ -45,10 +46,13 @@ class ChatPresenceController extends Controller
         } else {
             Cache::forget($key);
         }
+        $expiresAt = $validated['is_typing'] ? now()->addSeconds(self::TYPING_TTL_SECONDS)->toIso8601String() : null;
+        ChatTypingChanged::dispatch($record, $request->user(), $validated['is_typing'], $expiresAt);
 
         return ApiResponse::success([
             'is_typing' => $validated['is_typing'],
             'typing_expires_in_seconds' => self::TYPING_TTL_SECONDS,
+            'expires_at' => $expiresAt,
         ]);
     }
 

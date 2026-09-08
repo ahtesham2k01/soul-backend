@@ -388,5 +388,16 @@
   "admin.value.contact_hiding_members": "Contact hiding",
   "admin.value.processing": "Processing",
   "admin.value.scheduled": "Scheduled",
-  "admin.value.cancelled": "Cancelled"
+  "admin.value.cancelled": "Cancelled",
+  "admin.support": "Member support",
+  "admin.support_reply": "Reply to the member",
+  "admin.reply": "Reply",
+  "admin.profile_catalogs": "Profile catalogs",
+  "admin.create_catalog_item": "Create profile option",
+  "admin.roman_urdu_label": "Roman Urdu label",
+  "admin.duplicate_accounts": "Duplicate accounts",
+  "admin.safe_to_merge": "Safe to merge",
+  "admin.merge": "Merge",
+  "admin.not_duplicate": "Not duplicate",
+  "admin.merge_warning": "This permanently retires the duplicate login. Continue?"
 }

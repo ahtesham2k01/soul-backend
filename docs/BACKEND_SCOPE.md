@@ -87,5 +87,7 @@ A phase is checked only when its migrations/models/services, authorized APIs, Re
 - [x] Phase 28 — Active device sessions and targeted remote logout
 - [ ] Phase 29 — Store receipt verification and subscription lifecycle webhooks
 - [ ] Phase 30 — APNs/FCM delivery workers and notification operations monitoring
-- [ ] Phase 31 — Admin-managed interests/traits plus member help/support
-- [ ] Phase 32 — Duplicate identity merge hardening and final staging automation
+- [x] Phase 31 — Admin-managed interests/traits plus private member help/support
+- [x] Phase 32 — Duplicate identity detection and conservative, audited account merge
+- [x] Phase 33 — Private real-time chat events and member-bound channel authorization
+- [ ] Phase 34 — Staging/provider verification (store receipts, APNs/FCM, email and broadcast transport)

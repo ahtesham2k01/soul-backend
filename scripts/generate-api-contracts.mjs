@@ -11,14 +11,15 @@ const endpoints = [...handoff.matchAll(endpointPattern)].map((match) => ({
     summary: match[4].trim(),
 }));
 
-if (endpoints.length !== 128) {
-    throw new Error(`Expected 128 documented endpoints, found ${endpoints.length}.`);
+if (endpoints.length !== 147) {
+    throw new Error(`Expected 147 documented endpoints, found ${endpoints.length}.`);
 }
 
 const publicOperations = new Set([
     'api.v1.health',
     'api.v1.health.ready',
     'api.v1.bootstrap',
+    'api.v1.catalogs.profile',
     'api.v1.auth.register.request-otp',
     'api.v1.auth.register.verify-otp',
     'api.v1.auth.login.request-otp',

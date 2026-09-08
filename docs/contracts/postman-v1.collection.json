@@ -112,6 +112,37 @@
       ]
     },
     {
+      "name": "Catalogs",
+      "item": [
+        {
+          "name": "Localized interests, traits and help categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/catalogs/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "catalogs",
+                "profile"
+              ]
+            },
+            "description": "api.v1.catalogs.profile: Localized interests, traits and help categories"
+          }
+        }
+      ]
+    },
+    {
       "name": "Auth",
       "item": [
         {
@@ -1434,6 +1465,30 @@
               ]
             },
             "description": "api.v1.chat.typing.update: Refresh or clear the short-lived typing signal"
+          }
+        },
+        {
+          "name": "Get the authorized private channel contract",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/matches/{match}/realtime",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "matches",
+                "{match}",
+                "realtime"
+              ]
+            },
+            "description": "api.v1.chat.realtime.show: Get the authorized private channel contract"
           }
         }
       ]
@@ -3645,6 +3700,450 @@
               ]
             },
             "description": "api.v1.admin.operations.index: Privacy, social-login, export and deletion summaries"
+          }
+        },
+        {
+          "name": "Browse the support queue",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/support-tickets",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "support-tickets"
+              ]
+            },
+            "description": "api.v1.admin.support-tickets.index: Browse the support queue"
+          }
+        },
+        {
+          "name": "Read member-visible and internal support messages",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/support-tickets/{ticket}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "support-tickets",
+                "{ticket}"
+              ]
+            },
+            "description": "api.v1.admin.support-tickets.show: Read member-visible and internal support messages"
+          }
+        },
+        {
+          "name": "Reply, add internal note, prioritize or close a ticket",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/support-tickets/{ticket}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "support-tickets",
+                "{ticket}"
+              ]
+            },
+            "description": "api.v1.admin.support-tickets.update: Reply, add internal note, prioritize or close a ticket"
+          }
+        },
+        {
+          "name": "Browse interests, traits and help categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/profile-catalogs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "profile-catalogs"
+              ]
+            },
+            "description": "api.v1.admin.profile-catalogs.index: Browse interests, traits and help categories"
+          }
+        },
+        {
+          "name": "Create a localized interest or trait",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/profile-catalogs/items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "profile-catalogs",
+                "items"
+              ]
+            },
+            "description": "api.v1.admin.profile-catalogs.items.store: Create a localized interest or trait"
+          }
+        },
+        {
+          "name": "Translate, order or activate a profile option",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/profile-catalogs/items/{item}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "profile-catalogs",
+                "items",
+                "{item}"
+              ]
+            },
+            "description": "api.v1.admin.profile-catalogs.items.update: Translate, order or activate a profile option"
+          }
+        },
+        {
+          "name": "Create a localized help category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/profile-catalogs/help-categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "profile-catalogs",
+                "help-categories"
+              ]
+            },
+            "description": "api.v1.admin.profile-catalogs.help-categories.store: Create a localized help category"
+          }
+        },
+        {
+          "name": "Translate, order or activate a help category",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/profile-catalogs/help-categories/{category}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "profile-catalogs",
+                "help-categories",
+                "{category}"
+              ]
+            },
+            "description": "api.v1.admin.profile-catalogs.help-categories.update: Translate, order or activate a help category"
+          }
+        },
+        {
+          "name": "Browse duplicate-account review cases",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/duplicate-accounts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "duplicate-accounts"
+              ]
+            },
+            "description": "api.v1.admin.duplicate-accounts.index: Browse duplicate-account review cases"
+          }
+        },
+        {
+          "name": "Open a duplicate-account case",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/duplicate-accounts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "duplicate-accounts"
+              ]
+            },
+            "description": "api.v1.admin.duplicate-accounts.store: Open a duplicate-account case"
+          }
+        },
+        {
+          "name": "Merge safely or mark accounts as different",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/duplicate-accounts/{case}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "duplicate-accounts",
+                "{case}"
+              ]
+            },
+            "description": "api.v1.admin.duplicate-accounts.resolve: Merge safely or mark accounts as different"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Support",
+      "item": [
+        {
+          "name": "List the signed-in member's private support tickets",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/support/tickets",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "support",
+                "tickets"
+              ]
+            },
+            "description": "api.v1.support.tickets.index: List the signed-in member's private support tickets"
+          }
+        },
+        {
+          "name": "Open a support ticket",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/support/tickets",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "support",
+                "tickets"
+              ]
+            },
+            "description": "api.v1.support.tickets.store: Open a support ticket"
+          }
+        },
+        {
+          "name": "Read an owned support thread",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/support/tickets/{ticket}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "support",
+                "tickets",
+                "{ticket}"
+              ]
+            },
+            "description": "api.v1.support.tickets.show: Read an owned support thread"
+          }
+        },
+        {
+          "name": "Add a member reply",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/support/tickets/{ticket}/replies",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "support",
+                "tickets",
+                "{ticket}",
+                "replies"
+              ]
+            },
+            "description": "api.v1.support.tickets.replies.store: Add a member reply"
+          }
+        },
+        {
+          "name": "Upload a private JPG, PNG or PDF attachment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/support/tickets/{ticket}/attachments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "support",
+                "tickets",
+                "{ticket}",
+                "attachments"
+              ]
+            },
+            "description": "api.v1.support.attachments.store: Upload a private JPG, PNG or PDF attachment"
+          }
+        },
+        {
+          "name": "Download an authorized private attachment",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/support/attachments/{attachment}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "support",
+                "attachments",
+                "{attachment}"
+              ]
+            },
+            "description": "api.v1.support.attachments.show: Download an authorized private attachment"
           }
         }
       ]

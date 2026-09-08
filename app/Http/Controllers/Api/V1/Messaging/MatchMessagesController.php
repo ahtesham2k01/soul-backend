@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\V1\Messaging;
 
+use App\Events\ChatMessageCreated;
+use App\Events\ChatMessagesRead;
 use App\Http\Controllers\Controller;
 use App\Models\Conversation;
 use App\Models\UserMatch;
@@ -58,6 +60,7 @@ class MatchMessagesController extends Controller
         $recipientId = $record->first_user_id === $request->user()->id
             ? $record->second_user_id : $record->first_user_id;
         $this->notifier->send($recipientId, 'new_message', ['match_id' => $record->public_id, 'message_id' => $message->public_id], 'new_messages', 'message:'.$message->public_id);
+        ChatMessageCreated::dispatch($record, $message, $request->user());
 
         return ApiResponse::success([
             'message' => ['id' => $message->public_id, 'body' => $message->body, 'is_mine' => true,
@@ -78,6 +81,9 @@ class MatchMessagesController extends Controller
         $readAt = now();
         $count = $conversation->messages()->where('sender_user_id', '!=', $request->user()->id)
             ->whereNull('read_at')->update(['read_at' => $readAt]);
+        if ($count > 0) {
+            ChatMessagesRead::dispatch($record, $request->user(), $count, $readAt->toIso8601String());
+        }
 
         return ApiResponse::success(['marked_read' => $count, 'read_at' => $readAt->toIso8601String()]);
     }

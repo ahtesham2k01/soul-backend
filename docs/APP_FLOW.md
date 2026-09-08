@@ -2,6 +2,8 @@
 
 This document is the screen and state-flow source for Flutter, backend and QA. Product behavior comes from `docs/Soul_V1_Product_Requirements.md`; API availability is tracked in `BACKEND_SCOPE.md`.
 
+Profile forms load localized, admin-managed interests and traits. Settings → Help opens private support tickets. Chat loads REST history first and then subscribes to its authorized private match channel; reconnect always refreshes REST history so no event is lost.
+
 ## Entry, locale and authentication
 
 ```mermaid

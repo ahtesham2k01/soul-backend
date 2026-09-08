@@ -6,6 +6,9 @@
 | `BACKEND_SCOPE.md` | Backend, product, admin | Implemented versus remaining backend scope |
 | `APP_FLOW.md` | Flutter, backend, design, QA | Screen/state sequence and product branches |
 | `FLUTTER_DEVELOPER_GUIDE.md` | Flutter engineers | Client architecture and implementation rules |
+| `PROFILE_CATALOG_SUPPORT_CONTRACT.md` | Flutter, support, admin | Localized profile options and private help flow |
+| `DUPLICATE_ACCOUNT_MERGE_CONTRACT.md` | Backend, super admins | Conservative duplicate review and merge rules |
+| `REALTIME_CHAT_CONTRACT.md` | Flutter, backend, operations | Private channel setup and event payloads |
 | `FLUTTER_API_HANDOFF.md` | Flutter/backend engineers | Endpoint, enum and transport contract |
 | `PROFILE_INFORMATION_CONTRACT.md` | Flutter, backend and QA | Profile fields, values, limits and answer states |
 | `RELIGION_DISCOVERY_CONTRACT.md` | Flutter, backend and QA | Religion modes, root matching and country rules |

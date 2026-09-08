@@ -259,6 +259,11 @@ return [
         'export_disk' => env('SOUL_PRIVATE_EXPORT_DISK', 'local'),
     ],
 
+    'support' => [
+        'attachment_disk' => env('SOUL_SUPPORT_ATTACHMENT_DISK', 'local'),
+        'max_attachment_kilobytes' => 5120,
+    ],
+
     'media' => [
         'cloudinary' => [
             'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),

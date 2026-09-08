@@ -34,6 +34,7 @@ Client behavior by status: 401 clears the invalid session, 403 shows account acc
 | GET | `/health` | `api.v1.health` | Liveness |
 | GET | `/health/ready` | `api.v1.health.ready` | Dependency readiness |
 | GET | `/bootstrap` | `api.v1.bootstrap` | Brand, locale, translations and approximate location |
+| GET | `/catalogs/profile` | `api.v1.catalogs.profile` | Localized interests, traits and help categories |
 | POST | `/auth/register/request-otp` | `api.v1.auth.register.request-otp` | Request registration OTP |
 | POST | `/auth/register/verify-otp` | `api.v1.auth.register.verify-otp` | Verify registration and issue token |
 | POST | `/auth/login/request-otp` | `api.v1.auth.login.request-otp` | Request login OTP |
@@ -190,6 +191,24 @@ The React admin uses same-origin secure session cookies, not mobile bearer token
 | PUT | `/admin/catalogs/translations` | `api.v1.admin.catalogs.translations.update` | Override a known translation key with audit evidence |
 | PUT | `/admin/catalogs/spoken-languages/{language}` | `api.v1.admin.catalogs.spoken-languages.update` | Rename, order or deactivate a spoken language |
 | GET | `/admin/operations` | `api.v1.admin.operations.index` | Privacy, social-login, export and deletion summaries |
+| GET | `/support/tickets` | `api.v1.support.tickets.index` | List the signed-in member's private support tickets |
+| POST | `/support/tickets` | `api.v1.support.tickets.store` | Open a support ticket |
+| GET | `/support/tickets/{ticket}` | `api.v1.support.tickets.show` | Read an owned support thread |
+| POST | `/support/tickets/{ticket}/replies` | `api.v1.support.tickets.replies.store` | Add a member reply |
+| POST | `/support/tickets/{ticket}/attachments` | `api.v1.support.attachments.store` | Upload a private JPG, PNG or PDF attachment |
+| GET | `/support/attachments/{attachment}` | `api.v1.support.attachments.show` | Download an authorized private attachment |
+| GET | `/matches/{match}/realtime` | `api.v1.chat.realtime.show` | Get the authorized private channel contract |
+| GET | `/admin/support-tickets` | `api.v1.admin.support-tickets.index` | Browse the support queue |
+| GET | `/admin/support-tickets/{ticket}` | `api.v1.admin.support-tickets.show` | Read member-visible and internal support messages |
+| PUT | `/admin/support-tickets/{ticket}` | `api.v1.admin.support-tickets.update` | Reply, add internal note, prioritize or close a ticket |
+| GET | `/admin/profile-catalogs` | `api.v1.admin.profile-catalogs.index` | Browse interests, traits and help categories |
+| POST | `/admin/profile-catalogs/items` | `api.v1.admin.profile-catalogs.items.store` | Create a localized interest or trait |
+| PUT | `/admin/profile-catalogs/items/{item}` | `api.v1.admin.profile-catalogs.items.update` | Translate, order or activate a profile option |
+| POST | `/admin/profile-catalogs/help-categories` | `api.v1.admin.profile-catalogs.help-categories.store` | Create a localized help category |
+| PUT | `/admin/profile-catalogs/help-categories/{category}` | `api.v1.admin.profile-catalogs.help-categories.update` | Translate, order or activate a help category |
+| GET | `/admin/duplicate-accounts` | `api.v1.admin.duplicate-accounts.index` | Browse duplicate-account review cases |
+| POST | `/admin/duplicate-accounts` | `api.v1.admin.duplicate-accounts.store` | Open a duplicate-account case |
+| PUT | `/admin/duplicate-accounts/{case}` | `api.v1.admin.duplicate-accounts.resolve` | Merge safely or mark accounts as different |
 
 ## Provider-only endpoint
 

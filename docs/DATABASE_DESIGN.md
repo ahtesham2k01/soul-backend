@@ -6,6 +6,14 @@ This document describes the current Laravel schema and the planned V1 domain ext
 
 - Foreign keys enforce ownership and cleanup; safety/audit history uses restrictive or nulling behavior where deletion must not erase accountability accidentally.
 - Public IDs prevent sequential-ID enumeration.
+
+## Catalogs, support, and account integrity
+
+- `profile_catalog_items` and translations hold stable interest/trait keys and localized labels.
+- `help_categories` and translations provide admin-managed support routing.
+- `support_tickets`, messages, and attachments hold private member/support threads. File paths and hashes never enter public JSON.
+- `duplicate_account_cases` records review evidence, status, resolver, and timestamps.
+- `users.merged_into_user_id` and `merged_at` preserve a retired duplicate's audit trail without allowing another login.
 - Provider secrets/tokens are encrypted or hidden; stable hashes support duplicate detection without returning raw values.
 - Exact coordinates and private provider asset IDs are never exposed to clients.
 - Catalog/taxonomy labels are normalized for multilingual administration.

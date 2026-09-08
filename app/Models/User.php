@@ -141,6 +141,11 @@ class User extends Authenticatable
         return $this->hasOne(AccountAppeal::class);
     }
 
+    public function supportTickets(): HasMany
+    {
+        return $this->hasMany(SupportTicket::class);
+    }
+
     /**
      * Use public ULIDs for route model binding.
      */
@@ -182,6 +187,7 @@ class User extends Authenticatable
             'phone_verified_at' => 'datetime',
             'last_login_at' => 'datetime',
             'onboarding_completed_at' => 'datetime',
+            'merged_at' => 'datetime',
             'password' => 'hashed',
         ];
     }

@@ -2,6 +2,8 @@
 
 This is the implementation guide for the Android/iOS client. Laravel is the authority for authentication, eligibility, visibility, moderation, entitlements and localized UI copy. Flutter should render server state and must not reproduce business rules locally.
 
+Use `PROFILE_CATALOG_SUPPORT_CONTRACT.md` for interests, traits, and help. Use `REALTIME_CHAT_CONTRACT.md` for live chat updates; REST remains the recovery/source-of-truth path after reconnect.
+
 ## Start here
 
 1. Read `APP_FLOW.md` for screen order, branches and lifecycle states.
