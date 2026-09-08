@@ -84,4 +84,30 @@ return [
         ),
     ],
 
+    'stores' => [
+        'apple' => [
+            'issuer_id' => env('APPLE_STORE_ISSUER_ID'),
+            'key_id' => env('APPLE_STORE_KEY_ID'),
+            'bundle_id' => env('APPLE_STORE_BUNDLE_ID'),
+            'private_key' => env('APPLE_STORE_PRIVATE_KEY'),
+        ],
+        'google' => [
+            'package_name' => env('GOOGLE_PLAY_PACKAGE_NAME'),
+            'service_account_json' => env('GOOGLE_PLAY_SERVICE_ACCOUNT_JSON'),
+        ],
+    ],
+
+    'push' => [
+        'fcm' => [
+            'project_id' => env('FCM_PROJECT_ID'),
+            'service_account_json' => env('FCM_SERVICE_ACCOUNT_JSON'),
+        ],
+        'apns' => [
+            'team_id' => env('APNS_TEAM_ID'),
+            'key_id' => env('APNS_KEY_ID'),
+            'bundle_id' => env('APNS_BUNDLE_ID'),
+            'private_key' => env('APNS_PRIVATE_KEY'),
+        ],
+    ],
+
 ];

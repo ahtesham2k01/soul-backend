@@ -254,6 +254,67 @@ class AuthSessionEndpointTest extends TestCase
         );
     }
 
+    public function test_user_can_list_active_device_sessions_with_current_device_marked(): void
+    {
+        $user = User::factory()->create(['status' => User::STATUS_ACTIVE]);
+        $current = $user->createToken('Current Android', ['mobile'], now()->addDays(90));
+        $other = $user->createToken('Other iPhone', ['mobile'], now()->addDays(30));
+        $expired = $user->createToken('Expired tablet', ['mobile'], now()->subMinute());
+
+        $response = $this->withToken($current->plainTextToken)
+            ->getJson('/api/v1/auth/devices')
+            ->assertOk()
+            ->assertJsonCount(2, 'data.sessions')
+            ->assertJsonMissing(['device_name' => 'Expired tablet']);
+
+        $sessions = collect($response->json('data.sessions'));
+        $this->assertTrue($sessions->firstWhere('device_name', 'Current Android')['is_current']);
+        $this->assertFalse($sessions->firstWhere('device_name', 'Other iPhone')['is_current']);
+        $this->assertSame($other->accessToken->public_id, $sessions->firstWhere('device_name', 'Other iPhone')['id']);
+        $this->assertNotNull($expired->accessToken->public_id);
+        $response->assertJsonMissingPath('data.sessions.0.token');
+    }
+
+    public function test_user_can_remotely_sign_out_one_owned_device_only(): void
+    {
+        $user = User::factory()->create(['status' => User::STATUS_ACTIVE]);
+        $otherUser = User::factory()->create(['status' => User::STATUS_ACTIVE]);
+        $current = $user->createToken('Current Android', ['mobile'], now()->addDays(90));
+        $remote = $user->createToken('Remote iPhone', ['mobile'], now()->addDays(90));
+        $foreign = $otherUser->createToken('Foreign device', ['mobile'], now()->addDays(90));
+
+        $this->withToken($current->plainTextToken)
+            ->deleteJson('/api/v1/auth/devices/'.$foreign->accessToken->public_id)
+            ->assertNotFound()
+            ->assertJsonPath('error.code', 'DEVICE_SESSION_NOT_FOUND');
+
+        $this->withToken($current->plainTextToken)
+            ->deleteJson('/api/v1/auth/devices/'.$remote->accessToken->public_id)
+            ->assertOk()
+            ->assertJsonPath('data.revoked', true)
+            ->assertJsonPath('data.was_current', false);
+
+        $this->assertDatabaseMissing('personal_access_tokens', ['id' => $remote->accessToken->id]);
+        $this->assertDatabaseHas('personal_access_tokens', ['id' => $current->accessToken->id]);
+        $this->assertDatabaseHas('personal_access_tokens', ['id' => $foreign->accessToken->id]);
+    }
+
+    public function test_deleting_current_device_session_immediately_invalidates_its_token(): void
+    {
+        $user = User::factory()->create(['status' => User::STATUS_ACTIVE]);
+        $current = $user->createToken('Current Android', ['mobile'], now()->addDays(90));
+
+        $this->withToken($current->plainTextToken)
+            ->deleteJson('/api/v1/auth/devices/'.$current->accessToken->public_id)
+            ->assertOk()
+            ->assertJsonPath('data.was_current', true);
+
+        $this->app['auth']->forgetGuards();
+        $this->withToken($current->plainTextToken)
+            ->getJson('/api/v1/auth/me')
+            ->assertUnauthorized();
+    }
+
     public function test_suspended_user_is_denied_with_valid_token(): void
     {
         $user = User::factory()->create([

@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api\V1;
 use App\Contracts\Location\GeolocationProvider;
 use App\Http\Controllers\Controller;
 use App\Support\ApiResponse;
+use App\Support\Entitlements\EntitlementResolver;
+use App\Support\Legal\LegalConsent;
 use App\Support\Localization\LocaleResolver;
 use App\Support\Localization\TranslationCatalog;
 use Illuminate\Http\JsonResponse;
@@ -18,6 +20,8 @@ class AppBootstrapController extends Controller
         LocaleResolver $localeResolver,
         TranslationCatalog $translationCatalog,
         GeolocationProvider $geolocationProvider,
+        EntitlementResolver $entitlementResolver,
+        LegalConsent $legalConsent,
     ): JsonResponse {
         $queryLocale = $request->query('locale');
 
@@ -69,14 +73,24 @@ class AppBootstrapController extends Controller
                     'values' => $catalog['values'],
                 ],
 
-                'supported_languages' =>
-                    $this->availableLanguages(),
+                'supported_languages' => $this->availableLanguages(),
 
                 'location' => $location?->toArray(),
 
                 'location_status' => $location === null
                     ? 'unavailable'
                     : 'resolved',
+
+                'capabilities' => ($user = $request->user('sanctum'))
+                    ? $entitlementResolver->for($user, $request->query('platform'))
+                    : null,
+
+                'legal' => $user
+                    ? $legalConsent->status($user)
+                    : [
+                        'versions' => $legalConsent->versions(),
+                        'commitment_keys' => LegalConsent::COMMITMENT_KEYS,
+                    ],
             ],
             message: 'App bootstrap loaded successfully.',
         );
@@ -90,6 +104,14 @@ class AppBootstrapController extends Controller
         );
 
         $languages = [];
+        $targetLocales = config(
+            'soul.translations.target_locales',
+            [],
+        );
+        $launchReadyLocales = config(
+            'soul.translations.launch_ready_locales',
+            [],
+        );
 
         foreach ($configuredLocales as $code => $details) {
             if (! File::exists(lang_path($code.'.json'))) {
@@ -101,6 +123,16 @@ class AppBootstrapController extends Controller
                 'name' => $details['name'],
                 'native_name' => $details['native_name'],
                 'direction' => $details['direction'],
+                'is_launch_target' => in_array(
+                    $code,
+                    $targetLocales,
+                    true,
+                ),
+                'is_launch_ready' => in_array(
+                    $code,
+                    $launchReadyLocales,
+                    true,
+                ),
             ];
         }
 

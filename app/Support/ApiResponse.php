@@ -39,15 +39,15 @@ final class ApiResponse
     }
 
     /**
-     * @param array<string, array<int, string>> $errors
+     * @param  array<string, array<int, string>>  $errors
      */
     public static function validation(
         array $errors,
-        string $message = 'The submitted data is invalid.',
+        ?string $message = null,
     ): JsonResponse {
         return self::error(
             code: 'VALIDATION_ERROR',
-            message: $message,
+            message: $message ?? __('validation.summary'),
             status: 422,
             details: [
                 'fields' => $errors,

@@ -1,0 +1,134 @@
+# SOUL V1 database design
+
+This document describes the current Laravel schema and the planned V1 domain extensions. Migrations remain the executable source of truth. Numeric keys are internal; public API resources use ULIDs.
+
+## Design rules
+
+- Foreign keys enforce ownership and cleanup; safety/audit history uses restrictive or nulling behavior where deletion must not erase accountability accidentally.
+- Public IDs prevent sequential-ID enumeration.
+
+## Catalogs, support, and account integrity
+
+- `profile_catalog_items` and translations hold stable interest/trait keys and localized labels.
+- `help_categories` and translations provide admin-managed support routing.
+- `support_tickets`, messages, and attachments hold private member/support threads. File paths and hashes never enter public JSON.
+- `duplicate_account_cases` records review evidence, status, resolver, and timestamps.
+- `users.merged_into_user_id` and `merged_at` preserve a retired duplicate's audit trail without allowing another login.
+- Provider secrets/tokens are encrypted or hidden; stable hashes support duplicate detection without returning raw values.
+- Exact coordinates and private provider asset IDs are never exposed to clients.
+- Catalog/taxonomy labels are normalized for multilingual administration.
+- High-volume feeds use cursor pagination and composite indexes matching access patterns.
+- Destructive migrations and production data rewrites require a separate reviewed rollout plan.
+
+## Current domain map
+
+```mermaid
+erDiagram
+    USERS ||--o| USER_PROFILES : owns
+    USERS ||--o{ SOCIAL_ACCOUNTS : links
+    USERS ||--o{ PERSONAL_ACCESS_TOKENS : authenticates
+    USER_PROFILES ||--o{ PROFILE_PHOTOS : contains
+    USER_PROFILES ||--o{ USER_PROFILE_INTENTIONS : selects
+    USER_PROFILES }o--o{ SPOKEN_LANGUAGES : speaks
+    USER_PROFILES ||--o{ USER_PROFILE_INTERESTS : lists
+    USER_PROFILES ||--o{ USER_PROFILE_TRAITS : describes
+    USER_PROFILES ||--o{ USER_PROFILE_WITHHELD_FIELDS : withholds
+    USERS ||--o| USER_RELIGION_PROFILES : selects
+    RELIGION_TAXONOMY_NODES ||--o{ RELIGION_TAXONOMY_NODES : parent
+    RELIGION_TAXONOMY_NODES ||--o{ RELIGION_TAXONOMY_TRANSLATIONS : labels
+    RELIGION_TAXONOMY_NODES ||--o{ RELIGION_TAXONOMY_COUNTRIES : available_in
+```
+
+```mermaid
+erDiagram
+    USERS ||--o| DISCOVERY_PREFERENCES : configures
+    USERS ||--o{ PROFILE_DECISIONS : acts
+    USERS ||--o{ USER_MATCHES : participates
+    USER_MATCHES ||--o| CONVERSATIONS : opens
+    USER_MATCHES ||--o{ PRIVATE_PHOTO_ACCESS_REQUESTS : authorizes
+    PRIVATE_PHOTO_ACCESS_REQUESTS ||--o{ PRIVATE_PHOTO_CAPTURE_EVENTS : records
+    CONVERSATIONS ||--o{ MESSAGES : contains
+    USERS ||--o{ USER_BLOCKS : blocks
+    USERS ||--o{ USER_REPORTS : reports
+    USERS ||--o{ SAFETY_CASES : reviewed_for
+    USERS ||--o| ACCOUNT_APPEALS : may_submit
+    USERS ||--o{ PROFILE_VERIFICATION_CASES : submits
+    PROFILE_VERIFICATION_CASES ||--o| VERIFICATION_APPEALS : may_have
+```
+
+```mermaid
+erDiagram
+    USERS ||--o{ USER_DEVICES : registers
+    USERS ||--o| NOTIFICATION_PREFERENCES : chooses
+    USERS ||--o{ USER_NOTIFICATIONS : receives
+    NOTIFICATION_BROADCASTS ||--o{ USER_NOTIFICATIONS : delivers
+    EVENTS ||--o{ EVENT_TRANSLATIONS : localizes
+    EVENTS ||--o{ EVENT_REGISTRATIONS : receives
+    EVENTS ||--o{ EVENT_REPORTS : reviewed_for
+    USERS ||--o| ACCOUNT_PRIVACY_SETTINGS : configures
+    USERS ||--o{ DATA_EXPORT_REQUESTS : requests
+    USERS ||--o{ ACCOUNT_DELETION_REQUESTS : schedules
+    USERS ||--o{ LEGAL_ACCEPTANCES : accepts
+    USERS ||--o{ ADMIN_AUDIT_LOGS : performs
+```
+
+## Current tables by ownership
+
+| Domain | Tables | Ownership/constraints |
+|---|---|---|
+| Identity | `users`, `social_accounts`, `email_verification_codes`, `personal_access_tokens` | Unique email/public ID/provider identity; account cascades identities and tokens |
+| Profile | `user_profiles`, `user_profile_intentions`, `spoken_languages`, `spoken_language_user_profile`, `user_profile_interests`, `user_profile_traits`, `user_profile_withheld_fields` | One profile per user; normalized multi-select intentions/languages; bounded interests/traits; explicit optional answer state |
+| Religion | `religion_taxonomy_nodes`, `religion_taxonomy_translations`, `religion_taxonomy_countries`, `user_religion_profiles` | Hierarchical path, localized labels, country availability, selected leaf plus denormalized V1 root per user |
+| Photos | `profile_photos`, `profile_photo_uploads`, `private_photo_access_requests`, `private_photo_capture_events` | Slots 1–3 unique; authenticated secondary delivery; one access lifecycle per match/direction; idempotent capture signals |
+| Lifecycle/legal | `profile_status_transitions`, `legal_acceptances` | Append-style state history and versioned consent |
+| Discovery | `discovery_preferences`, `discovery_preference_locations`, `discovery_preference_intentions`, `profile_decisions`, `user_matches` | One preference row; normalized multi-location/intention filters; one current decision per actor/target; normalized match pair |
+| Chat/safety | `conversations`, `messages`, `user_blocks`, `user_reports`, `safety_cases`, `account_appeals` | One conversation per match; directional blocks; durable risk queue; one account appeal per user |
+| Verification | `profile_verification_cases`, `verification_appeals` | Multiple typed cases per user; optional/risk-required semantics; explicit verified timestamp; at most one appeal per case |
+| Notifications | `user_devices`, `notification_preferences`, `user_notifications`, `notification_broadcasts` | Encrypted token plus unique hash; separate push/email settings; consent timestamp; mandatory safety channels; globally unique event deduplication key; idempotent broadcast recipient |
+| Events | `events`, `event_translations`, `event_registrations`, `event_reports` | Admin ownership; localized copy; unique member registration; locked capacity counter; private report queue |
+| Privacy | `account_privacy_settings`, `hidden_contact_hashes`, `data_export_requests`, `account_deletion_requests` | One settings row; keyed non-reversible contact hashes; export/deletion lifecycle rows |
+| Admin/operations | `admin_audit_logs`, user `admin_role` | Restricted admin actor deletion and immutable operation evidence |
+| Infrastructure | `cache`, `cache_locks`, `jobs`, `job_batches`, `failed_jobs` | Laravel cache, locks and asynchronous work |
+
+## Critical indexes and invariants
+
+- Candidate discovery indexes lifecycle, gender, country, birth date and activity-oriented filters.
+- `profile_decisions_visibility_expiry_index` supports permanent like exclusion and 30-day pass expiry.
+- Incoming Likes reuse the directional `profile_decisions` pair: no reverse decision means pending, reverse `like` means accepted/matched, and reverse `pass` means declined. This keeps pending requests non-expiring without a duplicate request table.
+- Typing state is deliberately short-lived cache data rather than a database row. Match activity, messages and read timestamps remain durable.
+- Marital status remains a required `user_profiles` attribute rather than a separate preference/filter table. It is not allowed in `user_profile_withheld_fields`, so public visibility cannot be disabled accidentally.
+- `user_religion_root_user_index` supports V1 My Religion filtering without deep-tree joins.
+- Profile activity and coordinate indexes support inactivity ordering and radius bounding-box scans.
+- Match member IDs are stored in normalized order with a unique pair.
+- Private-photo request inbox/outbox indexes support both users; capture event ULIDs are unique per viewer.
+- Messages use `(conversation_id, id)` for cursor reads.
+- Notifications use `(user_id, read_at, id)` for unread feeds. A unique hashed `deduplication_key` makes repeated domain-event delivery safe, while `delivery_channels` records the channel decision made at creation time.
+- Reports and verification cases index status/time for moderator queues.
+- Safety cases separate risk decisions from raw reports and retain the previous profile state for safe restoration. Account appeals enforce one lifetime appeal row per blocked member and store audited resolution metadata. Open safety or required-verification cases always prevent automatic profile restoration.
+- Subscription configuration uses `features`, `subscription_plans`, `plan_entitlements`, `store_products`, `subscription_promotions`, country/platform/user overrides, active user subscriptions and daily usage counters. Exact prices are owned by Apple/Google products and are not stored as trusted client values.
+- `legal_acceptances` keeps immutable per-user evidence for each policy/commitment version, including acceptance route, locale, timestamp, IP and a one-way device-context hash. Raw device identifiers are not stored.
+- `translation_overrides` stores audited runtime changes only for known source-catalog keys. Base JSON remains the fallback and source-code review boundary.
+- Verification cases also index user/type/status so each badge request is idempotent without coupling unrelated checks.
+- Deletion requests index status/scheduled time for cleanup jobs.
+- Audit events index subject and actor/time; audit public IDs are unique.
+
+Application/database checks jointly enforce photo slot range, profile enum values, age eligibility at submission, active-account access, country-aware taxonomy paths and non-enumerating interaction visibility.
+
+## Planned V1 schema extensions
+
+These are required by the confirmed PRD but are not represented by complete current migrations yet:
+
+| Phase | Planned storage |
+|---|---|
+| Chat presence | Presence/last-seen and ephemeral typing state (cache preferred for typing) |
+
+Each extension must include reversible migrations, foreign keys, production-safe indexes, factories and model/API tests. Pricing and exact plan allocation remain configuration data, not schema constants.
+
+## Data retention and security
+
+- Deletion remains recoverable for 30 days, then a queued job permanently removes eligible account data.
+- Data exports are private, expiring artifacts on a configurable non-public disk.
+- Admin audit evidence must not contain secrets, OTPs, provider tokens, message bodies or raw identity documents.
+- Contact discovery should store normalized keyed hashes, not a reusable address book.
+- Exact location requires restricted storage, retention and access logging before its discovery phase ships.
+- Backup/restore, retention and regional compliance are deployment gates, not assumptions encoded in Flutter.

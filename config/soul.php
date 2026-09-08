@@ -2,6 +2,13 @@
 
 return [
 
+    'legal' => [
+        'terms_version' => env('SOUL_TERMS_VERSION', '1.0'),
+        'privacy_version' => env('SOUL_PRIVACY_VERSION', '1.0'),
+        'community_guidelines_version' => env('SOUL_COMMUNITY_GUIDELINES_VERSION', '1.0'),
+        'commitment_version' => env('SOUL_COMMITMENT_VERSION', '1.0'),
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Translation catalog
@@ -14,7 +21,24 @@ return [
 
     'translations' => [
         'fallback_locale' => 'en',
-        'catalog_version' => '5',
+        'catalog_version' => '16',
+
+        /*
+         * Product-approved launch target. These are the locales currently
+         * offered by Muzz, with SOUL intentionally serving Roman Urdu in
+         * Latin script instead of Urdu script.
+         */
+        'target_locales' => [
+            'en', 'en-GB', 'es', 'fr', 'de', 'it', 'ru', 'nl',
+            'id', 'ms', 'tr', 'ar', 'bn', 'hi', 'fa', 'ur',
+        ],
+
+        /*
+         * A catalog is launch-ready only after product/native-language
+         * review. Draft catalogs remain addressable for QA but clients must
+         * not present them as finished translations.
+         */
+        'launch_ready_locales' => ['en', 'en-GB', 'ur'],
 
         'locales' => [
             'en' => [
@@ -246,6 +270,35 @@ return [
             ),
             FILTER_VALIDATE_BOOL,
         ),
+    ],
+
+    'privacy' => [
+        'export_disk' => env('SOUL_PRIVATE_EXPORT_DISK', 'local'),
+    ],
+
+    'support' => [
+        'attachment_disk' => env('SOUL_SUPPORT_ATTACHMENT_DISK', 'local'),
+        'max_attachment_kilobytes' => 5120,
+    ],
+
+    'media' => [
+        'cloudinary' => [
+            'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),
+            'api_key' => env('CLOUDINARY_API_KEY'),
+            'api_secret' => env('CLOUDINARY_API_SECRET'),
+            'upload_session_ttl_minutes' => (int) env(
+                'CLOUDINARY_UPLOAD_SESSION_TTL_MINUTES',
+                10,
+            ),
+            'webhook_tolerance_seconds' => (int) env(
+                'CLOUDINARY_WEBHOOK_TOLERANCE_SECONDS',
+                7200,
+            ),
+            'response_signature_algorithm' => env(
+                'CLOUDINARY_RESPONSE_SIGNATURE_ALGORITHM',
+                'sha1',
+            ),
+        ],
     ],
 
 ];
