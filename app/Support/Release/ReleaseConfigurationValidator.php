@@ -4,6 +4,22 @@ namespace App\Support\Release;
 
 final class ReleaseConfigurationValidator
 {
+    /** @return array<string, array{ready: bool, missing: array<int, string>}> */
+    public function providerReadiness(): array
+    {
+        return [
+            'cloudinary' => $this->group(['cloud_name' => config('soul.media.cloudinary.cloud_name'), 'api_key' => config('soul.media.cloudinary.api_key'), 'api_secret' => config('soul.media.cloudinary.api_secret')]),
+            'google_sign_in' => $this->group(['client_ids' => collect(config('services.google.client_ids', []))->filter()->first()]),
+            'apple_sign_in' => $this->group(['client_ids' => collect(config('services.apple.client_ids', []))->filter()->first()]),
+            'apple_store' => $this->group(config('services.stores.apple', [])),
+            'google_play' => $this->group(config('services.stores.google', [])),
+            'fcm' => $this->group(config('services.push.fcm', [])),
+            'apns' => $this->group(config('services.push.apns', [])),
+            'email' => $this->group(['mailer' => in_array(config('mail.default'), ['array', 'log'], true) ? null : config('mail.default'), 'from_address' => config('mail.from.address')]),
+            'broadcasting' => $this->group(['connection' => in_array(config('broadcasting.default'), ['log', 'null'], true) ? null : config('broadcasting.default')]),
+        ];
+    }
+
     /** @return array<int, array{name: string, status: string, message: string}> */
     public function validate(bool $production = false): array
     {
@@ -19,6 +35,8 @@ final class ReleaseConfigurationValidator
             return $checks;
         }
 
+        $providers = $this->providerReadiness();
+
         return [...$checks,
             $this->check('Environment', app()->environment('production'), 'APP_ENV must be production.'),
             $this->check('Debug mode', config('app.debug') === false, 'APP_DEBUG must be false.'),
@@ -31,6 +49,11 @@ final class ReleaseConfigurationValidator
             $this->check('Cloudinary credentials', $this->cloudinaryCredentialsPresent(), 'Cloudinary cloud, key and secret are required.'),
             $this->check('Google audiences', $this->audiencesPresent('services.google.client_ids'), 'GOOGLE_CLIENT_IDS is required.'),
             $this->check('Apple audiences', $this->audiencesPresent('services.apple.client_ids'), 'APPLE_CLIENT_IDS is required.'),
+            $this->check('Apple Store API', $providers['apple_store']['ready'], 'Apple Store issuer, key, bundle and private key are required.'),
+            $this->check('Google Play API', $providers['google_play']['ready'], 'Google Play package and service account are required.'),
+            $this->check('FCM delivery', $providers['fcm']['ready'], 'FCM project and service account are required.'),
+            $this->check('APNs delivery', $providers['apns']['ready'], 'APNs team, key, bundle and private key are required.'),
+            $this->check('Broadcast transport', $providers['broadcasting']['ready'], 'Configure a non-log broadcast transport.'),
         ];
     }
 
@@ -60,5 +83,15 @@ final class ReleaseConfigurationValidator
     private function audiencesPresent(string $key): bool
     {
         return collect(config($key, []))->filter()->isNotEmpty();
+    }
+
+    /** @param array<string, mixed> $values
+     * @return array{ready: bool, missing: array<int, string>}
+     */
+    private function group(array $values): array
+    {
+        $missing = collect($values)->filter(fn (mixed $value): bool => blank($value))->keys()->values()->all();
+
+        return ['ready' => $missing === [], 'missing' => $missing];
     }
 }

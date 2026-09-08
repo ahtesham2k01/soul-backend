@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Infrastructure\Release;
 
+use App\Support\Release\ReleaseConfigurationValidator;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
@@ -68,5 +69,22 @@ class ReleaseCommandsTest extends TestCase
         $this->assertStringContainsString('smoke tests passed', Artisan::output());
         Http::assertSentCount(3);
         Http::assertSent(fn ($request): bool => $request->method() === 'GET');
+    }
+
+    public function test_provider_readiness_reports_only_names_and_missing_fields(): void
+    {
+        config([
+            'services.stores.apple' => ['issuer_id' => 'issuer-secret', 'key_id' => null, 'bundle_id' => 'app.soul', 'private_key' => 'private-secret'],
+            'services.push.fcm' => ['project_id' => null, 'service_account_json' => null],
+        ]);
+
+        $readiness = app(ReleaseConfigurationValidator::class)->providerReadiness();
+
+        $this->assertFalse($readiness['apple_store']['ready']);
+        $this->assertSame(['key_id'], $readiness['apple_store']['missing']);
+        $this->assertFalse($readiness['fcm']['ready']);
+        $this->assertSame(['project_id', 'service_account_json'], $readiness['fcm']['missing']);
+        $this->assertStringNotContainsString('issuer-secret', json_encode($readiness));
+        $this->assertStringNotContainsString('private-secret', json_encode($readiness));
     }
 }

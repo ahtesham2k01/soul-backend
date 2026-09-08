@@ -19,12 +19,12 @@ Laravel owns every protected decision. Flutter owns presentation, platform permi
 | Area | Implemented now | Remaining V1 scope |
 |---|---|---|
 | Bootstrap/localization | Locale negotiation, version/hash, direction, 320-key V1 catalog, complete English/Roman Urdu copy and React admin language switching | Human-reviewed copy for remaining configured languages as translation work becomes available |
-| Authentication | Email registration/login OTP, Apple, Google, linked social identities, current user, active-device sessions, targeted remote logout and logout-all | Duplicate-account merge hardening remains a post-audit completion phase |
+| Authentication | Email registration/login OTP, Apple, Google, linked social identities, current user, active-device sessions, targeted remote logout/logout-all and conservative duplicate-account merge | Live provider credential verification remains a release gate |
 | Profile onboarding | Draft save/resume, all required V1 answers, optional details, interests/traits, Skip versus Prefer-not-to-say state, religion selection, readiness/lifecycle | Public full-profile presentation continues with discovery/privacy phases |
 | Religion | Future-ready hierarchy, translations, complete-path country validation, saved leaf/root selection, persistent My Religion/All Religions discovery and admin taxonomy | Full-profile detailed-field presentation remains coupled to public-profile/privacy work |
 | Photos | Three slots, authenticated secondary uploads, moderation, private access request/approval/revocation, protected no-store delivery, screenshot controls/signals | Provider staging verification and mobile-native protected-view implementation |
 | Discovery | Gender/age/religion/intention/location/radius filters, activity ranking, 90-day hiding, safe distance bands, pass resurfacing and likes exclusion | Entitlement-dependent filter limits remain dynamic subscription work |
-| Likes/matches/chat | Like/pass, incoming requests, accept/decline/withdraw, matches, summaries, unmatch, text messages, mandatory read receipts, online/last-seen and expiring typing signals | Provider-backed real-time transport may later replace polling without changing the V1 API contract |
+| Likes/matches/chat | Like/pass, incoming requests, accept/decline/withdraw, matches, summaries, unmatch, text messages, mandatory read receipts, online/last-seen, expiring typing signals and authorized private broadcast channels | Live broadcast transport configuration and staging verification |
 | Verification | Separate email, phone, selfie and ID/age states; optional/required semantics; safe public badges; cases, review and one appeal | Underage escalation and broader risk automation (Phase 21) |
 | Safety | Atomic Report/Report & Block, underage pause, risk cases, moderator decisions, blocked-account appeal and immutable audit | Provider-assisted risk signals can be added without changing the case contract |
 | Notifications | Devices, separate push/email preferences, mandatory safety alerts, in-app feed, idempotent event creation, moderation/verification/account events and admin broadcasts | APNs/FCM and email provider credentials plus staging delivery verification |
@@ -91,3 +91,5 @@ A phase is checked only when its migrations/models/services, authorized APIs, Re
 - [x] Phase 32 — Duplicate identity detection and conservative, audited account merge
 - [x] Phase 33 — Private real-time chat events and member-bound channel authorization
 - [ ] Phase 34 — Staging/provider verification (store receipts, APNs/FCM, email and broadcast transport)
+
+Provider readiness is exposed to super-admin operations as safe booleans and missing variable names only. Secret values are never returned or logged. `php artisan soul:config-check --production` fails closed until every launch provider is configured.
