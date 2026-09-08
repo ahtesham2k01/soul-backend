@@ -18,7 +18,7 @@ Laravel owns every protected decision. Flutter owns presentation, platform permi
 
 | Area | Implemented now | Remaining V1 scope |
 |---|---|---|
-| Bootstrap/localization | Locale negotiation, version/hash, direction, 320-key V1 catalog, complete English/Roman Urdu copy and React admin language switching | Human-reviewed copy for remaining configured languages as translation work becomes available |
+| Bootstrap/localization | Locale negotiation, version/hash, direction, member-app catalogs and an English-only React admin interface | Human-reviewed member copy for remaining configured languages as translation work becomes available |
 | Authentication | Email registration/login OTP, Apple, Google, linked social identities, current user, active-device sessions, targeted remote logout/logout-all and conservative duplicate-account merge | Live provider credential verification remains a release gate |
 | Profile onboarding | Draft save/resume, all required V1 answers, optional details, interests/traits, Skip versus Prefer-not-to-say state, religion selection, readiness/lifecycle | Public full-profile presentation continues with discovery/privacy phases |
 | Religion | Future-ready hierarchy, translations, complete-path country validation, saved leaf/root selection, persistent My Religion/All Religions discovery and admin taxonomy | Full-profile detailed-field presentation remains coupled to public-profile/privacy work |

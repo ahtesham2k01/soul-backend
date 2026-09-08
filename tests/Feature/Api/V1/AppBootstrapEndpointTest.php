@@ -61,6 +61,8 @@ class AppBootstrapEndpointTest extends TestCase
                 'name' => 'English',
                 'native_name' => 'English',
                 'direction' => 'ltr',
+                'is_launch_target' => true,
+                'is_launch_ready' => true,
             ])
             ->assertJsonPath(
                 'data.location',
@@ -103,6 +105,26 @@ class AppBootstrapEndpointTest extends TestCase
             ),
             $supportedLanguages,
         );
+    }
+
+    public function test_bootstrap_identifies_product_target_and_draft_locales(): void
+    {
+        $languages = collect(
+            $this->getJson('/api/v1/bootstrap?locale=en')
+                ->assertOk()
+                ->json('data.supported_languages'),
+        )->keyBy('code');
+
+        $this->assertSame(
+            config('soul.translations.target_locales'),
+            $languages->filter('is_launch_target')->keys()->values()->all(),
+        );
+
+        $this->assertTrue($languages['ur']['is_launch_ready']);
+        $this->assertSame('ltr', $languages['ur']['direction']);
+        $this->assertFalse($languages['ar']['is_launch_ready']);
+        $this->assertSame('rtl', $languages['ar']['direction']);
+        $this->assertSame('rtl', $languages['fa']['direction']);
     }
 
     public function test_query_locale_has_priority_over_header(): void

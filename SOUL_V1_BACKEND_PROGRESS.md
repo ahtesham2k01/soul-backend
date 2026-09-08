@@ -100,6 +100,20 @@ A stricter production-flow audit found provider and operational gaps beyond the 
 
 Fresh-audit completion: **1/5 phases complete (20%)**.
 
+## Global localization expansion
+
+- [x] React admin interface fixed to English-only
+- [x] Admin can still manage member-app translations
+- [x] Muzz-parity 16-locale product target recorded
+- [x] Roman Urdu remains Latin-script and LTR
+- [x] Arabic and Persian direction metadata remains RTL
+- [x] API distinguishes target, draft and launch-ready catalogs
+- [x] Automated target-catalog key-parity audit
+- [x] Complete member-app draft catalogs for Spanish, French and German
+- [ ] Complete reviewed translations for every target catalog
+- [ ] Native-language and RTL visual QA
+- [ ] Mark all 16 target locales launch-ready
+
 ## Architecture and developer handoff documentation
 
 - [x] Confirmed V1 product requirements versioned inside the repository

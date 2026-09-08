@@ -77,11 +77,11 @@ class TranslationCatalogCompletenessTest extends TestCase
         }
     }
 
-    public function test_english_and_roman_urdu_cover_every_v1_feature_area(): void
+    public function test_english_and_roman_urdu_cover_every_member_feature_area(): void
     {
         $english = $this->readCatalog('en');
         $urdu = $this->readCatalog('ur');
-        $requiredPrefixes = ['auth.', 'nav.', 'profile.', 'photos.', 'onboarding.', 'discovery.', 'matches.', 'chat.', 'safety.', 'notifications.', 'settings.', 'admin.'];
+        $requiredPrefixes = ['auth.', 'nav.', 'profile.', 'photos.', 'onboarding.', 'discovery.', 'matches.', 'chat.', 'safety.', 'notifications.', 'settings.'];
 
         foreach ($requiredPrefixes as $prefix) {
             $this->assertNotEmpty(
@@ -94,28 +94,29 @@ class TranslationCatalogCompletenessTest extends TestCase
             );
         }
 
-        foreach (['common.continue', 'auth.create_account', 'profile.intentions', 'settings.deletion_recovery', 'admin.authorized_only'] as $key) {
+        foreach (['common.continue', 'auth.create_account', 'profile.intentions', 'settings.deletion_recovery'] as $key) {
             $this->assertNotSame($english[$key], $urdu[$key], "Roman Urdu key [{$key}] must not silently fall back to English.");
         }
 
         $this->assertGreaterThanOrEqual(225, count($english));
     }
 
-    public function test_react_admin_uses_the_laravel_catalog_instead_of_a_second_dictionary(): void
+    public function test_react_admin_is_english_only_and_uses_the_laravel_catalog(): void
     {
         $admin = file_get_contents(resource_path('js/admin.tsx'));
 
         $this->assertNotFalse($admin);
-        $this->assertStringContainsString("fetch('/api/v1/bootstrap?locale='", $admin);
-        $this->assertStringContainsString("localStorage.getItem('soul.admin.locale')", $admin);
-        $this->assertStringContainsString('document.documentElement.dir=result.data.locale.direction', $admin);
+        $this->assertStringContainsString("fetch('/api/v1/bootstrap?locale=en'", $admin);
+        $this->assertStringContainsString("document.documentElement.lang='en'", $admin);
+        $this->assertStringContainsString("document.documentElement.dir='ltr'", $admin);
+        $this->assertStringNotContainsString('LanguageSwitch', $admin);
+        $this->assertStringNotContainsString('soul.admin.locale', $admin);
         $this->assertStringContainsString("t('admin.user_directory')", $admin);
         $this->assertStringNotContainsString('Authorized team members only.', $admin);
         $this->assertStringNotContainsString('Reason for this decision:', $admin);
 
         preg_match_all("/t\\('([^']+)'\\)/", $admin, $matches);
         $english = $this->readCatalog('en');
-        $urdu = $this->readCatalog('ur');
 
         foreach (array_unique($matches[1]) as $key) {
             if (! str_starts_with($key, 'admin.') && ! str_starts_with($key, 'common.')) {
@@ -123,7 +124,6 @@ class TranslationCatalogCompletenessTest extends TestCase
             }
 
             $this->assertArrayHasKey($key, $english, "React admin key [{$key}] is missing from English.");
-            $this->assertArrayHasKey($key, $urdu, "React admin key [{$key}] is missing from Roman Urdu.");
         }
     }
 

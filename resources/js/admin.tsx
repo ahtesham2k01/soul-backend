@@ -31,23 +31,16 @@ type Translate = (key:string) => string;
 const csrf = () => document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content ?? '';
 
 function useLocalization() {
-    const [locale,setLocaleState] = useState(() => localStorage.getItem('soul.admin.locale') || 'en');
+    const locale = 'en';
     const [messages,setMessages] = useState<Messages>({});
     const t:Translate = key => messages[key] || key;
-    const setLocale = (value:string) => { localStorage.setItem('soul.admin.locale',value); setLocaleState(value); };
 
-    useEffect(() => { fetch('/api/v1/bootstrap?locale='+encodeURIComponent(locale), {headers:{Accept:'application/json'}})
+    useEffect(() => { fetch('/api/v1/bootstrap?locale=en', {headers:{Accept:'application/json'}})
         .then(response => response.ok ? response.json() : Promise.reject())
-        .then(result => { setMessages(result.data.translations.values); document.documentElement.lang=result.data.locale.resolved; document.documentElement.dir=result.data.locale.direction; })
-        .catch(() => setMessages({})); }, [locale]);
+        .then(result => { setMessages(result.data.translations.values); document.documentElement.lang='en'; document.documentElement.dir='ltr'; })
+        .catch(() => setMessages({})); }, []);
 
-    return {locale,setLocale,t,ready:Object.keys(messages).length > 0};
-}
-
-function LanguageSwitch({locale,setLocale,t}:{locale:string;setLocale:(locale:string)=>void;t:Translate}) {
-    return <label className="locale-switch">{t('admin.language')}<select value={locale} onChange={event=>setLocale(event.target.value)}>
-        <option value="en">{t('admin.english')}</option><option value="ur">{t('admin.roman_urdu')}</option>
-    </select></label>;
+    return {locale,t,ready:Object.keys(messages).length > 0};
 }
 
 async function api(path:string, options:RequestInit = {}) {
@@ -68,9 +61,8 @@ async function decide(path:string, decision:string, t:Translate, field='decision
     return true;
 }
 
-function Login({locale,setLocale,t}:{locale:string;setLocale:(locale:string)=>void;t:Translate}) {
+function Login({t}:{t:Translate}) {
     return <main className="login"><section className="card"><div className="brand">SOUL</div>
-        <LanguageSwitch locale={locale} setLocale={setLocale} t={t}/>
         <h1>{t('admin.workspace')}</h1><p>{t('admin.authorized_only')}</p>
         <form method="post" action="/admin/session"><input type="hidden" name="_token" value={csrf()} />
             <label>{t('admin.email')}<input name="email" type="email" required /></label>
@@ -79,7 +71,7 @@ function Login({locale,setLocale,t}:{locale:string;setLocale:(locale:string)=>vo
 }
 
 function App() {
-    const {locale,setLocale,t,ready} = useLocalization();
+    const {locale,t,ready} = useLocalization();
     const [counts,setCounts] = useState<Counts|null>(null);
     const [actor,setActor] = useState<Actor|null>(null);
     const [reports,setReports] = useState<Report[]>([]);
@@ -194,11 +186,11 @@ function App() {
 
     const valueLabel = (value:string) => { const key='admin.value.'+value; const translated=t(key); return translated===key ? value.replaceAll('_',' ') : translated; };
     if (! ready) return <main className="loading"><div className="brand">SOUL</div></main>;
-    if (! authorized) return <Login locale={locale} setLocale={setLocale} t={t} />;
+    if (! authorized) return <Login t={t} />;
     if (! counts || ! actor) return <main className="loading">{t('admin.loading')}</main>;
     return <div className="shell"><aside><div className="brand">SOUL</div><span>{t('admin.operations')}</span>
         <nav><a href="#overview">{t('admin.overview')}</a><a href="#users">{t('admin.users')}</a><a href="#support">{t('admin.support')}</a>{actor.role==='super_admin'&&<><a href="#admins">{t('admin.admin_access')}</a><a href="#religion">{t('admin.religion_taxonomy')}</a><a href="#broadcasts">{t('admin.broadcasts')}</a><a href="#events">{t('admin.events')}</a><a href="#entitlements">{t('admin.entitlements')}</a><a href="#catalogs">{t('admin.catalogs')}</a><a href="#profile-catalogs">{t('admin.profile_catalogs')}</a><a href="#duplicates">{t('admin.duplicate_accounts')}</a><a href="#operations">{t('admin.operations_health')}</a></>}<a href="#reports">{t('admin.reports')}</a><a href="#safety-cases">{t('admin.safety_cases')}</a><a href="#verification">{t('admin.verification')}</a><a href="#account-appeals">{t('admin.account_appeals')}</a><a href="#audit">{t('admin.audit_log')}</a></nav>
-        <LanguageSwitch locale={locale} setLocale={setLocale} t={t}/><div className="operator"><b>{valueLabel(actor.role)}</b><small>{actor.email}</small></div>
+        <div className="operator"><b>{valueLabel(actor.role)}</b><small>{actor.email}</small></div>
         <form method="post" action="/admin/session"><input type="hidden" name="_token" value={csrf()} /><input type="hidden" name="_method" value="DELETE" /><button>{t('admin.sign_out')}</button></form></aside>
         <main><header id="overview"><div><small>SOUL {t('admin.operations').toUpperCase()}</small><h1>{t('admin.command_center')}</h1></div><span className="secure">● {t('admin.secure_session')}</span></header>
             {notice && <div className="notice">{notice}</div>}

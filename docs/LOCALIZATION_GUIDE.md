@@ -6,12 +6,24 @@ This guide explains the translation system in simple steps. Laravel owns transla
 
 - English and simple Roman Urdu cover all current V1 feature areas.
 - The catalog currently contains more than 225 keys.
-- The React admin can switch between English and Roman Urdu.
-- The selected admin language is saved in the browser.
+- The React admin interface is intentionally English-only.
 - Flutter receives language, direction, catalog version, hash and values from bootstrap.
 - API validation errors use the requested language when a server translation is available.
 - SOUL is never translated.
 - Other configured languages retain their existing translations and use safe English text for newly introduced keys until reviewed.
+
+## Product language target and readiness
+
+SOUL's approved first global target mirrors Muzz's current locale coverage: English (US and UK), Spanish, French, German, Italian, Russian, Dutch, Indonesian, Malay, Turkish, Arabic, Bengali, Hindi, Persian and Roman Urdu. SOUL intentionally uses Roman Urdu in Latin letters; it does not ship an Urdu-script catalog.
+
+`supported_languages` distinguishes two facts:
+
+- `is_launch_target`: product wants this locale in the global launch set.
+- `is_launch_ready`: its complete catalog has passed product/native-language review.
+
+Do not treat the presence of a JSON file as proof that a translation is finished. Draft catalogs are available for QA and fall back safely to English, but Flutter must not advertise them as completed languages. Run `npm run localization:audit` to verify exact key parity and see the current draft/ready report.
+
+Spanish, French and German currently have complete member-flow drafts covering authentication, onboarding, profiles, discovery, matching, chat, private photos, safety, notifications, settings and legal consent. They remain draft until native-language review. Admin-interface keys intentionally remain English and are excluded from member translation coverage.
 
 ## Flutter: load translations
 
@@ -74,16 +86,16 @@ Send `Accept-Language` with normal API requests as well. Laravel uses it for val
 
 ## React admin
 
-The admin requests the same bootstrap endpoint. Its language switch stores `soul.admin.locale` in browser local storage. Labels, prompts, notices, moderation values and date formatting update from the Laravel catalog.
+The React admin interface is intentionally English-only. It requests the English bootstrap catalog and always renders left-to-right. Super-admins can still manage member-app translations for every configured locale from the localization workspace; that content does not change the admin interface language.
 
-The admin does not contain a second English/Urdu dictionary. This avoids mobile and admin copy drifting apart.
+Keeping the operations interface in one language makes moderation terminology, audit evidence and support hand-offs consistent. Multilingual scope applies to the Flutter member app, member-facing API messages, notifications, emails and localized content.
 
 ## Add a new translation
 
 1. Choose a clear feature key, for example `events.join`.
 2. Add English text to `resources/lang/en.json`.
 3. Add simple Roman Urdu to `resources/lang/ur.json`.
-4. Add the key to every configured catalog. Use English only as a temporary safe fallback when a reviewed translation is not available.
+4. For member-facing keys, add the key to every configured catalog. Use English only as a temporary safe fallback when reviewed translation is unavailable. `admin.*` interface keys remain English-only.
 5. Increase `soul.translations.catalog_version`.
 6. Use the key in Flutter or React; do not duplicate the sentence.
 7. Run localization tests and the React production build.
@@ -93,7 +105,7 @@ Use short, natural copy. Avoid formal Urdu. Keep placeholders and variables outs
 ## Review checklist
 
 - Every new user-facing screen uses catalog keys.
-- English and Roman Urdu contain the same keys.
+- Every configured catalog contains the same member-facing keys.
 - Important Roman Urdu keys are not silent English copies.
 - Empty strings are rejected by tests.
 - Brand key `brand.name` does not exist.

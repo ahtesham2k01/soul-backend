@@ -71,6 +71,8 @@ Text(values['profile.first_name'] ?? 'First name');
 
 Keep one small translation helper around this lookup. Widgets should request a key such as `profile.first_name`; they should not contain separate English and Urdu sentences. English and simple Roman Urdu cover all current V1 feature areas. Other configured catalogs safely use English for newly added keys until their human-reviewed translations are ready.
 
+Build the production language picker from `supported_languages` entries where `is_launch_target` and `is_launch_ready` are both true. Internal QA builds may expose draft target locales. This prevents an English-fallback catalog from being presented to members as a finished translation.
+
 ## API rules
 
 - Base prefix: `/api/v1`.
@@ -144,7 +146,7 @@ Route guards should be data-driven: a profile in correction or verification paus
 ## Release checklist for Flutter
 
 - Contract models cover every endpoint used by the app.
-- English and Roman Urdu layouts pass LTR/RTL policy defined by the bootstrap response.
+- Member-app layouts follow the LTR/RTL direction returned by bootstrap. Roman Urdu is LTR.
 - No hard-coded city, entitlement, price, report category or moderation rule.
 - Token, OTP, exact location and private-media values are redacted from logs and crash reports.
 - Offline and retry behavior tested for bootstrap, profile draft, upload registration and message send.

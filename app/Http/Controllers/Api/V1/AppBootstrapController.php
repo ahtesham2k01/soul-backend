@@ -104,6 +104,14 @@ class AppBootstrapController extends Controller
         );
 
         $languages = [];
+        $targetLocales = config(
+            'soul.translations.target_locales',
+            [],
+        );
+        $launchReadyLocales = config(
+            'soul.translations.launch_ready_locales',
+            [],
+        );
 
         foreach ($configuredLocales as $code => $details) {
             if (! File::exists(lang_path($code.'.json'))) {
@@ -115,6 +123,16 @@ class AppBootstrapController extends Controller
                 'name' => $details['name'],
                 'native_name' => $details['native_name'],
                 'direction' => $details['direction'],
+                'is_launch_target' => in_array(
+                    $code,
+                    $targetLocales,
+                    true,
+                ),
+                'is_launch_ready' => in_array(
+                    $code,
+                    $launchReadyLocales,
+                    true,
+                ),
             ];
         }
 

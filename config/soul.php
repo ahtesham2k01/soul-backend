@@ -21,7 +21,24 @@ return [
 
     'translations' => [
         'fallback_locale' => 'en',
-        'catalog_version' => '15',
+        'catalog_version' => '16',
+
+        /*
+         * Product-approved launch target. These are the locales currently
+         * offered by Muzz, with SOUL intentionally serving Roman Urdu in
+         * Latin script instead of Urdu script.
+         */
+        'target_locales' => [
+            'en', 'en-GB', 'es', 'fr', 'de', 'it', 'ru', 'nl',
+            'id', 'ms', 'tr', 'ar', 'bn', 'hi', 'fa', 'ur',
+        ],
+
+        /*
+         * A catalog is launch-ready only after product/native-language
+         * review. Draft catalogs remain addressable for QA but clients must
+         * not present them as finished translations.
+         */
+        'launch_ready_locales' => ['en', 'en-GB', 'ur'],
 
         'locales' => [
             'en' => [
