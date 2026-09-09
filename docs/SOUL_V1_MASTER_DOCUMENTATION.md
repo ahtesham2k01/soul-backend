@@ -1653,7 +1653,7 @@ This guide explains subscriptions without hard-coded plans or prices. Laravel de
 5. Only after Laravel returns `active`, refresh `GET /subscription/entitlements?platform=...`.
 6. Use each capability's `enabled`, limit and usage fields for presentation. Laravel must still authorize the action.
 
-Laravel verifies purchases directly with App Store Server API or Google Play Developer API. Provider server notifications are deduplicated, queued and verified again against the provider before they can change an entitlement. Raw receipts and webhook payloads are encrypted at rest and never returned. Missing credentials fail closed. A database subscription is never created from an unverified client claim.
+Laravel verifies purchases directly with App Store Server API or Google Play Developer API. Provider server notifications are structurally screened, deduplicated, queued and verified again against the provider before they can change an entitlement. Raw purchase tokens are encrypted only while needed and erased immediately after an attempt; processed webhook payloads are erased after verification. Hashes and safe lifecycle metadata retain idempotency without retaining credentials. Missing credentials fail closed. A database subscription is never created from an unverified client claim.
 
 ### Notification delivery operations
 
@@ -1893,6 +1893,10 @@ Each extension must include reversible migrations, foreign keys, production-safe
 - Deletion remains recoverable for 30 days, then a queued job permanently removes eligible account data.
 - Data exports are private, expiring artifacts on a configurable non-public disk.
 - Admin audit evidence must not contain secrets, OTPs, provider tokens, message bodies or raw identity documents.
+- Store receipt tokens are erased immediately after each provider-verification attempt. The non-reversible receipt hash and safe transaction metadata remain for ownership, replay protection and support investigation.
+- Successfully verified store webhook payloads are erased immediately. Exhausted failed payloads are discarded after `SOUL_FAILED_WEBHOOK_RETENTION_DAYS` (default 30 days).
+- Delivered notification-attempt rows are pruned after `SOUL_DELIVERED_NOTIFICATION_RETENTION_DAYS` (default 90 days); failed attempts are retained for `SOUL_FAILED_NOTIFICATION_RETENTION_DAYS` (default 180 days).
+- The English-only admin operations screen exposes retained-payload counts, so unexpected sensitive-data backlog is visible without revealing payload contents.
 - Contact discovery should store normalized keyed hashes, not a reusable address book.
 - Exact location requires restricted storage, retention and access logging before its discovery phase ships.
 - Backup/restore, retention and regional compliance are deployment gates, not assumptions encoded in Flutter.
@@ -2090,7 +2094,7 @@ The automated smoke command performs GET requests only against health, readiness
 
 ### Recurring operations
 
-- The soul:cleanup command runs daily and removes expired private export files and stale OTP records.
+- The soul:cleanup command runs daily and removes expired private export files, stale OTP records, exhausted webhook payloads and old delivery-attempt rows. Defaults are 30 days for exhausted webhook payloads, 90 days for delivered attempts and 180 days for failed attempts; deployment owners may shorten these with the documented environment variables after legal review.
 - The soul:recover-provider-work command runs every five minutes and safely recovers interrupted store-webhook and notification-delivery work.
 - Run queue failure monitoring continuously and retry only idempotent jobs after investigation.
 - Review dependency audit results on every proposed release.

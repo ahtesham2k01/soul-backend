@@ -31,6 +31,9 @@ class OperationsController extends Controller
                 'receipts_failed' => DB::table('store_purchase_receipts')->where('status', 'failed')->count(),
                 'webhooks_pending' => DB::table('store_webhook_events')->where('status', 'pending')->count(),
                 'webhooks_failed' => DB::table('store_webhook_events')->where('status', 'failed')->count(),
+                'webhooks_discarded' => DB::table('store_webhook_events')->where('status', 'discarded')->count(),
+                'raw_purchase_tokens_retained' => DB::table('store_purchase_receipts')->whereNotNull('encrypted_receipt')->count(),
+                'raw_webhook_payloads_retained' => DB::table('store_webhook_events')->whereNotNull('encrypted_payload')->count(),
             ],
             'notification_delivery' => [
                 'pending' => DB::table('notification_delivery_attempts')->whereIn('status', ['pending', 'retrying'])->count(),

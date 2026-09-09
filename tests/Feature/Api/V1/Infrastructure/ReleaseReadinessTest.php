@@ -5,7 +5,10 @@ namespace Tests\Feature\Api\V1\Infrastructure;
 use App\Enums\Auth\EmailVerificationPurpose;
 use App\Models\DataExportRequest;
 use App\Models\EmailVerificationCode;
+use App\Models\NotificationDeliveryAttempt;
+use App\Models\StoreWebhookEvent;
 use App\Models\User;
+use App\Models\UserNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
@@ -58,11 +61,20 @@ class ReleaseReadinessTest extends TestCase
         ]);
         $otp->forceFill(['created_at' => now()->subDays(3)])->save();
 
+        $notification = UserNotification::create(['user_id' => $user->id, 'type' => 'account', 'data' => [], 'delivery_channels' => ['in_app']]);
+        $delivery = NotificationDeliveryAttempt::create(['user_notification_id' => $notification->id, 'channel' => 'email', 'provider' => 'mail', 'deduplication_key' => hash('sha256', 'old-delivery'), 'status' => 'delivered', 'delivered_at' => now()->subDays(91)]);
+        $webhook = StoreWebhookEvent::create(['platform' => 'ios', 'event_hash' => hash('sha256', 'old-webhook'), 'encrypted_payload' => 'sensitive', 'status' => 'failed', 'attempts' => 6]);
+        $webhook->timestamps = false;
+        $webhook->forceFill(['updated_at' => now()->subDays(31)])->save();
+
         Artisan::call('soul:cleanup');
 
         Storage::disk('local')->assertMissing($path);
         $this->assertSame('expired', $export->refresh()->status);
         $this->assertNull($export->file_path);
         $this->assertModelMissing($otp);
+        $this->assertModelMissing($delivery);
+        $this->assertSame('discarded', $webhook->refresh()->status);
+        $this->assertNull($webhook->encrypted_payload);
     }
 }

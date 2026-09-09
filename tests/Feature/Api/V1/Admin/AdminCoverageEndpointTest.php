@@ -47,6 +47,8 @@ class AdminCoverageEndpointTest extends TestCase
             ->assertJsonPath('data.privacy.paused_profiles', 1)
             ->assertJsonPath('data.scheduled_deletions.0.user.email', $member->email)
             ->assertJsonPath('data.provider_readiness.apple_store.ready', false)
+            ->assertJsonPath('data.store_processing.raw_purchase_tokens_retained', 0)
+            ->assertJsonPath('data.store_processing.raw_webhook_payloads_retained', 0)
             ->assertJsonStructure(['data' => ['provider_readiness' => ['cloudinary', 'google_sign_in', 'apple_sign_in', 'apple_store', 'google_play', 'fcm', 'apns', 'email', 'broadcasting']]])
             ->assertJsonMissing(['provider_user_id' => 'provider-secret'])
             ->assertJsonMissing(['file_path' => 'private/secret.json']);

@@ -34,7 +34,7 @@ class ProcessStoreWebhook implements ShouldQueue
                 $receipt = StorePurchaseReceipt::query()->where('platform', $event->platform)->where(function ($q) use ($purchase) { $q->where('provider_transaction_id', $purchase->transactionId)->when($purchase->originalTransactionId, fn ($q) => $q->orWhere('provider_original_transaction_id', $purchase->originalTransactionId)); })->latest()->first();
                 if ($receipt) $lifecycle->apply($receipt, $purchase);
             }
-            $event->update(['status' => 'processed', 'processing_started_at' => null, 'processed_at' => now(), 'failure_code' => null]);
+            $event->update(['status' => 'processed', 'encrypted_payload' => null, 'processing_started_at' => null, 'processed_at' => now(), 'failure_code' => null]);
         } catch (Throwable $exception) {
             $event->update(['status' => 'failed', 'processing_started_at' => null, 'failure_code' => 'PROVIDER_VERIFICATION_FAILED']);
             throw $exception;

@@ -278,6 +278,11 @@ return [
 
     'privacy' => [
         'export_disk' => env('SOUL_PRIVATE_EXPORT_DISK', 'local'),
+        'retention' => [
+            'failed_store_webhook_days' => (int) env('SOUL_FAILED_WEBHOOK_RETENTION_DAYS', 30),
+            'delivered_notification_days' => (int) env('SOUL_DELIVERED_NOTIFICATION_RETENTION_DAYS', 90),
+            'failed_notification_days' => (int) env('SOUL_FAILED_NOTIFICATION_RETENTION_DAYS', 180),
+        ],
     ],
 
     'support' => [

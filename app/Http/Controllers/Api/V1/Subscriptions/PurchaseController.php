@@ -27,10 +27,11 @@ class PurchaseController extends Controller
             $receipt->increment('attempts');
             $lifecycle->apply($receipt, $verifier->verify($data['platform'], $product->product_id, $data['receipt']));
         } catch (Throwable $exception) {
-            $receipt->update(['status' => 'failed', 'failure_code' => 'PROVIDER_VERIFICATION_FAILED']);
+            $receipt->update(['status' => 'failed', 'encrypted_receipt' => null, 'failure_code' => 'PROVIDER_VERIFICATION_FAILED']);
             report($exception);
             return ApiResponse::error('PURCHASE_NOT_VERIFIED', 'The store could not verify this purchase.', 422);
         }
+        $receipt->update(['encrypted_receipt' => null]);
         return ApiResponse::success(['purchase' => ['id' => $receipt->public_id, 'status' => $receipt->status, 'expires_at' => $receipt->expires_at?->toIso8601String()]], 'Purchase verified.');
     }
 }
