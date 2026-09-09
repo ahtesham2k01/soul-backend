@@ -3,7 +3,7 @@
   "info": {
     "title": "SOUL V1 API",
     "version": "1.0.0",
-    "description": "Machine-readable companion to docs/FLUTTER_API_HANDOFF.md."
+    "description": "Machine-readable companion to docs/SOUL_V1_MASTER_DOCUMENTATION.md."
   },
   "servers": [
     {

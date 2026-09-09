@@ -10,7 +10,7 @@ class ApiHandoffContractTest extends TestCase
 {
     public function test_every_named_v1_api_route_is_present_in_flutter_handoff(): void
     {
-        $handoff = File::get(base_path('docs/FLUTTER_API_HANDOFF.md'));
+        $handoff = File::get(base_path('docs/SOUL_V1_MASTER_DOCUMENTATION.md'));
         $routes = collect(Route::getRoutes()->getRoutes())
             ->filter(fn ($route): bool => str_starts_with((string) $route->getName(), 'api.v1.'));
 

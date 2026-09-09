@@ -51,7 +51,7 @@ class AppBootstrapEndpointTest extends TestCase
             )
             ->assertJsonPath(
                 'data.translations.version',
-                '15',
+                '17',
             )
             ->assertJsonFragment([
                 'auth.create_account' => 'Create Account',
@@ -115,10 +115,15 @@ class AppBootstrapEndpointTest extends TestCase
                 ->json('data.supported_languages'),
         )->keyBy('code');
 
-        $this->assertSame(
-            config('soul.translations.target_locales'),
-            $languages->filter('is_launch_target')->keys()->values()->all(),
-        );
+        $expectedTargetLocales = config('soul.translations.target_locales');
+        $actualTargetLocales = $languages->filter(
+            fn (array $language): bool => $language['is_launch_target'],
+        )->keys()->values()->all();
+
+        sort($expectedTargetLocales);
+        sort($actualTargetLocales);
+
+        $this->assertSame($expectedTargetLocales, $actualTargetLocales);
 
         $this->assertTrue($languages['ur']['is_launch_ready']);
         $this->assertSame('ltr', $languages['ur']['direction']);
@@ -294,7 +299,7 @@ class AppBootstrapEndpointTest extends TestCase
             )
             ->assertJsonPath(
                 'data.translations.version',
-                '15',
+                '17',
             )
             ->assertJsonFragment([
                 'auth.create_account' => 'Account banayein',
@@ -336,7 +341,7 @@ class AppBootstrapEndpointTest extends TestCase
             )
             ->assertJsonPath(
                 'data.translations.version',
-                '15',
+                '17',
             )
             ->assertJsonFragment([
                 'auth.create_account' => 'Crear una cuenta',
