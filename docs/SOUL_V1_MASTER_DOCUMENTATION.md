@@ -1892,6 +1892,9 @@ Each extension must include reversible migrations, foreign keys, production-safe
 
 - Deletion remains recoverable for 30 days, then a queued job permanently removes eligible account data.
 - Data exports are private, expiring artifacts on a configurable non-public disk.
+- Data exports use schema version 2 and stream large collections in database chunks instead of loading a member's complete history into worker memory. They cover account/profile data, discovery decisions, matches and conversations, blocks/reports, notifications, legal acceptances, verification cases, subscriptions, events, support and registered devices.
+- Push tokens, token hashes, provider transaction references, IP addresses and legal request fingerprints are excluded from the generated member file.
+- Export jobs use an atomic `pending/failed -> processing -> completed` lifecycle. A scheduled recovery pass requeues work whose processing lease has remained stale for 30 minutes.
 - Admin audit evidence must not contain secrets, OTPs, provider tokens, message bodies or raw identity documents.
 - Store receipt tokens are erased immediately after each provider-verification attempt. The non-reversible receipt hash and safe transaction metadata remain for ownership, replay protection and support investigation.
 - Successfully verified store webhook payloads are erased immediately. Exhausted failed payloads are discarded after `SOUL_FAILED_WEBHOOK_RETENTION_DAYS` (default 30 days).

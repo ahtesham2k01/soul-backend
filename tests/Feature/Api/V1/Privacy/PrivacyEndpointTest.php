@@ -35,6 +35,8 @@ class PrivacyEndpointTest extends TestCase
         Bus::fake();
         $u = User::factory()->create(['status' => User::STATUS_ACTIVE]);
         UserProfile::factory()->for($u)->create();
+        $u->devices()->create(['platform' => 'ios', 'push_token' => 'private-push-token', 'token_hash' => hash('sha256', 'private-push-token'), 'device_name' => 'My phone', 'last_seen_at' => now()]);
+        $u->legalAcceptances()->create(['document_type' => 'terms', 'document_version' => 'v1', 'accepted_at' => now(), 'accepted_via' => 'onboarding', 'locale' => 'en', 'ip_address' => '192.0.2.1', 'device_context_hash' => hash('sha256', 'private-device')]);
         Sanctum::actingAs($u);
         $id = $this->postJson('/api/v1/privacy/exports')->assertStatus(202)->json('data.export.id');
         $this->postJson('/api/v1/privacy/exports')->assertJsonPath('data.export.id', $id);
@@ -43,6 +45,23 @@ class PrivacyEndpointTest extends TestCase
         (new BuildUserDataExport($request->id))->handle();
         $request->refresh();
         Storage::disk('local')->assertExists($request->file_path);
+        $export = json_decode(Storage::disk('local')->get($request->file_path), true, flags: JSON_THROW_ON_ERROR);
+        $this->assertSame(2, $export['schema_version']);
+        $this->assertSame($u->public_id, $export['account']['public_id']);
+        $this->assertSame('My phone', $export['devices'][0]['device_name']);
+        $this->assertArrayNotHasKey('push_token', $export['devices'][0]);
+        $this->assertArrayNotHasKey('token_hash', $export['devices'][0]);
+        $this->assertArrayNotHasKey('ip_address', $export['legal_acceptances'][0]);
+        $this->assertArrayNotHasKey('device_context_hash', $export['legal_acceptances'][0]);
+        $this->assertSame([
+            'decisions', 'matches', 'messages', 'blocks', 'reports', 'notifications',
+            'legal_acceptances', 'verification_cases', 'subscriptions', 'event_registrations',
+            'support_tickets', 'devices',
+        ], array_values(array_intersect(array_keys($export), [
+            'decisions', 'matches', 'messages', 'blocks', 'reports', 'notifications',
+            'legal_acceptances', 'verification_cases', 'subscriptions', 'event_registrations',
+            'support_tickets', 'devices',
+        ])));
         $this->getJson('/api/v1/privacy/exports')->assertJsonPath('data.exports.0.download_available', true);
         $this->get('/api/v1/privacy/exports/'.$id.'/download')->assertOk();
     }

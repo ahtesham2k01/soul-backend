@@ -8,7 +8,7 @@ use Illuminate\Support\Str;
 
 class DataExportRequest extends Model
 {
-    protected $fillable = ['user_id', 'status', 'file_path', 'completed_at', 'expires_at'];
+    protected $fillable = ['user_id', 'status', 'processing_started_at', 'file_path', 'completed_at', 'expires_at'];
 
     protected static function booted(): void
     {
@@ -17,7 +17,7 @@ class DataExportRequest extends Model
 
     protected function casts(): array
     {
-        return ['completed_at' => 'immutable_datetime', 'expires_at' => 'immutable_datetime'];
+        return ['processing_started_at' => 'immutable_datetime', 'completed_at' => 'immutable_datetime', 'expires_at' => 'immutable_datetime'];
     }
 
     public function user(): BelongsTo

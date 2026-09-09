@@ -2,6 +2,7 @@
 
 use App\Models\DataExportRequest;
 use App\Models\EmailVerificationCode;
+use App\Jobs\BuildUserDataExport;
 use App\Jobs\DeliverNotificationAttempt;
 use App\Jobs\ProcessStoreWebhook;
 use App\Models\NotificationDeliveryAttempt;
@@ -55,6 +56,14 @@ Artisan::command('soul:cleanup', function (): void {
 Artisan::command('soul:recover-provider-work', function (): void {
     $staleBefore = now()->subMinutes(15);
 
+    $exports = DataExportRequest::query()
+        ->where('status', 'processing')
+        ->where('processing_started_at', '<=', now()->subMinutes(30))
+        ->limit(50)->pluck('id');
+    DataExportRequest::query()->whereIn('id', $exports)->where('status', 'processing')
+        ->update(['status' => 'failed', 'processing_started_at' => null]);
+    foreach ($exports as $id) BuildUserDataExport::dispatch($id);
+
     NotificationDeliveryAttempt::query()
         ->where('status', 'processing')
         ->where('processing_started_at', '<=', $staleBefore)
@@ -78,7 +87,7 @@ Artisan::command('soul:recover-provider-work', function (): void {
         ->limit(200)->pluck('id');
     foreach ($webhooks as $id) ProcessStoreWebhook::dispatch($id);
 
-    $this->info("Queued {$deliveries->count()} delivery attempts and {$webhooks->count()} store events for recovery.");
+    $this->info("Queued {$exports->count()} data exports, {$deliveries->count()} delivery attempts and {$webhooks->count()} store events for recovery.");
 })->purpose('Recover stale or interrupted provider delivery work');
 
 Schedule::command('soul:cleanup')
