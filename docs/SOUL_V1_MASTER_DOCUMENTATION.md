@@ -576,7 +576,7 @@ Fresh-audit completion: **1/5 phases complete (20%)**.
 - [x] Automated target-catalog key-parity audit
 - [x] Complete member-app draft catalogs for Spanish, French and German
 - [x] Complete member-app draft catalogs for Italian, Russian and Dutch
-- [ ] Complete member-app draft catalogs for Indonesian, Malay and Turkish
+- [x] Complete member-app draft catalogs for Indonesian, Malay and Turkish
 - [ ] Complete member-app draft catalogs for Arabic, Bengali, Hindi and Persian
 - [ ] Complete reviewed translations for every target catalog
 - [ ] Native-language and RTL visual QA
@@ -1905,7 +1905,7 @@ SOUL's approved first global target mirrors Muzz's current locale coverage: Engl
 
 Do not treat the presence of a JSON file as proof that a translation is finished. Draft catalogs are available for QA and fall back safely to English, but Flutter must not advertise them as completed languages. Run `npm run localization:audit` to verify exact key parity and see the current draft/ready report.
 
-Spanish, French, German, Italian, Russian and Dutch currently have complete member-flow drafts covering authentication, onboarding, profiles, discovery, matching, chat, private photos, safety, notifications, settings and legal consent. Natural shared product terms such as Email, Chat, Marketing or Privacy may remain unchanged where that is normal in the target language. These catalogs remain draft until native-language review. Admin-interface keys intentionally remain English and are excluded from member translation coverage.
+Spanish, French, German, Italian, Russian, Dutch, Indonesian, Malay and Turkish currently have complete member-flow drafts covering authentication, onboarding, profiles, discovery, matching, chat, private photos, safety, notifications, settings and legal consent. Natural shared product terms such as Email, Chat, Marketing or Privacy may remain unchanged where that is normal in the target language. These catalogs remain draft until native-language review. Admin-interface keys intentionally remain English and are excluded from member translation coverage.
 
 ### Flutter: load translations
 
