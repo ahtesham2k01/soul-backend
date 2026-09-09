@@ -59,28 +59,30 @@ class ConfiguredStorePurchaseVerifier implements StorePurchaseVerifier
         $credentials = new ServiceAccountCredentials('https://www.googleapis.com/auth/androidpublisher', json_decode($json, true, flags: JSON_THROW_ON_ERROR));
         $token = $credentials->fetchAuthToken()['access_token'] ?? null;
         if (! is_string($token)) throw new RuntimeException('Google Play authorization failed.');
-        $response = Http::withToken($token)->acceptJson()->get('https://androidpublisher.googleapis.com/androidpublisher/v3/applications/'.rawurlencode($package).'/purchases/subscriptionsv2/tokens/'.rawurlencode($purchaseToken));
+        $response = Http::withToken($token)->acceptJson()->timeout(10)->get('https://androidpublisher.googleapis.com/androidpublisher/v3/applications/'.rawurlencode($package).'/purchases/subscriptionsv2/tokens/'.rawurlencode($purchaseToken));
         if (! $response->successful()) throw new RuntimeException('Google Play receipt verification failed.');
         $data = $response->json();
         $line = collect($data['lineItems'] ?? [])->first(fn ($item) => ($item['productId'] ?? null) === $productId);
         if (! is_array($line)) throw new RuntimeException('Google Play product mismatch.');
         $state = (string) ($data['subscriptionState'] ?? '');
-        $status = in_array($state, ['SUBSCRIPTION_STATE_ACTIVE', 'SUBSCRIPTION_STATE_IN_GRACE_PERIOD'], true) ? 'active' : 'inactive';
-        return new VerifiedStorePurchase($productId, hash('sha256', $purchaseToken), null, $status, CarbonImmutable::parse($data['startTime'] ?? now()), isset($line['expiryTime']) ? CarbonImmutable::parse($line['expiryTime']) : null);
+        $expires = isset($line['expiryTime']) ? CarbonImmutable::parse($line['expiryTime']) : null;
+        $status = in_array($state, ['SUBSCRIPTION_STATE_ACTIVE', 'SUBSCRIPTION_STATE_IN_GRACE_PERIOD', 'SUBSCRIPTION_STATE_CANCELED'], true) && ($expires === null || $expires->isFuture()) ? 'active' : 'inactive';
+        return new VerifiedStorePurchase($productId, hash('sha256', $purchaseToken), null, $status, CarbonImmutable::parse($data['startTime'] ?? now()), $expires);
     }
 
     private function verifyApple(string $productId, string $transactionId): VerifiedStorePurchase
     {
         $token = $this->appleApiToken();
         $base = app()->isProduction() ? 'https://api.storekit.itunes.apple.com' : 'https://api.storekit-sandbox.itunes.apple.com';
-        $response = Http::withToken($token)->acceptJson()->get($base.'/inApps/v1/transactions/'.rawurlencode($transactionId));
+        $response = Http::withToken($token)->acceptJson()->timeout(10)->get($base.'/inApps/v1/transactions/'.rawurlencode($transactionId));
         if (! $response->successful()) throw new RuntimeException('Apple receipt verification failed.');
         $claims = $this->decodeJwtPayload((string) $response->json('signedTransactionInfo'));
         if (($claims['bundleId'] ?? null) !== config('services.stores.apple.bundle_id') || ($claims['productId'] ?? null) !== $productId) {
             throw new RuntimeException('Apple receipt product or application mismatch.');
         }
         $expires = isset($claims['expiresDate']) ? CarbonImmutable::createFromTimestampMs((int) $claims['expiresDate']) : null;
-        return new VerifiedStorePurchase($productId, (string) $claims['transactionId'], $claims['originalTransactionId'] ?? null, $expires === null || $expires->isFuture() ? 'active' : 'expired', CarbonImmutable::createFromTimestampMs((int) ($claims['purchaseDate'] ?? now()->getTimestampMs())), $expires);
+        $active = ! isset($claims['revocationDate']) && ($expires === null || $expires->isFuture());
+        return new VerifiedStorePurchase($productId, (string) $claims['transactionId'], $claims['originalTransactionId'] ?? null, $active ? 'active' : 'expired', CarbonImmutable::createFromTimestampMs((int) ($claims['purchaseDate'] ?? now()->getTimestampMs())), $expires);
     }
 
     private function appleApiToken(): string

@@ -1659,6 +1659,8 @@ Laravel verifies purchases directly with App Store Server API or Google Play Dev
 
 Every notification is stored in-app first. Selected push/email channels are expanded into a durable per-device delivery ledger. APNs, FCM and email workers are idempotent, retry with backoff, record only safe failure codes and revoke invalid device tokens. Super-admin Operations shows pending, failed and recent-delivery counts without exposing tokens, message bodies or provider secrets.
 
+Provider jobs claim ledger rows atomically before network delivery. A five-minute recovery command re-queues due retries and work left stale by an interrupted worker; concurrent recovery cannot deliver the same claimed row twice. Keep the Laravel scheduler and durable queue workers running in every shared environment.
+
 ### Capability response
 
 Each key contains `enabled`, `daily_limit`, `daily_used`, `monthly_limit`, `monthly_used` and `source`. A null limit means unlimited. Additive capability keys are expected; unknown keys should be ignored safely.
@@ -2089,6 +2091,7 @@ The automated smoke command performs GET requests only against health, readiness
 ### Recurring operations
 
 - The soul:cleanup command runs daily and removes expired private export files and stale OTP records.
+- The soul:recover-provider-work command runs every five minutes and safely recovers interrupted store-webhook and notification-delivery work.
 - Run queue failure monitoring continuously and retry only idempotent jobs after investigation.
 - Review dependency audit results on every proposed release.
 - Test backups and account-deletion execution in a non-production environment regularly.

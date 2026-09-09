@@ -37,8 +37,8 @@ class ConfiguredNotificationChannelSender implements NotificationChannelSender
         $token = $credentials->fetchAuthToken()['access_token'] ?? null;
         if (! is_string($token)) throw new RuntimeException('FCM authorization failed.');
         $data = $attempt->notification->data;
-        $response = Http::withToken($token)->post('https://fcm.googleapis.com/v1/projects/'.rawurlencode($project).'/messages:send', ['message' => ['token' => $attempt->device->push_token, 'notification' => ['title' => (string) ($data['title'] ?? 'SOUL'), 'body' => (string) ($data['body'] ?? $data['message'] ?? '')], 'data' => collect($data)->map(fn ($value) => is_scalar($value) ? (string) $value : json_encode($value))->all()]]);
-        if (in_array($response->status(), [404, 410], true)) { $attempt->device->update(['revoked_at' => now()]); throw new RuntimeException('Push token is no longer valid.'); }
+        $response = Http::withToken($token)->timeout(10)->post('https://fcm.googleapis.com/v1/projects/'.rawurlencode($project).'/messages:send', ['message' => ['token' => $attempt->device->push_token, 'notification' => ['title' => (string) ($data['title'] ?? 'SOUL'), 'body' => (string) ($data['body'] ?? $data['message'] ?? '')], 'data' => collect($data)->map(fn ($value) => is_scalar($value) ? (string) $value : json_encode($value, JSON_THROW_ON_ERROR))->all()]]);
+        if (str_contains((string) $response->body(), 'UNREGISTERED')) { $attempt->device->update(['revoked_at' => now()]); throw new RuntimeException('Push token is no longer valid.'); }
         if (! $response->successful()) throw new RuntimeException('FCM delivery failed.');
         return $response->json('name');
     }
@@ -49,8 +49,8 @@ class ConfiguredNotificationChannelSender implements NotificationChannelSender
         if ($team === '' || $keyId === '' || $bundle === '' || $key === '') throw new RuntimeException('APNs is not configured.');
         $jwt = EcJwt::sign(['alg' => 'ES256', 'kid' => $keyId], ['iss' => $team, 'iat' => time()], $key); $data = $attempt->notification->data;
         $host = app()->isProduction() ? 'https://api.push.apple.com' : 'https://api.sandbox.push.apple.com';
-        $response = Http::withToken($jwt)->withHeaders(['apns-topic' => $bundle, 'apns-push-type' => 'alert'])->post($host.'/3/device/'.rawurlencode($attempt->device->push_token), ['aps' => ['alert' => ['title' => (string) ($data['title'] ?? 'SOUL'), 'body' => (string) ($data['body'] ?? $data['message'] ?? '')], 'sound' => 'default'], 'type' => $attempt->notification->type]);
-        if (in_array($response->status(), [400, 404, 410], true)) $attempt->device->update(['revoked_at' => now()]);
+        $response = Http::withToken($jwt)->timeout(10)->withHeaders(['apns-topic' => $bundle, 'apns-push-type' => 'alert'])->post($host.'/3/device/'.rawurlencode($attempt->device->push_token), ['aps' => ['alert' => ['title' => (string) ($data['title'] ?? 'SOUL'), 'body' => (string) ($data['body'] ?? $data['message'] ?? '')], 'sound' => 'default'], 'type' => $attempt->notification->type]);
+        if (in_array($response->json('reason'), ['BadDeviceToken', 'DeviceTokenNotForTopic', 'Unregistered'], true)) $attempt->device->update(['revoked_at' => now()]);
         if (! $response->successful()) throw new RuntimeException('APNs delivery failed.');
         return $response->header('apns-id');
     }

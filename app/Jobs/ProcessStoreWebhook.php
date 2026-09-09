@@ -11,6 +11,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
 use Throwable;
 
 class ProcessStoreWebhook implements ShouldQueue
@@ -21,17 +22,21 @@ class ProcessStoreWebhook implements ShouldQueue
     public function __construct(public int $eventId) {}
     public function handle(StorePurchaseVerifier $verifier, SubscriptionLifecycle $lifecycle): void
     {
-        $event = StoreWebhookEvent::findOrFail($this->eventId);
-        if ($event->status === 'processed') return;
-        $event->increment('attempts');
+        $event = DB::transaction(function (): ?StoreWebhookEvent {
+            $record = StoreWebhookEvent::query()->lockForUpdate()->find($this->eventId);
+            if (! $record || ! in_array($record->status, ['pending', 'failed'], true)) return null;
+            $record->update(['status' => 'processing', 'processing_started_at' => now(), 'attempts' => $record->attempts + 1]);
+            return $record;
+        });
+        if (! $event) return;
         try {
             foreach ($verifier->verifyWebhook($event->platform, $event->encrypted_payload) as $purchase) {
                 $receipt = StorePurchaseReceipt::query()->where('platform', $event->platform)->where(function ($q) use ($purchase) { $q->where('provider_transaction_id', $purchase->transactionId)->when($purchase->originalTransactionId, fn ($q) => $q->orWhere('provider_original_transaction_id', $purchase->originalTransactionId)); })->latest()->first();
                 if ($receipt) $lifecycle->apply($receipt, $purchase);
             }
-            $event->update(['status' => 'processed', 'processed_at' => now(), 'failure_code' => null]);
+            $event->update(['status' => 'processed', 'processing_started_at' => null, 'processed_at' => now(), 'failure_code' => null]);
         } catch (Throwable $exception) {
-            $event->update(['status' => 'failed', 'failure_code' => 'PROVIDER_VERIFICATION_FAILED']);
+            $event->update(['status' => 'failed', 'processing_started_at' => null, 'failure_code' => 'PROVIDER_VERIFICATION_FAILED']);
             throw $exception;
         }
     }
