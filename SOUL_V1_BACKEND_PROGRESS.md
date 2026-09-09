@@ -110,6 +110,9 @@ Fresh-audit completion: **1/5 phases complete (20%)**.
 - [x] API distinguishes target, draft and launch-ready catalogs
 - [x] Automated target-catalog key-parity audit
 - [x] Complete member-app draft catalogs for Spanish, French and German
+- [x] Complete member-app draft catalogs for Italian, Russian and Dutch
+- [ ] Complete member-app draft catalogs for Indonesian, Malay and Turkish
+- [ ] Complete member-app draft catalogs for Arabic, Bengali, Hindi and Persian
 - [ ] Complete reviewed translations for every target catalog
 - [ ] Native-language and RTL visual QA
 - [ ] Mark all 16 target locales launch-ready

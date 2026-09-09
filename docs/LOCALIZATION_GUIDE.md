@@ -23,7 +23,7 @@ SOUL's approved first global target mirrors Muzz's current locale coverage: Engl
 
 Do not treat the presence of a JSON file as proof that a translation is finished. Draft catalogs are available for QA and fall back safely to English, but Flutter must not advertise them as completed languages. Run `npm run localization:audit` to verify exact key parity and see the current draft/ready report.
 
-Spanish, French and German currently have complete member-flow drafts covering authentication, onboarding, profiles, discovery, matching, chat, private photos, safety, notifications, settings and legal consent. They remain draft until native-language review. Admin-interface keys intentionally remain English and are excluded from member translation coverage.
+Spanish, French, German, Italian, Russian and Dutch currently have complete member-flow drafts covering authentication, onboarding, profiles, discovery, matching, chat, private photos, safety, notifications, settings and legal consent. Natural shared product terms such as Email, Chat, Marketing or Privacy may remain unchanged where that is normal in the target language. These catalogs remain draft until native-language review. Admin-interface keys intentionally remain English and are excluded from member translation coverage.
 
 ## Flutter: load translations
 
