@@ -452,8 +452,8 @@ A phase is checked only when its migrations/models/services, authorized APIs, Re
 ### Post-audit completion roadmap
 
 - [x] Phase 28 — Active device sessions and targeted remote logout
-- [ ] Phase 29 — Store receipt verification and subscription lifecycle webhooks
-- [ ] Phase 30 — APNs/FCM delivery workers and notification operations monitoring
+- [x] Phase 29 — Store receipt verification and subscription lifecycle webhooks
+- [x] Phase 30 — APNs/FCM/email delivery workers and notification operations monitoring
 - [x] Phase 31 — Admin-managed interests/traits plus private member help/support
 - [x] Phase 32 — Duplicate identity detection and conservative, audited account merge
 - [x] Phase 33 — Private real-time chat events and member-bound channel authorization
@@ -564,12 +564,12 @@ Product pricing, jurisdiction-specific legal wording, irreversible moderation po
 A stricter production-flow audit found provider and operational gaps beyond the original gap-closure checklist. These phases now prevent “release candidate” from being confused with fully integrated production behavior.
 
 - [x] Phase 28 — Active device sessions and targeted remote logout
-- [ ] Phase 29 — Store receipt verification and subscription lifecycle webhooks
-- [ ] Phase 30 — APNs/FCM delivery workers and notification operations monitoring
-- [ ] Phase 31 — Admin-managed interests/traits plus member help/support
-- [ ] Phase 32 — Duplicate identity merge hardening and final staging automation
+- [x] Phase 29 — Store receipt verification and subscription lifecycle webhooks
+- [x] Phase 30 — APNs/FCM/email delivery workers and notification operations monitoring
+- [x] Phase 31 — Admin-managed interests/traits plus private member help/support
+- [x] Phase 32 — Duplicate identity detection and conservative, audited account merge
 
-Fresh-audit completion: **1/5 phases complete (20%)**.
+Fresh-audit completion: **5/5 phases complete (100%)**. Provider code fails closed until credentials are configured; sandbox/real-device verification remains separately tracked in Phase 34.
 
 ### Global localization expansion
 
@@ -1046,6 +1046,7 @@ Do not cache candidate, match or message pages across users. A 404 for a profile
 | POST | `/legal/consent` | `api.v1.legal.consent.store` | Idempotently accept all current legal documents |
 | GET | `/subscription/entitlements` | `api.v1.subscription.entitlements.index` | Effective capability limits and usage for this member |
 | GET | `/subscription/products` | `api.v1.subscription.products.index` | Active Apple/Google product mappings for platform and country |
+| POST | `/subscription/purchases` | `api.v1.subscription.purchases.store` | Verify an Apple/Google transaction and refresh server-owned subscription state |
 | GET | `/privacy/settings` | `api.v1.privacy.settings.show` | Load privacy defaults |
 | PUT | `/privacy/settings` | `api.v1.privacy.settings.update` | Partial privacy update |
 | PUT | `/privacy/contacts` | `api.v1.privacy.contacts.update` | Replace privacy-safe contact hashes |
@@ -1135,8 +1136,9 @@ The React admin uses same-origin secure session cookies, not mobile bearer token
 | Method | Path | Route contract | Purpose |
 |---|---|---|---|
 | POST | `/webhooks/cloudinary/moderation` | `api.v1.webhooks.cloudinary.moderation` | Ingest signed Cloudinary moderation notification |
+| POST | `/webhooks/stores/{platform}` | `api.v1.webhooks.stores` | Deduplicate and queue Apple/Google lifecycle notification for provider verification |
 
-This endpoint is for signed Cloudinary notifications only. Flutter must never call it.
+These endpoints are provider callbacks only. Cloudinary requests use the configured webhook signature; store callbacks are deduplicated and must pass a fresh Apple/Google server verification before changing subscription state. Flutter must never call either webhook.
 
 ### Stable V1 enums
 
@@ -1647,10 +1649,15 @@ This guide explains subscriptions without hard-coded plans or prices. Laravel de
 1. Call `GET /subscription/products?platform=ios|android&country_code=PK`.
 2. Show only products returned by Laravel. Fetch the display price from Apple or Google using `product_id`.
 3. Complete purchase with the platform store. Never send or trust a price entered by the client.
-4. After the server has validated the store transaction and activated the subscription, refresh `GET /subscription/entitlements?platform=...`.
-5. Use each capability's `enabled`, limit and usage fields for presentation. Laravel must still authorize the action.
+4. Send the opaque transaction ID/purchase token to `POST /subscription/purchases` with the returned `product_id` and platform. Do not log or persist it in Flutter.
+5. Only after Laravel returns `active`, refresh `GET /subscription/entitlements?platform=...`.
+6. Use each capability's `enabled`, limit and usage fields for presentation. Laravel must still authorize the action.
 
-Store receipt verification and server notifications require Apple/Google production credentials. A database subscription must never be created from an unverified client claim.
+Laravel verifies purchases directly with App Store Server API or Google Play Developer API. Provider server notifications are deduplicated, queued and verified again against the provider before they can change an entitlement. Raw receipts and webhook payloads are encrypted at rest and never returned. Missing credentials fail closed. A database subscription is never created from an unverified client claim.
+
+### Notification delivery operations
+
+Every notification is stored in-app first. Selected push/email channels are expanded into a durable per-device delivery ledger. APNs, FCM and email workers are idempotent, retry with backoff, record only safe failure codes and revoke invalid device tokens. Super-admin Operations shows pending, failed and recent-delivery counts without exposing tokens, message bodies or provider secrets.
 
 ### Capability response
 
@@ -1838,7 +1845,8 @@ erDiagram
 | Discovery | `discovery_preferences`, `discovery_preference_locations`, `discovery_preference_intentions`, `profile_decisions`, `user_matches` | One preference row; normalized multi-location/intention filters; one current decision per actor/target; normalized match pair |
 | Chat/safety | `conversations`, `messages`, `user_blocks`, `user_reports`, `safety_cases`, `account_appeals` | One conversation per match; directional blocks; durable risk queue; one account appeal per user |
 | Verification | `profile_verification_cases`, `verification_appeals` | Multiple typed cases per user; optional/risk-required semantics; explicit verified timestamp; at most one appeal per case |
-| Notifications | `user_devices`, `notification_preferences`, `user_notifications`, `notification_broadcasts` | Encrypted token plus unique hash; separate push/email settings; consent timestamp; mandatory safety channels; globally unique event deduplication key; idempotent broadcast recipient |
+| Notifications | `user_devices`, `notification_preferences`, `user_notifications`, `notification_broadcasts`, `notification_delivery_attempts` | Encrypted token plus unique hash; separate push/email settings; mandatory safety channels; idempotent per-channel/device delivery ledger and safe retry state |
+| Subscriptions | `subscription_plans`, `store_products`, `user_subscriptions`, `store_purchase_receipts`, `store_webhook_events` | Dynamic plans/products; encrypted purchase evidence; unique receipt/event hashes; provider-verified lifecycle state |
 | Events | `events`, `event_translations`, `event_registrations`, `event_reports` | Admin ownership; localized copy; unique member registration; locked capacity counter; private report queue |
 | Privacy | `account_privacy_settings`, `hidden_contact_hashes`, `data_export_requests`, `account_deletion_requests` | One settings row; keyed non-reversible contact hashes; export/deletion lifecycle rows |
 | Admin/operations | `admin_audit_logs`, user `admin_role` | Restricted admin actor deletion and immutable operation evidence |
@@ -2150,8 +2158,8 @@ This checklist separates completed software from work that can only happen in st
 - [ ] Configure MySQL, Redis, durable private storage, HTTPS, queue workers and scheduler.
 - [ ] Configure Cloudinary uploads, moderation callbacks and authenticated private delivery.
 - [ ] Configure Google and Apple sign-in credentials and verify real-device flows.
-- [ ] Configure APNs/FCM and transactional email; test delivery, retry and deduplication.
-- [ ] Configure Apple/Google store products and receipt/server-notification verification.
+- [ ] Configure APNs/FCM and transactional email; verify delivery, invalid-token handling, retry and deduplication on real devices.
+- [ ] Configure Apple/Google store products; verify purchases, renewals, cancellations, grace periods and refunds in both sandbox stores.
 - [ ] Publish jurisdiction-reviewed Terms, Privacy Policy and Community Guidelines versions.
 - [ ] Run `php artisan soul:config-check --production` with staging-equivalent secrets.
 - [ ] Run `php artisan soul:smoke --base-url=<staging-url>` and the authenticated manual journeys below.

@@ -2644,6 +2644,34 @@
         }
       }
     },
+    "/subscription/purchases": {
+      "post": {
+        "operationId": "api.v1.subscription.purchases.store",
+        "summary": "Verify an Apple/Google transaction and refresh server-owned subscription state",
+        "tags": [
+          "Subscription"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
     "/privacy/settings": {
       "get": {
         "operationId": "api.v1.privacy.settings.show",
@@ -5249,6 +5277,39 @@
         "security": [
           {
             "cloudinarySignature": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/webhooks/stores/{platform}": {
+      "post": {
+        "operationId": "api.v1.webhooks.stores",
+        "summary": "Deduplicate and queue Apple/Google lifecycle notification for provider verification",
+        "tags": [
+          "Webhooks"
+        ],
+        "parameters": [
+          {
+            "name": "platform",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {

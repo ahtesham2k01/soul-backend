@@ -11,8 +11,8 @@ const endpoints = [...handoff.matchAll(endpointPattern)].map((match) => ({
     summary: match[4].trim(),
 }));
 
-if (endpoints.length !== 147) {
-    throw new Error(`Expected 147 documented endpoints, found ${endpoints.length}.`);
+if (endpoints.length !== 149) {
+    throw new Error(`Expected 149 documented endpoints, found ${endpoints.length}.`);
 }
 
 const publicOperations = new Set([
@@ -27,6 +27,7 @@ const publicOperations = new Set([
     'api.v1.auth.google',
     'api.v1.auth.apple',
     'api.v1.location.resolve',
+    'api.v1.webhooks.stores',
     'api.v1.onboarding.religion-options',
     'api.v1.webhooks.cloudinary.moderation',
 ]);

@@ -2128,6 +2128,29 @@
             },
             "description": "api.v1.subscription.products.index: Active Apple/Google product mappings for platform and country"
           }
+        },
+        {
+          "name": "Verify an Apple/Google transaction and refresh server-owned subscription state",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/subscription/purchases",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "subscription",
+                "purchases"
+              ]
+            },
+            "description": "api.v1.subscription.purchases.store: Verify an Apple/Google transaction and refresh server-owned subscription state"
+          }
         }
       ]
     },
@@ -4176,6 +4199,33 @@
               ]
             },
             "description": "api.v1.webhooks.cloudinary.moderation: Ingest signed Cloudinary moderation notification"
+          }
+        },
+        {
+          "name": "Deduplicate and queue Apple/Google lifecycle notification for provider verification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/webhooks/stores/{platform}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "webhooks",
+                "stores",
+                "{platform}"
+              ]
+            },
+            "description": "api.v1.webhooks.stores: Deduplicate and queue Apple/Google lifecycle notification for provider verification"
           }
         }
       ]

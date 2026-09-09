@@ -5,10 +5,14 @@ namespace App\Providers;
 use App\Contracts\Auth\AppleTokenVerifier;
 use App\Contracts\Auth\GoogleTokenVerifier;
 use App\Contracts\Location\GeolocationProvider;
+use App\Contracts\Billing\StorePurchaseVerifier;
+use App\Contracts\Notifications\NotificationChannelSender;
 use App\Infrastructure\Auth\AppleIdentityTokenVerifier;
 use App\Infrastructure\Auth\GoogleAuthTokenVerifier;
 use App\Infrastructure\Location\CloudflareGeolocationProvider;
 use App\Infrastructure\Location\NullGeolocationProvider;
+use App\Infrastructure\Billing\ConfiguredStorePurchaseVerifier;
+use App\Infrastructure\Notifications\ConfiguredNotificationChannelSender;
 use App\Models\PersonalAccessToken;
 use App\Services\Auth\EmailOtpService;
 use App\Support\ApiResponse;
@@ -25,6 +29,8 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        $this->app->singleton(StorePurchaseVerifier::class, ConfiguredStorePurchaseVerifier::class);
+        $this->app->singleton(NotificationChannelSender::class, ConfiguredNotificationChannelSender::class);
         $this->app->singleton(
             GeolocationProvider::class,
             function ($app): GeolocationProvider {

@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\NotificationBroadcast;
 use App\Models\User;
+use App\Models\UserNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -59,6 +60,9 @@ class DeliverNotificationBroadcast implements ShouldQueue
             })->all());
         });
         $delivered = DB::table('user_notifications')->where('broadcast_id', $broadcast->id)->count();
+        UserNotification::query()->where('broadcast_id', $broadcast->id)->select('id')->chunkById(500, function ($notifications): void {
+            foreach ($notifications as $notification) PrepareNotificationDeliveries::dispatch($notification->id);
+        });
         $broadcast->update(['status' => 'completed', 'delivered_count' => $delivered, 'completed_at' => now()]);
     }
 }

@@ -68,6 +68,8 @@ use App\Http\Controllers\Api\V1\Safety\ReportUserController;
 use App\Http\Controllers\Api\V1\Safety\SubmitVerificationAppealController;
 use App\Http\Controllers\Api\V1\Subscriptions\EntitlementController;
 use App\Http\Controllers\Api\V1\Subscriptions\ProductController;
+use App\Http\Controllers\Api\V1\Subscriptions\PurchaseController;
+use App\Http\Controllers\Api\V1\Webhooks\StoreLifecycleController;
 use App\Http\Controllers\Api\V1\SupportAttachmentController;
 use App\Http\Controllers\Api\V1\SupportTicketController;
 use App\Http\Controllers\Api\V1\Webhooks\CloudinaryModerationController;
@@ -213,6 +215,7 @@ Route::prefix('v1')->group(function (): void {
         Route::post('/legal/consent', [LegalConsentController::class, 'store'])->middleware('throttle:10,60')->name('api.v1.legal.consent.store');
         Route::get('/subscription/entitlements', EntitlementController::class)->name('api.v1.subscription.entitlements.index');
         Route::get('/subscription/products', ProductController::class)->name('api.v1.subscription.products.index');
+        Route::post('/subscription/purchases', [PurchaseController::class, 'store'])->middleware('throttle:10,1')->name('api.v1.subscription.purchases.store');
         Route::get('/privacy/settings', [PrivacyController::class, 'showSettings'])->name('api.v1.privacy.settings.show');
         Route::put('/privacy/settings', [PrivacyController::class, 'updateSettings'])->name('api.v1.privacy.settings.update');
         Route::put('/privacy/contacts', [PrivacyController::class, 'replaceContacts'])->middleware('throttle:5,60')->name('api.v1.privacy.contacts.update');
@@ -244,6 +247,9 @@ Route::prefix('v1')->group(function (): void {
         '/health/ready',
         ReadinessController::class,
     )->name('api.v1.health.ready');
+
+    Route::post('/webhooks/stores/{platform}', StoreLifecycleController::class)
+        ->middleware('throttle:120,1')->name('api.v1.webhooks.stores');
 
     Route::get(
         '/bootstrap',
