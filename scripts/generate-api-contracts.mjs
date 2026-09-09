@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const root = path.resolve(import.meta.dirname, '..');
-const handoff = fs.readFileSync(path.join(root, 'docs/FLUTTER_API_HANDOFF.md'), 'utf8');
+const handoff = fs.readFileSync(path.join(root, 'docs/SOUL_V1_MASTER_DOCUMENTATION.md'), 'utf8');
 const endpointPattern = /^\| (GET|POST|PUT|DELETE|PATCH) \| `([^`]+)` \| `([^`]+)` \| ([^|]+) \|$/gm;
 const endpoints = [...handoff.matchAll(endpointPattern)].map((match) => ({
     method: match[1],
@@ -126,7 +126,7 @@ const openapi = {
     info: {
         title: 'SOUL V1 API',
         version: '1.0.0',
-        description: 'Machine-readable companion to docs/FLUTTER_API_HANDOFF.md.',
+        description: 'Machine-readable companion to docs/SOUL_V1_MASTER_DOCUMENTATION.md.',
     },
     servers: [{ url: 'http://localhost/api/v1', description: 'Local development; replace the origin per environment' }],
     paths,
