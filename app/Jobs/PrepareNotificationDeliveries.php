@@ -18,13 +18,13 @@ class PrepareNotificationDeliveries implements ShouldQueue
     {
         $notification = UserNotification::with('user.devices')->find($this->notificationId);
         if (! $notification) return;
-        foreach ($notification->delivery_channels as $channel) {
+        foreach ($notification->delivery_channels ?? ['in_app'] as $channel) {
             if ($channel === 'in_app') continue;
             $devices = $channel === 'push' ? $notification->user->devices->whereNull('revoked_at') : collect([null]);
             foreach ($devices as $device) {
                 $key = hash('sha256', $notification->id.'|'.$channel.'|'.($device?->id ?? 'account'));
                 $attempt = NotificationDeliveryAttempt::firstOrCreate(['deduplication_key' => $key], ['user_notification_id' => $notification->id, 'user_device_id' => $device?->id, 'channel' => $channel, 'provider' => $channel === 'email' ? 'mail' : ($device?->platform === 'ios' ? 'apns' : 'fcm')]);
-                if ($attempt->wasRecentlyCreated || in_array($attempt->status, ['pending', 'retrying'], true)) DeliverNotificationAttempt::dispatch($attempt->id);
+                if ($attempt->wasRecentlyCreated) DeliverNotificationAttempt::dispatch($attempt->id);
             }
         }
     }
