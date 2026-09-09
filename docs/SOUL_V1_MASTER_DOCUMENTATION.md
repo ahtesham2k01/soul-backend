@@ -553,6 +553,12 @@ The original 16 phases established the backend and admin foundation. A fresh req
 
 Gap closure: **16/16 phases complete (100%)**.
 
+### Product decision framework
+
+SOUL is intended to be a full global relationship platform where adults can meet for marriage, a serious relationship or dating. Engineering may proactively add missing, unambiguous requirements that improve completeness, reliability, accessibility, abuse prevention, privacy, operational control or developer experience. Every such addition must remain consistent with the confirmed product flow, be documented, tested and exposed to Flutter/admin only where appropriate.
+
+Product pricing, jurisdiction-specific legal wording, irreversible moderation policy, collection of new sensitive data and changes that materially alter member expectations still require explicit owner approval. Safety and privacy defaults should be conservative when a decision cannot safely be deferred.
+
 ### Fresh-audit completion roadmap
 
 A stricter production-flow audit found provider and operational gaps beyond the original gap-closure checklist. These phases now prevent “release candidate” from being confused with fully integrated production behavior.
@@ -569,7 +575,7 @@ Fresh-audit completion: **1/5 phases complete (20%)**.
 
 - [x] React admin interface fixed to English-only
 - [x] Admin can still manage member-app translations
-- [x] Muzz-parity 16-locale product target recorded
+- [x] Global 34-locale product target recorded
 - [x] Roman Urdu remains Latin-script and LTR
 - [x] Arabic and Persian direction metadata remains RTL
 - [x] API distinguishes target, draft and launch-ready catalogs
@@ -577,10 +583,13 @@ Fresh-audit completion: **1/5 phases complete (20%)**.
 - [x] Complete member-app draft catalogs for Spanish, French and German
 - [x] Complete member-app draft catalogs for Italian, Russian and Dutch
 - [x] Complete member-app draft catalogs for Indonesian, Malay and Turkish
-- [ ] Complete member-app draft catalogs for Arabic, Bengali, Hindi and Persian
+- [x] Complete member-app draft catalogs for Arabic, Bengali, Hindi and Persian
 - [ ] Complete reviewed translations for every target catalog
 - [ ] Native-language and RTL visual QA
-- [ ] Mark all 16 target locales launch-ready
+- [ ] Complete South Asian expansion: Punjabi, Gujarati, Marathi, Tamil and Telugu
+- [ ] Complete East/Southeast Asian expansion: Simplified/Traditional Chinese, Japanese, Korean, Vietnamese, Thai and Filipino
+- [ ] Complete wider global expansion: Brazilian/European Portuguese, Hebrew, Ukrainian, Polish and Swahili
+- [ ] Mark all 34 target locales launch-ready
 
 ### Architecture and developer handoff documentation
 
@@ -1896,7 +1905,7 @@ This guide explains the translation system in simple steps. Laravel owns transla
 
 ### Product language target and readiness
 
-SOUL's approved first global target mirrors Muzz's current locale coverage: English (US and UK), Spanish, French, German, Italian, Russian, Dutch, Indonesian, Malay, Turkish, Arabic, Bengali, Hindi, Persian and Roman Urdu. SOUL intentionally uses Roman Urdu in Latin letters; it does not ship an Urdu-script catalog.
+SOUL's approved global target covers 34 useful member locales: English (US and UK), Roman Urdu, Arabic, Persian, Hebrew, Hindi, Bengali, Punjabi, Gujarati, Marathi, Tamil, Telugu, Simplified and Traditional Chinese, Spanish, French, German, Brazilian and European Portuguese, Russian, Ukrainian, Japanese, Korean, Indonesian, Malay, Turkish, Italian, Dutch, Polish, Vietnamese, Thai, Filipino and Swahili. SOUL intentionally uses Roman Urdu in Latin letters; it does not ship an Urdu-script catalog.
 
 `supported_languages` distinguishes two facts:
 

@@ -21,16 +21,20 @@ return [
 
     'translations' => [
         'fallback_locale' => 'en',
-        'catalog_version' => '16',
+        'catalog_version' => '17',
 
         /*
-         * Product-approved launch target. These are the locales currently
-         * offered by Muzz, with SOUL intentionally serving Roman Urdu in
-         * Latin script instead of Urdu script.
+         * Product-approved global target. This includes useful member
+         * languages across South Asia, Muslim-majority markets, Europe,
+         * East and Southeast Asia, Africa and the Americas. SOUL
+         * intentionally serves Roman Urdu in Latin script.
          */
         'target_locales' => [
-            'en', 'en-GB', 'es', 'fr', 'de', 'it', 'ru', 'nl',
-            'id', 'ms', 'tr', 'ar', 'bn', 'hi', 'fa', 'ur',
+            'en', 'en-GB', 'ur', 'ar', 'fa', 'he', 'hi', 'bn',
+            'pa', 'gu', 'mr', 'ta', 'te', 'zh-CN', 'zh-TW',
+            'es', 'fr', 'de', 'pt-BR', 'pt-PT', 'ru', 'uk',
+            'ja', 'ko', 'id', 'ms', 'tr', 'it', 'nl', 'pl',
+            'vi', 'th', 'fil', 'sw',
         ],
 
         /*
