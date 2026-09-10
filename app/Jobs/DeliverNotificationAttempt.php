@@ -16,6 +16,8 @@ class DeliverNotificationAttempt implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     public int $tries = 5;
+    public int $timeout = 30;
+    public bool $failOnTimeout = true;
     public array $backoff = [60, 300, 900, 3600];
     public function __construct(public int $attemptId) {}
     public function handle(NotificationChannelSender $sender): void

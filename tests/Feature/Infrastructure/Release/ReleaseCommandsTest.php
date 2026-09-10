@@ -90,9 +90,29 @@ class ReleaseCommandsTest extends TestCase
 
         $this->assertFalse($readiness['apple_store']['ready']);
         $this->assertSame(['key_id'], $readiness['apple_store']['missing']);
+        $this->assertSame(['private_key'], $readiness['apple_store']['invalid']);
         $this->assertFalse($readiness['fcm']['ready']);
         $this->assertSame(['project_id', 'service_account_json'], $readiness['fcm']['missing']);
+        $this->assertSame([], $readiness['fcm']['invalid']);
         $this->assertStringNotContainsString('issuer-secret', json_encode($readiness));
         $this->assertStringNotContainsString('private-secret', json_encode($readiness));
+    }
+
+    public function test_provider_check_is_machine_readable_and_never_prints_credentials(): void
+    {
+        config([
+            'services.stores.google' => [
+                'package_name' => 'app.soul',
+                'service_account_json' => 'definitely-not-json-secret',
+            ],
+        ]);
+
+        $this->assertSame(1, Artisan::call('soul:provider-check', ['--json' => true]));
+        $output = Artisan::output();
+
+        $this->assertJson($output);
+        $this->assertStringContainsString('service_account_json', $output);
+        $this->assertStringContainsString('invalid', $output);
+        $this->assertStringNotContainsString('definitely-not-json-secret', $output);
     }
 }

@@ -9,6 +9,7 @@ use App\Models\ProfilePhoto;
 use App\Support\Media\CloudinaryUploadVerifier;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 
 class CloudinaryModerationController extends Controller
@@ -35,6 +36,14 @@ class CloudinaryModerationController extends Controller
             'face_detected' => ['sometimes', 'boolean'],
             'format' => ['sometimes', 'in:jpg,jpeg,png,webp,avif,heic'],
         ])->validate();
+
+        $replayKey = 'webhooks:cloudinary:'.hash('sha256', $timestamp.':'.$signature);
+        if (! Cache::add($replayKey, true, now()->addSeconds(max(60, (int) config(
+            'soul.media.cloudinary.webhook_tolerance_seconds',
+            7200,
+        ))))) {
+            return response()->json(['accepted' => true]);
+        }
 
         $photo = ProfilePhoto::query()
             ->where('storage_provider', 'cloudinary')

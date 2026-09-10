@@ -340,7 +340,7 @@ return [
             ),
             'response_signature_algorithm' => env(
                 'CLOUDINARY_RESPONSE_SIGNATURE_ALGORITHM',
-                'sha1',
+                'sha256',
             ),
         ],
     ],

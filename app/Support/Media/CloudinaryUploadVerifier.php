@@ -72,7 +72,7 @@ final class CloudinaryUploadVerifier
         $secret = (string) config('soul.media.cloudinary.api_secret');
         $algorithm = (string) config(
             'soul.media.cloudinary.response_signature_algorithm',
-            'sha1',
+            'sha256',
         );
 
         if ($secret === '' || ! in_array($algorithm, ['sha1', 'sha256'], true)) {

@@ -18,6 +18,8 @@ class ProcessStoreWebhook implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     public int $tries = 6;
+    public int $timeout = 45;
+    public bool $failOnTimeout = true;
     public array $backoff = [60, 300, 900, 3600, 10800];
     public function __construct(public int $eventId) {}
     public function handle(StorePurchaseVerifier $verifier, SubscriptionLifecycle $lifecycle): void

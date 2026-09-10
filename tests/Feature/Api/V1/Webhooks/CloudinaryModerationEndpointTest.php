@@ -115,6 +115,31 @@ class CloudinaryModerationEndpointTest extends TestCase
         ]);
     }
 
+    public function test_duplicate_signed_notification_is_acknowledged_without_replaying_mutation(): void
+    {
+        $photo = ProfilePhoto::factory()->create([
+            'provider_asset_id' => 'soul/profile-photos/replay-safe',
+            'moderation_status' => 'pending',
+        ]);
+        $body = json_encode([
+            'public_id' => 'soul/profile-photos/replay-safe',
+            'moderation_status' => 'approved',
+        ], JSON_THROW_ON_ERROR);
+        $timestamp = now()->timestamp;
+        $signature = $this->signature($body, $timestamp);
+
+        $this->notification($body, $timestamp, $signature)->assertOk();
+        $photo->refresh()->update(['moderation_status' => 'pending']);
+        $this->notification($body, $timestamp, $signature)
+            ->assertOk()
+            ->assertJsonPath('accepted', true);
+
+        $this->assertDatabaseHas('profile_photos', [
+            'id' => $photo->id,
+            'moderation_status' => 'pending',
+        ]);
+    }
+
     private function signedNotification(string $body)
     {
         $timestamp = now()->timestamp;

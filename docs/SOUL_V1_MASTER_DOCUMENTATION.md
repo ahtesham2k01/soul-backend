@@ -2144,6 +2144,7 @@ Do not restore a drill over staging or production, and never commit backup artif
 
 ### Recurring operations
 
+- Run `php artisan soul:provider-check` after supplying or rotating provider credentials. It performs a secret-free structural preflight for Cloudinary, sign-in audiences, Apple/Google stores, APNs, FCM, transactional email and broadcasting. `--json` is suitable for deployment gates and reports only provider names plus missing/invalid field names; it never prints credential values. This check does not contact providers, so successful real-device and sandbox journeys remain mandatory.
 - The soul:cleanup command runs daily and removes expired private export files, stale OTP records, exhausted webhook payloads and old delivery-attempt rows. Defaults are 30 days for exhausted webhook payloads, 90 days for delivered attempts and 180 days for failed attempts; deployment owners may shorten these with the documented environment variables after legal review.
 - The soul:recover-provider-work command runs every five minutes and safely recovers interrupted store-webhook and notification-delivery work.
 - Run `php artisan soul:ops-check` from external monitoring at least every five minutes. It exits with code `0` when healthy and `1` when a configured queue, failure or stale-work threshold is exceeded. Its JSON output contains counts and warning codes, never job payloads, provider credentials or member data.
@@ -2165,6 +2166,9 @@ This audit records backend checks completed after the sixteen planned V1 phases.
 - Authenticated routes require an active account unless deletion cancellation explicitly requires access for a scheduled account.
 - Administration routes require an authenticated moderator or super-admin role.
 - Provider secrets, password hashes, internal database IDs and media provider asset IDs are not returned to clients.
+- Production configuration rejects malformed Google/FCM service-account JSON and invalid Apple/APNs private keys instead of treating any non-empty secret as ready. Cloudinary webhook signing must use SHA-256 in production.
+- Cloudinary moderation callbacks are timestamp-bound, signed and replay-suppressed through shared cache. Duplicate valid deliveries are acknowledged without repeating profile mutation. Store callbacks retain their database-backed payload hash and provider re-verification boundary.
+- Notification and store-webhook jobs have bounded execution time, exponential retry schedules and fail-on-timeout behavior so stalled provider connections cannot occupy workers indefinitely.
 
 ### Discovery and interaction eligibility
 
@@ -2241,6 +2245,7 @@ This checklist separates completed software from work that can only happen in st
 - [ ] Configure Apple/Google store products; verify purchases, renewals, cancellations, grace periods and refunds in both sandbox stores.
 - [ ] Publish jurisdiction-reviewed Terms, Privacy Policy and Community Guidelines versions.
 - [ ] Run `php artisan soul:config-check --production` with staging-equivalent secrets.
+- [ ] Run `php artisan soul:provider-check --json`; then complete real provider connectivity tests because structural readiness alone is not launch approval.
 - [ ] Run `php artisan soul:smoke --base-url=<staging-url>` and the authenticated manual journeys below.
 - [ ] Build a production-shaped disposable dataset with `soul:seed-performance`, record warmed `soul:performance-check` baselines, then perform approved staging load tests.
 - [ ] Verify an encrypted backup with `soul:backup-verify`, then perform an isolated restore test and rollback rehearsal with externally recorded RPO/RTO evidence.

@@ -4,17 +4,25 @@ namespace App\Support\Release;
 
 final class ReleaseConfigurationValidator
 {
-    /** @return array<string, array{ready: bool, missing: array<int, string>}> */
+    /** @return array<string, array{ready: bool, missing: array<int, string>, invalid: array<int, string>}> */
     public function providerReadiness(): array
     {
         return [
             'cloudinary' => $this->group(['cloud_name' => config('soul.media.cloudinary.cloud_name'), 'api_key' => config('soul.media.cloudinary.api_key'), 'api_secret' => config('soul.media.cloudinary.api_secret')]),
             'google_sign_in' => $this->group(['client_ids' => collect(config('services.google.client_ids', []))->filter()->first()]),
             'apple_sign_in' => $this->group(['client_ids' => collect(config('services.apple.client_ids', []))->filter()->first()]),
-            'apple_store' => $this->group(config('services.stores.apple', [])),
-            'google_play' => $this->group(config('services.stores.google', [])),
-            'fcm' => $this->group(config('services.push.fcm', [])),
-            'apns' => $this->group(config('services.push.apns', [])),
+            'apple_store' => $this->group(config('services.stores.apple', []), [
+                'private_key' => fn (mixed $value): bool => $this->isPrivateKey($value),
+            ]),
+            'google_play' => $this->group(config('services.stores.google', []), [
+                'service_account_json' => fn (mixed $value): bool => $this->isServiceAccount($value),
+            ]),
+            'fcm' => $this->group(config('services.push.fcm', []), [
+                'service_account_json' => fn (mixed $value): bool => $this->isServiceAccount($value),
+            ]),
+            'apns' => $this->group(config('services.push.apns', []), [
+                'private_key' => fn (mixed $value): bool => $this->isPrivateKey($value),
+            ]),
             'email' => $this->group(['mailer' => in_array(config('mail.default'), ['array', 'log'], true) ? null : config('mail.default'), 'from_address' => config('mail.from.address')]),
             'broadcasting' => $this->group(['connection' => in_array(config('broadcasting.default'), ['log', 'null'], true) ? null : config('broadcasting.default')]),
         ];
@@ -57,6 +65,7 @@ final class ReleaseConfigurationValidator
             $this->check('Backup freshness policy', (int) config('soul.release.backup.maximum_age_hours') > 0, 'SOUL_BACKUP_MAXIMUM_AGE_HOURS must be positive.'),
             $this->check('Connection warning policy', in_array((int) config('soul.operations.database_connection_warning_percent'), range(1, 100), true), 'Database connection warning percent must be between 1 and 100.'),
             $this->check('Cloudinary credentials', $this->cloudinaryCredentialsPresent(), 'Cloudinary cloud, key and secret are required.'),
+            $this->check('Cloudinary webhook signing', config('soul.media.cloudinary.response_signature_algorithm') === 'sha256', 'Production Cloudinary callbacks must use SHA-256 signatures.'),
             $this->check('Google audiences', $this->audiencesPresent('services.google.client_ids'), 'GOOGLE_CLIENT_IDS is required.'),
             $this->check('Apple audiences', $this->audiencesPresent('services.apple.client_ids'), 'APPLE_CLIENT_IDS is required.'),
             $this->check('Apple Store API', $providers['apple_store']['ready'], 'Apple Store issuer, key, bundle and private key are required.'),
@@ -132,12 +141,40 @@ final class ReleaseConfigurationValidator
     }
 
     /** @param array<string, mixed> $values
-     * @return array{ready: bool, missing: array<int, string>}
+     * @param array<string, callable(mixed): bool> $validators
+     * @return array{ready: bool, missing: array<int, string>, invalid: array<int, string>}
      */
-    private function group(array $values): array
+    private function group(array $values, array $validators = []): array
     {
         $missing = collect($values)->filter(fn (mixed $value): bool => blank($value))->keys()->values()->all();
+        $invalid = collect($validators)
+            ->filter(fn (callable $validator, string $key): bool => ! in_array($key, $missing, true) && ! $validator($values[$key] ?? null))
+            ->keys()
+            ->values()
+            ->all();
 
-        return ['ready' => $missing === [], 'missing' => $missing];
+        return ['ready' => $missing === [] && $invalid === [], 'missing' => $missing, 'invalid' => $invalid];
+    }
+
+    private function isServiceAccount(mixed $value): bool
+    {
+        if (! is_string($value) || $value === '') return false;
+        try {
+            $json = json_decode($value, true, flags: JSON_THROW_ON_ERROR);
+        } catch (\Throwable) {
+            return false;
+        }
+
+        return is_array($json)
+            && ($json['type'] ?? null) === 'service_account'
+            && filled($json['client_email'] ?? null)
+            && $this->isPrivateKey($json['private_key'] ?? null);
+    }
+
+    private function isPrivateKey(mixed $value): bool
+    {
+        if (! is_string($value) || $value === '') return false;
+
+        return openssl_pkey_get_private(str_replace('\\n', "\n", $value)) !== false;
     }
 }
