@@ -2085,6 +2085,8 @@ This runbook defines the operational requirements for the Laravel API and custom
 - Back up the database and private export storage; verify restore procedures before launch
 - Never commit provider secrets, signing keys or production environment files
 
+`soul:config-check --production` also requires MySQL/PostgreSQL connection settings, Redis for both cache and queues, encrypted sessions, secure cookies, a positive backup-freshness policy and a valid database-connection warning threshold. It reports only check names and remediation messages; credential values are never printed.
+
 ### Release procedure
 
 1. Run `php artisan soul:config-check --production` and resolve every failed check.
@@ -2100,11 +2102,43 @@ This runbook defines the operational requirements for the Laravel API and custom
 
 The automated smoke command performs GET requests only against health, readiness and bootstrap. It does not create users, mutate records or expose configuration values.
 
+### Backup and restore evidence
+
+Infrastructure creates and encrypts backups outside Laravel. SOUL does not ship a production dump command because database credentials, retention, encryption keys, replicas and storage ownership belong to the deployment platform. After a backup is created, provide a separate JSON manifest:
+
+```json
+{
+  "format_version": 1,
+  "created_at": "2026-09-10T03:00:00Z",
+  "environment": "staging",
+  "database_driver": "mysql",
+  "encrypted": true,
+  "size_bytes": 123456,
+  "sha256": "64-lowercase-hex-characters",
+  "migration_head": "latest_migration_filename_without_php"
+}
+```
+
+Run `php artisan soul:backup-verify --artifact=/secure/path/backup.enc --manifest=/secure/path/backup.json`. The verifier reads but never restores or changes the artifact. It fails closed for missing/invalid fields, unsupported drivers, future/old timestamps, unencrypted metadata, incorrect size, checksum mismatch or an unsafe migration identifier. `SOUL_BACKUP_MAXIMUM_AGE_HOURS` defaults to 24. Its JSON output contains checks only—not paths, backup content, credentials or encryption keys.
+
+A complete restore drill still requires an isolated environment:
+
+1. Verify the encrypted artifact and manifest.
+2. Provision an empty, access-restricted database with the same engine/version.
+3. Restore using the infrastructure provider's approved procedure and keys.
+4. Run `php artisan migrate:status`, `php artisan soul:config-check` and `php artisan soul:performance-check`.
+5. Start the API and run `php artisan soul:smoke` plus authenticated critical journeys.
+6. Record recovery time, recovery point, backup identifier, migration head and approver in the external operations record.
+7. Securely destroy the isolated drill environment after approval.
+
+Do not restore a drill over staging or production, and never commit backup artifacts or manifests containing infrastructure identifiers.
+
 ### Recurring operations
 
 - The soul:cleanup command runs daily and removes expired private export files, stale OTP records, exhausted webhook payloads and old delivery-attempt rows. Defaults are 30 days for exhausted webhook payloads, 90 days for delivered attempts and 180 days for failed attempts; deployment owners may shorten these with the documented environment variables after legal review.
 - The soul:recover-provider-work command runs every five minutes and safely recovers interrupted store-webhook and notification-delivery work.
 - Run `php artisan soul:ops-check` from external monitoring at least every five minutes. It exits with code `0` when healthy and `1` when a configured queue, failure or stale-work threshold is exceeded. Its JSON output contains counts and warning codes, never job payloads, provider credentials or member data.
+- Run `php artisan soul:database-capacity` from operational monitoring. It returns database size plus available connection-capacity metrics without exposing the database name, host or credentials. MySQL/PostgreSQL connection utilization at or above `SOUL_DATABASE_CONNECTION_WARNING_PERCENT` (80% by default) produces a warning exit code. If the database role cannot read capacity metadata, metrics are `null` and the command also warns; missing observability is never treated as proof of spare capacity.
 - The English-only Operations screen shows the same queue depth, oldest wait, recent failed-job and stale export/notification/store-work metrics. Thresholds use the `SOUL_*_WARNING_*` environment settings, so operators can tune alerts without a code change.
 - Run queue failure monitoring continuously and retry only idempotent jobs after investigation.
 - Review dependency audit results on every proposed release.
@@ -2200,7 +2234,7 @@ This checklist separates completed software from work that can only happen in st
 - [ ] Run `php artisan soul:config-check --production` with staging-equivalent secrets.
 - [ ] Run `php artisan soul:smoke --base-url=<staging-url>` and the authenticated manual journeys below.
 - [ ] Build a production-shaped disposable dataset with `soul:seed-performance`, record warmed `soul:performance-check` baselines, then perform approved staging load tests.
-- [ ] Perform a backup restore test and rollback rehearsal.
+- [ ] Verify an encrypted backup with `soul:backup-verify`, then perform an isolated restore test and rollback rehearsal with externally recorded RPO/RTO evidence.
 - [ ] Obtain product, security and deployment approval.
 
 ### Authenticated staging journeys

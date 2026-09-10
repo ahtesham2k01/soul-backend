@@ -46,7 +46,13 @@ class ReleaseCommandsTest extends TestCase
         ]);
 
         $this->assertSame(1, Artisan::call('soul:config-check', ['--production' => true]));
-        $this->assertStringContainsString('configuration is not ready', Artisan::output());
+        $output = Artisan::output();
+        $this->assertStringContainsString('configuration is not ready', $output);
+        $this->assertStringContainsString('Redis cache', $output);
+        $this->assertStringContainsString('Redis queue', $output);
+        $this->assertStringContainsString('Encrypted sessions', $output);
+        $this->assertStringContainsString('Backup freshness policy', $output);
+        $this->assertStringNotContainsString('DB_PASSWORD', $output);
     }
 
     public function test_smoke_command_checks_only_public_non_destructive_endpoints(): void

@@ -8,6 +8,7 @@ use App\Jobs\ProcessStoreWebhook;
 use App\Models\NotificationDeliveryAttempt;
 use App\Models\StoreWebhookEvent;
 use App\Support\Operations\OperationalHealth;
+use App\Support\Operations\DatabaseCapacityInspector;
 use App\Support\Performance\CapacityProbe;
 use App\Support\Performance\SyntheticDatasetGenerator;
 use Illuminate\Foundation\Inspiring;
@@ -131,6 +132,13 @@ Artisan::command('soul:performance-check {--max-ms=250}', function (): int {
 
     return $result['status'] === 'healthy' ? 0 : 1;
 })->purpose('Run repeatable read-only capacity probes against representative feeds');
+
+Artisan::command('soul:database-capacity', function (): int {
+    $result = app(DatabaseCapacityInspector::class)->snapshot();
+    $this->line(json_encode($result, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES));
+
+    return $result['status'] === 'healthy' ? 0 : 1;
+})->purpose('Inspect database size and connection capacity without exposing database names');
 
 Schedule::command('soul:cleanup')
     ->dailyAt('02:30')
