@@ -6,13 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\AccountDeletionRequest;
 use App\Models\DataExportRequest;
 use App\Support\ApiResponse;
+use App\Support\Operations\OperationalHealth;
 use App\Support\Release\ReleaseConfigurationValidator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 
 class OperationsController extends Controller
 {
-    public function __invoke(ReleaseConfigurationValidator $validator): JsonResponse
+    public function __invoke(ReleaseConfigurationValidator $validator, OperationalHealth $health): JsonResponse
     {
         return ApiResponse::success([
             'social_accounts' => DB::table('social_accounts')->select('provider', DB::raw('count(*) as total'))->groupBy('provider')->pluck('total', 'provider'),
@@ -26,6 +27,7 @@ class OperationsController extends Controller
             'recent_exports' => DataExportRequest::with('user:id,public_id,email')->latest()->limit(25)->get()->map(fn ($item): array => ['id' => $item->public_id, 'user' => ['id' => $item->user->public_id, 'email' => $item->user->email], 'status' => $item->status, 'created_at' => $item->created_at->toIso8601String(), 'expires_at' => $item->expires_at?->toIso8601String()]),
             'scheduled_deletions' => AccountDeletionRequest::with('user:id,public_id,email')->where('status', 'scheduled')->orderBy('scheduled_for')->limit(25)->get()->map(fn ($item): array => ['id' => $item->public_id, 'user' => ['id' => $item->user->public_id, 'email' => $item->user->email], 'scheduled_for' => $item->scheduled_for->toIso8601String()]),
             'provider_readiness' => $validator->providerReadiness(),
+            'operational_health' => $health->snapshot(),
             'store_processing' => [
                 'receipts_pending' => DB::table('store_purchase_receipts')->where('status', 'pending')->count(),
                 'receipts_failed' => DB::table('store_purchase_receipts')->where('status', 'failed')->count(),

@@ -2102,6 +2102,8 @@ The automated smoke command performs GET requests only against health, readiness
 
 - The soul:cleanup command runs daily and removes expired private export files, stale OTP records, exhausted webhook payloads and old delivery-attempt rows. Defaults are 30 days for exhausted webhook payloads, 90 days for delivered attempts and 180 days for failed attempts; deployment owners may shorten these with the documented environment variables after legal review.
 - The soul:recover-provider-work command runs every five minutes and safely recovers interrupted store-webhook and notification-delivery work.
+- Run `php artisan soul:ops-check` from external monitoring at least every five minutes. It exits with code `0` when healthy and `1` when a configured queue, failure or stale-work threshold is exceeded. Its JSON output contains counts and warning codes, never job payloads, provider credentials or member data.
+- The English-only Operations screen shows the same queue depth, oldest wait, recent failed-job and stale export/notification/store-work metrics. Thresholds use the `SOUL_*_WARNING_*` environment settings, so operators can tune alerts without a code change.
 - Run queue failure monitoring continuously and retry only idempotent jobs after investigation.
 - Review dependency audit results on every proposed release.
 - Test backups and account-deletion execution in a non-production environment regularly.

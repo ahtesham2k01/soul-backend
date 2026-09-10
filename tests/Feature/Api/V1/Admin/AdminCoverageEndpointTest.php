@@ -49,6 +49,9 @@ class AdminCoverageEndpointTest extends TestCase
             ->assertJsonPath('data.provider_readiness.apple_store.ready', false)
             ->assertJsonPath('data.store_processing.raw_purchase_tokens_retained', 0)
             ->assertJsonPath('data.store_processing.raw_webhook_payloads_retained', 0)
+            ->assertJsonPath('data.operational_health.status', 'healthy')
+            ->assertJsonPath('data.operational_health.metrics.queued_jobs', 0)
+            ->assertJsonStructure(['data' => ['operational_health' => ['status', 'checked_at', 'metrics', 'warnings']]])
             ->assertJsonStructure(['data' => ['provider_readiness' => ['cloudinary', 'google_sign_in', 'apple_sign_in', 'apple_store', 'google_play', 'fcm', 'apns', 'email', 'broadcasting']]])
             ->assertJsonMissing(['provider_user_id' => 'provider-secret'])
             ->assertJsonMissing(['file_path' => 'private/secret.json']);

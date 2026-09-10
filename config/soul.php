@@ -290,6 +290,17 @@ return [
         'max_attachment_kilobytes' => 5120,
     ],
 
+    'operations' => [
+        'warning_thresholds' => [
+            'queued_jobs' => (int) env('SOUL_QUEUE_WARNING_COUNT', 1000),
+            'oldest_queued_job_age_seconds' => (int) env('SOUL_QUEUE_WAIT_WARNING_SECONDS', 900),
+            'failed_jobs_24h' => (int) env('SOUL_FAILED_JOBS_WARNING_COUNT', 0),
+            'stale_exports' => (int) env('SOUL_STALE_EXPORT_WARNING_COUNT', 0),
+            'stale_notification_deliveries' => (int) env('SOUL_STALE_NOTIFICATION_WARNING_COUNT', 0),
+            'stale_store_webhooks' => (int) env('SOUL_STALE_WEBHOOK_WARNING_COUNT', 0),
+        ],
+    ],
+
     'media' => [
         'cloudinary' => [
             'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),

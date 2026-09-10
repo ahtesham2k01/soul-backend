@@ -7,6 +7,7 @@ use App\Jobs\DeliverNotificationAttempt;
 use App\Jobs\ProcessStoreWebhook;
 use App\Models\NotificationDeliveryAttempt;
 use App\Models\StoreWebhookEvent;
+use App\Support\Operations\OperationalHealth;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
@@ -89,6 +90,13 @@ Artisan::command('soul:recover-provider-work', function (): void {
 
     $this->info("Queued {$exports->count()} data exports, {$deliveries->count()} delivery attempts and {$webhooks->count()} store events for recovery.");
 })->purpose('Recover stale or interrupted provider delivery work');
+
+Artisan::command('soul:ops-check', function (): int {
+    $snapshot = app(OperationalHealth::class)->snapshot();
+    $this->line(json_encode($snapshot, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES));
+
+    return $snapshot['status'] === 'healthy' ? 0 : 1;
+})->purpose('Check queue and asynchronous workload health for monitoring');
 
 Schedule::command('soul:cleanup')
     ->dailyAt('02:30')
