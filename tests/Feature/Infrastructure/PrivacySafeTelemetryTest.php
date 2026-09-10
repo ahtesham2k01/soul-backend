@@ -14,6 +14,7 @@ class PrivacySafeTelemetryTest extends TestCase
     public function test_request_log_uses_public_identity_instead_of_database_id(): void
     {
         $user = User::factory()->create();
+        $user->forceFill(['status' => User::STATUS_ACTIVE])->save();
         Log::spy();
 
         $this->actingAs($user, 'sanctum')->getJson('/api/v1/auth/me')->assertOk();

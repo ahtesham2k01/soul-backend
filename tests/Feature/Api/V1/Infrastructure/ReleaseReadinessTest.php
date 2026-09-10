@@ -45,7 +45,7 @@ class ReleaseReadinessTest extends TestCase
         config()->set('soul.security.maximum_json_request_kilobytes', 64);
 
         $this->withHeader('Content-Length', (string) (65 * 1024))
-            ->postJson('/api/v1/auth/email/request-code', [])
+            ->postJson('/api/v1/auth/register/request-otp', [])
             ->assertStatus(413)
             ->assertJsonPath('error.code', 'REQUEST_TOO_LARGE');
     }
@@ -53,6 +53,7 @@ class ReleaseReadinessTest extends TestCase
     public function test_authenticated_responses_cannot_be_stored_by_shared_caches(): void
     {
         $user = User::factory()->create();
+        $user->forceFill(['status' => User::STATUS_ACTIVE])->save();
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson('/api/v1/auth/me')
@@ -72,6 +73,7 @@ class ReleaseReadinessTest extends TestCase
             ->assertOk()
             ->assertHeader('Access-Control-Allow-Origin', 'https://app.soul.test');
 
+        $this->flushHeaders();
         $this->withHeader('Origin', 'https://evil.test')
             ->getJson('/api/v1/health')
             ->assertOk()
