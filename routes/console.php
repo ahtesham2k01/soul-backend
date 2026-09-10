@@ -8,6 +8,8 @@ use App\Jobs\ProcessStoreWebhook;
 use App\Models\NotificationDeliveryAttempt;
 use App\Models\StoreWebhookEvent;
 use App\Support\Operations\OperationalHealth;
+use App\Support\Performance\CapacityProbe;
+use App\Support\Performance\SyntheticDatasetGenerator;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
@@ -97,6 +99,38 @@ Artisan::command('soul:ops-check', function (): int {
 
     return $snapshot['status'] === 'healthy' ? 0 : 1;
 })->purpose('Check queue and asynchronous workload health for monitoring');
+
+Artisan::command('soul:seed-performance {--users=10000} {--matches=5000} {--messages=10} {--confirm=}', function (): int {
+    if (! app()->environment(['local', 'testing'])) {
+        $this->error('Synthetic data generation is allowed only in local or testing environments.');
+        return 1;
+    }
+    if ($this->option('confirm') !== 'GENERATE-SYNTHETIC-DATA') {
+        $this->error('Pass --confirm=GENERATE-SYNTHETIC-DATA and use a disposable database.');
+        return 1;
+    }
+
+    try {
+        $result = app(SyntheticDatasetGenerator::class)->generate(
+            (int) $this->option('users'),
+            (int) $this->option('matches'),
+            (int) $this->option('messages'),
+        );
+    } catch (\InvalidArgumentException $exception) {
+        $this->error($exception->getMessage());
+        return 1;
+    }
+
+    $this->line(json_encode($result, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES));
+    return 0;
+})->purpose('Generate bounded synthetic load data in a disposable local database');
+
+Artisan::command('soul:performance-check {--max-ms=250}', function (): int {
+    $result = app(CapacityProbe::class)->run((int) $this->option('max-ms'));
+    $this->line(json_encode($result, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES));
+
+    return $result['status'] === 'healthy' ? 0 : 1;
+})->purpose('Run repeatable read-only capacity probes against representative feeds');
 
 Schedule::command('soul:cleanup')
     ->dailyAt('02:30')

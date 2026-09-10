@@ -303,6 +303,11 @@ return [
 
     'performance' => [
         'slow_query_warning_ms' => (int) env('SOUL_SLOW_QUERY_WARNING_MS', 500),
+        'synthetic' => [
+            'maximum_users' => (int) env('SOUL_SYNTHETIC_MAX_USERS', 50000),
+            'maximum_matches' => (int) env('SOUL_SYNTHETIC_MAX_MATCHES', 50000),
+            'maximum_messages_per_match' => (int) env('SOUL_SYNTHETIC_MAX_MESSAGES_PER_MATCH', 100),
+        ],
     ],
 
     'security' => [

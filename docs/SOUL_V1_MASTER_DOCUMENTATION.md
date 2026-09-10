@@ -2148,6 +2148,23 @@ This audit records backend checks completed after the sixteen planned V1 phases.
 - CI builds the React admin, runs dependency audits and executes the Laravel test suite.
 - Database queries slower than `SOUL_SLOW_QUERY_WARNING_MS` (500 ms by default) emit a structured warning with duration, operation, connection, route and request ID. SQL text and bindings are deliberately excluded so emails, messages, tokens and other member values cannot leak into logs.
 - `npm run load:smoke` provides a dependency-free health/bootstrap load journey with bounded concurrency, error-rate and p95 latency gates. It refuses non-local targets unless an operator explicitly sets `SOUL_LOAD_TEST_APPROVED=1`; staging runs require owner approval and production load tests are prohibited during deployment.
+- `php artisan soul:seed-performance --users=10000 --matches=5000 --messages=10 --confirm=GENERATE-SYNTHETIC-DATA` creates a realistic but clearly labelled member, discovery, match, conversation and message dataset. The command works only in `local` or `testing`, enforces configurable upper bounds and must be run against a disposable database. It never deletes or resets data.
+- `php artisan soul:performance-check --max-ms=250` performs read-only, machine-readable timing probes for discovery, both match directions, notifications, messages and the active-member admin feed. Run it several times after warming the database and record p50/p95 results outside the repository; one laptop run is not a production capacity promise.
+- Automated index coverage protects the discovery activity feed, incoming decisions, both sides of matches, notifications, messages, admin member list, queue backlog and active-session queries from accidental migration regressions.
+
+#### Repeatable capacity baseline
+
+Use a fresh disposable database with the same database engine and version planned for staging. Never point the generator at a shared development, staging or production database.
+
+1. Run migrations on the disposable database.
+2. Generate an agreed dataset size with `soul:seed-performance`; its JSON result includes a unique batch identifier and exact row counts.
+3. Start the API with queue/cache dependencies configured like staging.
+4. Run `soul:performance-check` three times and keep the warmed results.
+5. Run `npm run load:smoke` against that isolated API and record concurrency, request count, p95 latency and error rate.
+6. Review privacy-safe slow-query warnings and query plans. Add an index only when the actual plan and workload justify it.
+7. Destroy the entire disposable environment through the infrastructure owner’s approved process; SOUL deliberately provides no broad data-deletion command.
+
+The generator defaults to 10,000 users, 5,000 matches and 10 messages per match. Environment limits (`SOUL_SYNTHETIC_MAX_USERS`, `SOUL_SYNTHETIC_MAX_MATCHES` and `SOUL_SYNTHETIC_MAX_MESSAGES_PER_MATCH`) prevent accidental oversized runs. Increase them only for a planned capacity exercise.
 
 ### External launch gates
 
@@ -2182,7 +2199,8 @@ This checklist separates completed software from work that can only happen in st
 - [ ] Publish jurisdiction-reviewed Terms, Privacy Policy and Community Guidelines versions.
 - [ ] Run `php artisan soul:config-check --production` with staging-equivalent secrets.
 - [ ] Run `php artisan soul:smoke --base-url=<staging-url>` and the authenticated manual journeys below.
-- [ ] Perform load tests, backup restore test and rollback rehearsal.
+- [ ] Build a production-shaped disposable dataset with `soul:seed-performance`, record warmed `soul:performance-check` baselines, then perform approved staging load tests.
+- [ ] Perform a backup restore test and rollback rehearsal.
 - [ ] Obtain product, security and deployment approval.
 
 ### Authenticated staging journeys
