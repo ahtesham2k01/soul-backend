@@ -13,14 +13,17 @@ class DeviceSessionController extends Controller
     {
         $currentTokenId = $request->user()->currentAccessToken()?->getKey();
 
+        $maximum = max(1, (int) config('soul.security.maximum_active_sessions', 20));
         $sessions = $request->user()->tokens()
             ->where(function ($query): void {
                 $query->whereNull('expires_at')->orWhere('expires_at', '>', now());
             })
             ->latest('last_used_at')
             ->latest('id')
-            ->get()
-            ->map(fn ($token): array => [
+            ->limit($maximum + 1)
+            ->get();
+        $hasMore = $sessions->count() > $maximum;
+        $sessions = $sessions->take($maximum)->map(fn ($token): array => [
                 'id' => $token->public_id,
                 'device_name' => $token->name,
                 'is_current' => $token->getKey() === $currentTokenId,
@@ -31,7 +34,7 @@ class DeviceSessionController extends Controller
             ->values();
 
         return ApiResponse::success(
-            data: ['sessions' => $sessions],
+            data: ['sessions' => $sessions, 'has_more' => $hasMore],
             message: 'Active device sessions loaded successfully.',
         );
     }

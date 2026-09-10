@@ -305,6 +305,10 @@ return [
         'slow_query_warning_ms' => (int) env('SOUL_SLOW_QUERY_WARNING_MS', 500),
     ],
 
+    'security' => [
+        'maximum_active_sessions' => (int) env('SOUL_MAXIMUM_ACTIVE_SESSIONS', 20),
+    ],
+
     'media' => [
         'cloudinary' => [
             'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),

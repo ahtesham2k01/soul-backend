@@ -426,6 +426,8 @@ Laravel owns every protected decision. Flutter owns presentation, platform permi
 
 - All mobile routes are under `/api/v1`; route names are unique and contract-tested.
 - Authenticated member and admin APIs have a 300-request-per-minute safety ceiling in addition to stricter per-feature limits for login, messaging, reports, purchases, uploads and other sensitive actions.
+- Every email, Google and Apple sign-in uses one shared mobile-token issuer. Tokens expire after 90 days, expired rows are pruned during sign-in, and each account keeps at most `SOUL_MAXIMUM_ACTIVE_SESSIONS` active sessions (20 by default). When the limit is exceeded, the least-recently-used older sessions are revoked while the newly issued session remains valid.
+- The device-session API returns at most the configured active-session limit plus a `has_more` flag. Session queries use an owner/expiry/activity index, and tokens are never returned by the listing endpoint.
 - Public ULIDs are stable client identifiers. Internal database IDs and provider asset IDs stay private.
 - Additive response fields are backward-compatible. Removing/renaming fields, changing meaning or tightening a previously valid enum requires version/change planning.
 - Error codes drive client behavior; prose messages are for display and can be localized.

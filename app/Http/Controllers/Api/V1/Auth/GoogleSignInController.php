@@ -9,6 +9,7 @@ use App\Http\Requests\Api\V1\Auth\GoogleSignInRequest;
 use App\Http\Resources\Api\V1\UserResource;
 use App\Models\SocialAccount;
 use App\Models\User;
+use App\Services\Auth\MobileTokenIssuer;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -18,6 +19,7 @@ class GoogleSignInController extends Controller
     public function __invoke(
         GoogleSignInRequest $request,
         GoogleTokenVerifier $googleTokenVerifier,
+        MobileTokenIssuer $tokenIssuer,
     ): JsonResponse {
         $identity = $googleTokenVerifier->verify(
             $request->string('id_token')->toString(),
@@ -56,6 +58,7 @@ class GoogleSignInController extends Controller
                 $deviceName,
                 $requestedLocale,
                 $request,
+                $tokenIssuer,
             ): JsonResponse {
                 $socialAccount = SocialAccount::query()
                     ->where(
@@ -171,13 +174,7 @@ class GoogleSignInController extends Controller
 
                 $tokenExpiresAt = now()->addDays(90);
 
-                $token = $user->createToken(
-                    name: $deviceName,
-                    abilities: [
-                        'mobile',
-                    ],
-                    expiresAt: $tokenExpiresAt,
-                );
+                $token = $tokenIssuer->issue($user, $deviceName);
 
                 return ApiResponse::success(
                     data: [

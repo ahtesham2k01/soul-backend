@@ -264,6 +264,7 @@ class AuthSessionEndpointTest extends TestCase
         $response = $this->withToken($current->plainTextToken)
             ->getJson('/api/v1/auth/devices')
             ->assertOk()
+            ->assertJsonPath('data.has_more', false)
             ->assertJsonCount(2, 'data.sessions')
             ->assertJsonMissing(['device_name' => 'Expired tablet']);
 

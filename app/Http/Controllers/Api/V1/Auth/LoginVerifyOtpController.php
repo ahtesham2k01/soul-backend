@@ -8,6 +8,7 @@ use App\Http\Requests\Api\V1\Auth\LoginVerifyOtpRequest;
 use App\Http\Resources\Api\V1\UserResource;
 use App\Models\User;
 use App\Services\Auth\EmailOtpService;
+use App\Services\Auth\MobileTokenIssuer;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -17,6 +18,7 @@ class LoginVerifyOtpController extends Controller
     public function __invoke(
         LoginVerifyOtpRequest $request,
         EmailOtpService $emailOtpService,
+        MobileTokenIssuer $tokenIssuer,
     ): JsonResponse {
         $email = $emailOtpService->normalizeEmail(
             $request->string('email')->toString(),
@@ -47,6 +49,7 @@ class LoginVerifyOtpController extends Controller
                 $deviceName,
                 $requestedLocale,
                 $request,
+                $tokenIssuer,
             ): JsonResponse {
                 $verification = $emailOtpService->verify(
                     verificationId: $verificationId,
@@ -102,13 +105,7 @@ class LoginVerifyOtpController extends Controller
 
                 $tokenExpiresAt = now()->addDays(90);
 
-                $token = $user->createToken(
-                    name: $deviceName,
-                    abilities: [
-                        'mobile',
-                    ],
-                    expiresAt: $tokenExpiresAt,
-                );
+                $token = $tokenIssuer->issue($user, $deviceName);
 
                 return ApiResponse::success(
                     data: [

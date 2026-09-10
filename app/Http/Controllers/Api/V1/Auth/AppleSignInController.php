@@ -9,6 +9,7 @@ use App\Http\Requests\Api\V1\Auth\AppleSignInRequest;
 use App\Http\Resources\Api\V1\UserResource;
 use App\Models\SocialAccount;
 use App\Models\User;
+use App\Services\Auth\MobileTokenIssuer;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -18,6 +19,7 @@ class AppleSignInController extends Controller
     public function __invoke(
         AppleSignInRequest $request,
         AppleTokenVerifier $appleTokenVerifier,
+        MobileTokenIssuer $tokenIssuer,
     ): JsonResponse {
         $identity = $appleTokenVerifier->verify(
             identityToken: $request
@@ -56,6 +58,7 @@ class AppleSignInController extends Controller
                 $requestedLocale,
                 $displayName,
                 $request,
+                $tokenIssuer,
             ): JsonResponse {
                 $socialAccount = SocialAccount::query()
                     ->where(
@@ -197,13 +200,7 @@ class AppleSignInController extends Controller
 
                 $tokenExpiresAt = now()->addDays(90);
 
-                $token = $user->createToken(
-                    name: $deviceName,
-                    abilities: [
-                        'mobile',
-                    ],
-                    expiresAt: $tokenExpiresAt,
-                );
+                $token = $tokenIssuer->issue($user, $deviceName);
 
                 return ApiResponse::success(
                     data: [

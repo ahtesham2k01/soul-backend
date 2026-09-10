@@ -8,6 +8,7 @@ use App\Http\Requests\Api\V1\Auth\RegisterVerifyOtpRequest;
 use App\Http\Resources\Api\V1\UserResource;
 use App\Models\User;
 use App\Services\Auth\EmailOtpService;
+use App\Services\Auth\MobileTokenIssuer;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -17,6 +18,7 @@ class RegisterVerifyOtpController extends Controller
     public function __invoke(
         RegisterVerifyOtpRequest $request,
         EmailOtpService $emailOtpService,
+        MobileTokenIssuer $tokenIssuer,
     ): JsonResponse {
         $email = $emailOtpService->normalizeEmail(
             $request->string('email')->toString(),
@@ -48,6 +50,7 @@ class RegisterVerifyOtpController extends Controller
                 $deviceName,
                 $locale,
                 $request,
+                $tokenIssuer,
             ): JsonResponse {
                 $verification = $emailOtpService->verify(
                     verificationId: $verificationId,
@@ -94,13 +97,7 @@ class RegisterVerifyOtpController extends Controller
 
                 $tokenExpiresAt = now()->addDays(90);
 
-                $token = $user->createToken(
-                    name: $deviceName,
-                    abilities: [
-                        'mobile',
-                    ],
-                    expiresAt: $tokenExpiresAt,
-                );
+                $token = $tokenIssuer->issue($user, $deviceName);
 
                 return ApiResponse::success(
                     data: [
