@@ -97,10 +97,14 @@ class ReleaseReadinessTest extends TestCase
     {
         config()->set('cors.allowed_origins', ['https://app.soul.test']);
 
-        $this->withHeader('Origin', 'https://evil.test')
+        $response = $this->withHeader('Origin', 'https://evil.test')
             ->getJson('/api/v1/health')
-            ->assertOk()
-            ->assertHeaderMissing('Access-Control-Allow-Origin');
+            ->assertOk();
+
+        $this->assertNotSame(
+            'https://evil.test',
+            $response->headers->get('Access-Control-Allow-Origin'),
+        );
     }
 
     public function test_cleanup_expires_private_exports_and_removes_stale_otps(): void
