@@ -6,6 +6,7 @@
         "build": "vite build",
         "contracts:generate": "node scripts/generate-api-contracts.mjs",
         "localization:audit": "node scripts/audit-localization.mjs",
+        "load:smoke": "node scripts/load-api-smoke.mjs",
         "dev": "vite"
     },
     "devDependencies": {

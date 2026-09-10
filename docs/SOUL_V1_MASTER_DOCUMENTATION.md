@@ -2144,6 +2144,8 @@ This audit records backend checks completed after the sixteen planned V1 phases.
 - Readiness checks cover database and cache dependencies.
 - API responses include security headers, request correlation and server timing.
 - CI builds the React admin, runs dependency audits and executes the Laravel test suite.
+- Database queries slower than `SOUL_SLOW_QUERY_WARNING_MS` (500 ms by default) emit a structured warning with duration, operation, connection, route and request ID. SQL text and bindings are deliberately excluded so emails, messages, tokens and other member values cannot leak into logs.
+- `npm run load:smoke` provides a dependency-free health/bootstrap load journey with bounded concurrency, error-rate and p95 latency gates. It refuses non-local targets unless an operator explicitly sets `SOUL_LOAD_TEST_APPROVED=1`; staging runs require owner approval and production load tests are prohibited during deployment.
 
 ### External launch gates
 

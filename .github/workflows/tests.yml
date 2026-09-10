@@ -62,7 +62,9 @@ jobs:
           php artisan key:generate
 
       - name: Validate application configuration
-        run: php artisan soul:config-check
+        run: |
+          php artisan soul:config-check
+          node scripts/load-api-smoke.mjs --help
 
       - name: Run test suite
         run: php artisan test

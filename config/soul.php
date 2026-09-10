@@ -301,6 +301,10 @@ return [
         ],
     ],
 
+    'performance' => [
+        'slow_query_warning_ms' => (int) env('SOUL_SLOW_QUERY_WARNING_MS', 500),
+    ],
+
     'media' => [
         'cloudinary' => [
             'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),

@@ -16,11 +16,14 @@ use App\Infrastructure\Notifications\ConfiguredNotificationChannelSender;
 use App\Models\PersonalAccessToken;
 use App\Services\Auth\EmailOtpService;
 use App\Support\ApiResponse;
+use App\Support\Operations\SlowQueryMonitor;
 use Google\Auth\AccessToken;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Support\ServiceProvider;
 use InvalidArgumentException;
 use Laravel\Sanctum\Sanctum;
@@ -71,6 +74,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
+        DB::listen(fn (QueryExecuted $query) => app(SlowQueryMonitor::class)->record($query));
         $this->configureApiGlobalRateLimiter();
         $this->configureLocationRateLimiter();
         $this->configureEmailOtpRateLimiter();
