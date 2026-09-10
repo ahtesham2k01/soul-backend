@@ -41,7 +41,7 @@ class ApiHandoffContractTest extends TestCase
             $route = Route::getRoutes()->getByName($name);
 
             $this->assertNotNull($route);
-            $this->assertContains('throttle:300,1', $route->gatherMiddleware());
+            $this->assertContains('throttle:api-global', $route->gatherMiddleware());
         }
     }
 }

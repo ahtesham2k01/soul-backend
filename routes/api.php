@@ -77,7 +77,7 @@ use App\Support\ApiResponse;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function (): void {
-    Route::prefix('admin')->middleware(['auth:sanctum', 'active.account', 'admin:super_admin,moderator', 'throttle:300,1'])->group(function (): void {
+    Route::prefix('admin')->middleware(['auth:sanctum', 'active.account', 'admin:super_admin,moderator', 'throttle:api-global'])->group(function (): void {
         Route::get('/dashboard', [ModerationController::class, 'dashboard'])->name('api.v1.admin.dashboard');
         Route::get('/reports', [ModerationController::class, 'reports'])->name('api.v1.admin.reports.index');
         Route::put('/reports/{report}', [ModerationController::class, 'decideReport'])->name('api.v1.admin.reports.update');
@@ -127,6 +127,7 @@ Route::prefix('v1')->group(function (): void {
             Route::put('/users/{user}/entitlements', [AdminEntitlementController::class, 'override'])->name('api.v1.admin.entitlements.users.update');
             Route::get('/catalogs', [AdminCatalogController::class, 'index'])->name('api.v1.admin.catalogs.index');
             Route::put('/catalogs/translations', [AdminCatalogController::class, 'updateTranslation'])->name('api.v1.admin.catalogs.translations.update');
+            Route::put('/catalogs/spoken-languages/{language}', [AdminCatalogController::class, 'updateLanguage'])->name('api.v1.admin.catalogs.spoken-languages.update');
             Route::get('/operations', AdminOperationsController::class)->name('api.v1.admin.operations.index');
             Route::get('/duplicate-accounts', [AdminDuplicateAccountController::class, 'index'])->name('api.v1.admin.duplicate-accounts.index');
             Route::post('/duplicate-accounts', [AdminDuplicateAccountController::class, 'store'])->name('api.v1.admin.duplicate-accounts.store');
@@ -138,7 +139,7 @@ Route::prefix('v1')->group(function (): void {
             Route::put('/profile-catalogs/help-categories/{category}', [AdminProfileCatalogController::class, 'updateHelpCategory'])->name('api.v1.admin.profile-catalogs.help-categories.update');
         });
     });
-    Route::middleware(['auth:sanctum', 'active.account', 'record.activity', 'throttle:300,1'])->group(function (): void {
+    Route::middleware(['auth:sanctum', 'active.account', 'record.activity', 'throttle:api-global'])->group(function (): void {
         Route::get('/discovery/preferences', [DiscoveryPreferenceController::class, 'show'])
             ->name('api.v1.discovery.preferences.show');
         Route::put('/discovery/preferences', [DiscoveryPreferenceController::class, 'update'])

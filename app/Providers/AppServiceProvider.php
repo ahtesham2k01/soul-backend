@@ -71,10 +71,20 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
+        $this->configureApiGlobalRateLimiter();
         $this->configureLocationRateLimiter();
         $this->configureEmailOtpRateLimiter();
         $this->configureEmailOtpVerificationRateLimiter();
         $this->configureSocialSignInRateLimiter();
+    }
+
+    private function configureApiGlobalRateLimiter(): void
+    {
+        RateLimiter::for('api-global', function (Request $request): Limit {
+            $identity = $request->user()?->public_id ?? $request->ip();
+
+            return Limit::perMinute(300)->by('api-global:'.$identity);
+        });
     }
 
     private function configureLocationRateLimiter(): void
