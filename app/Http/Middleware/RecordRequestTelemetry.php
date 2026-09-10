@@ -23,7 +23,7 @@ class RecordRequestTelemetry
             'route' => $request->route()?->getName(),
             'status' => $response->getStatusCode(),
             'duration_ms' => $duration,
-            'user_id' => $request->user()?->id,
+            'user_public_id' => $request->user()?->public_id,
         ]);
 
         return $response;

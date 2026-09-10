@@ -2087,6 +2087,15 @@ This runbook defines the operational requirements for the Laravel API and custom
 
 `soul:config-check --production` also requires MySQL/PostgreSQL connection settings, Redis for both cache and queues, encrypted sessions, secure cookies, a positive backup-freshness policy and a valid database-connection warning threshold. It reports only check names and remediation messages; credential values are never printed.
 
+### Edge and HTTP security
+
+- Set `SOUL_TRUSTED_PROXIES` to the comma-separated IP addresses or CIDR ranges of the actual Cloudflare/load-balancer hops. Production validation rejects an empty list, hostnames and wildcard `*`. The origin server must also block direct public traffic that bypasses those proxies.
+- `SOUL_CORS_ALLOWED_ORIGINS` is a comma-separated list of exact HTTPS browser origins, for example `https://app.example.com,https://admin.example.com`. Wildcards, credentials, paths, query strings and non-HTTPS origins fail production validation. Native Flutter requests do not require CORS; an empty list is safest when the React admin is same-origin and no browser member app exists.
+- JSON/API request bodies default to 256 KB. Multipart support uploads default to 6 MB so the validated 5 MB attachment plus encoding overhead fits. Application limits supplement—not replace—web-server and CDN body limits. Tune with `SOUL_MAXIMUM_JSON_REQUEST_KILOBYTES` and `SOUL_MAXIMUM_MULTIPART_REQUEST_KILOBYTES`.
+- Oversized requests fail before controllers with the stable `REQUEST_TOO_LARGE` error. Existing per-route throttles still apply.
+- Authenticated member/admin responses use private `no-store` caching. Responses include CSP, clickjacking, MIME-sniffing, referrer, permissions, opener and resource-isolation headers; HTTPS responses also include HSTS.
+- Request telemetry stores the member's public ULID for correlation rather than the internal numeric database key. Request bodies, tokens, emails, messages and provider secrets are never part of routine request logs.
+
 ### Release procedure
 
 1. Run `php artisan soul:config-check --production` and resolve every failed check.

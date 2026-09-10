@@ -319,6 +319,10 @@ return [
 
     'security' => [
         'maximum_active_sessions' => (int) env('SOUL_MAXIMUM_ACTIVE_SESSIONS', 20),
+        'maximum_json_request_kilobytes' => (int) env('SOUL_MAXIMUM_JSON_REQUEST_KILOBYTES', 256),
+        'maximum_multipart_request_kilobytes' => (int) env('SOUL_MAXIMUM_MULTIPART_REQUEST_KILOBYTES', 6144),
+        'trusted_proxies' => array_values(array_filter(array_map('trim', explode(',', (string) env('SOUL_TRUSTED_PROXIES', ''))))),
+        'cors_allowed_origins' => array_values(array_filter(array_map('trim', explode(',', (string) env('SOUL_CORS_ALLOWED_ORIGINS', ''))))),
     ],
 
     'media' => [

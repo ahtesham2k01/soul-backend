@@ -50,6 +50,10 @@ final class ReleaseConfigurationValidator
             $this->check('Transactional mail', ! in_array(config('mail.default'), ['array', 'log'], true), 'Configure a transactional mailer.'),
             $this->check('Encrypted sessions', config('session.encrypt') === true, 'SESSION_ENCRYPT must be true.'),
             $this->check('Secure admin cookie', config('session.secure') === true, 'SESSION_SECURE_COOKIE must be true.'),
+            $this->check('Trusted proxies', $this->trustedProxiesAreSafe(), 'Configure explicit proxy IP/CIDR values; wildcard trust is prohibited.'),
+            $this->check('CORS origins', $this->corsOriginsAreSafe(), 'CORS origins must be explicit HTTPS origins without wildcards, paths or credentials.'),
+            $this->check('JSON request limit', (int) config('soul.security.maximum_json_request_kilobytes') >= 64, 'JSON request limit must be at least 64 KB.'),
+            $this->check('Multipart request limit', (int) config('soul.security.maximum_multipart_request_kilobytes') >= (int) config('soul.support.max_attachment_kilobytes'), 'Multipart request limit must cover the configured support attachment size.'),
             $this->check('Backup freshness policy', (int) config('soul.release.backup.maximum_age_hours') > 0, 'SOUL_BACKUP_MAXIMUM_AGE_HOURS must be positive.'),
             $this->check('Connection warning policy', in_array((int) config('soul.operations.database_connection_warning_percent'), range(1, 100), true), 'Database connection warning percent must be between 1 and 100.'),
             $this->check('Cloudinary credentials', $this->cloudinaryCredentialsPresent(), 'Cloudinary cloud, key and secret are required.'),
@@ -89,6 +93,42 @@ final class ReleaseConfigurationValidator
     private function audiencesPresent(string $key): bool
     {
         return collect(config($key, []))->filter()->isNotEmpty();
+    }
+
+    private function trustedProxiesAreSafe(): bool
+    {
+        $proxies = config('soul.security.trusted_proxies', []);
+
+        return is_array($proxies) && $proxies !== [] && collect($proxies)->every(function (string $proxy): bool {
+            [$address, $prefix] = array_pad(explode('/', $proxy, 2), 2, null);
+            if (filter_var($address, FILTER_VALIDATE_IP) === false) {
+                return false;
+            }
+            if ($prefix === null) {
+                return true;
+            }
+
+            $maximumPrefix = filter_var($address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false ? 32 : 128;
+
+            return ctype_digit($prefix) && (int) $prefix <= $maximumPrefix;
+        });
+    }
+
+    private function corsOriginsAreSafe(): bool
+    {
+        $origins = config('soul.security.cors_allowed_origins', []);
+        if (! is_array($origins) || in_array('*', $origins, true)) {
+            return false;
+        }
+
+        return collect($origins)->every(function (string $origin): bool {
+            $parts = parse_url($origin);
+
+            return is_array($parts)
+                && ($parts['scheme'] ?? null) === 'https'
+                && filled($parts['host'] ?? null)
+                && array_intersect(['user', 'pass', 'path', 'query', 'fragment'], array_keys($parts)) === [];
+        });
     }
 
     /** @param array<string, mixed> $values

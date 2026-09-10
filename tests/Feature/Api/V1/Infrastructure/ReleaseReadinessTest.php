@@ -35,7 +35,47 @@ class ReleaseReadinessTest extends TestCase
             ->assertHeader('X-Content-Type-Options', 'nosniff')
             ->assertHeader('X-Frame-Options', 'DENY')
             ->assertHeader('Referrer-Policy', 'strict-origin-when-cross-origin')
+            ->assertHeader('Cross-Origin-Opener-Policy', 'same-origin')
+            ->assertHeader('Cross-Origin-Resource-Policy', 'cross-origin')
             ->assertHeader('Server-Timing');
+    }
+
+    public function test_oversized_json_request_is_rejected_before_controller_work(): void
+    {
+        config()->set('soul.security.maximum_json_request_kilobytes', 64);
+
+        $this->withHeader('Content-Length', (string) (65 * 1024))
+            ->postJson('/api/v1/auth/email/request-code', [])
+            ->assertStatus(413)
+            ->assertJsonPath('error.code', 'REQUEST_TOO_LARGE');
+    }
+
+    public function test_authenticated_responses_cannot_be_stored_by_shared_caches(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->getJson('/api/v1/auth/me')
+            ->assertOk();
+
+        $this->assertStringContainsString('private', (string) $response->headers->get('Cache-Control'));
+        $this->assertStringContainsString('no-store', (string) $response->headers->get('Cache-Control'));
+        $response->assertHeader('Pragma', 'no-cache');
+    }
+
+    public function test_cors_allows_only_explicitly_configured_member_web_origin(): void
+    {
+        config()->set('cors.allowed_origins', ['https://app.soul.test']);
+
+        $this->withHeader('Origin', 'https://app.soul.test')
+            ->getJson('/api/v1/health')
+            ->assertOk()
+            ->assertHeader('Access-Control-Allow-Origin', 'https://app.soul.test');
+
+        $this->withHeader('Origin', 'https://evil.test')
+            ->getJson('/api/v1/health')
+            ->assertOk()
+            ->assertHeaderMissing('Access-Control-Allow-Origin');
     }
 
     public function test_cleanup_expires_private_exports_and_removes_stale_otps(): void

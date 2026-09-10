@@ -52,6 +52,8 @@ class ReleaseCommandsTest extends TestCase
         $this->assertStringContainsString('Redis queue', $output);
         $this->assertStringContainsString('Encrypted sessions', $output);
         $this->assertStringContainsString('Backup freshness policy', $output);
+        $this->assertStringContainsString('Trusted proxies', $output);
+        $this->assertStringContainsString('CORS origins', $output);
         $this->assertStringNotContainsString('DB_PASSWORD', $output);
     }
 

@@ -4,6 +4,7 @@ use App\Http\Middleware\ApplySecurityHeaders;
 use App\Http\Middleware\AttachRequestId;
 use App\Http\Middleware\EnsureAccountIsActive;
 use App\Http\Middleware\EnsureUserIsAdmin;
+use App\Http\Middleware\EnforceRequestSize;
 use App\Http\Middleware\RecordRequestTelemetry;
 use App\Http\Middleware\RecordUserActivity;
 use App\Http\Middleware\SetRequestLocale;
@@ -28,6 +29,20 @@ return Application::configure(basePath: dirname(__DIR__))
         ['prefix' => 'api/v1', 'middleware' => ['api', 'auth:sanctum', 'active.account']],
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $trustedProxies = array_values(array_filter(array_map(
+            'trim',
+            explode(',', (string) env('SOUL_TRUSTED_PROXIES', '')),
+        )));
+        if ($trustedProxies !== []) {
+            $middleware->trustProxies(
+                at: $trustedProxies,
+                headers: Request::HEADER_X_FORWARDED_FOR
+                    | Request::HEADER_X_FORWARDED_HOST
+                    | Request::HEADER_X_FORWARDED_PORT
+                    | Request::HEADER_X_FORWARDED_PROTO,
+            );
+        }
+
         $middleware->statefulApi();
 
         $middleware->prependToGroup(
@@ -37,6 +52,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->appendToGroup('api', [
             RecordRequestTelemetry::class,
             ApplySecurityHeaders::class,
+            EnforceRequestSize::class,
         ]);
         $middleware->appendToGroup('web', ApplySecurityHeaders::class);
 
