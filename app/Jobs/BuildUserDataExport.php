@@ -40,7 +40,7 @@ class BuildUserDataExport implements ShouldQueue
             $user = User::query()->with(['profile.intentions', 'profile.spokenLanguages', 'religionProfile', 'privacySetting'])->findOrFail($request->user_id);
             $path = 'exports/'.$request->public_id.'.json';
 
-            fwrite($stream, '{"schema_version":2,"generated_at":'.json_encode(now()->toIso8601String(), JSON_THROW_ON_ERROR));
+            fwrite($stream, '{"generated_at":'.json_encode(now()->toIso8601String(), JSON_THROW_ON_ERROR));
             $this->writeValue($stream, 'account', $user->only(['public_id', 'name', 'email', 'phone', 'preferred_locale', 'email_verified_at', 'phone_verified_at', 'created_at']));
             $this->writeValue($stream, 'profile', $user->profile?->toArray());
             $this->writeValue($stream, 'religion', $user->religionProfile?->toArray());

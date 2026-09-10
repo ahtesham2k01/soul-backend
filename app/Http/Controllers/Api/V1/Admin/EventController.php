@@ -19,7 +19,7 @@ class EventController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $page = Event::query()->with(['translations', 'registrations'])->latest('id')->cursorPaginate(30);
+        $page = Event::query()->with('translations')->latest('id')->cursorPaginate(30);
 
         return ApiResponse::success(['events' => collect($page->items())->map(fn (Event $event) => $this->serializeEvent($event, app()->getLocale(), null, true))->values(), 'next_cursor' => $page->nextCursor()?->encode()]);
     }
@@ -35,7 +35,7 @@ class EventController extends Controller
             return $event;
         });
 
-        return ApiResponse::success(['event' => $this->serializeEvent($event->load(['translations', 'registrations']), app()->getLocale(), null, true)], 'Event draft created.', 201);
+        return ApiResponse::success(['event' => $this->serializeEvent($event->load('translations'), app()->getLocale(), null, true)], 'Event draft created.', 201);
     }
 
     public function update(Request $request, string $event): JsonResponse
@@ -54,7 +54,7 @@ class EventController extends Controller
             $this->audit($request, $record, 'event.updated', $before, $record->only(array_keys($before)));
         });
 
-        return ApiResponse::success(['event' => $this->serializeEvent($record->load(['translations', 'registrations']), app()->getLocale(), null, true)]);
+        return ApiResponse::success(['event' => $this->serializeEvent($record->load('translations'), app()->getLocale(), null, true)]);
     }
 
     public function status(Request $request, string $event): JsonResponse

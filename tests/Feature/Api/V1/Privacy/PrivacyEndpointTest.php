@@ -46,7 +46,7 @@ class PrivacyEndpointTest extends TestCase
         $request->refresh();
         Storage::disk('local')->assertExists($request->file_path);
         $export = json_decode(Storage::disk('local')->get($request->file_path), true, flags: JSON_THROW_ON_ERROR);
-        $this->assertSame(2, $export['schema_version']);
+        $this->assertArrayNotHasKey('schema_version', $export);
         $this->assertSame($u->public_id, $export['account']['public_id']);
         $this->assertSame('My phone', $export['devices'][0]['device_name']);
         $this->assertArrayNotHasKey('push_token', $export['devices'][0]);

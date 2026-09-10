@@ -34,4 +34,14 @@ class ApiHandoffContractTest extends TestCase
 
         $this->assertCount($names->count(), $names->unique());
     }
+
+    public function test_authenticated_member_and_admin_apis_have_global_abuse_limits(): void
+    {
+        foreach (['api.v1.matches.index', 'api.v1.admin.users.index'] as $name) {
+            $route = Route::getRoutes()->getByName($name);
+
+            $this->assertNotNull($route);
+            $this->assertContains('throttle:300,1', $route->gatherMiddleware());
+        }
+    }
 }

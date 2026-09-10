@@ -24,6 +24,8 @@ SOUL is a privacy-conscious relationship and matchmaking platform for Android an
 
 Version 1 backend capabilities include authentication, onboarding, profile lifecycle, moderated public/private photos, discovery, likes and matches, chat, safety and appeals, notifications, events, subscriptions, privacy exports/deletion, localization delivery and audited admin operations. Software completion does not replace external launch work: production provider credentials, store configuration, legal approval, staging journeys and operational readiness must still be verified before release.
 
+SOUL has one current backend and one current Flutter contract. `/api/v1` is the stable public URL namespace, not a second codebase or a second app. Flutter always integrates the current documented contract; internal storage formats are not exposed as competing app versions.
+
 ## Document conventions
 
 - **Implemented** means code and automated tests exist in this repository.
@@ -423,6 +425,7 @@ Laravel owns every protected decision. Flutter owns presentation, platform permi
 ### API and compatibility policy
 
 - All mobile routes are under `/api/v1`; route names are unique and contract-tested.
+- Authenticated member and admin APIs have a 300-request-per-minute safety ceiling in addition to stricter per-feature limits for login, messaging, reports, purchases, uploads and other sensitive actions.
 - Public ULIDs are stable client identifiers. Internal database IDs and provider asset IDs stay private.
 - Additive response fields are backward-compatible. Removing/renaming fields, changing meaning or tightening a previously valid enum requires version/change planning.
 - Error codes drive client behavior; prose messages are for display and can be localized.
@@ -1892,7 +1895,7 @@ Each extension must include reversible migrations, foreign keys, production-safe
 
 - Deletion remains recoverable for 30 days, then a queued job permanently removes eligible account data.
 - Data exports are private, expiring artifacts on a configurable non-public disk.
-- Data exports use schema version 2 and stream large collections in database chunks instead of loading a member's complete history into worker memory. They cover account/profile data, discovery decisions, matches and conversations, blocks/reports, notifications, legal acceptances, verification cases, subscriptions, events, support and registered devices.
+- Data exports expose one current, simple JSON structure and stream large collections in database chunks instead of loading a member's complete history into worker memory. They cover account/profile data, discovery decisions, matches and conversations, blocks/reports, notifications, legal acceptances, verification cases, subscriptions, events, support and registered devices.
 - Push tokens, token hashes, provider transaction references, IP addresses and legal request fingerprints are excluded from the generated member file.
 - Export jobs use an atomic `pending/failed -> processing -> completed` lifecycle. A scheduled recovery pass requeues work whose processing lease has remained stale for 30 minutes.
 - Admin audit evidence must not contain secrets, OTPs, provider tokens, message bodies or raw identity documents.
