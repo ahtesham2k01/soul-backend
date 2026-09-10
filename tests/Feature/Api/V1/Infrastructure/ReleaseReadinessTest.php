@@ -3,6 +3,7 @@
 namespace Tests\Feature\Api\V1\Infrastructure;
 
 use App\Enums\Auth\EmailVerificationPurpose;
+use App\Http\Middleware\EnforceRequestSize;
 use App\Models\DataExportRequest;
 use App\Models\EmailVerificationCode;
 use App\Models\NotificationDeliveryAttempt;
@@ -10,6 +11,7 @@ use App\Models\StoreWebhookEvent;
 use App\Models\User;
 use App\Models\UserNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
@@ -44,10 +46,26 @@ class ReleaseReadinessTest extends TestCase
     {
         config()->set('soul.security.maximum_json_request_kilobytes', 64);
 
-        $this->withHeader('Content-Length', (string) (65 * 1024))
-            ->postJson('/api/v1/auth/register/request-otp', [])
-            ->assertStatus(413)
-            ->assertJsonPath('error.code', 'REQUEST_TOO_LARGE');
+        $request = Request::create(
+            '/api/v1/auth/register/request-otp',
+            'POST',
+            server: [
+                'CONTENT_LENGTH' => (string) (65 * 1024),
+                'CONTENT_TYPE' => 'application/json',
+            ],
+            content: '{}',
+        );
+        $controllerReached = false;
+
+        $response = app(EnforceRequestSize::class)->handle($request, function () use (&$controllerReached) {
+            $controllerReached = true;
+
+            return response()->json(['success' => true]);
+        });
+
+        $this->assertSame(413, $response->getStatusCode());
+        $this->assertSame('REQUEST_TOO_LARGE', $response->getData(true)['error']['code']);
+        $this->assertFalse($controllerReached);
     }
 
     public function test_authenticated_responses_cannot_be_stored_by_shared_caches(): void
@@ -64,7 +82,7 @@ class ReleaseReadinessTest extends TestCase
         $response->assertHeader('Pragma', 'no-cache');
     }
 
-    public function test_cors_allows_only_explicitly_configured_member_web_origin(): void
+    public function test_cors_allows_explicitly_configured_member_web_origin(): void
     {
         config()->set('cors.allowed_origins', ['https://app.soul.test']);
 
@@ -73,7 +91,12 @@ class ReleaseReadinessTest extends TestCase
             ->assertOk()
             ->assertHeader('Access-Control-Allow-Origin', 'https://app.soul.test');
 
-        $this->flushHeaders();
+    }
+
+    public function test_cors_rejects_an_unconfigured_origin(): void
+    {
+        config()->set('cors.allowed_origins', ['https://app.soul.test']);
+
         $this->withHeader('Origin', 'https://evil.test')
             ->getJson('/api/v1/health')
             ->assertOk()
