@@ -43,6 +43,11 @@ class OperationsController extends Controller
                 'delivered_24h' => DB::table('notification_delivery_attempts')->where('status', 'delivered')->where('delivered_at', '>=', now()->subDay())->count(),
             ],
             'recent_delivery_failures' => DB::table('notification_delivery_attempts')->whereIn('status', ['retrying', 'failed'])->latest()->limit(25)->get(['channel', 'provider', 'status', 'attempts', 'failure_code', 'updated_at']),
+            'provider_failure_summary_24h' => [
+                'notifications' => DB::table('notification_delivery_attempts')->whereNotNull('failure_code')->where('updated_at', '>=', now()->subDay())->select('failure_code', DB::raw('count(*) as total'))->groupBy('failure_code')->pluck('total', 'failure_code'),
+                'store_webhooks' => DB::table('store_webhook_events')->whereNotNull('failure_code')->where('updated_at', '>=', now()->subDay())->select('failure_code', DB::raw('count(*) as total'))->groupBy('failure_code')->pluck('total', 'failure_code'),
+                'purchases' => DB::table('store_purchase_receipts')->whereNotNull('failure_code')->where('updated_at', '>=', now()->subDay())->select('failure_code', DB::raw('count(*) as total'))->groupBy('failure_code')->pluck('total', 'failure_code'),
+            ],
         ]);
     }
 }

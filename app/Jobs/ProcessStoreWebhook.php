@@ -6,6 +6,7 @@ use App\Contracts\Billing\StorePurchaseVerifier;
 use App\Models\StorePurchaseReceipt;
 use App\Models\StoreWebhookEvent;
 use App\Support\Billing\SubscriptionLifecycle;
+use App\Support\Billing\StoreProviderException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -37,6 +38,14 @@ class ProcessStoreWebhook implements ShouldQueue
                 if ($receipt) $lifecycle->apply($receipt, $purchase);
             }
             $event->update(['status' => 'processed', 'encrypted_payload' => null, 'processing_started_at' => null, 'processed_at' => now(), 'failure_code' => null]);
+        } catch (StoreProviderException $exception) {
+            $event->update([
+                'status' => 'failed',
+                'processing_started_at' => null,
+                'failure_code' => $exception->failureCode,
+            ]);
+            if ($exception->retryable) throw $exception;
+            $event->update(['encrypted_payload' => null]);
         } catch (Throwable $exception) {
             $event->update(['status' => 'failed', 'processing_started_at' => null, 'failure_code' => 'PROVIDER_VERIFICATION_FAILED']);
             throw $exception;

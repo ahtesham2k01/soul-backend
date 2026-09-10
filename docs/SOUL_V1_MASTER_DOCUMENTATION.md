@@ -1660,9 +1660,13 @@ This guide explains subscriptions without hard-coded plans or prices. Laravel de
 
 Laravel verifies purchases directly with App Store Server API or Google Play Developer API. Provider server notifications are structurally screened, deduplicated, queued and verified again against the provider before they can change an entitlement. Raw purchase tokens are encrypted only while needed and erased immediately after an attempt; processed webhook payloads are erased after verification. Hashes and safe lifecycle metadata retain idempotency without retaining credentials. Missing credentials fail closed. A database subscription is never created from an unverified client claim.
 
+Provider failures use stable, secret-free codes. Rate limits, provider 5xx responses and temporary authorization/network failures return a retryable `503 PURCHASE_VERIFICATION_UNAVAILABLE`. Invalid receipts, product/application mismatches and malformed notifications fail permanently with no automatic retry. Raw store tokens and permanently rejected webhook payloads are erased in both cases.
+
 ### Notification delivery operations
 
 Every notification is stored in-app first. Selected push/email channels are expanded into a durable per-device delivery ledger. APNs, FCM and email workers are idempotent, retry with backoff, record only safe failure codes and revoke invalid device tokens. Super-admin Operations shows pending, failed and recent-delivery counts without exposing tokens, message bodies or provider secrets.
+
+Invalid or unregistered device tokens are permanent failures and are not retried. Provider rate limits and 5xx failures remain retryable. The Operations screen groups the last 24 hours of notification, purchase and store-webhook failures by these safe codes so operators can distinguish configuration, invalid-token and provider-outage incidents without seeing credentials or payloads.
 
 Provider jobs claim ledger rows atomically before network delivery. A five-minute recovery command re-queues due retries and work left stale by an interrupted worker; concurrent recovery cannot deliver the same claimed row twice. Keep the Laravel scheduler and durable queue workers running in every shared environment.
 

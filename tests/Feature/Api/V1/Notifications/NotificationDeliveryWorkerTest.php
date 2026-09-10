@@ -8,6 +8,7 @@ use App\Jobs\PrepareNotificationDeliveries;
 use App\Models\NotificationDeliveryAttempt;
 use App\Models\User;
 use App\Models\UserNotification;
+use App\Support\Notifications\NotificationProviderException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
@@ -34,5 +35,24 @@ class NotificationDeliveryWorkerTest extends TestCase
         $sender = new class implements NotificationChannelSender { public int $calls = 0; public function send(NotificationDeliveryAttempt $attempt): ?string { $this->calls++; return 'provider-id'; } };
         $job = new DeliverNotificationAttempt($attempt->id); $job->handle($sender); $job->handle($sender);
         $this->assertSame(1, $sender->calls); $this->assertSame('delivered', $attempt->fresh()->status);
+    }
+
+    public function test_permanent_provider_failure_is_not_scheduled_for_retry(): void
+    {
+        $user = User::factory()->create();
+        $notification = UserNotification::create(['user_id' => $user->id, 'type' => 'account', 'data' => [], 'delivery_channels' => ['in_app']]);
+        $attempt = NotificationDeliveryAttempt::create(['user_notification_id' => $notification->id, 'channel' => 'email', 'provider' => 'mail', 'deduplication_key' => hash('sha256', 'permanent-delivery')]);
+        $sender = new class implements NotificationChannelSender {
+            public function send(NotificationDeliveryAttempt $attempt): ?string
+            {
+                throw NotificationProviderException::permanent('INVALID_DEVICE_TOKEN');
+            }
+        };
+
+        (new DeliverNotificationAttempt($attempt->id))->handle($sender);
+
+        $this->assertSame('failed', $attempt->fresh()->status);
+        $this->assertSame('INVALID_DEVICE_TOKEN', $attempt->fresh()->failure_code);
+        $this->assertNull($attempt->fresh()->next_attempt_at);
     }
 }

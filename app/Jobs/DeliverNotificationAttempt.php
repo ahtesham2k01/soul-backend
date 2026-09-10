@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Contracts\Notifications\NotificationChannelSender;
 use App\Models\NotificationDeliveryAttempt;
+use App\Support\Notifications\NotificationProviderException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -32,6 +33,14 @@ class DeliverNotificationAttempt implements ShouldQueue
         try {
             $messageId = $sender->send($attempt);
             $attempt->update(['status' => 'delivered', 'processing_started_at' => null, 'next_attempt_at' => null, 'delivered_at' => now(), 'provider_message_id' => $messageId, 'failure_code' => null]);
+        } catch (NotificationProviderException $exception) {
+            $attempt->update([
+                'status' => $exception->retryable ? 'retrying' : 'failed',
+                'processing_started_at' => null,
+                'failure_code' => $exception->failureCode,
+                'next_attempt_at' => $exception->retryable ? now()->addMinutes(5) : null,
+            ]);
+            if ($exception->retryable) throw $exception;
         } catch (Throwable $exception) {
             $attempt->update(['status' => 'retrying', 'processing_started_at' => null, 'failure_code' => 'PROVIDER_DELIVERY_FAILED', 'next_attempt_at' => now()->addMinutes(5)]);
             throw $exception;

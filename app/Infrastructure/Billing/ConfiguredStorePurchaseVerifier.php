@@ -4,11 +4,12 @@ namespace App\Infrastructure\Billing;
 
 use App\Contracts\Billing\StorePurchaseVerifier;
 use App\Support\Billing\VerifiedStorePurchase;
+use App\Support\Billing\StoreProviderException;
 use App\Support\Providers\EcJwt;
 use Carbon\CarbonImmutable;
 use Google\Auth\Credentials\ServiceAccountCredentials;
 use Illuminate\Support\Facades\Http;
-use RuntimeException;
+use Throwable;
 
 class ConfiguredStorePurchaseVerifier implements StorePurchaseVerifier
 {
@@ -17,7 +18,7 @@ class ConfiguredStorePurchaseVerifier implements StorePurchaseVerifier
         return match ($platform) {
             'android' => $this->verifyGoogle($productId, $receipt),
             'ios' => $this->verifyApple($productId, $receipt),
-            default => throw new RuntimeException('Unsupported store platform.'),
+            default => throw StoreProviderException::permanent('UNSUPPORTED_STORE_PLATFORM'),
         };
     }
 
@@ -30,7 +31,7 @@ class ConfiguredStorePurchaseVerifier implements StorePurchaseVerifier
             $message = json_decode(base64_decode((string) data_get($decoded, 'message.data'), true) ?: '', true, flags: JSON_THROW_ON_ERROR);
             $notice = $message['subscriptionNotification'] ?? null;
             if (! is_array($notice) || empty($notice['purchaseToken']) || empty($notice['subscriptionId'])) {
-                throw new RuntimeException('Invalid Google subscription notification.');
+                throw StoreProviderException::permanent('MALFORMED_PROVIDER_NOTIFICATION');
             }
             return [$this->verifyGoogle($notice['subscriptionId'], $notice['purchaseToken'])];
         }
@@ -44,7 +45,7 @@ class ConfiguredStorePurchaseVerifier implements StorePurchaseVerifier
         $transactionId = (string) ($transaction['transactionId'] ?? '');
         $productId = (string) ($transaction['productId'] ?? '');
         if ($transactionId === '' || $productId === '') {
-            throw new RuntimeException('Invalid Apple subscription notification.');
+            throw StoreProviderException::permanent('MALFORMED_PROVIDER_NOTIFICATION');
         }
         return [$this->verifyApple($productId, $transactionId)];
     }
@@ -54,16 +55,16 @@ class ConfiguredStorePurchaseVerifier implements StorePurchaseVerifier
         $json = config('services.stores.google.service_account_json');
         $package = config('services.stores.google.package_name');
         if (! is_string($json) || ! is_string($package) || $json === '' || $package === '') {
-            throw new RuntimeException('Google Play verification is not configured.');
+            throw StoreProviderException::permanent('PROVIDER_NOT_CONFIGURED');
         }
         $credentials = new ServiceAccountCredentials('https://www.googleapis.com/auth/androidpublisher', json_decode($json, true, flags: JSON_THROW_ON_ERROR));
         $token = $credentials->fetchAuthToken()['access_token'] ?? null;
-        if (! is_string($token)) throw new RuntimeException('Google Play authorization failed.');
+        if (! is_string($token)) throw StoreProviderException::transient('PROVIDER_AUTHORIZATION_FAILED');
         $response = Http::withToken($token)->acceptJson()->timeout(10)->get('https://androidpublisher.googleapis.com/androidpublisher/v3/applications/'.rawurlencode($package).'/purchases/subscriptionsv2/tokens/'.rawurlencode($purchaseToken));
-        if (! $response->successful()) throw new RuntimeException('Google Play receipt verification failed.');
+        $this->guardResponse($response->status(), $response->serverError());
         $data = $response->json();
         $line = collect($data['lineItems'] ?? [])->first(fn ($item) => ($item['productId'] ?? null) === $productId);
-        if (! is_array($line)) throw new RuntimeException('Google Play product mismatch.');
+        if (! is_array($line)) throw StoreProviderException::permanent('STORE_PRODUCT_MISMATCH');
         $state = (string) ($data['subscriptionState'] ?? '');
         $expires = isset($line['expiryTime']) ? CarbonImmutable::parse($line['expiryTime']) : null;
         $status = in_array($state, ['SUBSCRIPTION_STATE_ACTIVE', 'SUBSCRIPTION_STATE_IN_GRACE_PERIOD', 'SUBSCRIPTION_STATE_CANCELED'], true) && ($expires === null || $expires->isFuture()) ? 'active' : 'inactive';
@@ -75,10 +76,10 @@ class ConfiguredStorePurchaseVerifier implements StorePurchaseVerifier
         $token = $this->appleApiToken();
         $base = app()->isProduction() ? 'https://api.storekit.itunes.apple.com' : 'https://api.storekit-sandbox.itunes.apple.com';
         $response = Http::withToken($token)->acceptJson()->timeout(10)->get($base.'/inApps/v1/transactions/'.rawurlencode($transactionId));
-        if (! $response->successful()) throw new RuntimeException('Apple receipt verification failed.');
+        $this->guardResponse($response->status(), $response->serverError());
         $claims = $this->decodeJwtPayload((string) $response->json('signedTransactionInfo'));
         if (($claims['bundleId'] ?? null) !== config('services.stores.apple.bundle_id') || ($claims['productId'] ?? null) !== $productId) {
-            throw new RuntimeException('Apple receipt product or application mismatch.');
+            throw StoreProviderException::permanent('STORE_PRODUCT_MISMATCH');
         }
         $expires = isset($claims['expiresDate']) ? CarbonImmutable::createFromTimestampMs((int) $claims['expiresDate']) : null;
         $active = ! isset($claims['revocationDate']) && ($expires === null || $expires->isFuture());
@@ -89,7 +90,7 @@ class ConfiguredStorePurchaseVerifier implements StorePurchaseVerifier
     {
         $issuer = (string) config('services.stores.apple.issuer_id'); $keyId = (string) config('services.stores.apple.key_id');
         $bundle = (string) config('services.stores.apple.bundle_id'); $key = str_replace('\\n', "\n", (string) config('services.stores.apple.private_key'));
-        if ($issuer === '' || $keyId === '' || $bundle === '' || $key === '') throw new RuntimeException('Apple Store verification is not configured.');
+        if ($issuer === '' || $keyId === '' || $bundle === '' || $key === '') throw StoreProviderException::permanent('PROVIDER_NOT_CONFIGURED');
         $now = time();
         return EcJwt::sign(['alg' => 'ES256', 'kid' => $keyId, 'typ' => 'JWT'], ['iss' => $issuer, 'iat' => $now, 'exp' => $now + 300, 'aud' => 'appstoreconnect-v1', 'bid' => $bundle], $key);
     }
@@ -98,9 +99,22 @@ class ConfiguredStorePurchaseVerifier implements StorePurchaseVerifier
     private function decodeJwtPayload(string $jwt): array
     {
         $parts = explode('.', $jwt);
-        if (count($parts) !== 3) throw new RuntimeException('Malformed signed provider payload.');
+        if (count($parts) !== 3) throw StoreProviderException::permanent('MALFORMED_PROVIDER_NOTIFICATION');
         $json = base64_decode(strtr($parts[1], '-_', '+/'), true);
-        if ($json === false) throw new RuntimeException('Malformed signed provider payload.');
-        return json_decode($json, true, flags: JSON_THROW_ON_ERROR);
+        if ($json === false) throw StoreProviderException::permanent('MALFORMED_PROVIDER_NOTIFICATION');
+        try {
+            return json_decode($json, true, flags: JSON_THROW_ON_ERROR);
+        } catch (Throwable) {
+            throw StoreProviderException::permanent('MALFORMED_PROVIDER_NOTIFICATION');
+        }
+    }
+
+    private function guardResponse(int $status, bool $serverError): void
+    {
+        if ($status >= 200 && $status < 300) return;
+
+        throw $status === 429 || $serverError
+            ? StoreProviderException::transient('PROVIDER_TEMPORARILY_UNAVAILABLE')
+            : StoreProviderException::permanent('PROVIDER_REQUEST_REJECTED');
     }
 }

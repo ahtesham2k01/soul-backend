@@ -9,6 +9,7 @@ use App\Models\SubscriptionPlan;
 use App\Models\StoreWebhookEvent;
 use App\Models\User;
 use App\Support\Billing\SubscriptionLifecycle;
+use App\Support\Billing\StoreProviderException;
 use App\Support\Billing\VerifiedStorePurchase;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -66,6 +67,30 @@ class PurchaseLifecycleTest extends TestCase
         $this->assertDatabaseHas('store_purchase_receipts', ['user_id' => $user->id, 'status' => 'failed', 'encrypted_receipt' => null]);
     }
 
+    public function test_transient_store_failure_returns_retryable_service_response_without_retaining_token(): void
+    {
+        $user = User::factory()->create(['status' => User::STATUS_ACTIVE]);
+        $plan = SubscriptionPlan::create(['key' => 'premium', 'name' => 'Premium', 'status' => 'active']);
+        StoreProduct::create(['subscription_plan_id' => $plan->id, 'platform' => 'android', 'product_id' => 'soul.premium.yearly', 'is_active' => true]);
+        $this->app->instance(StorePurchaseVerifier::class, new class implements StorePurchaseVerifier {
+            public function verify(string $platform, string $productId, string $receipt): VerifiedStorePurchase
+            {
+                throw StoreProviderException::transient('PROVIDER_TEMPORARILY_UNAVAILABLE');
+            }
+            public function verifyWebhook(string $platform, string $payload): array { return []; }
+        });
+        Sanctum::actingAs($user);
+
+        $this->postJson('/api/v1/subscription/purchases', ['platform' => 'android', 'product_id' => 'soul.premium.yearly', 'receipt' => 'temporary-private-token'])
+            ->assertStatus(503)
+            ->assertJsonPath('error.code', 'PURCHASE_VERIFICATION_UNAVAILABLE');
+        $this->assertDatabaseHas('store_purchase_receipts', [
+            'user_id' => $user->id,
+            'failure_code' => 'PROVIDER_TEMPORARILY_UNAVAILABLE',
+            'encrypted_receipt' => null,
+        ]);
+    }
+
     public function test_store_webhook_is_deduplicated_before_queueing(): void
     {
         Queue::fake(); $payload = ['signedPayload' => 'header.payload.signature'];
@@ -95,6 +120,25 @@ class PurchaseLifecycleTest extends TestCase
         (new ProcessStoreWebhook($event->id))->handle($verifier, $this->app->make(SubscriptionLifecycle::class));
 
         $this->assertSame('processed', $event->refresh()->status);
+        $this->assertNull($event->encrypted_payload);
+    }
+
+    public function test_permanently_invalid_webhook_is_not_retried_or_retained(): void
+    {
+        $event = StoreWebhookEvent::create(['platform' => 'ios', 'event_hash' => hash('sha256', 'invalid-provider-payload'), 'encrypted_payload' => 'header.payload.signature']);
+        $verifier = new class implements StorePurchaseVerifier {
+            public function verify(string $platform, string $productId, string $receipt): VerifiedStorePurchase { throw new \LogicException('Not used'); }
+            public function verifyWebhook(string $platform, string $payload): array
+            {
+                throw StoreProviderException::permanent('MALFORMED_PROVIDER_NOTIFICATION');
+            }
+        };
+
+        (new ProcessStoreWebhook($event->id))->handle($verifier, $this->app->make(SubscriptionLifecycle::class));
+
+        $event->refresh();
+        $this->assertSame('failed', $event->status);
+        $this->assertSame('MALFORMED_PROVIDER_NOTIFICATION', $event->failure_code);
         $this->assertNull($event->encrypted_payload);
     }
 }

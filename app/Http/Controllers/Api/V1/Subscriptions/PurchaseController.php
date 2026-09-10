@@ -8,6 +8,7 @@ use App\Models\StoreProduct;
 use App\Models\StorePurchaseReceipt;
 use App\Support\ApiResponse;
 use App\Support\Billing\SubscriptionLifecycle;
+use App\Support\Billing\StoreProviderException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Throwable;
@@ -26,6 +27,12 @@ class PurchaseController extends Controller
         try {
             $receipt->increment('attempts');
             $lifecycle->apply($receipt, $verifier->verify($data['platform'], $product->product_id, $data['receipt']));
+        } catch (StoreProviderException $exception) {
+            $receipt->update(['status' => 'failed', 'encrypted_receipt' => null, 'failure_code' => $exception->failureCode]);
+            report($exception);
+            return $exception->retryable
+                ? ApiResponse::error('PURCHASE_VERIFICATION_UNAVAILABLE', 'Store verification is temporarily unavailable. Please try again.', 503)
+                : ApiResponse::error('PURCHASE_NOT_VERIFIED', 'The store could not verify this purchase.', 422);
         } catch (Throwable $exception) {
             $receipt->update(['status' => 'failed', 'encrypted_receipt' => null, 'failure_code' => 'PROVIDER_VERIFICATION_FAILED']);
             report($exception);
