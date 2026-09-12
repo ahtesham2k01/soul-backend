@@ -18,6 +18,10 @@ class OperationalHealth
             'stale_exports' => DB::table('data_export_requests')->where('status', 'processing')->where('processing_started_at', '<=', $now->copy()->subMinutes(30))->count(),
             'stale_notification_deliveries' => DB::table('notification_delivery_attempts')->where('status', 'processing')->where('processing_started_at', '<=', $now->copy()->subMinutes(15))->count(),
             'stale_store_webhooks' => DB::table('store_webhook_events')->where('status', 'processing')->where('processing_started_at', '<=', $now->copy()->subMinutes(15))->count(),
+            'store_webhook_backlog' => DB::table('store_webhook_events')->whereIn('status', ['pending', 'processing'])->count(),
+            'notification_provider_failures_24h' => DB::table('notification_delivery_attempts')->whereNotNull('failure_code')->where('updated_at', '>=', $now->copy()->subDay())->count(),
+            'store_provider_failures_24h' => DB::table('store_webhook_events')->whereNotNull('failure_code')->where('updated_at', '>=', $now->copy()->subDay())->count()
+                + DB::table('store_purchase_receipts')->whereNotNull('failure_code')->where('updated_at', '>=', $now->copy()->subDay())->count(),
         ];
         $thresholds = config('soul.operations.warning_thresholds');
         $definitions = [
@@ -27,6 +31,9 @@ class OperationalHealth
             'stale_exports' => ['STALE_EXPORTS_PRESENT', 'One or more data exports have a stale processing lease.'],
             'stale_notification_deliveries' => ['STALE_NOTIFICATION_DELIVERIES_PRESENT', 'One or more notification deliveries have a stale processing lease.'],
             'stale_store_webhooks' => ['STALE_STORE_WEBHOOKS_PRESENT', 'One or more store webhooks have a stale processing lease.'],
+            'store_webhook_backlog' => ['STORE_WEBHOOK_BACKLOG_HIGH', 'The unprocessed store-webhook backlog is above its warning threshold.'],
+            'notification_provider_failures_24h' => ['NOTIFICATION_PROVIDER_FAILURES_HIGH', 'Notification-provider failures are above their 24-hour warning threshold.'],
+            'store_provider_failures_24h' => ['STORE_PROVIDER_FAILURES_HIGH', 'Store-provider failures are above their 24-hour warning threshold.'],
         ];
         $warnings = [];
         foreach ($definitions as $metric => [$code, $message]) {

@@ -292,6 +292,7 @@ return [
 
     'operations' => [
         'database_connection_warning_percent' => (int) env('SOUL_DATABASE_CONNECTION_WARNING_PERCENT', 80),
+        'store_webhook_backlog_limit' => (int) env('SOUL_STORE_WEBHOOK_BACKLOG_LIMIT', 10000),
         'warning_thresholds' => [
             'queued_jobs' => (int) env('SOUL_QUEUE_WARNING_COUNT', 1000),
             'oldest_queued_job_age_seconds' => (int) env('SOUL_QUEUE_WAIT_WARNING_SECONDS', 900),
@@ -299,6 +300,9 @@ return [
             'stale_exports' => (int) env('SOUL_STALE_EXPORT_WARNING_COUNT', 0),
             'stale_notification_deliveries' => (int) env('SOUL_STALE_NOTIFICATION_WARNING_COUNT', 0),
             'stale_store_webhooks' => (int) env('SOUL_STALE_WEBHOOK_WARNING_COUNT', 0),
+            'store_webhook_backlog' => (int) env('SOUL_STORE_WEBHOOK_BACKLOG_WARNING_COUNT', 500),
+            'notification_provider_failures_24h' => (int) env('SOUL_NOTIFICATION_PROVIDER_FAILURE_WARNING_COUNT', 25),
+            'store_provider_failures_24h' => (int) env('SOUL_STORE_PROVIDER_FAILURE_WARNING_COUNT', 10),
         ],
     ],
 

@@ -109,6 +109,21 @@ class PurchaseLifecycleTest extends TestCase
         Queue::assertNothingPushed();
     }
 
+    public function test_new_store_webhook_is_rejected_at_capacity_but_duplicate_remains_idempotent(): void
+    {
+        Queue::fake();
+        config()->set('soul.operations.store_webhook_backlog_limit', 1);
+        $first = ['signedPayload' => 'first.payload.signature'];
+        $second = ['signedPayload' => 'second.payload.signature'];
+
+        $this->postJson('/api/v1/webhooks/stores/ios', $first)->assertAccepted();
+        $this->postJson('/api/v1/webhooks/stores/ios', $first)->assertAccepted();
+        $this->postJson('/api/v1/webhooks/stores/ios', $second)->assertServiceUnavailable();
+
+        $this->assertDatabaseCount('store_webhook_events', 1);
+        Queue::assertPushed(ProcessStoreWebhook::class, 1);
+    }
+
     public function test_processed_webhook_does_not_retain_raw_provider_payload(): void
     {
         $event = StoreWebhookEvent::create(['platform' => 'ios', 'event_hash' => hash('sha256', 'provider-payload'), 'encrypted_payload' => 'header.payload.signature']);

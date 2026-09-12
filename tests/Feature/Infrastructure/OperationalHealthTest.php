@@ -54,4 +54,22 @@ class OperationalHealthTest extends TestCase
         $this->assertContains('FAILED_JOBS_PRESENT', $codes);
         $this->artisan('soul:ops-check')->assertFailed();
     }
+
+    public function test_provider_backlog_and_failure_thresholds_are_reported(): void
+    {
+        config()->set('soul.operations.warning_thresholds.store_webhook_backlog', 0);
+        config()->set('soul.operations.warning_thresholds.store_provider_failures_24h', 0);
+
+        DB::table('store_webhook_events')->insert([
+            'platform' => 'ios', 'event_hash' => hash('sha256', 'event'), 'status' => 'pending',
+            'attempts' => 1, 'failure_code' => 'PROVIDER_TEMPORARILY_UNAVAILABLE',
+            'created_at' => now(), 'updated_at' => now(),
+        ]);
+
+        $snapshot = app(OperationalHealth::class)->snapshot();
+        $codes = collect($snapshot['warnings'])->pluck('code')->all();
+        $this->assertSame(1, $snapshot['metrics']['store_webhook_backlog']);
+        $this->assertContains('STORE_WEBHOOK_BACKLOG_HIGH', $codes);
+        $this->assertContains('STORE_PROVIDER_FAILURES_HIGH', $codes);
+    }
 }

@@ -8,6 +8,7 @@ use App\Models\StoreWebhookEvent;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class StoreLifecycleController extends Controller
 {
@@ -17,7 +18,23 @@ class StoreLifecycleController extends Controller
         $payload = $request->getContent();
         abort_if($payload === '' || strlen($payload) > 100000, 400, 'Invalid webhook payload.');
         abort_unless($this->hasProviderShape($platform, $payload), 400, 'Invalid webhook payload.');
-        $event = StoreWebhookEvent::query()->firstOrCreate(['platform' => $platform, 'event_hash' => hash('sha256', $payload)], ['encrypted_payload' => $payload]);
+        $eventHash = hash('sha256', $payload);
+        $existing = StoreWebhookEvent::query()->where(['platform' => $platform, 'event_hash' => $eventHash])->first();
+        if ($existing !== null) return ApiResponse::success(['accepted' => true], status: 202);
+
+        $event = Cache::lock('store-webhook-admission', 5)->block(2, function () use ($platform, $eventHash, $payload): StoreWebhookEvent {
+            $existing = StoreWebhookEvent::query()->where(['platform' => $platform, 'event_hash' => $eventHash])->first();
+            if ($existing !== null) return $existing;
+
+            $limit = max(1, (int) config('soul.operations.store_webhook_backlog_limit', 10000));
+            abort_if(
+                StoreWebhookEvent::query()->whereIn('status', ['pending', 'processing'])->count() >= $limit,
+                503,
+                'Store webhook processing is temporarily at capacity.',
+            );
+
+            return StoreWebhookEvent::query()->create(['platform' => $platform, 'event_hash' => $eventHash, 'encrypted_payload' => $payload]);
+        });
         if ($event->wasRecentlyCreated) ProcessStoreWebhook::dispatch($event->id);
         return ApiResponse::success(['accepted' => true], status: 202);
     }
