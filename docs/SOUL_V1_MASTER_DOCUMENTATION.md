@@ -1670,6 +1670,8 @@ Every notification is stored in-app first. Selected push/email channels are expa
 
 Invalid or unregistered device tokens are permanent failures and are not retried. Provider rate limits and 5xx failures remain retryable. The Operations screen groups the last 24 hours of notification, purchase and store-webhook failures by these safe codes so operators can distinguish configuration, invalid-token and provider-outage incidents without seeing credentials or payloads.
 
+APNs, FCM, Apple Store and Google Play each have an independent shared-cache circuit breaker. Repeated transient failures open only the affected provider circuit, queued work continues through its normal retry policy without making more external calls during the cooldown, and the next successful provider call resets the failure counter. Permanent member/device/receipt errors never open a circuit. The English-only Operations screen exposes only `open`/`closed`, safe failure counts and retry delay—never credentials or request data. Threshold, rolling failure window and cooldown are configured with `SOUL_PROVIDER_CIRCUIT_*` environment values.
+
 Provider jobs claim ledger rows atomically before network delivery. A five-minute recovery command re-queues due retries and work left stale by an interrupted worker; concurrent recovery cannot deliver the same claimed row twice. Keep the Laravel scheduler and durable queue workers running in every shared environment.
 
 ### Capability response

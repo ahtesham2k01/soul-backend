@@ -321,6 +321,14 @@ return [
         ],
     ],
 
+    'providers' => [
+        'circuit_breaker' => [
+            'failure_threshold' => (int) env('SOUL_PROVIDER_CIRCUIT_FAILURE_THRESHOLD', 5),
+            'failure_window_seconds' => (int) env('SOUL_PROVIDER_CIRCUIT_FAILURE_WINDOW_SECONDS', 60),
+            'cooldown_seconds' => (int) env('SOUL_PROVIDER_CIRCUIT_COOLDOWN_SECONDS', 60),
+        ],
+    ],
+
     'security' => [
         'maximum_active_sessions' => (int) env('SOUL_MAXIMUM_ACTIVE_SESSIONS', 20),
         'maximum_json_request_kilobytes' => (int) env('SOUL_MAXIMUM_JSON_REQUEST_KILOBYTES', 256),

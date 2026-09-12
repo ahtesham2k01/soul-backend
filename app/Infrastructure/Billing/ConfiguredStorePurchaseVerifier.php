@@ -6,6 +6,7 @@ use App\Contracts\Billing\StorePurchaseVerifier;
 use App\Support\Billing\VerifiedStorePurchase;
 use App\Support\Billing\StoreProviderException;
 use App\Support\Providers\EcJwt;
+use App\Support\Providers\ProviderCircuitBreaker;
 use Carbon\CarbonImmutable;
 use Google\Auth\Credentials\ServiceAccountCredentials;
 use Illuminate\Support\Facades\Http;
@@ -13,16 +14,22 @@ use Throwable;
 
 class ConfiguredStorePurchaseVerifier implements StorePurchaseVerifier
 {
+    public function __construct(private readonly ProviderCircuitBreaker $breaker) {}
+
     public function verify(string $platform, string $productId, string $receipt): VerifiedStorePurchase
     {
-        return match ($platform) {
-            'android' => $this->verifyGoogle($productId, $receipt),
-            'ios' => $this->verifyApple($productId, $receipt),
+        return $this->guarded($platform, fn (): VerifiedStorePurchase => match ($platform) {
+            'android' => $this->verifyGoogle($productId, $receipt), 'ios' => $this->verifyApple($productId, $receipt),
             default => throw StoreProviderException::permanent('UNSUPPORTED_STORE_PLATFORM'),
-        };
+        });
     }
 
     public function verifyWebhook(string $platform, string $payload): array
+    {
+        return $this->guarded($platform, fn (): array => $this->verifyWebhookPayload($platform, $payload));
+    }
+
+    private function verifyWebhookPayload(string $platform, string $payload): array
     {
         // Webhooks are provider notifications, never proof of ownership by themselves.
         // Decode only the provider reference, then re-query the signed provider API.
@@ -48,6 +55,20 @@ class ConfiguredStorePurchaseVerifier implements StorePurchaseVerifier
             throw StoreProviderException::permanent('MALFORMED_PROVIDER_NOTIFICATION');
         }
         return [$this->verifyApple($productId, $transactionId)];
+    }
+
+    private function guarded(string $platform, callable $operation): mixed
+    {
+        $provider = 'store:'.$platform;
+        if ($this->breaker->isOpen($provider)) throw StoreProviderException::transient('PROVIDER_CIRCUIT_OPEN');
+        try {
+            $result = $operation();
+            $this->breaker->recordSuccess($provider);
+            return $result;
+        } catch (StoreProviderException $exception) {
+            if ($exception->retryable) $this->breaker->recordTransientFailure($provider);
+            throw $exception;
+        }
     }
 
     private function verifyGoogle(string $productId, string $purchaseToken): VerifiedStorePurchase

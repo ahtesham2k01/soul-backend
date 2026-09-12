@@ -53,7 +53,10 @@ class AdminCoverageEndpointTest extends TestCase
             ->assertJsonPath('data.operational_health.metrics.queued_jobs', 0)
             ->assertJsonStructure(['data' => ['operational_health' => ['status', 'checked_at', 'metrics', 'warnings']]])
             ->assertJsonStructure(['data' => ['provider_readiness' => ['cloudinary', 'google_sign_in', 'apple_sign_in', 'apple_store', 'google_play', 'fcm', 'apns', 'email', 'broadcasting']]])
-            ->assertJsonStructure(['data' => ['provider_failure_summary_24h' => ['notifications', 'store_webhooks', 'purchases']]])
+            ->assertJsonStructure(['data' => [
+                'provider_failure_summary_24h' => ['notifications', 'store_webhooks', 'purchases'],
+                'provider_circuits' => ['store:ios', 'store:android', 'push:apns', 'push:fcm'],
+            ]])
             ->assertJsonMissing(['provider_user_id' => 'provider-secret'])
             ->assertJsonMissing(['file_path' => 'private/secret.json']);
     }

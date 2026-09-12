@@ -6,6 +6,7 @@ use App\Contracts\Notifications\NotificationChannelSender;
 use App\Models\NotificationDeliveryAttempt;
 use App\Support\Notifications\NotificationProviderException;
 use App\Support\Providers\EcJwt;
+use App\Support\Providers\ProviderCircuitBreaker;
 use Google\Auth\Credentials\ServiceAccountCredentials;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
@@ -13,14 +14,23 @@ use RuntimeException;
 
 class ConfiguredNotificationChannelSender implements NotificationChannelSender
 {
+    public function __construct(private readonly ProviderCircuitBreaker $breaker) {}
+
     public function send(NotificationDeliveryAttempt $attempt): ?string
     {
         $attempt->loadMissing(['notification.user', 'device']);
-        return match ($attempt->channel) {
-            'email' => $this->email($attempt),
-            'push' => $attempt->device?->platform === 'ios' ? $this->apns($attempt) : $this->fcm($attempt),
-            default => throw new RuntimeException('Unsupported notification channel.'),
-        };
+        if ($attempt->channel === 'email') return $this->email($attempt);
+        if ($attempt->channel !== 'push') throw new RuntimeException('Unsupported notification channel.');
+        $provider = $attempt->device?->platform === 'ios' ? 'push:apns' : 'push:fcm';
+        if ($this->breaker->isOpen($provider)) throw NotificationProviderException::transient('PROVIDER_CIRCUIT_OPEN');
+        try {
+            $result = $attempt->device?->platform === 'ios' ? $this->apns($attempt) : $this->fcm($attempt);
+            $this->breaker->recordSuccess($provider);
+            return $result;
+        } catch (NotificationProviderException $exception) {
+            if ($exception->retryable) $this->breaker->recordTransientFailure($provider);
+            throw $exception;
+        }
     }
 
     private function email(NotificationDeliveryAttempt $attempt): ?string
