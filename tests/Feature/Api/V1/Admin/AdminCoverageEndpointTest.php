@@ -51,7 +51,7 @@ class AdminCoverageEndpointTest extends TestCase
             ->assertJsonPath('data.store_processing.raw_webhook_payloads_retained', 0)
             ->assertJsonPath('data.operational_health.status', 'healthy')
             ->assertJsonPath('data.operational_health.metrics.queued_jobs', 0)
-            ->assertJsonStructure(['data' => ['operational_health' => ['status', 'checked_at', 'metrics', 'warnings']]])
+            ->assertJsonStructure(['data' => ['operational_health' => ['status', 'checked_at', 'metrics', 'warnings', 'incident' => ['highest_severity', 'notification_required', 'runbook_code']]]])
             ->assertJsonStructure(['data' => ['provider_readiness' => ['cloudinary', 'google_sign_in', 'apple_sign_in', 'apple_store', 'google_play', 'fcm', 'apns', 'email', 'broadcasting']]])
             ->assertJsonStructure(['data' => [
                 'provider_failure_summary_24h' => ['notifications', 'store_webhooks', 'purchases'],

@@ -16,6 +16,7 @@ class OperationalHealthTest extends TestCase
         $snapshot = app(OperationalHealth::class)->snapshot();
 
         $this->assertSame('healthy', $snapshot['status']);
+        $this->assertFalse($snapshot['incident']['notification_required']);
         $this->assertSame(0, $snapshot['metrics']['queued_jobs']);
         $this->assertSame([], $snapshot['warnings']);
         $this->artisan('soul:ops-check')->assertSuccessful();
@@ -53,6 +54,20 @@ class OperationalHealthTest extends TestCase
         $this->assertContains('QUEUE_WAIT_HIGH', $codes);
         $this->assertContains('FAILED_JOBS_PRESENT', $codes);
         $this->artisan('soul:ops-check')->assertFailed();
+    }
+
+    public function test_severe_threshold_breach_requests_incident_escalation(): void
+    {
+        config()->set('soul.operations.warning_thresholds.queued_jobs', 1);
+        foreach (range(1, 6) as $index) {
+            DB::table('jobs')->insert(['queue' => 'default', 'payload' => '{}', 'attempts' => 0, 'reserved_at' => null, 'available_at' => now()->timestamp, 'created_at' => now()->timestamp + $index]);
+        }
+
+        $snapshot = app(OperationalHealth::class)->snapshot();
+        $this->assertSame('critical', $snapshot['status']);
+        $this->assertTrue($snapshot['incident']['notification_required']);
+        $this->assertSame('QUEUE_DEPTH_HIGH', $snapshot['incident']['runbook_code']);
+        $this->assertSame('critical', collect($snapshot['warnings'])->firstWhere('code', 'QUEUE_DEPTH_HIGH')['severity']);
     }
 
     public function test_provider_backlog_and_failure_thresholds_are_reported(): void

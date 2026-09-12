@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\DB;
 
 class OperationalHealth
 {
-    /** @return array{status:string,checked_at:string,metrics:array<string,int>,warnings:array<int,array{code:string,message:string,value:int,threshold:int}>} */
+    /** @return array{status:string,checked_at:string,metrics:array<string,int>,warnings:array<int,array{code:string,message:string,value:int,threshold:int,severity:string}>,incident:array{highest_severity:string,notification_required:bool,runbook_code:?string}} */
     public function snapshot(): array
     {
         $now = now();
@@ -39,10 +39,23 @@ class OperationalHealth
         foreach ($definitions as $metric => [$code, $message]) {
             $threshold = max(0, (int) ($thresholds[$metric] ?? 0));
             if ($metrics[$metric] > $threshold) {
-                $warnings[] = compact('code', 'message') + ['value' => $metrics[$metric], 'threshold' => $threshold];
+                $severity = $metrics[$metric] > max(1, $threshold * 5) ? 'critical' : 'warning';
+                $warnings[] = compact('code', 'message', 'severity') + ['value' => $metrics[$metric], 'threshold' => $threshold];
             }
         }
 
-        return ['status' => $warnings === [] ? 'healthy' : 'warning', 'checked_at' => $now->toIso8601String(), 'metrics' => $metrics, 'warnings' => $warnings];
+        $highestSeverity = collect($warnings)->contains('severity', 'critical') ? 'critical' : ($warnings === [] ? 'healthy' : 'warning');
+
+        return [
+            'status' => $highestSeverity,
+            'checked_at' => $now->toIso8601String(),
+            'metrics' => $metrics,
+            'warnings' => $warnings,
+            'incident' => [
+                'highest_severity' => $highestSeverity,
+                'notification_required' => $highestSeverity === 'critical',
+                'runbook_code' => $warnings[0]['code'] ?? null,
+            ],
+        ];
     }
 }
