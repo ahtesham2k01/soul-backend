@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AccountDeletionRequest;
+use App\Models\AdminAuditLog;
 use App\Models\DataExportRequest;
 use App\Support\ApiResponse;
 use App\Support\Operations\OperationalHealth;
@@ -50,6 +51,13 @@ class OperationsController extends Controller
                 'store_webhooks' => DB::table('store_webhook_events')->whereNotNull('failure_code')->where('updated_at', '>=', now()->subDay())->select('failure_code', DB::raw('count(*) as total'))->groupBy('failure_code')->pluck('total', 'failure_code'),
                 'purchases' => DB::table('store_purchase_receipts')->whereNotNull('failure_code')->where('updated_at', '>=', now()->subDay())->select('failure_code', DB::raw('count(*) as total'))->groupBy('failure_code')->pluck('total', 'failure_code'),
             ],
+            'recent_provider_recoveries' => AdminAuditLog::query()->with('adminUser:id,email')
+                ->where('action', 'store_webhook.replayed')->latest()->limit(25)->get()
+                ->map(fn (AdminAuditLog $log): array => [
+                    'id' => $log->public_id, 'action' => $log->action,
+                    'admin_email' => $log->adminUser->email, 'reason' => $log->reason,
+                    'created_at' => $log->created_at->toIso8601String(),
+                ]),
         ]);
     }
 }
