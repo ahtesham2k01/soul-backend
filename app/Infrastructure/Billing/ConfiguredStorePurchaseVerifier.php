@@ -60,13 +60,14 @@ class ConfiguredStorePurchaseVerifier implements StorePurchaseVerifier
     private function guarded(string $platform, callable $operation): mixed
     {
         $provider = 'store:'.$platform;
-        if ($this->breaker->isOpen($provider)) throw StoreProviderException::transient('PROVIDER_CIRCUIT_OPEN');
+        if (! $this->breaker->allowsRequest($provider)) throw StoreProviderException::transient('PROVIDER_CIRCUIT_OPEN');
         try {
             $result = $operation();
             $this->breaker->recordSuccess($provider);
             return $result;
         } catch (StoreProviderException $exception) {
             if ($exception->retryable) $this->breaker->recordTransientFailure($provider);
+            else $this->breaker->recordSuccess($provider);
             throw $exception;
         }
     }

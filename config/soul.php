@@ -326,6 +326,7 @@ return [
             'failure_threshold' => (int) env('SOUL_PROVIDER_CIRCUIT_FAILURE_THRESHOLD', 5),
             'failure_window_seconds' => (int) env('SOUL_PROVIDER_CIRCUIT_FAILURE_WINDOW_SECONDS', 60),
             'cooldown_seconds' => (int) env('SOUL_PROVIDER_CIRCUIT_COOLDOWN_SECONDS', 60),
+            'probe_lease_seconds' => (int) env('SOUL_PROVIDER_CIRCUIT_PROBE_LEASE_SECONDS', 15),
         ],
     ],
 

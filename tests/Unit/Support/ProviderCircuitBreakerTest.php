@@ -35,4 +35,18 @@ class ProviderCircuitBreakerTest extends TestCase
         $this->assertTrue($breaker->isOpen('store:ios'));
         $this->assertFalse($breaker->isOpen('store:android'));
     }
+
+    public function test_only_one_half_open_probe_is_allowed_after_cooldown(): void
+    {
+        Cache::flush();
+        config()->set('soul.providers.circuit_breaker.failure_threshold', 1);
+        config()->set('soul.providers.circuit_breaker.cooldown_seconds', 1);
+        $breaker = app(ProviderCircuitBreaker::class);
+        $breaker->recordTransientFailure('store:android');
+        $this->travel(2)->seconds();
+
+        $this->assertTrue($breaker->allowsRequest('store:android'));
+        $this->assertFalse($breaker->allowsRequest('store:android'));
+        $this->assertSame('half_open', $breaker->states(['store:android'])['store:android']['state']);
+    }
 }

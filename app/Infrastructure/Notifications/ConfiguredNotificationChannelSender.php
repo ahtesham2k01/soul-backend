@@ -22,13 +22,14 @@ class ConfiguredNotificationChannelSender implements NotificationChannelSender
         if ($attempt->channel === 'email') return $this->email($attempt);
         if ($attempt->channel !== 'push') throw new RuntimeException('Unsupported notification channel.');
         $provider = $attempt->device?->platform === 'ios' ? 'push:apns' : 'push:fcm';
-        if ($this->breaker->isOpen($provider)) throw NotificationProviderException::transient('PROVIDER_CIRCUIT_OPEN');
+        if (! $this->breaker->allowsRequest($provider)) throw NotificationProviderException::transient('PROVIDER_CIRCUIT_OPEN');
         try {
             $result = $attempt->device?->platform === 'ios' ? $this->apns($attempt) : $this->fcm($attempt);
             $this->breaker->recordSuccess($provider);
             return $result;
         } catch (NotificationProviderException $exception) {
             if ($exception->retryable) $this->breaker->recordTransientFailure($provider);
+            else $this->breaker->recordSuccess($provider);
             throw $exception;
         }
     }

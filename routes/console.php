@@ -86,6 +86,7 @@ Artisan::command('soul:recover-provider-work', function (): void {
 
     $webhooks = StoreWebhookEvent::query()
         ->whereIn('status', ['pending', 'failed'])
+        ->whereNotNull('encrypted_payload')
         ->where('attempts', '<', 6)
         ->where(fn ($query) => $query->where('updated_at', '<=', now()->subMinutes(2))->orWhere('failure_code', 'STALE_PROCESS_RECOVERED'))
         ->limit(200)->pluck('id');
