@@ -3,6 +3,7 @@
 namespace Tests\Feature\Infrastructure;
 
 use App\Support\Operations\OperationalHealth;
+use App\Support\Operations\OperationalIncidentManager;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -68,6 +69,8 @@ class OperationalHealthTest extends TestCase
         $this->assertTrue($snapshot['incident']['notification_required']);
         $this->assertSame('QUEUE_DEPTH_HIGH', $snapshot['incident']['runbook_code']);
         $this->assertSame('critical', collect($snapshot['warnings'])->firstWhere('code', 'QUEUE_DEPTH_HIGH')['severity']);
+        app(OperationalIncidentManager::class)->record($snapshot);
+        $this->assertDatabaseHas('operational_incidents', ['code' => 'QUEUE_DEPTH_HIGH', 'severity' => 'critical', 'status' => 'open']);
     }
 
     public function test_provider_backlog_and_failure_thresholds_are_reported(): void

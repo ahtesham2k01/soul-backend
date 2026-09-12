@@ -4669,6 +4669,58 @@
         }
       }
     },
+    "/admin/operations/incidents/{incident}": {
+      "put": {
+        "operationId": "api.v1.admin.operations.incidents.update",
+        "summary": "Acknowledge or resolve an operational incident with audited reason",
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "incident",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "decision": "acknowledge",
+                "reason": "Investigating provider capacity incident"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
     "/support/tickets": {
       "get": {
         "operationId": "api.v1.support.tickets.index",

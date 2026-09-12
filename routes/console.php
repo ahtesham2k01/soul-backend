@@ -100,6 +100,7 @@ Artisan::command('soul:recover-provider-work', function (): void {
 
 Artisan::command('soul:ops-check', function (): int {
     $snapshot = app(OperationalHealth::class)->snapshot();
+    app(\App\Support\Operations\OperationalIncidentManager::class)->record($snapshot);
     $this->line(json_encode($snapshot, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES));
 
     return $snapshot['status'] === 'healthy' ? 0 : 1;

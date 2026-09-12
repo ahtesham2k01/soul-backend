@@ -6,11 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\AccountDeletionRequest;
 use App\Models\AdminAuditLog;
 use App\Models\DataExportRequest;
+use App\Models\OperationalIncident;
 use App\Support\ApiResponse;
 use App\Support\Operations\OperationalHealth;
 use App\Support\Providers\ProviderCircuitBreaker;
 use App\Support\Release\ReleaseConfigurationValidator;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class OperationsController extends Controller
@@ -58,6 +60,31 @@ class OperationsController extends Controller
                     'admin_email' => $log->adminUser->email, 'reason' => $log->reason,
                     'created_at' => $log->created_at->toIso8601String(),
                 ]),
+            'operational_incidents' => OperationalIncident::query()->with(['acknowledgedBy:id,email', 'resolvedBy:id,email'])
+                ->latest('last_detected_at')->limit(50)->get()->map(fn (OperationalIncident $incident): array => $this->incidentData($incident)),
         ]);
+    }
+
+    public function updateIncident(Request $request, OperationalIncident $incident): JsonResponse
+    {
+        $data = $request->validate(['decision' => ['required', 'in:acknowledge,resolve'], 'reason' => ['required', 'string', 'min:10', 'max:1000']]);
+        $updated = DB::transaction(function () use ($request, $incident, $data): OperationalIncident {
+            $record = OperationalIncident::query()->lockForUpdate()->findOrFail($incident->id);
+            abort_if($record->status === 'resolved', 409, 'Resolved incidents are immutable.');
+            $before = $record->only(['status', 'severity']);
+            $changes = $data['decision'] === 'acknowledge'
+                ? ['status' => 'acknowledged', 'acknowledged_by_admin_id' => $request->user()->id, 'acknowledged_at' => now()]
+                : ['status' => 'resolved', 'resolved_by_admin_id' => $request->user()->id, 'resolved_at' => now(), 'resolution_reason' => $data['reason']];
+            $record->update($changes);
+            AdminAuditLog::create(['admin_user_id' => $request->user()->id, 'action' => 'operational_incident.'.$data['decision'].'d', 'subject_type' => OperationalIncident::class, 'subject_id' => $record->id, 'before' => $before, 'after' => $record->only(['status', 'severity']), 'reason' => $data['reason'], 'ip_address' => $request->ip()]);
+            return $record->fresh(['acknowledgedBy:id,email', 'resolvedBy:id,email']);
+        });
+
+        return ApiResponse::success(['incident' => $this->incidentData($updated)]);
+    }
+
+    private function incidentData(OperationalIncident $incident): array
+    {
+        return ['id' => $incident->public_id, 'code' => $incident->code, 'severity' => $incident->severity, 'status' => $incident->status, 'current_value' => $incident->current_value, 'threshold' => $incident->threshold, 'first_detected_at' => $incident->first_detected_at->toIso8601String(), 'last_detected_at' => $incident->last_detected_at->toIso8601String(), 'acknowledged_by' => $incident->acknowledgedBy?->email, 'acknowledged_at' => $incident->acknowledged_at?->toIso8601String(), 'resolved_by' => $incident->resolvedBy?->email, 'resolved_at' => $incident->resolved_at?->toIso8601String(), 'resolution_reason' => $incident->resolution_reason];
     }
 }

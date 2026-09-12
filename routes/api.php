@@ -129,6 +129,7 @@ Route::prefix('v1')->group(function (): void {
             Route::put('/catalogs/translations', [AdminCatalogController::class, 'updateTranslation'])->name('api.v1.admin.catalogs.translations.update');
             Route::put('/catalogs/spoken-languages/{language}', [AdminCatalogController::class, 'updateLanguage'])->name('api.v1.admin.catalogs.spoken-languages.update');
             Route::get('/operations', AdminOperationsController::class)->name('api.v1.admin.operations.index');
+            Route::put('/operations/incidents/{incident:public_id}', [AdminOperationsController::class, 'updateIncident'])->name('api.v1.admin.operations.incidents.update');
             Route::get('/duplicate-accounts', [AdminDuplicateAccountController::class, 'index'])->name('api.v1.admin.duplicate-accounts.index');
             Route::post('/duplicate-accounts', [AdminDuplicateAccountController::class, 'store'])->name('api.v1.admin.duplicate-accounts.store');
             Route::put('/duplicate-accounts/{case}', [AdminDuplicateAccountController::class, 'resolve'])->name('api.v1.admin.duplicate-accounts.resolve');

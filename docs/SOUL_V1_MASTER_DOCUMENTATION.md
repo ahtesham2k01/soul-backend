@@ -1117,6 +1117,7 @@ The React admin uses same-origin secure session cookies, not mobile bearer token
 | PUT | `/admin/catalogs/translations` | `api.v1.admin.catalogs.translations.update` | Override a known translation key with audit evidence |
 | PUT | `/admin/catalogs/spoken-languages/{language}` | `api.v1.admin.catalogs.spoken-languages.update` | Rename, order or deactivate a spoken language |
 | GET | `/admin/operations` | `api.v1.admin.operations.index` | Privacy, social-login, export and deletion summaries |
+| PUT | `/admin/operations/incidents/{incident}` | `api.v1.admin.operations.incidents.update` | Acknowledge or resolve an operational incident with audited reason |
 | GET | `/support/tickets` | `api.v1.support.tickets.index` | List the signed-in member's private support tickets |
 | POST | `/support/tickets` | `api.v1.support.tickets.store` | Open a support ticket |
 | GET | `/support/tickets/{ticket}` | `api.v1.support.tickets.show` | Read an owned support thread |
@@ -2162,6 +2163,7 @@ Do not restore a drill over staging or production, and never commit backup artif
 - The English-only Operations screen shows the same queue depth, oldest wait, recent failed-job and stale export/notification/store-work metrics. Thresholds use the `SOUL_*_WARNING_*` environment settings, so operators can tune alerts without a code change.
 - The Operations screen also renders each provider circuit state, grouped 24-hour safe failure codes and the latest audited manual recovery actions. Recovery entries contain only the responsible super-admin email, operational reason and timestamp; internal event IDs and provider payloads are excluded.
 - Operational warnings carry `warning` or `critical` severity. A metric above five times its configured warning threshold becomes critical, sets `notification_required`, and includes a stable runbook code so external monitoring can page the operations owner without parsing human text. Treat critical incidents as immediate escalation; warning incidents require investigation during the current operations shift.
+- Every `soul:ops-check` warning is reconciled into a durable operational incident with first/last detection, current value and threshold. The English-only Operations API lists the latest incidents; a super-admin may acknowledge or resolve one with a mandatory reason. Both transitions use row locking and immutable audit logs, while resolved incidents reject repeat decisions. Provider secrets and job payloads are never stored in an incident.
 - Run queue failure monitoring continuously and retry only idempotent jobs after investigation.
 - Review dependency audit results on every proposed release.
 - Test backups and account-deletion execution in a non-production environment regularly.

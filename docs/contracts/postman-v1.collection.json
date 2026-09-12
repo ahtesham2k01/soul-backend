@@ -3726,6 +3726,43 @@
           }
         },
         {
+          "name": "Acknowledge or resolve an operational incident with audited reason",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"decision\": \"acknowledge\",\n  \"reason\": \"Investigating provider capacity incident\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/operations/incidents/{incident}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "operations",
+                "incidents",
+                "{incident}"
+              ]
+            },
+            "description": "api.v1.admin.operations.incidents.update: Acknowledge or resolve an operational incident with audited reason"
+          }
+        },
+        {
           "name": "Browse the support queue",
           "request": {
             "method": "GET",
