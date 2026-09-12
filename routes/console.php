@@ -7,6 +7,8 @@ use App\Jobs\DeliverNotificationAttempt;
 use App\Jobs\ProcessStoreWebhook;
 use App\Models\NotificationDeliveryAttempt;
 use App\Models\StoreWebhookEvent;
+use App\Models\AdminAuditLog;
+use App\Models\User;
 use App\Support\Operations\OperationalHealth;
 use App\Support\Operations\DatabaseCapacityInspector;
 use App\Support\Performance\CapacityProbe;
@@ -15,6 +17,7 @@ use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
@@ -101,6 +104,40 @@ Artisan::command('soul:ops-check', function (): int {
 
     return $snapshot['status'] === 'healthy' ? 0 : 1;
 })->purpose('Check queue and asynchronous workload health for monitoring');
+
+Artisan::command('soul:replay-store-webhook {event} {--admin=} {--reason=} {--confirm=}', function (): int {
+    if ($this->option('confirm') !== 'REPLAY-FAILED-STORE-WEBHOOK') {
+        $this->error('Pass --confirm=REPLAY-FAILED-STORE-WEBHOOK after reviewing the event.');
+        return 1;
+    }
+    $reason = trim((string) $this->option('reason'));
+    $admin = User::query()->where('email', strtolower(trim((string) $this->option('admin'))))->where('admin_role', 'super_admin')->first();
+    if (! $admin || mb_strlen($reason) < 10) {
+        $this->error('A valid super-admin email and a reason of at least 10 characters are required.');
+        return 1;
+    }
+
+    $event = DB::transaction(function () use ($admin, $reason): ?StoreWebhookEvent {
+        $record = StoreWebhookEvent::query()->lockForUpdate()->find((int) $this->argument('event'));
+        if (! $record || $record->status !== 'failed' || $record->encrypted_payload === null) return null;
+        $before = $record->only(['status', 'attempts', 'failure_code']);
+        $record->update(['status' => 'pending', 'attempts' => 0, 'failure_code' => null, 'processing_started_at' => null]);
+        AdminAuditLog::create([
+            'admin_user_id' => $admin->id, 'action' => 'store_webhook.replayed',
+            'subject_type' => StoreWebhookEvent::class, 'subject_id' => $record->id,
+            'before' => $before, 'after' => $record->only(['status', 'attempts', 'failure_code']),
+            'reason' => $reason, 'ip_address' => null,
+        ]);
+        return $record;
+    });
+    if (! $event) {
+        $this->error('Only a failed event with a retained payload can be replayed.');
+        return 1;
+    }
+    ProcessStoreWebhook::dispatch($event->id);
+    $this->info('Store webhook queued for one audited replay cycle.');
+    return 0;
+})->purpose('Replay one retained failed store webhook with super-admin attribution');
 
 Artisan::command('soul:seed-performance {--users=10000} {--matches=5000} {--messages=10} {--confirm=}', function (): int {
     if (! app()->environment(['local', 'testing'])) {
