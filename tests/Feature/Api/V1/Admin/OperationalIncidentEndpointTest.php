@@ -23,6 +23,11 @@ class OperationalIncidentEndpointTest extends TestCase
         $this->putJson('/api/v1/admin/operations/incidents/'.$incident->public_id, ['decision' => 'acknowledge', 'reason' => 'Investigating queue worker capacity'])->assertOk()->assertJsonPath('data.incident.status', 'acknowledged');
         $this->putJson('/api/v1/admin/operations/incidents/'.$incident->public_id, ['decision' => 'resolve', 'reason' => 'Queue workers restored and backlog cleared'])->assertOk()->assertJsonPath('data.incident.status', 'resolved');
         $this->assertDatabaseCount('admin_audit_logs', 2);
+        $this->getJson('/api/v1/admin/operations')
+            ->assertOk()
+            ->assertJsonPath('data.operational_incidents.0.status', 'resolved')
+            ->assertJsonPath('data.recent_provider_recoveries.0.action', 'operational_incident.resolved')
+            ->assertJsonMissingPath('data.recent_provider_recoveries.0.subject_id');
         $this->putJson('/api/v1/admin/operations/incidents/'.$incident->public_id, ['decision' => 'resolve', 'reason' => 'Attempt duplicate resolution'])->assertConflict();
     }
 

@@ -54,7 +54,8 @@ class OperationsController extends Controller
                 'purchases' => DB::table('store_purchase_receipts')->whereNotNull('failure_code')->where('updated_at', '>=', now()->subDay())->select('failure_code', DB::raw('count(*) as total'))->groupBy('failure_code')->pluck('total', 'failure_code'),
             ],
             'recent_provider_recoveries' => AdminAuditLog::query()->with('adminUser:id,email')
-                ->where('action', 'store_webhook.replayed')->latest()->limit(25)->get()
+                ->whereIn('action', ['store_webhook.replayed', 'operational_incident.acknowledged', 'operational_incident.resolved'])
+                ->latest()->limit(25)->get()
                 ->map(fn (AdminAuditLog $log): array => [
                     'id' => $log->public_id, 'action' => $log->action,
                     'admin_email' => $log->adminUser->email, 'reason' => $log->reason,
