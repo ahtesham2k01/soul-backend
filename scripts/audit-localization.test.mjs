@@ -12,6 +12,10 @@ const createFixture = () => {
     fs.mkdirSync(path.join(root, 'config'), { recursive: true });
     fs.mkdirSync(path.join(root, 'resources'), { recursive: true });
     fs.copyFileSync('config/soul.php', path.join(root, 'config/soul.php'));
+    fs.copyFileSync(
+        'config/localization-baseline.json',
+        path.join(root, 'config/localization-baseline.json'),
+    );
     fs.cpSync('resources/lang', path.join(root, 'resources/lang'), { recursive: true });
     return root;
 };
@@ -88,6 +92,39 @@ test('JSON report exposes fallback keys but never catalog values', () => {
     assert.ok(output.includes('fallbackKeys'));
     assert.ok(! output.includes('Correo electrónico'));
     assert.ok(! output.includes('Communications commerciales'));
+});
+
+test('localized coverage cannot fall below its committed baseline', (context) => {
+    const root = createFixture();
+    context.after(() => fs.rmSync(root, { recursive: true, force: true }));
+    const catalogPath = path.join(root, 'resources/lang/es.json');
+    const catalog = JSON.parse(fs.readFileSync(catalogPath, 'utf8'));
+    catalog['common.close'] = 'Close';
+    fs.writeFileSync(catalogPath, `${JSON.stringify(catalog, null, 2)}\n`);
+
+    const result = runAudit(root);
+    const report = JSON.parse(result.stdout);
+
+    assert.equal(result.status, 1);
+    assert.ok(report.failures.includes('es: localized coverage regressed from 179 to 178'));
+});
+
+test('baseline locale drift and invalid counts are rejected', (context) => {
+    const root = createFixture();
+    context.after(() => fs.rmSync(root, { recursive: true, force: true }));
+    const baselinePath = path.join(root, 'config/localization-baseline.json');
+    const baseline = JSON.parse(fs.readFileSync(baselinePath, 'utf8'));
+    delete baseline.sw;
+    baseline.unexpected = 1;
+    baseline.es = 999;
+    fs.writeFileSync(baselinePath, `${JSON.stringify(baseline, null, 2)}\n`);
+
+    const result = runAudit(root);
+    const report = JSON.parse(result.stdout);
+
+    assert.equal(result.status, 1);
+    assert.ok(report.failures.includes('baseline: missing=1, extra=1'));
+    assert.ok(report.failures.includes('es: localization baseline is invalid'));
 });
 
 test('unsupported output formats fail without running the audit', () => {

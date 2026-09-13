@@ -11,6 +11,7 @@ if (! ['table', 'json'].includes(outputFormat)) {
 }
 const languageDirectory = path.join(root, 'resources', 'lang');
 const configSource = fs.readFileSync(path.join(root, 'config', 'soul.php'), 'utf8');
+const baselinePath = path.join(root, 'config', 'localization-baseline.json');
 
 const configuredBlock = configSource.match(/'target_locales'\s*=>\s*\[([\s\S]*?)\],/);
 const readyBlock = configSource.match(/'launch_ready_locales'\s*=>\s*\[([\s\S]*?)\],/);
@@ -25,6 +26,7 @@ const parsePhpStringList = (block) => [
 
 const targetLocales = parsePhpStringList(configuredBlock[1]);
 const launchReadyLocales = parsePhpStringList(readyBlock[1]);
+const baseline = JSON.parse(fs.readFileSync(baselinePath, 'utf8'));
 const english = JSON.parse(
     fs.readFileSync(path.join(languageDirectory, 'en.json'), 'utf8'),
 );
@@ -66,6 +68,15 @@ const intentionalIdenticalMemberTerms = {
 const failures = [];
 const rows = [];
 
+const missingBaselineLocales = targetLocales.filter((locale) => ! Object.hasOwn(baseline, locale));
+const unexpectedBaselineLocales = Object.keys(baseline).filter((locale) => ! targetLocales.includes(locale));
+
+if (missingBaselineLocales.length || unexpectedBaselineLocales.length) {
+    failures.push(
+        `baseline: missing=${missingBaselineLocales.length}, extra=${unexpectedBaselineLocales.length}`,
+    );
+}
+
 for (const locale of targetLocales) {
     const catalogPath = path.join(languageDirectory, `${locale}.json`);
 
@@ -83,6 +94,8 @@ for (const locale of targetLocales) {
     const fallbackKeys = sourceCatalogLocales.has(locale) ? [] : memberKeys.filter(
         (key) => catalog[key] === english[key] && ! allowedIdenticalTerms.has(key),
     );
+    const localized = memberKeys.length - fallbackKeys.length;
+    const baselineLocalized = baseline[locale];
 
     if (missing.length || extra.length || empty.length) {
         failures.push(
@@ -94,11 +107,19 @@ for (const locale of targetLocales) {
         failures.push(`${locale}: launch-ready catalog has ${fallbackKeys.length} English fallbacks`);
     }
 
+    if (! Number.isInteger(baselineLocalized) || baselineLocalized < 0 || baselineLocalized > memberKeys.length) {
+        failures.push(`${locale}: localization baseline is invalid`);
+    } else if (localized < baselineLocalized) {
+        failures.push(`${locale}: localized coverage regressed from ${baselineLocalized} to ${localized}`);
+    }
+
     rows.push({
         locale,
         status: launchReadyLocales.includes(locale) ? 'launch-ready' : 'draft',
         memberKeys: memberKeys.length,
-        localized: memberKeys.length - fallbackKeys.length,
+        localized,
+        baselineLocalized,
+        progress: localized === memberKeys.length ? 'complete' : 'in-progress',
         englishFallbacks: fallbackKeys.length,
         fallbackKeys,
     });
