@@ -23,6 +23,10 @@ const english = JSON.parse(
 );
 const englishKeys = Object.keys(english).sort();
 const memberKeys = englishKeys.filter((key) => ! key.startsWith('admin.'));
+const intentionalIdenticalMemberTerms = {
+    es: new Set(['profile.answer_no']),
+    fr: new Set(['notifications.title']),
+};
 const failures = [];
 const rows = [];
 
@@ -39,7 +43,10 @@ for (const locale of targetLocales) {
     const missing = englishKeys.filter((key) => ! keys.includes(key));
     const extra = keys.filter((key) => ! englishKeys.includes(key));
     const empty = keys.filter((key) => typeof catalog[key] !== 'string' || catalog[key].trim() === '');
-    const unchanged = memberKeys.filter((key) => catalog[key] === english[key]).length;
+    const allowedIdenticalTerms = intentionalIdenticalMemberTerms[locale] ?? new Set();
+    const unchanged = memberKeys.filter(
+        (key) => catalog[key] === english[key] && ! allowedIdenticalTerms.has(key),
+    ).length;
 
     if (missing.length || extra.length || empty.length) {
         failures.push(
