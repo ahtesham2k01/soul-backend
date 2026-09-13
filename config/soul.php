@@ -291,6 +291,7 @@ return [
     ],
 
     'operations' => [
+        'critical_ack_sla_minutes' => (int) env('SOUL_CRITICAL_INCIDENT_ACK_SLA_MINUTES', 15),
         'database_connection_warning_percent' => (int) env('SOUL_DATABASE_CONNECTION_WARNING_PERCENT', 80),
         'store_webhook_backlog_limit' => (int) env('SOUL_STORE_WEBHOOK_BACKLOG_LIMIT', 10000),
         'warning_thresholds' => [
@@ -303,6 +304,7 @@ return [
             'store_webhook_backlog' => (int) env('SOUL_STORE_WEBHOOK_BACKLOG_WARNING_COUNT', 500),
             'notification_provider_failures_24h' => (int) env('SOUL_NOTIFICATION_PROVIDER_FAILURE_WARNING_COUNT', 25),
             'store_provider_failures_24h' => (int) env('SOUL_STORE_PROVIDER_FAILURE_WARNING_COUNT', 10),
+            'critical_incidents_past_ack_sla' => 0,
         ],
     ],
 

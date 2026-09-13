@@ -5,6 +5,7 @@ namespace Tests\Feature\Infrastructure;
 use App\Support\Operations\OperationalHealth;
 use App\Support\Operations\OperationalIncidentManager;
 use App\Models\OperationalIncident;
+use App\Support\Operations\PrometheusHealthFormatter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -106,5 +107,20 @@ class OperationalHealthTest extends TestCase
         $incident = OperationalIncident::firstOrFail();
         $this->assertSame('open', $incident->status);
         $this->assertSame(['opened', 'auto_resolved', 'reopened'], $incident->events()->orderBy('id')->pluck('type')->all());
+    }
+
+    public function test_critical_acknowledgement_sla_and_prometheus_export_are_machine_readable(): void
+    {
+        config()->set('soul.operations.critical_ack_sla_minutes', 10);
+        OperationalIncident::create(['fingerprint' => hash('sha256', 'SLA'), 'code' => 'QUEUE_DEPTH_HIGH', 'severity' => 'critical', 'status' => 'open', 'current_value' => 50, 'threshold' => 5, 'first_detected_at' => now()->subMinutes(11), 'last_detected_at' => now()]);
+
+        $snapshot = app(OperationalHealth::class)->snapshot();
+        $this->assertSame(1, $snapshot['metrics']['critical_incidents_past_ack_sla']);
+        $this->assertContains('CRITICAL_INCIDENT_ACK_SLA_BREACHED', collect($snapshot['warnings'])->pluck('code')->all());
+
+        $output = app(PrometheusHealthFormatter::class)->format($snapshot);
+        $this->assertStringContainsString('soul_critical_incidents_past_ack_sla 1', $output);
+        $this->assertStringContainsString('code="CRITICAL_INCIDENT_ACK_SLA_BREACHED"', $output);
+        $this->assertStringNotContainsString('QUEUE_DEPTH_HIGH', $output);
     }
 }

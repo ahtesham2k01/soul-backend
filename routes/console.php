@@ -10,6 +10,7 @@ use App\Models\StoreWebhookEvent;
 use App\Models\AdminAuditLog;
 use App\Models\User;
 use App\Support\Operations\OperationalHealth;
+use App\Support\Operations\PrometheusHealthFormatter;
 use App\Support\Operations\DatabaseCapacityInspector;
 use App\Support\Performance\CapacityProbe;
 use App\Support\Performance\SyntheticDatasetGenerator;
@@ -98,10 +99,17 @@ Artisan::command('soul:recover-provider-work', function (): void {
     $this->info("Queued {$exports->count()} data exports, {$deliveries->count()} delivery attempts and {$webhooks->count()} store events for recovery.");
 })->purpose('Recover stale or interrupted provider delivery work');
 
-Artisan::command('soul:ops-check', function (): int {
+Artisan::command('soul:ops-check {--format=json}', function (): int {
+    $format = strtolower((string) $this->option('format'));
+    if (! in_array($format, ['json', 'prometheus'], true)) {
+        $this->error('Supported formats: json, prometheus.');
+        return 2;
+    }
     $snapshot = app(OperationalHealth::class)->snapshot();
     app(\App\Support\Operations\OperationalIncidentManager::class)->record($snapshot);
-    $this->line(json_encode($snapshot, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES));
+    $this->line($format === 'prometheus'
+        ? app(PrometheusHealthFormatter::class)->format($snapshot)
+        : json_encode($snapshot, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES));
 
     return $snapshot['status'] === 'healthy' ? 0 : 1;
 })->purpose('Check queue and asynchronous workload health for monitoring');

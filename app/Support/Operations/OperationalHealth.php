@@ -22,6 +22,10 @@ class OperationalHealth
             'notification_provider_failures_24h' => DB::table('notification_delivery_attempts')->whereNotNull('failure_code')->where('updated_at', '>=', $now->copy()->subDay())->count(),
             'store_provider_failures_24h' => DB::table('store_webhook_events')->whereNotNull('failure_code')->where('updated_at', '>=', $now->copy()->subDay())->count()
                 + DB::table('store_purchase_receipts')->whereNotNull('failure_code')->where('updated_at', '>=', $now->copy()->subDay())->count(),
+            'critical_incidents_past_ack_sla' => DB::table('operational_incidents')
+                ->where('severity', 'critical')->where('status', 'open')
+                ->where('first_detected_at', '<=', $now->copy()->subMinutes(max(1, (int) config('soul.operations.critical_ack_sla_minutes', 15))))
+                ->count(),
         ];
         $thresholds = config('soul.operations.warning_thresholds');
         $definitions = [
@@ -34,6 +38,7 @@ class OperationalHealth
             'store_webhook_backlog' => ['STORE_WEBHOOK_BACKLOG_HIGH', 'The unprocessed store-webhook backlog is above its warning threshold.'],
             'notification_provider_failures_24h' => ['NOTIFICATION_PROVIDER_FAILURES_HIGH', 'Notification-provider failures are above their 24-hour warning threshold.'],
             'store_provider_failures_24h' => ['STORE_PROVIDER_FAILURES_HIGH', 'Store-provider failures are above their 24-hour warning threshold.'],
+            'critical_incidents_past_ack_sla' => ['CRITICAL_INCIDENT_ACK_SLA_BREACHED', 'One or more critical incidents have not been acknowledged within the configured SLA.'],
         ];
         $warnings = [];
         foreach ($definitions as $metric => [$code, $message]) {
