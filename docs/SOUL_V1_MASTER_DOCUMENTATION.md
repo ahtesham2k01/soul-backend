@@ -1947,6 +1947,8 @@ Do not treat the presence of a JSON file as proof that a translation is finished
 
 Spanish, French, German, Italian, Russian, Dutch, Indonesian, Malay and Turkish currently have complete member-flow drafts covering authentication, onboarding, profiles, discovery, matching, chat, private photos, safety, notifications, settings and legal consent. Spanish, French, German, Italian, Russian, Dutch and Indonesian have no unresolved English member-copy fallbacks; the audit explicitly recognizes narrow natural identical or borrowed terms, such as Spanish “No”, French “Notifications”, Italian “Privacy” and Dutch “Filters”. These catalogs remain draft until native-language review. Admin-interface keys intentionally remain English and are excluded from member translation coverage.
 
+Brazilian Portuguese, European Portuguese, Polish and Ukrainian now have reviewed draft coverage for authentication, shared actions, primary navigation and chat presence/messaging. Their regional wording remains separate—for example Brazilian Portuguese uses “carregando/salvar/buscar”, while European Portuguese uses “a carregar/guardar/pesquisar”. Portuguese and Polish each have 48 of 179 member keys localized, while Ukrainian has 49; the remaining flows continue to use safe English fallbacks until their next translation package and native-language review.
+
 ### Flutter: load translations
 
 Call:
