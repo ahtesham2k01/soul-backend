@@ -33,7 +33,7 @@
   "common.search": "Поиск",
   "common.skip": "Пропустить",
   "auth.continue_with_email": "Продолжить с электронной почтой",
-  "auth.email": "Email",
+  "auth.email": "Электронная почта",
   "auth.enter_code": "Введите код подтверждения",
   "auth.log_out": "Выйти",
   "auth.log_out_all": "Выйти на всех устройствах",

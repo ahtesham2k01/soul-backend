@@ -26,6 +26,23 @@ const memberKeys = englishKeys.filter((key) => ! key.startsWith('admin.'));
 const intentionalIdenticalMemberTerms = {
     es: new Set(['profile.answer_no']),
     fr: new Set(['notifications.title']),
+    id: new Set(['auth.email']),
+    it: new Set([
+        'nav.home',
+        'nav.chat',
+        'profile.answer_no',
+        'settings.privacy',
+        'chat.offline',
+    ]),
+    nl: new Set([
+        'profile.man',
+        'profile.student',
+        'discovery.filters',
+        'matches.title',
+        'notifications.marketing',
+        'settings.privacy',
+        'chat.offline',
+    ]),
 };
 const failures = [];
 const rows = [];
