@@ -142,4 +142,41 @@ class OperationalHealthTest extends TestCase
         $this->assertDatabaseCount('operational_incidents', 1);
         $this->assertDatabaseCount('operational_incident_events', 2);
     }
+
+    public function test_incident_pruning_is_dry_run_by_default_and_requires_confirmation(): void
+    {
+        config()->set('soul.operations.incident_history_retention_days', 30);
+        $incident = OperationalIncident::create(['fingerprint' => hash('sha256', 'PRUNE-PREVIEW'), 'code' => 'PRUNE_PREVIEW', 'severity' => 'warning', 'status' => 'resolved', 'current_value' => 1, 'threshold' => 1, 'first_detected_at' => now()->subDays(40), 'last_detected_at' => now()->subDays(40), 'resolved_at' => now()->subDays(31)]);
+        OperationalIncidentEvent::create(['operational_incident_id' => $incident->id, 'type' => 'resolved', 'severity' => 'warning', 'current_value' => 1, 'threshold' => 1, 'created_at' => now()->subDays(31)]);
+
+        $this->artisan('soul:prune-incidents')->assertSuccessful();
+        $this->artisan('soul:prune-incidents', ['--execute' => true])->assertFailed();
+
+        $this->assertDatabaseCount('operational_incidents', 1);
+        $this->assertDatabaseCount('operational_incident_events', 1);
+    }
+
+    public function test_incident_pruning_deletes_only_expired_resolved_records_in_bounded_batches(): void
+    {
+        config()->set('soul.operations.incident_history_retention_days', 30);
+        foreach (['OLD-A', 'OLD-B'] as $code) {
+            $incident = OperationalIncident::create(['fingerprint' => hash('sha256', $code), 'code' => $code, 'severity' => 'warning', 'status' => 'resolved', 'current_value' => 1, 'threshold' => 1, 'first_detected_at' => now()->subDays(40), 'last_detected_at' => now()->subDays(40), 'resolved_at' => now()->subDays(31)]);
+            OperationalIncidentEvent::create(['operational_incident_id' => $incident->id, 'type' => 'resolved', 'severity' => 'warning', 'current_value' => 1, 'threshold' => 1, 'created_at' => now()->subDays(31)]);
+        }
+        OperationalIncident::create(['fingerprint' => hash('sha256', 'ACTIVE'), 'code' => 'ACTIVE', 'severity' => 'critical', 'status' => 'open', 'current_value' => 2, 'threshold' => 1, 'first_detected_at' => now()->subDays(60), 'last_detected_at' => now()]);
+        OperationalIncident::create(['fingerprint' => hash('sha256', 'RECENT'), 'code' => 'RECENT', 'severity' => 'warning', 'status' => 'resolved', 'current_value' => 1, 'threshold' => 1, 'first_detected_at' => now()->subDays(5), 'last_detected_at' => now()->subDays(5), 'resolved_at' => now()->subDays(4)]);
+
+        $this->artisan('soul:prune-incidents', ['--execute' => true, '--confirm' => 'DELETE-EXPIRED-INCIDENTS', '--limit' => 1])->assertSuccessful();
+
+        $this->assertDatabaseCount('operational_incidents', 3);
+        $this->assertDatabaseCount('operational_incident_events', 1);
+        $this->assertDatabaseHas('operational_incidents', ['code' => 'ACTIVE', 'status' => 'open']);
+        $this->assertDatabaseHas('operational_incidents', ['code' => 'RECENT', 'status' => 'resolved']);
+    }
+
+    public function test_incident_pruning_rejects_unsafe_batch_limits(): void
+    {
+        $this->artisan('soul:prune-incidents', ['--limit' => 0])->assertExitCode(2);
+        $this->artisan('soul:prune-incidents', ['--limit' => 1001])->assertExitCode(2);
+    }
 }

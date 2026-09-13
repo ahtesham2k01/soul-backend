@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Support\Operations\OperationalHealth;
 use App\Support\Operations\PrometheusHealthFormatter;
 use App\Support\Operations\IncidentOperationsReport;
+use App\Support\Operations\IncidentRetentionPruner;
 use App\Support\Operations\DatabaseCapacityInspector;
 use App\Support\Performance\CapacityProbe;
 use App\Support\Performance\SyntheticDatasetGenerator;
@@ -119,6 +120,28 @@ Artisan::command('soul:incident-report', function (): int {
     $this->line(json_encode(app(IncidentOperationsReport::class)->build(), JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES));
     return 0;
 })->purpose('Preview incident retention and acknowledgement SLA trends without deleting data');
+
+Artisan::command('soul:prune-incidents {--execute} {--confirm=} {--limit=500}', function (): int {
+    $limit = filter_var($this->option('limit'), FILTER_VALIDATE_INT);
+    if ($limit === false || $limit < 1 || $limit > 1000) {
+        $this->error('The batch limit must be an integer between 1 and 1000.');
+        return 2;
+    }
+
+    $pruner = app(IncidentRetentionPruner::class);
+    if (! $this->option('execute')) {
+        $this->line(json_encode($pruner->preview($limit), JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES));
+        return 0;
+    }
+
+    if ($this->option('confirm') !== 'DELETE-EXPIRED-INCIDENTS') {
+        $this->error('Pass --confirm=DELETE-EXPIRED-INCIDENTS after reviewing the dry-run.');
+        return 1;
+    }
+
+    $this->line(json_encode($pruner->prune($limit), JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES));
+    return 0;
+})->purpose('Preview or delete one bounded batch of expired resolved incidents');
 
 Artisan::command('soul:monitoring-readiness', function (): int {
     $readiness = app(\App\Support\Release\ReleaseConfigurationValidator::class)->monitoringReadiness();
