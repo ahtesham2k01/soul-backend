@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const root = process.cwd();
+const root = process.env.SOUL_LOCALIZATION_ROOT || process.cwd();
 const formatArgument = process.argv.find((argument) => argument.startsWith('--format='));
 const outputFormat = formatArgument?.split('=', 2)[1] ?? 'table';
 
