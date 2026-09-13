@@ -176,6 +176,15 @@ type OperationalIncident = {
     resolved_at: string | null;
     resolution_reason: string | null;
 };
+type OperationalIncidentEvent = {
+    id: string;
+    code: string;
+    type: "opened" | "reopened" | "acknowledged" | "resolved" | "auto_resolved";
+    severity: "warning" | "critical";
+    admin_email: string | null;
+    reason: string | null;
+    created_at: string;
+};
 type Operations = {
     social_accounts: Record<string, number>;
     privacy: Record<string, number>;
@@ -200,6 +209,7 @@ type Operations = {
         created_at: string;
     }>;
     operational_incidents: OperationalIncident[];
+    operational_incident_timeline: OperationalIncidentEvent[];
     operational_health: {
         status: "healthy" | "warning" | "critical";
         checked_at: string;
@@ -365,6 +375,9 @@ function App() {
     const [promotions, setPromotions] = useState<ManagedPromotion[]>([]);
     const [catalogs, setCatalogs] = useState<CatalogWorkspace | null>(null);
     const [operations, setOperations] = useState<Operations | null>(null);
+    const [incidentFilter, setIncidentFilter] = useState<
+        "active" | "critical" | "all"
+    >("active");
     const [profileCatalogs, setProfileCatalogs] = useState<
         ProfileCatalogItem[]
     >([]);
@@ -1951,29 +1964,119 @@ function App() {
                             </>
                         )}
                         <h3>Operational incidents</h3>
-                        {operations.operational_incidents.length ? (
-                            operations.operational_incidents.map((incident) => (
-                                <div className="row" key={incident.id}>
+                        <label>
+                            Filter
+                            <select
+                                value={incidentFilter}
+                                onChange={(event) =>
+                                    setIncidentFilter(
+                                        event.target.value as
+                                            "active" | "critical" | "all",
+                                    )
+                                }
+                            >
+                                <option value="active">Active</option>
+                                <option value="critical">Critical</option>
+                                <option value="all">All</option>
+                            </select>
+                        </label>
+                        {operations.operational_incidents.filter(
+                            (incident) =>
+                                incidentFilter === "all" ||
+                                (incidentFilter === "active" &&
+                                    incident.status !== "resolved") ||
+                                (incidentFilter === "critical" &&
+                                    incident.severity === "critical"),
+                        ).length ? (
+                            operations.operational_incidents
+                                .filter(
+                                    (incident) =>
+                                        incidentFilter === "all" ||
+                                        (incidentFilter === "active" &&
+                                            incident.status !== "resolved") ||
+                                        (incidentFilter === "critical" &&
+                                            incident.severity === "critical"),
+                                )
+                                .map((incident) => (
+                                    <div className="row" key={incident.id}>
+                                        <div>
+                                            <b>
+                                                {incident.code} ·{" "}
+                                                {valueLabel(incident.severity)}{" "}
+                                                · {valueLabel(incident.status)}
+                                            </b>
+                                            <p>
+                                                Current {incident.current_value}
+                                                ; threshold {incident.threshold}{" "}
+                                                · last detected{" "}
+                                                {new Date(
+                                                    incident.last_detected_at,
+                                                ).toLocaleString(locale)}
+                                                {incident.acknowledged_by
+                                                    ? ` · acknowledged by ${incident.acknowledged_by}`
+                                                    : ""}
+                                                {incident.resolved_by
+                                                    ? ` · resolved by ${incident.resolved_by}`
+                                                    : ""}
+                                            </p>
+                                        </div>
+                                        {incident.status !== "resolved" && (
+                                            <div className="actions">
+                                                {incident.status === "open" && (
+                                                    <button
+                                                        onClick={() =>
+                                                            decideIncident(
+                                                                incident,
+                                                                "acknowledge",
+                                                            )
+                                                        }
+                                                    >
+                                                        Acknowledge
+                                                    </button>
+                                                )}
+                                                <button
+                                                    onClick={() =>
+                                                        decideIncident(
+                                                            incident,
+                                                            "resolve",
+                                                        )
+                                                    }
+                                                >
+                                                    Resolve
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))
+                        ) : (
+                            <p className="empty">
+                                No incidents match this filter.
+                            </p>
+                        )}
+                        <h3>Incident transition history</h3>
+                        {operations.operational_incident_timeline.map(
+                            (event) => (
+                                <div className="row" key={event.id}>
                                     <div>
                                         <b>
-                                            {incident.code} · {valueLabel(incident.severity)} · {valueLabel(incident.status)}
+                                            {event.code} ·{" "}
+                                            {valueLabel(event.type)} ·{" "}
+                                            {valueLabel(event.severity)}
                                         </b>
                                         <p>
-                                            Current {incident.current_value}; threshold {incident.threshold} · last detected {new Date(incident.last_detected_at).toLocaleString(locale)}
-                                            {incident.acknowledged_by ? ` · acknowledged by ${incident.acknowledged_by}` : ""}
-                                            {incident.resolved_by ? ` · resolved by ${incident.resolved_by}` : ""}
+                                            {event.admin_email
+                                                ? event.admin_email + " · "
+                                                : "System · "}
+                                            {event.reason
+                                                ? event.reason + " · "
+                                                : ""}
+                                            {new Date(
+                                                event.created_at,
+                                            ).toLocaleString(locale)}
                                         </p>
                                     </div>
-                                    {incident.status !== "resolved" && (
-                                        <div className="actions">
-                                            {incident.status === "open" && <button onClick={() => decideIncident(incident, "acknowledge")}>Acknowledge</button>}
-                                            <button onClick={() => decideIncident(incident, "resolve")}>Resolve</button>
-                                        </div>
-                                    )}
                                 </div>
-                            ))
-                        ) : (
-                            <p className="empty">No operational incidents.</p>
+                            ),
                         )}
                         <h3>Provider circuits</h3>
                         {Object.entries(operations.provider_circuits).map(

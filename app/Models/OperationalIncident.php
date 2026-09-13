@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
 class OperationalIncident extends Model
@@ -22,4 +23,5 @@ class OperationalIncident extends Model
 
     public function acknowledgedBy(): BelongsTo { return $this->belongsTo(User::class, 'acknowledged_by_admin_id'); }
     public function resolvedBy(): BelongsTo { return $this->belongsTo(User::class, 'resolved_by_admin_id'); }
+    public function events(): HasMany { return $this->hasMany(OperationalIncidentEvent::class); }
 }

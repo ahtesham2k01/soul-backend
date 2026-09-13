@@ -4,6 +4,7 @@ namespace Tests\Feature\Infrastructure;
 
 use App\Support\Operations\OperationalHealth;
 use App\Support\Operations\OperationalIncidentManager;
+use App\Models\OperationalIncident;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -89,5 +90,21 @@ class OperationalHealthTest extends TestCase
         $this->assertSame(1, $snapshot['metrics']['store_webhook_backlog']);
         $this->assertContains('STORE_WEBHOOK_BACKLOG_HIGH', $codes);
         $this->assertContains('STORE_PROVIDER_FAILURES_HIGH', $codes);
+    }
+
+    public function test_incident_is_auto_resolved_and_recurrence_is_preserved(): void
+    {
+        $manager = app(OperationalIncidentManager::class);
+        $warning = ['warnings' => [['code' => 'QUEUE_DEPTH_HIGH', 'severity' => 'warning', 'value' => 2, 'threshold' => 1]]];
+
+        $manager->record($warning);
+        $manager->record(['warnings' => []]);
+        $this->assertDatabaseHas('operational_incidents', ['code' => 'QUEUE_DEPTH_HIGH', 'status' => 'resolved']);
+        $this->assertDatabaseHas('operational_incident_events', ['type' => 'auto_resolved']);
+
+        $manager->record($warning);
+        $incident = OperationalIncident::firstOrFail();
+        $this->assertSame('open', $incident->status);
+        $this->assertSame(['opened', 'auto_resolved', 'reopened'], $incident->events()->orderBy('id')->pluck('type')->all());
     }
 }

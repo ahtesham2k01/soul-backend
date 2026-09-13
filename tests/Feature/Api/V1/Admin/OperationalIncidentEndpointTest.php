@@ -23,10 +23,14 @@ class OperationalIncidentEndpointTest extends TestCase
         $this->putJson('/api/v1/admin/operations/incidents/'.$incident->public_id, ['decision' => 'acknowledge', 'reason' => 'Investigating queue worker capacity'])->assertOk()->assertJsonPath('data.incident.status', 'acknowledged');
         $this->putJson('/api/v1/admin/operations/incidents/'.$incident->public_id, ['decision' => 'resolve', 'reason' => 'Queue workers restored and backlog cleared'])->assertOk()->assertJsonPath('data.incident.status', 'resolved');
         $this->assertDatabaseCount('admin_audit_logs', 2);
+        $this->assertDatabaseHas('operational_incident_events', ['operational_incident_id' => $incident->id, 'type' => 'acknowledged', 'admin_user_id' => $admin->id]);
+        $this->assertDatabaseHas('operational_incident_events', ['operational_incident_id' => $incident->id, 'type' => 'resolved', 'admin_user_id' => $admin->id]);
         $this->getJson('/api/v1/admin/operations')
             ->assertOk()
             ->assertJsonPath('data.operational_incidents.0.status', 'resolved')
             ->assertJsonPath('data.recent_provider_recoveries.0.action', 'operational_incident.resolved')
+            ->assertJsonPath('data.operational_incident_timeline.0.type', 'resolved')
+            ->assertJsonPath('data.operational_incident_timeline.0.admin_email', $admin->email)
             ->assertJsonMissingPath('data.recent_provider_recoveries.0.subject_id');
         $this->putJson('/api/v1/admin/operations/incidents/'.$incident->public_id, ['decision' => 'resolve', 'reason' => 'Attempt duplicate resolution'])->assertConflict();
     }

@@ -7,6 +7,7 @@ use App\Models\AccountDeletionRequest;
 use App\Models\AdminAuditLog;
 use App\Models\DataExportRequest;
 use App\Models\OperationalIncident;
+use App\Models\OperationalIncidentEvent;
 use App\Support\ApiResponse;
 use App\Support\Operations\OperationalHealth;
 use App\Support\Providers\ProviderCircuitBreaker;
@@ -63,6 +64,16 @@ class OperationsController extends Controller
                 ]),
             'operational_incidents' => OperationalIncident::query()->with(['acknowledgedBy:id,email', 'resolvedBy:id,email'])
                 ->latest('last_detected_at')->limit(50)->get()->map(fn (OperationalIncident $incident): array => $this->incidentData($incident)),
+            'operational_incident_timeline' => OperationalIncidentEvent::query()->with(['incident:id,code', 'adminUser:id,email'])
+                ->latest('created_at')->limit(100)->get()->map(fn (OperationalIncidentEvent $event): array => [
+                    'id' => $event->public_id,
+                    'code' => $event->incident->code,
+                    'type' => $event->type,
+                    'severity' => $event->severity,
+                    'admin_email' => $event->adminUser?->email,
+                    'reason' => $event->reason,
+                    'created_at' => $event->created_at->toIso8601String(),
+                ]),
         ]);
     }
 
@@ -77,6 +88,7 @@ class OperationsController extends Controller
                 ? ['status' => 'acknowledged', 'acknowledged_by_admin_id' => $request->user()->id, 'acknowledged_at' => now()]
                 : ['status' => 'resolved', 'resolved_by_admin_id' => $request->user()->id, 'resolved_at' => now(), 'resolution_reason' => $data['reason']];
             $record->update($changes);
+            OperationalIncidentEvent::create(['operational_incident_id' => $record->id, 'type' => $data['decision'] === 'acknowledge' ? 'acknowledged' : 'resolved', 'severity' => $record->severity, 'current_value' => $record->current_value, 'threshold' => $record->threshold, 'admin_user_id' => $request->user()->id, 'reason' => $data['reason'], 'created_at' => now()]);
             AdminAuditLog::create(['admin_user_id' => $request->user()->id, 'action' => 'operational_incident.'.$data['decision'].'d', 'subject_type' => OperationalIncident::class, 'subject_id' => $record->id, 'before' => $before, 'after' => $record->only(['status', 'severity']), 'reason' => $data['reason'], 'ip_address' => $request->ip()]);
             return $record->fresh(['acknowledgedBy:id,email', 'resolvedBy:id,email']);
         });

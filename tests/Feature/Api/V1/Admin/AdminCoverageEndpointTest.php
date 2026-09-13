@@ -58,6 +58,7 @@ class AdminCoverageEndpointTest extends TestCase
                 'provider_circuits' => ['store:ios', 'store:android', 'push:apns', 'push:fcm'],
                 'recent_provider_recoveries',
                 'operational_incidents',
+                'operational_incident_timeline',
             ]])
             ->assertJsonMissing(['provider_user_id' => 'provider-secret'])
             ->assertJsonMissing(['file_path' => 'private/secret.json']);
