@@ -33,6 +33,7 @@ class OperationsController extends Controller
             'recent_exports' => DataExportRequest::with('user:id,public_id,email')->latest()->limit(25)->get()->map(fn ($item): array => ['id' => $item->public_id, 'user' => ['id' => $item->user->public_id, 'email' => $item->user->email], 'status' => $item->status, 'created_at' => $item->created_at->toIso8601String(), 'expires_at' => $item->expires_at?->toIso8601String()]),
             'scheduled_deletions' => AccountDeletionRequest::with('user:id,public_id,email')->where('status', 'scheduled')->orderBy('scheduled_for')->limit(25)->get()->map(fn ($item): array => ['id' => $item->public_id, 'user' => ['id' => $item->user->public_id, 'email' => $item->user->email], 'scheduled_for' => $item->scheduled_for->toIso8601String()]),
             'provider_readiness' => $validator->providerReadiness(),
+            'monitoring_readiness' => $validator->monitoringReadiness(),
             'provider_circuits' => $breaker->states(['store:ios', 'store:android', 'push:apns', 'push:fcm']),
             'operational_health' => $health->snapshot(),
             'incident_operations_report' => $incidentReport->build(),

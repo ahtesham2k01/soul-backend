@@ -28,6 +28,22 @@ final class ReleaseConfigurationValidator
         ];
     }
 
+    /** @return array{ready: bool, missing: array<int, string>, invalid: array<int, string>} */
+    public function monitoringReadiness(): array
+    {
+        $values = [
+            'alert_channel' => config('soul.operations.alert_channel'),
+            'alert_owner' => config('soul.operations.alert_owner'),
+            'runbook_url' => config('soul.operations.runbook_url'),
+        ];
+
+        return $this->group($values, [
+            'alert_channel' => fn (mixed $value): bool => is_string($value) && in_array($value, ['email', 'webhook', 'external'], true),
+            'alert_owner' => fn (mixed $value): bool => is_string($value) && preg_match('/^[A-Za-z0-9 ._@+-]{3,120}$/', $value) === 1,
+            'runbook_url' => fn (mixed $value): bool => is_string($value) && $this->isHttpsUrl($value),
+        ]);
+    }
+
     /** @return array<int, array{name: string, status: string, message: string}> */
     public function validate(bool $production = false): array
     {
@@ -44,6 +60,7 @@ final class ReleaseConfigurationValidator
         }
 
         $providers = $this->providerReadiness();
+        $monitoring = $this->monitoringReadiness();
 
         return [...$checks,
             $this->check('Environment', app()->environment('production'), 'APP_ENV must be production.'),
@@ -64,6 +81,7 @@ final class ReleaseConfigurationValidator
             $this->check('Multipart request limit', (int) config('soul.security.maximum_multipart_request_kilobytes') >= (int) config('soul.support.max_attachment_kilobytes'), 'Multipart request limit must cover the configured support attachment size.'),
             $this->check('Backup freshness policy', (int) config('soul.release.backup.maximum_age_hours') > 0, 'SOUL_BACKUP_MAXIMUM_AGE_HOURS must be positive.'),
             $this->check('Connection warning policy', in_array((int) config('soul.operations.database_connection_warning_percent'), range(1, 100), true), 'Database connection warning percent must be between 1 and 100.'),
+            $this->check('Incident alert routing', $monitoring['ready'], 'Configure a supported alert channel, accountable owner and HTTPS runbook URL.'),
             $this->check('Cloudinary credentials', $this->cloudinaryCredentialsPresent(), 'Cloudinary cloud, key and secret are required.'),
             $this->check('Cloudinary webhook signing', config('soul.media.cloudinary.response_signature_algorithm') === 'sha256', 'Production Cloudinary callbacks must use SHA-256 signatures.'),
             $this->check('Google audiences', $this->audiencesPresent('services.google.client_ids'), 'GOOGLE_CLIENT_IDS is required.'),
@@ -138,6 +156,16 @@ final class ReleaseConfigurationValidator
                 && filled($parts['host'] ?? null)
                 && array_intersect(['user', 'pass', 'path', 'query', 'fragment'], array_keys($parts)) === [];
         });
+    }
+
+    private function isHttpsUrl(string $value): bool
+    {
+        $parts = parse_url($value);
+
+        return is_array($parts)
+            && ($parts['scheme'] ?? null) === 'https'
+            && filled($parts['host'] ?? null)
+            && array_intersect(['user', 'pass'], array_keys($parts)) === [];
     }
 
     /** @param array<string, mixed> $values

@@ -115,4 +115,22 @@ class ReleaseCommandsTest extends TestCase
         $this->assertStringContainsString('invalid', $output);
         $this->assertStringNotContainsString('definitely-not-json-secret', $output);
     }
+
+    public function test_monitoring_readiness_requires_safe_routing_without_printing_values(): void
+    {
+        config([
+            'soul.operations.alert_channel' => 'webhook',
+            'soul.operations.alert_owner' => 'platform-on-call',
+            'soul.operations.runbook_url' => 'https://operations.soul.test/runbooks/incidents',
+        ]);
+
+        $readiness = app(ReleaseConfigurationValidator::class)->monitoringReadiness();
+        $this->assertTrue($readiness['ready']);
+        $this->assertSame(0, Artisan::call('soul:monitoring-readiness'));
+        $this->assertStringNotContainsString('platform-on-call', Artisan::output());
+        $this->assertStringNotContainsString('operations.soul.test', Artisan::output());
+
+        config()->set('soul.operations.runbook_url', 'http://unsafe.test/runbook');
+        $this->assertSame(['runbook_url'], app(ReleaseConfigurationValidator::class)->monitoringReadiness()['invalid']);
+    }
 }

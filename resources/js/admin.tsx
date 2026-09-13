@@ -186,6 +186,11 @@ type OperationalIncidentEvent = {
     created_at: string;
 };
 type Operations = {
+    monitoring_readiness: {
+        ready: boolean;
+        missing: string[];
+        invalid: string[];
+    };
     social_accounts: Record<string, number>;
     privacy: Record<string, number>;
     exports: Record<string, number>;
@@ -1945,6 +1950,28 @@ function App() {
                             {t("admin.operations_health")} ·{" "}
                             {valueLabel(operations.operational_health.status)}
                         </h2>
+                        <div className="row">
+                            <div>
+                                <b>
+                                    Monitoring handoff ·{" "}
+                                    {operations.monitoring_readiness.ready
+                                        ? "ready"
+                                        : "not ready"}
+                                </b>
+                                <p>
+                                    {operations.monitoring_readiness.ready
+                                        ? "Alert owner, routing channel and HTTPS runbook are configured."
+                                        : "Missing: " +
+                                          (operations.monitoring_readiness.missing.join(
+                                              ", ",
+                                          ) || "none") +
+                                          " · Invalid: " +
+                                          (operations.monitoring_readiness.invalid.join(
+                                              ", ",
+                                          ) || "none")}
+                                </p>
+                            </div>
+                        </div>
                         <div className="metrics">
                             {Object.entries({
                                 ...operations.operational_health.metrics,

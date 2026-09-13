@@ -120,6 +120,12 @@ Artisan::command('soul:incident-report', function (): int {
     return 0;
 })->purpose('Preview incident retention and acknowledgement SLA trends without deleting data');
 
+Artisan::command('soul:monitoring-readiness', function (): int {
+    $readiness = app(\App\Support\Release\ReleaseConfigurationValidator::class)->monitoringReadiness();
+    $this->line(json_encode($readiness, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES));
+    return $readiness['ready'] ? 0 : 1;
+})->purpose('Verify incident alert ownership and runbook handoff without exposing configured values');
+
 Artisan::command('soul:replay-store-webhook {event} {--admin=} {--reason=} {--confirm=}', function (): int {
     if ($this->option('confirm') !== 'REPLAY-FAILED-STORE-WEBHOOK') {
         $this->error('Pass --confirm=REPLAY-FAILED-STORE-WEBHOOK after reviewing the event.');

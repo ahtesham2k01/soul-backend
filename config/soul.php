@@ -293,6 +293,9 @@ return [
     'operations' => [
         'critical_ack_sla_minutes' => (int) env('SOUL_CRITICAL_INCIDENT_ACK_SLA_MINUTES', 15),
         'incident_history_retention_days' => (int) env('SOUL_INCIDENT_HISTORY_RETENTION_DAYS', 365),
+        'alert_channel' => env('SOUL_OPERATIONS_ALERT_CHANNEL'),
+        'alert_owner' => env('SOUL_OPERATIONS_ALERT_OWNER'),
+        'runbook_url' => env('SOUL_OPERATIONS_RUNBOOK_URL'),
         'database_connection_warning_percent' => (int) env('SOUL_DATABASE_CONNECTION_WARNING_PERCENT', 80),
         'store_webhook_backlog_limit' => (int) env('SOUL_STORE_WEBHOOK_BACKLOG_LIMIT', 10000),
         'warning_thresholds' => [
