@@ -210,6 +210,22 @@ type Operations = {
     }>;
     operational_incidents: OperationalIncident[];
     operational_incident_timeline: OperationalIncidentEvent[];
+    incident_operations_report: {
+        retention_preview: {
+            retention_days: number;
+            resolved_incidents_eligible: number;
+            events_eligible: number;
+            deletion_performed: false;
+        };
+        acknowledgement_sla_30d: {
+            target_seconds: number;
+            sample_count: number;
+            within_target_count: number;
+            average_seconds: number | null;
+            p95_seconds: number | null;
+            truncated: boolean;
+        };
+    };
     operational_health: {
         status: "healthy" | "warning" | "critical";
         checked_at: string;
@@ -2053,6 +2069,53 @@ function App() {
                                 No incidents match this filter.
                             </p>
                         )}
+                        <h3>Incident retention and SLA</h3>
+                        <div className="metrics">
+                            <article>
+                                <strong>
+                                    {
+                                        operations.incident_operations_report
+                                            .retention_preview
+                                            .resolved_incidents_eligible
+                                    }
+                                </strong>
+                                <span>
+                                    Resolved incidents eligible after{" "}
+                                    {
+                                        operations.incident_operations_report
+                                            .retention_preview.retention_days
+                                    }{" "}
+                                    days
+                                </span>
+                            </article>
+                            <article>
+                                <strong>
+                                    {
+                                        operations.incident_operations_report
+                                            .acknowledgement_sla_30d
+                                            .within_target_count
+                                    }
+                                    /
+                                    {
+                                        operations.incident_operations_report
+                                            .acknowledgement_sla_30d
+                                            .sample_count
+                                    }
+                                </strong>
+                                <span>
+                                    Critical acknowledgements within SLA (30
+                                    days)
+                                </span>
+                            </article>
+                            <article>
+                                <strong>
+                                    {operations.incident_operations_report
+                                        .acknowledgement_sla_30d.p95_seconds ??
+                                        "—"}
+                                </strong>
+                                <span>P95 acknowledgement seconds</span>
+                            </article>
+                        </div>
                         <h3>Incident transition history</h3>
                         {operations.operational_incident_timeline.map(
                             (event) => (

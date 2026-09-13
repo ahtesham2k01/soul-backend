@@ -292,6 +292,7 @@ return [
 
     'operations' => [
         'critical_ack_sla_minutes' => (int) env('SOUL_CRITICAL_INCIDENT_ACK_SLA_MINUTES', 15),
+        'incident_history_retention_days' => (int) env('SOUL_INCIDENT_HISTORY_RETENTION_DAYS', 365),
         'database_connection_warning_percent' => (int) env('SOUL_DATABASE_CONNECTION_WARNING_PERCENT', 80),
         'store_webhook_backlog_limit' => (int) env('SOUL_STORE_WEBHOOK_BACKLOG_LIMIT', 10000),
         'warning_thresholds' => [

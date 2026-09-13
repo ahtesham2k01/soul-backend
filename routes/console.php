@@ -11,6 +11,7 @@ use App\Models\AdminAuditLog;
 use App\Models\User;
 use App\Support\Operations\OperationalHealth;
 use App\Support\Operations\PrometheusHealthFormatter;
+use App\Support\Operations\IncidentOperationsReport;
 use App\Support\Operations\DatabaseCapacityInspector;
 use App\Support\Performance\CapacityProbe;
 use App\Support\Performance\SyntheticDatasetGenerator;
@@ -113,6 +114,11 @@ Artisan::command('soul:ops-check {--format=json}', function (): int {
 
     return $snapshot['status'] === 'healthy' ? 0 : 1;
 })->purpose('Check queue and asynchronous workload health for monitoring');
+
+Artisan::command('soul:incident-report', function (): int {
+    $this->line(json_encode(app(IncidentOperationsReport::class)->build(), JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES));
+    return 0;
+})->purpose('Preview incident retention and acknowledgement SLA trends without deleting data');
 
 Artisan::command('soul:replay-store-webhook {event} {--admin=} {--reason=} {--confirm=}', function (): int {
     if ($this->option('confirm') !== 'REPLAY-FAILED-STORE-WEBHOOK') {

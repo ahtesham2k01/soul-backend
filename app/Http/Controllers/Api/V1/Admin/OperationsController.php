@@ -10,6 +10,7 @@ use App\Models\OperationalIncident;
 use App\Models\OperationalIncidentEvent;
 use App\Support\ApiResponse;
 use App\Support\Operations\OperationalHealth;
+use App\Support\Operations\IncidentOperationsReport;
 use App\Support\Providers\ProviderCircuitBreaker;
 use App\Support\Release\ReleaseConfigurationValidator;
 use Illuminate\Http\JsonResponse;
@@ -18,7 +19,7 @@ use Illuminate\Support\Facades\DB;
 
 class OperationsController extends Controller
 {
-    public function __invoke(ReleaseConfigurationValidator $validator, OperationalHealth $health, ProviderCircuitBreaker $breaker): JsonResponse
+    public function __invoke(ReleaseConfigurationValidator $validator, OperationalHealth $health, ProviderCircuitBreaker $breaker, IncidentOperationsReport $incidentReport): JsonResponse
     {
         return ApiResponse::success([
             'social_accounts' => DB::table('social_accounts')->select('provider', DB::raw('count(*) as total'))->groupBy('provider')->pluck('total', 'provider'),
@@ -34,6 +35,7 @@ class OperationsController extends Controller
             'provider_readiness' => $validator->providerReadiness(),
             'provider_circuits' => $breaker->states(['store:ios', 'store:android', 'push:apns', 'push:fcm']),
             'operational_health' => $health->snapshot(),
+            'incident_operations_report' => $incidentReport->build(),
             'store_processing' => [
                 'receipts_pending' => DB::table('store_purchase_receipts')->where('status', 'pending')->count(),
                 'receipts_failed' => DB::table('store_purchase_receipts')->where('status', 'failed')->count(),

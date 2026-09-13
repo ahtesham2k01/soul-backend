@@ -59,6 +59,7 @@ class AdminCoverageEndpointTest extends TestCase
                 'recent_provider_recoveries',
                 'operational_incidents',
                 'operational_incident_timeline',
+                'incident_operations_report' => ['retention_preview', 'acknowledgement_sla_30d'],
             ]])
             ->assertJsonMissing(['provider_user_id' => 'provider-secret'])
             ->assertJsonMissing(['file_path' => 'private/secret.json']);

@@ -6,6 +6,8 @@ use App\Support\Operations\OperationalHealth;
 use App\Support\Operations\OperationalIncidentManager;
 use App\Models\OperationalIncident;
 use App\Support\Operations\PrometheusHealthFormatter;
+use App\Support\Operations\IncidentOperationsReport;
+use App\Models\OperationalIncidentEvent;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -122,5 +124,22 @@ class OperationalHealthTest extends TestCase
         $this->assertStringContainsString('soul_critical_incidents_past_ack_sla 1', $output);
         $this->assertStringContainsString('code="CRITICAL_INCIDENT_ACK_SLA_BREACHED"', $output);
         $this->assertStringNotContainsString('QUEUE_DEPTH_HIGH', $output);
+    }
+
+    public function test_incident_report_is_non_destructive_and_calculates_acknowledgement_sla(): void
+    {
+        config()->set('soul.operations.critical_ack_sla_minutes', 15);
+        config()->set('soul.operations.incident_history_retention_days', 30);
+        $incident = OperationalIncident::create(['fingerprint' => hash('sha256', 'REPORT'), 'code' => 'REPORT', 'severity' => 'critical', 'status' => 'resolved', 'current_value' => 5, 'threshold' => 1, 'first_detected_at' => now()->subDays(40), 'last_detected_at' => now()->subDays(40), 'resolved_at' => now()->subDays(31)]);
+        OperationalIncidentEvent::create(['operational_incident_id' => $incident->id, 'type' => 'opened', 'severity' => 'critical', 'current_value' => 5, 'threshold' => 1, 'created_at' => now()->subMinutes(10)]);
+        OperationalIncidentEvent::create(['operational_incident_id' => $incident->id, 'type' => 'acknowledged', 'severity' => 'critical', 'current_value' => 5, 'threshold' => 1, 'created_at' => now()]);
+
+        $report = app(IncidentOperationsReport::class)->build();
+        $this->assertSame(1, $report['retention_preview']['resolved_incidents_eligible']);
+        $this->assertFalse($report['retention_preview']['deletion_performed']);
+        $this->assertSame(1, $report['acknowledgement_sla_30d']['sample_count']);
+        $this->assertSame(1, $report['acknowledgement_sla_30d']['within_target_count']);
+        $this->assertDatabaseCount('operational_incidents', 1);
+        $this->assertDatabaseCount('operational_incident_events', 2);
     }
 }
