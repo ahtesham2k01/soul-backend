@@ -9,8 +9,8 @@ use App\Models\DataExportRequest;
 use App\Models\OperationalIncident;
 use App\Models\OperationalIncidentEvent;
 use App\Support\ApiResponse;
-use App\Support\Operations\OperationalHealth;
 use App\Support\Operations\IncidentOperationsReport;
+use App\Support\Operations\OperationalHealth;
 use App\Support\Providers\ProviderCircuitBreaker;
 use App\Support\Release\ReleaseConfigurationValidator;
 use Illuminate\Http\JsonResponse;
@@ -59,7 +59,7 @@ class OperationsController extends Controller
             ],
             'recent_provider_recoveries' => AdminAuditLog::query()->with('adminUser:id,email')
                 ->whereIn('action', ['store_webhook.replayed', 'operational_incident.acknowledged', 'operational_incident.resolved'])
-                ->latest()->limit(25)->get()
+                ->orderByDesc('created_at')->orderByDesc('id')->limit(25)->get()
                 ->map(fn (AdminAuditLog $log): array => [
                     'id' => $log->public_id, 'action' => $log->action,
                     'admin_email' => $log->adminUser->email, 'reason' => $log->reason,
@@ -68,7 +68,7 @@ class OperationsController extends Controller
             'operational_incidents' => OperationalIncident::query()->with(['acknowledgedBy:id,email', 'resolvedBy:id,email'])
                 ->latest('last_detected_at')->limit(50)->get()->map(fn (OperationalIncident $incident): array => $this->incidentData($incident)),
             'operational_incident_timeline' => OperationalIncidentEvent::query()->with(['incident:id,code', 'adminUser:id,email'])
-                ->latest('created_at')->limit(100)->get()->map(fn (OperationalIncidentEvent $event): array => [
+                ->orderByDesc('created_at')->orderByDesc('id')->limit(100)->get()->map(fn (OperationalIncidentEvent $event): array => [
                     'id' => $event->public_id,
                     'code' => $event->incident->code,
                     'type' => $event->type,
@@ -93,6 +93,7 @@ class OperationsController extends Controller
             $record->update($changes);
             OperationalIncidentEvent::create(['operational_incident_id' => $record->id, 'type' => $data['decision'] === 'acknowledge' ? 'acknowledged' : 'resolved', 'severity' => $record->severity, 'current_value' => $record->current_value, 'threshold' => $record->threshold, 'admin_user_id' => $request->user()->id, 'reason' => $data['reason'], 'created_at' => now()]);
             AdminAuditLog::create(['admin_user_id' => $request->user()->id, 'action' => 'operational_incident.'.$data['decision'].'d', 'subject_type' => OperationalIncident::class, 'subject_id' => $record->id, 'before' => $before, 'after' => $record->only(['status', 'severity']), 'reason' => $data['reason'], 'ip_address' => $request->ip()]);
+
             return $record->fresh(['acknowledgedBy:id,email', 'resolvedBy:id,email']);
         });
 

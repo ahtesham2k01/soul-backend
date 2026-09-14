@@ -75,6 +75,9 @@ final class ReleaseConfigurationValidator
             $this->check('Transactional mail', ! in_array(config('mail.default'), ['array', 'log'], true), 'Configure a transactional mailer.'),
             $this->check('Encrypted sessions', config('session.encrypt') === true, 'SESSION_ENCRYPT must be true.'),
             $this->check('Secure admin cookie', config('session.secure') === true, 'SESSION_SECURE_COOKIE must be true.'),
+            $this->check('HttpOnly admin cookie', config('session.http_only') === true, 'SESSION_HTTP_ONLY must be true.'),
+            $this->check('Admin cookie SameSite', in_array(strtolower((string) config('session.same_site')), ['lax', 'strict'], true), 'SESSION_SAME_SITE must be lax or strict.'),
+            $this->check('Stateful admin domain', $this->statefulAdminDomainIsConfigured(), 'SANCTUM_STATEFUL_DOMAINS must include the exact APP_URL host and port.'),
             $this->check('Trusted proxies', $this->trustedProxiesAreSafe(), 'Configure explicit proxy IP/CIDR values; wildcard trust is prohibited.'),
             $this->check('CORS origins', $this->corsOriginsAreSafe(), 'CORS origins must be explicit HTTPS origins without wildcards, paths or credentials.'),
             $this->check('JSON request limit', (int) config('soul.security.maximum_json_request_kilobytes') >= 64, 'JSON request limit must be at least 64 KB.'),
@@ -120,6 +123,24 @@ final class ReleaseConfigurationValidator
     private function audiencesPresent(string $key): bool
     {
         return collect(config($key, []))->filter()->isNotEmpty();
+    }
+
+    private function statefulAdminDomainIsConfigured(): bool
+    {
+        $parts = parse_url((string) config('app.url'));
+        if (! is_array($parts) || ! filled($parts['host'] ?? null)) {
+            return false;
+        }
+
+        $expected = strtolower((string) $parts['host']);
+        if (isset($parts['port'])) {
+            $expected .= ':'.$parts['port'];
+        }
+
+        return collect(config('sanctum.stateful', []))
+            ->filter(fn (mixed $domain): bool => is_string($domain))
+            ->map(fn (string $domain): string => strtolower(trim($domain)))
+            ->contains($expected);
     }
 
     private function trustedProxiesAreSafe(): bool
@@ -169,7 +190,7 @@ final class ReleaseConfigurationValidator
     }
 
     /** @param array<string, mixed> $values
-     * @param array<string, callable(mixed): bool> $validators
+     * @param  array<string, callable(mixed): bool>  $validators
      * @return array{ready: bool, missing: array<int, string>, invalid: array<int, string>}
      */
     private function group(array $values, array $validators = []): array
@@ -186,7 +207,9 @@ final class ReleaseConfigurationValidator
 
     private function isServiceAccount(mixed $value): bool
     {
-        if (! is_string($value) || $value === '') return false;
+        if (! is_string($value) || $value === '') {
+            return false;
+        }
         try {
             $json = json_decode($value, true, flags: JSON_THROW_ON_ERROR);
         } catch (\Throwable) {
@@ -201,7 +224,9 @@ final class ReleaseConfigurationValidator
 
     private function isPrivateKey(mixed $value): bool
     {
-        if (! is_string($value) || $value === '') return false;
+        if (! is_string($value) || $value === '') {
+            return false;
+        }
 
         return openssl_pkey_get_private(str_replace('\\n', "\n", $value)) !== false;
     }

@@ -514,6 +514,7 @@ Provider readiness is exposed to super-admin operations as safe booleans and mis
 - [x] Automated Laravel-route/OpenAPI/Postman parity tests
 - [x] Generated Flutter-only endpoint manifest and copy-ready Dart route catalog
 - [x] Automated Flutter/OpenAPI and client-boundary contract tests
+- [x] Admin OpenAPI operations use browser-session and CSRF schemes, never Flutter bearer authentication
 
 ### Environment and staging readiness
 
@@ -577,6 +578,20 @@ A stricter production-flow audit found provider and operational gaps beyond the 
 - [x] Phase 32 — Duplicate identity detection and conservative, audited account merge
 
 Fresh-audit completion: **5/5 phases complete (100%)**. Provider code fails closed until credentials are configured; sandbox/real-device verification remains separately tracked in Phase 34.
+
+### Final audit closure roadmap
+
+A final implementation audit found a smaller set of correctness and developer-handoff tasks that must be closed before the backend is called launch-ready. Flutter development does not need to wait: the generated 91-endpoint member catalog and this document are stable enough to begin integration while these backend packages are completed in parallel. Localization remains the last engineering package so it cannot delay core app work.
+
+- [x] Phase 35 — Route-derived contract parity, browser-session-only admin APIs and production session configuration gates
+- [ ] Phase 36 — Typed Flutter requests/responses, standard error and cursor models, retry/token-refresh guidance, upload helpers and representative fixtures
+- [ ] Phase 37 — Versioned privacy export with complete member-owned data and no internal database identifiers
+- [ ] Phase 38 — Authenticated Apple/Google store-webhook admission, replay resistance and negative provider tests
+- [ ] Phase 39 — Full MySQL/Redis CI, migration rollback verification, Composer audit and release-candidate regression closure
+- [ ] Phase 40 — Decision-gated deletion, anonymization, legal-hold and safety-evidence retention after owner/legal approval
+- [ ] Phase 41 — Remaining catalog translation, native-language review and Android/iOS RTL/device QA
+
+Phases 35–39 are unambiguous engineering work. Phase 40 must not be implemented until the retention duration and legal-hold rules are approved. Phase 41 is deliberately last. Staging/provider gates remain tracked separately and cannot be completed from source code alone.
 
 ### Global localization expansion
 
@@ -1070,7 +1085,7 @@ Verification UI must render the four summary entries independently. Email is an 
 
 ### Custom React administration endpoints
 
-The React admin uses same-origin secure session cookies, not mobile bearer tokens.
+The React admin uses same-origin secure session cookies, not mobile bearer tokens. `/admin/session` permits only an active admin account, regenerates the session identifier and never creates a persistent remember-me cookie. Every `/api/v1/admin/*` route rejects an `Authorization: Bearer` header before Sanctum authentication with `ADMIN_SESSION_REQUIRED`; role and active-account checks still run after session authentication. State-changing admin requests also require Laravel's CSRF token in `X-CSRF-TOKEN`. Production must use the documented `soul-session` cookie with encryption, Secure, HttpOnly and `SameSite=Lax` or `SameSite=Strict`; `SANCTUM_STATEFUL_DOMAINS` must contain the exact `APP_URL` host and port.
 
 | Method | Path | Route contract | Purpose |
 |---|---|---|---|
@@ -2092,13 +2107,14 @@ This runbook defines the operational requirements for the Laravel API and custom
 
 - Use `.env.production.example` only as a key checklist; inject actual values through the hosting secret manager.
 - Generate APP_KEY once and keep it in the production secret manager
-- Set APP_ENV=production, APP_DEBUG=false and secure session cookies
+- Set APP_ENV=production, APP_DEBUG=false and use encrypted, Secure, HttpOnly admin-session cookies with `SameSite=Lax` or `SameSite=Strict`
+- Keep the React admin same-origin and include the exact `APP_URL` host and port in `SANCTUM_STATEFUL_DOMAINS`; mobile bearer tokens are never valid for admin APIs
 - Restrict CORS and trusted proxy configuration to known application origins and proxies
 - Give administrators least-privilege roles and review immutable audit events regularly
 - Back up the database and private export storage; verify restore procedures before launch
 - Never commit provider secrets, signing keys or production environment files
 
-`soul:config-check --production` also requires MySQL/PostgreSQL connection settings, Redis for both cache and queues, encrypted sessions, secure cookies, a positive backup-freshness policy and a valid database-connection warning threshold. It reports only check names and remediation messages; credential values are never printed.
+`soul:config-check --production` also requires MySQL/PostgreSQL connection settings, Redis for both cache and queues, encrypted Secure HttpOnly sessions, safe SameSite behavior, an exact stateful admin host, a positive backup-freshness policy and a valid database-connection warning threshold. It reports only check names and remediation messages; credential values are never printed.
 
 ### Edge and HTTP security
 

@@ -110,7 +110,10 @@ for (const endpoint of endpoints) {
         tags: [tags(endpoint.operationId)],
         ...(parameters.length ? { parameters } : {}),
         ...(endpoint.operationId.startsWith('api.v1.admin.')
-            ? { security: [{ adminSession: [] }] }
+            ? { security: [{
+                adminSession: [],
+                ...(endpoint.method === 'GET' ? {} : { csrfToken: [] }),
+            }] }
             : endpoint.operationId === 'api.v1.webhooks.cloudinary.moderation'
                 ? { security: [{ cloudinarySignature: [] }] }
                 : !publicOperations.has(endpoint.operationId)
@@ -147,7 +150,8 @@ const openapi = {
     components: {
         securitySchemes: {
             bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'Sanctum token' },
-            adminSession: { type: 'apiKey', in: 'cookie', name: 'laravel_session' },
+            adminSession: { type: 'apiKey', in: 'cookie', name: 'soul-session' },
+            csrfToken: { type: 'apiKey', in: 'header', name: 'X-CSRF-TOKEN' },
             cloudinarySignature: { type: 'apiKey', in: 'header', name: 'X-Cld-Signature' },
         },
         schemas: {

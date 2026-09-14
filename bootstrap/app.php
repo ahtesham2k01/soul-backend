@@ -2,14 +2,16 @@
 
 use App\Http\Middleware\ApplySecurityHeaders;
 use App\Http\Middleware\AttachRequestId;
-use App\Http\Middleware\EnsureAccountIsActive;
-use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\EnforceRequestSize;
+use App\Http\Middleware\EnsureAccountIsActive;
+use App\Http\Middleware\EnsureAdminSessionRequest;
+use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\RecordRequestTelemetry;
 use App\Http\Middleware\RecordUserActivity;
 use App\Http\Middleware\SetRequestLocale;
 use App\Support\ApiResponse;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -55,9 +57,14 @@ return Application::configure(basePath: dirname(__DIR__))
             EnforceRequestSize::class,
         ]);
         $middleware->appendToGroup('web', ApplySecurityHeaders::class);
+        $middleware->prependToPriorityList(
+            AuthenticatesRequests::class,
+            EnsureAdminSessionRequest::class,
+        );
 
         $middleware->alias([
             'active.account' => EnsureAccountIsActive::class,
+            'admin.session' => EnsureAdminSessionRequest::class,
             'record.activity' => RecordUserActivity::class,
             'admin' => EnsureUserIsAdmin::class,
         ]);

@@ -3029,7 +3029,8 @@
         ],
         "security": [
           {
-            "adminSession": []
+            "adminSession": [],
+            "csrfToken": []
           }
         ],
         "responses": {
@@ -3095,7 +3096,8 @@
         ],
         "security": [
           {
-            "adminSession": []
+            "adminSession": [],
+            "csrfToken": []
           }
         ],
         "requestBody": {
@@ -3175,7 +3177,8 @@
         ],
         "security": [
           {
-            "adminSession": []
+            "adminSession": [],
+            "csrfToken": []
           }
         ],
         "responses": {
@@ -3241,7 +3244,8 @@
         ],
         "security": [
           {
-            "adminSession": []
+            "adminSession": [],
+            "csrfToken": []
           }
         ],
         "requestBody": {
@@ -3359,7 +3363,8 @@
         ],
         "security": [
           {
-            "adminSession": []
+            "adminSession": [],
+            "csrfToken": []
           }
         ],
         "requestBody": {
@@ -3455,7 +3460,8 @@
         ],
         "security": [
           {
-            "adminSession": []
+            "adminSession": [],
+            "csrfToken": []
           }
         ],
         "requestBody": {
@@ -3511,7 +3517,8 @@
         ],
         "security": [
           {
-            "adminSession": []
+            "adminSession": [],
+            "csrfToken": []
           }
         ],
         "requestBody": {
@@ -3563,7 +3570,8 @@
         ],
         "security": [
           {
-            "adminSession": []
+            "adminSession": [],
+            "csrfToken": []
           }
         ],
         "requestBody": {
@@ -3630,7 +3638,8 @@
         ],
         "security": [
           {
-            "adminSession": []
+            "adminSession": [],
+            "csrfToken": []
           }
         ],
         "requestBody": {
@@ -3694,7 +3703,8 @@
         ],
         "security": [
           {
-            "adminSession": []
+            "adminSession": [],
+            "csrfToken": []
           }
         ],
         "requestBody": {
@@ -3776,7 +3786,8 @@
         ],
         "security": [
           {
-            "adminSession": []
+            "adminSession": [],
+            "csrfToken": []
           }
         ],
         "requestBody": {
@@ -3832,7 +3843,8 @@
         ],
         "security": [
           {
-            "adminSession": []
+            "adminSession": [],
+            "csrfToken": []
           }
         ],
         "requestBody": {
@@ -3900,7 +3912,8 @@
         ],
         "security": [
           {
-            "adminSession": []
+            "adminSession": [],
+            "csrfToken": []
           }
         ],
         "requestBody": {
@@ -3964,7 +3977,8 @@
         ],
         "security": [
           {
-            "adminSession": []
+            "adminSession": [],
+            "csrfToken": []
           }
         ],
         "requestBody": {
@@ -4028,7 +4042,8 @@
         ],
         "security": [
           {
-            "adminSession": []
+            "adminSession": [],
+            "csrfToken": []
           }
         ],
         "requestBody": {
@@ -4108,7 +4123,8 @@
         ],
         "security": [
           {
-            "adminSession": []
+            "adminSession": [],
+            "csrfToken": []
           }
         ],
         "requestBody": {
@@ -4178,7 +4194,8 @@
         ],
         "security": [
           {
-            "adminSession": []
+            "adminSession": [],
+            "csrfToken": []
           }
         ],
         "responses": {
@@ -4216,7 +4233,8 @@
         ],
         "security": [
           {
-            "adminSession": []
+            "adminSession": [],
+            "csrfToken": []
           }
         ],
         "responses": {
@@ -4254,7 +4272,8 @@
         ],
         "security": [
           {
-            "adminSession": []
+            "adminSession": [],
+            "csrfToken": []
           }
         ],
         "responses": {
@@ -4292,7 +4311,8 @@
         ],
         "security": [
           {
-            "adminSession": []
+            "adminSession": [],
+            "csrfToken": []
           }
         ],
         "responses": {
@@ -4320,7 +4340,8 @@
         ],
         "security": [
           {
-            "adminSession": []
+            "adminSession": [],
+            "csrfToken": []
           }
         ],
         "responses": {
@@ -4358,7 +4379,8 @@
         ],
         "security": [
           {
-            "adminSession": []
+            "adminSession": [],
+            "csrfToken": []
           }
         ],
         "responses": {
@@ -4386,7 +4408,8 @@
         ],
         "security": [
           {
-            "adminSession": []
+            "adminSession": [],
+            "csrfToken": []
           }
         ],
         "responses": {
@@ -4424,7 +4447,8 @@
         ],
         "security": [
           {
-            "adminSession": []
+            "adminSession": [],
+            "csrfToken": []
           }
         ],
         "responses": {
@@ -4452,7 +4476,8 @@
         ],
         "security": [
           {
-            "adminSession": []
+            "adminSession": [],
+            "csrfToken": []
           }
         ],
         "responses": {
@@ -4490,7 +4515,8 @@
         ],
         "security": [
           {
-            "adminSession": []
+            "adminSession": [],
+            "csrfToken": []
           }
         ],
         "responses": {
@@ -4528,7 +4554,8 @@
         ],
         "security": [
           {
-            "adminSession": []
+            "adminSession": [],
+            "csrfToken": []
           }
         ],
         "responses": {
@@ -4584,7 +4611,8 @@
         ],
         "security": [
           {
-            "adminSession": []
+            "adminSession": [],
+            "csrfToken": []
           }
         ],
         "responses": {
@@ -4622,7 +4650,8 @@
         ],
         "security": [
           {
-            "adminSession": []
+            "adminSession": [],
+            "csrfToken": []
           }
         ],
         "responses": {
@@ -4688,7 +4717,8 @@
         ],
         "security": [
           {
-            "adminSession": []
+            "adminSession": [],
+            "csrfToken": []
           }
         ],
         "requestBody": {
@@ -5048,7 +5078,8 @@
         ],
         "security": [
           {
-            "adminSession": []
+            "adminSession": [],
+            "csrfToken": []
           }
         ],
         "responses": {
@@ -5104,7 +5135,8 @@
         ],
         "security": [
           {
-            "adminSession": []
+            "adminSession": [],
+            "csrfToken": []
           }
         ],
         "responses": {
@@ -5142,7 +5174,8 @@
         ],
         "security": [
           {
-            "adminSession": []
+            "adminSession": [],
+            "csrfToken": []
           }
         ],
         "responses": {
@@ -5170,7 +5203,8 @@
         ],
         "security": [
           {
-            "adminSession": []
+            "adminSession": [],
+            "csrfToken": []
           }
         ],
         "responses": {
@@ -5208,7 +5242,8 @@
         ],
         "security": [
           {
-            "adminSession": []
+            "adminSession": [],
+            "csrfToken": []
           }
         ],
         "responses": {
@@ -5262,7 +5297,8 @@
         ],
         "security": [
           {
-            "adminSession": []
+            "adminSession": [],
+            "csrfToken": []
           }
         ],
         "responses": {
@@ -5300,7 +5336,8 @@
         ],
         "security": [
           {
-            "adminSession": []
+            "adminSession": [],
+            "csrfToken": []
           }
         ],
         "responses": {
@@ -5391,7 +5428,12 @@
       "adminSession": {
         "type": "apiKey",
         "in": "cookie",
-        "name": "laravel_session"
+        "name": "soul-session"
+      },
+      "csrfToken": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-CSRF-TOKEN"
       },
       "cloudinarySignature": {
         "type": "apiKey",

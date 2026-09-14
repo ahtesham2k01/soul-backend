@@ -106,16 +106,16 @@ class TranslationCatalogCompletenessTest extends TestCase
         $admin = file_get_contents(resource_path('js/admin.tsx'));
 
         $this->assertNotFalse($admin);
-        $this->assertStringContainsString("fetch('/api/v1/bootstrap?locale=en'", $admin);
-        $this->assertStringContainsString("document.documentElement.lang='en'", $admin);
-        $this->assertStringContainsString("document.documentElement.dir='ltr'", $admin);
+        $this->assertMatchesRegularExpression('/fetch\(\s*["\']\/api\/v1\/bootstrap\?locale=en["\']/', $admin);
+        $this->assertMatchesRegularExpression('/document\.documentElement\.lang\s*=\s*["\']en["\']/', $admin);
+        $this->assertMatchesRegularExpression('/document\.documentElement\.dir\s*=\s*["\']ltr["\']/', $admin);
         $this->assertStringNotContainsString('LanguageSwitch', $admin);
         $this->assertStringNotContainsString('soul.admin.locale', $admin);
-        $this->assertStringContainsString("t('admin.user_directory')", $admin);
+        $this->assertMatchesRegularExpression('/t\(\s*["\']admin\.user_directory["\']\s*\)/', $admin);
         $this->assertStringNotContainsString('Authorized team members only.', $admin);
         $this->assertStringNotContainsString('Reason for this decision:', $admin);
 
-        preg_match_all("/t\\('([^']+)'\\)/", $admin, $matches);
+        preg_match_all('/t\(\s*["\']([^"\']+)["\']\s*\)/', $admin, $matches);
         $english = $this->readCatalog('en');
 
         foreach (array_unique($matches[1]) as $key) {

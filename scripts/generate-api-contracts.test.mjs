@@ -33,6 +33,29 @@ test('Flutter endpoints match their OpenAPI operation method and path', () => {
     }
 });
 
+test('admin operations advertise browser session and CSRF authentication instead of bearer tokens', () => {
+    const adminOperations = [];
+
+    for (const methods of Object.values(openapi.paths)) {
+        for (const [method, operation] of Object.entries(methods)) {
+            if (operation.operationId.startsWith('api.v1.admin.')) {
+                adminOperations.push({ method, operation });
+            }
+        }
+    }
+
+    assert.ok(adminOperations.length > 0);
+    assert.equal(openapi.components.securitySchemes.adminSession.name, 'soul-session');
+
+    for (const { method, operation } of adminOperations) {
+        assert.deepEqual(operation.security, [{
+            adminSession: [],
+            ...(method === 'get' ? {} : { csrfToken: [] }),
+        }]);
+        assert.doesNotMatch(JSON.stringify(operation.security), /bearerAuth/);
+    }
+});
+
 test('generated Dart catalog is safe to copy into Flutter', () => {
     assert.match(dart, /GENERATED FILE\. DO NOT EDIT\./);
     assert.match(dart, /Uri\.encodeComponent/);

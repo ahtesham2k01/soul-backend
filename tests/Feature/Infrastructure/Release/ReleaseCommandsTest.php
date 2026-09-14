@@ -38,6 +38,9 @@ class ReleaseCommandsTest extends TestCase
             'queue.default' => 'sync',
             'mail.default' => 'log',
             'session.secure' => false,
+            'session.http_only' => false,
+            'session.same_site' => 'none',
+            'sanctum.stateful' => [],
             'soul.privacy.export_disk' => 'local',
             'soul.media.cloudinary.upload_session_ttl_minutes' => 10,
             'soul.media.cloudinary.cloud_name' => null,
@@ -51,10 +54,41 @@ class ReleaseCommandsTest extends TestCase
         $this->assertStringContainsString('Redis cache', $output);
         $this->assertStringContainsString('Redis queue', $output);
         $this->assertStringContainsString('Encrypted sessions', $output);
+        $this->assertStringContainsString('HttpOnly admin cookie', $output);
+        $this->assertStringContainsString('Admin cookie SameSite', $output);
+        $this->assertStringContainsString('Stateful admin domain', $output);
         $this->assertStringContainsString('Backup freshness policy', $output);
         $this->assertStringContainsString('Trusted proxies', $output);
         $this->assertStringContainsString('CORS origins', $output);
         $this->assertStringNotContainsString('DB_PASSWORD', $output);
+    }
+
+    public function test_production_admin_session_checks_require_safe_cookie_and_exact_stateful_host(): void
+    {
+        config([
+            'app.url' => 'https://api.soul.test:8443',
+            'session.http_only' => true,
+            'session.same_site' => 'lax',
+            'sanctum.stateful' => ['api.soul.test:8443'],
+        ]);
+
+        $checks = collect(app(ReleaseConfigurationValidator::class)->validate(true))->keyBy('name');
+
+        $this->assertSame('pass', $checks['HttpOnly admin cookie']['status']);
+        $this->assertSame('pass', $checks['Admin cookie SameSite']['status']);
+        $this->assertSame('pass', $checks['Stateful admin domain']['status']);
+
+        config([
+            'session.http_only' => false,
+            'session.same_site' => 'none',
+            'sanctum.stateful' => ['admin.soul.test'],
+        ]);
+
+        $checks = collect(app(ReleaseConfigurationValidator::class)->validate(true))->keyBy('name');
+
+        $this->assertSame('fail', $checks['HttpOnly admin cookie']['status']);
+        $this->assertSame('fail', $checks['Admin cookie SameSite']['status']);
+        $this->assertSame('fail', $checks['Stateful admin domain']['status']);
     }
 
     public function test_smoke_command_checks_only_public_non_destructive_endpoints(): void

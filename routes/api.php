@@ -69,15 +69,15 @@ use App\Http\Controllers\Api\V1\Safety\SubmitVerificationAppealController;
 use App\Http\Controllers\Api\V1\Subscriptions\EntitlementController;
 use App\Http\Controllers\Api\V1\Subscriptions\ProductController;
 use App\Http\Controllers\Api\V1\Subscriptions\PurchaseController;
-use App\Http\Controllers\Api\V1\Webhooks\StoreLifecycleController;
 use App\Http\Controllers\Api\V1\SupportAttachmentController;
 use App\Http\Controllers\Api\V1\SupportTicketController;
 use App\Http\Controllers\Api\V1\Webhooks\CloudinaryModerationController;
+use App\Http\Controllers\Api\V1\Webhooks\StoreLifecycleController;
 use App\Support\ApiResponse;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function (): void {
-    Route::prefix('admin')->middleware(['auth:sanctum', 'active.account', 'admin:super_admin,moderator', 'throttle:api-global'])->group(function (): void {
+    Route::prefix('admin')->middleware(['admin.session', 'auth:sanctum', 'active.account', 'admin:super_admin,moderator', 'throttle:api-global'])->group(function (): void {
         Route::get('/dashboard', [ModerationController::class, 'dashboard'])->name('api.v1.admin.dashboard');
         Route::get('/reports', [ModerationController::class, 'reports'])->name('api.v1.admin.reports.index');
         Route::put('/reports/{report}', [ModerationController::class, 'decideReport'])->name('api.v1.admin.reports.update');
