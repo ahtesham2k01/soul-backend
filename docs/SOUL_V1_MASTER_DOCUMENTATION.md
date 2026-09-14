@@ -512,6 +512,8 @@ Provider readiness is exposed to super-admin operations as safe booleans and mis
 - [x] Importable Postman 2.1 collection
 - [x] Safe request examples and bearer-token variables
 - [x] Automated Laravel-route/OpenAPI/Postman parity tests
+- [x] Generated Flutter-only endpoint manifest and copy-ready Dart route catalog
+- [x] Automated Flutter/OpenAPI and client-boundary contract tests
 
 ### Environment and staging readiness
 
@@ -784,7 +786,7 @@ Use the Profile catalogs and support chapter for interests, traits and help. Use
 8. Read Marital status before building discovery cards or full profiles.
 9. Read Verification badges before building verification or public badges.
 10. Read Safety and moderation before building reports, blocks or account appeals.
-11. Import `contracts/openapi-v1.json` or `contracts/postman-v1.collection.json` while building the API client.
+11. Import `contracts/openapi-v1.json` or `contracts/postman-v1.collection.json` while building the API client. Flutter may instead copy `contracts/soul_v1_api.dart` into its networking layer and consume `contracts/flutter-v1.json` in client tooling. Both Flutter artifacts are generated from this document and intentionally exclude React-admin routes and provider webhooks.
 12. Read Database design only to understand ownership and relationships; Flutter never uses internal database IDs.
 13. Read Backend scope before implementing a screen so unfinished modules are not mistaken for available APIs.
 

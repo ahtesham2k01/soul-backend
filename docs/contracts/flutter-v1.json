@@ -1,0 +1,897 @@
+{
+  "schemaVersion": 1,
+  "apiVersion": "v1",
+  "basePath": "/api/v1",
+  "generatedFrom": "docs/SOUL_V1_MASTER_DOCUMENTATION.md",
+  "endpointCount": 91,
+  "endpoints": [
+    {
+      "operationId": "api.v1.health",
+      "method": "GET",
+      "path": "/health",
+      "authenticated": false,
+      "summary": "Liveness",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.health.ready",
+      "method": "GET",
+      "path": "/health/ready",
+      "authenticated": false,
+      "summary": "Dependency readiness",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.bootstrap",
+      "method": "GET",
+      "path": "/bootstrap",
+      "authenticated": false,
+      "summary": "Brand, locale, translations and approximate location",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.catalogs.profile",
+      "method": "GET",
+      "path": "/catalogs/profile",
+      "authenticated": false,
+      "summary": "Localized interests, traits and help categories",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.auth.register.request-otp",
+      "method": "POST",
+      "path": "/auth/register/request-otp",
+      "authenticated": false,
+      "summary": "Request registration OTP",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.auth.register.verify-otp",
+      "method": "POST",
+      "path": "/auth/register/verify-otp",
+      "authenticated": false,
+      "summary": "Verify registration and issue token",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.auth.login.request-otp",
+      "method": "POST",
+      "path": "/auth/login/request-otp",
+      "authenticated": false,
+      "summary": "Request login OTP",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.auth.login.verify-otp",
+      "method": "POST",
+      "path": "/auth/login/verify-otp",
+      "authenticated": false,
+      "summary": "Verify login and issue token",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.auth.google",
+      "method": "POST",
+      "path": "/auth/google",
+      "authenticated": false,
+      "summary": "Google identity sign-in",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.auth.apple",
+      "method": "POST",
+      "path": "/auth/apple",
+      "authenticated": false,
+      "summary": "Apple identity sign-in",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.auth.me",
+      "method": "GET",
+      "path": "/auth/me",
+      "authenticated": true,
+      "summary": "Resume current account",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.auth.logout",
+      "method": "POST",
+      "path": "/auth/logout",
+      "authenticated": true,
+      "summary": "Revoke current token",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.auth.logout-all",
+      "method": "POST",
+      "path": "/auth/logout-all",
+      "authenticated": true,
+      "summary": "Revoke all tokens",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.auth.devices.index",
+      "method": "GET",
+      "path": "/auth/devices",
+      "authenticated": true,
+      "summary": "List active login sessions and identify the current device",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.auth.devices.destroy",
+      "method": "DELETE",
+      "path": "/auth/devices/{session}",
+      "authenticated": true,
+      "summary": "Remotely sign out one owned device session",
+      "pathParameters": [
+        "session"
+      ]
+    },
+    {
+      "operationId": "api.v1.location.resolve",
+      "method": "POST",
+      "path": "/location/resolve",
+      "authenticated": false,
+      "summary": "Resolve coordinates without inventing a fallback city",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.onboarding.religion-options",
+      "method": "GET",
+      "path": "/onboarding/religion-options",
+      "authenticated": false,
+      "summary": "Country-aware religion hierarchy",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.onboarding.religion-profile.show",
+      "method": "GET",
+      "path": "/onboarding/religion-profile",
+      "authenticated": true,
+      "summary": "Resume saved selection",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.onboarding.religion-profile.store",
+      "method": "PUT",
+      "path": "/onboarding/religion-profile",
+      "authenticated": true,
+      "summary": "Save complete hierarchy path",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.onboarding.profile.show",
+      "method": "GET",
+      "path": "/onboarding/profile",
+      "authenticated": true,
+      "summary": "Resume draft profile",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.onboarding.profile.update",
+      "method": "PUT",
+      "path": "/onboarding/profile",
+      "authenticated": true,
+      "summary": "Partially update draft",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.onboarding.readiness.show",
+      "method": "GET",
+      "path": "/onboarding/readiness",
+      "authenticated": true,
+      "summary": "Missing requirements and correction screens",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.onboarding.submit",
+      "method": "POST",
+      "path": "/onboarding/submit",
+      "authenticated": true,
+      "summary": "Submit complete draft",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.onboarding.status",
+      "method": "GET",
+      "path": "/onboarding/status",
+      "authenticated": true,
+      "summary": "Lifecycle and automated-check status",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.onboarding.resubmit",
+      "method": "POST",
+      "path": "/onboarding/resubmit",
+      "authenticated": true,
+      "summary": "Resubmit corrected profile",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.onboarding.photos.index",
+      "method": "GET",
+      "path": "/onboarding/photos",
+      "authenticated": true,
+      "summary": "List photo slots and moderation state",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.onboarding.photos.upload-session.create",
+      "method": "POST",
+      "path": "/onboarding/photos/upload-session",
+      "authenticated": true,
+      "summary": "Create short-lived direct-upload signature",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.onboarding.photos.register",
+      "method": "PUT",
+      "path": "/onboarding/photos/{position}",
+      "authenticated": true,
+      "summary": "Register verified Cloudinary response",
+      "pathParameters": [
+        "position"
+      ]
+    },
+    {
+      "operationId": "api.v1.onboarding.photos.delete",
+      "method": "DELETE",
+      "path": "/onboarding/photos/{position}",
+      "authenticated": true,
+      "summary": "Remove slot and queue provider cleanup",
+      "pathParameters": [
+        "position"
+      ]
+    },
+    {
+      "operationId": "api.v1.discovery.preferences.show",
+      "method": "GET",
+      "path": "/discovery/preferences",
+      "authenticated": true,
+      "summary": "Resume filters",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.discovery.preferences.update",
+      "method": "PUT",
+      "path": "/discovery/preferences",
+      "authenticated": true,
+      "summary": "Save age, gender and country filters",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.discovery.candidates.index",
+      "method": "GET",
+      "path": "/discovery/candidates",
+      "authenticated": true,
+      "summary": "Cursor-paginated eligible profiles",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.profiles.show",
+      "method": "GET",
+      "path": "/profiles/{profile}",
+      "authenticated": true,
+      "summary": "Safe full public profile with prominent marital status",
+      "pathParameters": [
+        "profile"
+      ]
+    },
+    {
+      "operationId": "api.v1.matching.decisions.store",
+      "method": "POST",
+      "path": "/profiles/{profile}/decision",
+      "authenticated": true,
+      "summary": "Idempotent like/pass and mutual match",
+      "pathParameters": [
+        "profile"
+      ]
+    },
+    {
+      "operationId": "api.v1.likes.received.index",
+      "method": "GET",
+      "path": "/likes/received",
+      "authenticated": true,
+      "summary": "Cursor-paginated pending incoming Likes",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.likes.update",
+      "method": "PUT",
+      "path": "/profiles/{profile}/like",
+      "authenticated": true,
+      "summary": "Accept or decline a pending Like",
+      "pathParameters": [
+        "profile"
+      ]
+    },
+    {
+      "operationId": "api.v1.likes.destroy",
+      "method": "DELETE",
+      "path": "/profiles/{profile}/like",
+      "authenticated": true,
+      "summary": "Withdraw a pending outgoing Like",
+      "pathParameters": [
+        "profile"
+      ]
+    },
+    {
+      "operationId": "api.v1.matches.index",
+      "method": "GET",
+      "path": "/matches",
+      "authenticated": true,
+      "summary": "Cursor-paginated active matches",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.matches.destroy",
+      "method": "DELETE",
+      "path": "/matches/{match}",
+      "authenticated": true,
+      "summary": "Idempotent unmatch",
+      "pathParameters": [
+        "match"
+      ]
+    },
+    {
+      "operationId": "api.v1.private-photo-access.index",
+      "method": "GET",
+      "path": "/private-photo-access",
+      "authenticated": true,
+      "summary": "List incoming and outgoing access requests",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.private-photo-access.store",
+      "method": "POST",
+      "path": "/matches/{match}/private-photo-access",
+      "authenticated": true,
+      "summary": "Request access with no message/reason",
+      "pathParameters": [
+        "match"
+      ]
+    },
+    {
+      "operationId": "api.v1.private-photo-access.update",
+      "method": "PUT",
+      "path": "/private-photo-access/{accessRequest}",
+      "authenticated": true,
+      "summary": "Owner approves or rejects",
+      "pathParameters": [
+        "accessRequest"
+      ]
+    },
+    {
+      "operationId": "api.v1.private-photo-access.destroy",
+      "method": "DELETE",
+      "path": "/private-photo-access/{accessRequest}",
+      "authenticated": true,
+      "summary": "Owner revokes access",
+      "pathParameters": [
+        "accessRequest"
+      ]
+    },
+    {
+      "operationId": "api.v1.private-photos.index",
+      "method": "GET",
+      "path": "/matches/{match}/private-photos",
+      "authenticated": true,
+      "summary": "Approved private-photo metadata and protection contract",
+      "pathParameters": [
+        "match"
+      ]
+    },
+    {
+      "operationId": "api.v1.private-photos.content",
+      "method": "GET",
+      "path": "/private-photos/{photo}/content",
+      "authenticated": true,
+      "summary": "Authorized no-store image bytes",
+      "pathParameters": [
+        "photo"
+      ]
+    },
+    {
+      "operationId": "api.v1.private-photos.capture-events.store",
+      "method": "POST",
+      "path": "/private-photos/{photo}/capture-events",
+      "authenticated": true,
+      "summary": "Idempotent best-effort capture signal",
+      "pathParameters": [
+        "photo"
+      ]
+    },
+    {
+      "operationId": "api.v1.messages.index",
+      "method": "GET",
+      "path": "/matches/{match}/messages",
+      "authenticated": true,
+      "summary": "Cursor-paginated conversation",
+      "pathParameters": [
+        "match"
+      ]
+    },
+    {
+      "operationId": "api.v1.messages.store",
+      "method": "POST",
+      "path": "/matches/{match}/messages",
+      "authenticated": true,
+      "summary": "Send trimmed non-empty message",
+      "pathParameters": [
+        "match"
+      ]
+    },
+    {
+      "operationId": "api.v1.messages.read",
+      "method": "POST",
+      "path": "/matches/{match}/messages/read",
+      "authenticated": true,
+      "summary": "Mark received messages read and expose receipts",
+      "pathParameters": [
+        "match"
+      ]
+    },
+    {
+      "operationId": "api.v1.chat.presence.show",
+      "method": "GET",
+      "path": "/matches/{match}/presence",
+      "authenticated": true,
+      "summary": "Counterpart online, last-seen and typing state",
+      "pathParameters": [
+        "match"
+      ]
+    },
+    {
+      "operationId": "api.v1.chat.typing.update",
+      "method": "PUT",
+      "path": "/matches/{match}/typing",
+      "authenticated": true,
+      "summary": "Refresh or clear the short-lived typing signal",
+      "pathParameters": [
+        "match"
+      ]
+    },
+    {
+      "operationId": "api.v1.safety.blocks.store",
+      "method": "POST",
+      "path": "/profiles/{profile}/block",
+      "authenticated": true,
+      "summary": "Block and close interaction",
+      "pathParameters": [
+        "profile"
+      ]
+    },
+    {
+      "operationId": "api.v1.safety.reports.store",
+      "method": "POST",
+      "path": "/profiles/{profile}/report",
+      "authenticated": true,
+      "summary": "Submit safe report receipt",
+      "pathParameters": [
+        "profile"
+      ]
+    },
+    {
+      "operationId": "api.v1.account-appeal.show",
+      "method": "GET",
+      "path": "/account-appeal",
+      "authenticated": true,
+      "summary": "Resume the blocked-account appeal state",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.account-appeal.store",
+      "method": "POST",
+      "path": "/account-appeal",
+      "authenticated": true,
+      "summary": "Submit the one allowed blocked-account appeal",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.verification.cases.index",
+      "method": "GET",
+      "path": "/verification/cases",
+      "authenticated": true,
+      "summary": "List owned verification cases",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.verification.summary",
+      "method": "GET",
+      "path": "/verification/summary",
+      "authenticated": true,
+      "summary": "Separate account checks and public badge states",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.verification.cases.store",
+      "method": "POST",
+      "path": "/verification/cases",
+      "authenticated": true,
+      "summary": "Request identity/selfie review",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.verification.appeals.store",
+      "method": "POST",
+      "path": "/verification/cases/{case}/appeal",
+      "authenticated": true,
+      "summary": "Submit one eligible appeal",
+      "pathParameters": [
+        "case"
+      ]
+    },
+    {
+      "operationId": "api.v1.devices.store",
+      "method": "POST",
+      "path": "/devices",
+      "authenticated": true,
+      "summary": "Register encrypted iOS/Android push token",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.devices.destroy",
+      "method": "DELETE",
+      "path": "/devices/{device}",
+      "authenticated": true,
+      "summary": "Revoke owned device",
+      "pathParameters": [
+        "device"
+      ]
+    },
+    {
+      "operationId": "api.v1.notification-preferences.show",
+      "method": "GET",
+      "path": "/notification-preferences",
+      "authenticated": true,
+      "summary": "Load separate push/email defaults and locked safety category",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.notification-preferences.update",
+      "method": "PUT",
+      "path": "/notification-preferences",
+      "authenticated": true,
+      "summary": "Partial channel update; marketing opt-in records consent",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.notifications.index",
+      "method": "GET",
+      "path": "/notifications",
+      "authenticated": true,
+      "summary": "Cursor-paginated private feed",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.notifications.read",
+      "method": "POST",
+      "path": "/notifications/{notification}/read",
+      "authenticated": true,
+      "summary": "Idempotent read state",
+      "pathParameters": [
+        "notification"
+      ]
+    },
+    {
+      "operationId": "api.v1.events.index",
+      "method": "GET",
+      "path": "/events",
+      "authenticated": true,
+      "summary": "Upcoming published events",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.events.show",
+      "method": "GET",
+      "path": "/events/{event}",
+      "authenticated": true,
+      "summary": "Localized event details; online URL only after joining",
+      "pathParameters": [
+        "event"
+      ]
+    },
+    {
+      "operationId": "api.v1.events.registration.store",
+      "method": "POST",
+      "path": "/events/{event}/registration",
+      "authenticated": true,
+      "summary": "Capacity-safe idempotent join",
+      "pathParameters": [
+        "event"
+      ]
+    },
+    {
+      "operationId": "api.v1.events.registration.destroy",
+      "method": "DELETE",
+      "path": "/events/{event}/registration",
+      "authenticated": true,
+      "summary": "Idempotent leave",
+      "pathParameters": [
+        "event"
+      ]
+    },
+    {
+      "operationId": "api.v1.events.reports.store",
+      "method": "POST",
+      "path": "/events/{event}/report",
+      "authenticated": true,
+      "summary": "Private idempotent event report",
+      "pathParameters": [
+        "event"
+      ]
+    },
+    {
+      "operationId": "api.v1.legal.consent.show",
+      "method": "GET",
+      "path": "/legal/consent",
+      "authenticated": true,
+      "summary": "Current policy/commitment versions and acceptance status",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.legal.consent.store",
+      "method": "POST",
+      "path": "/legal/consent",
+      "authenticated": true,
+      "summary": "Idempotently accept all current legal documents",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.subscription.entitlements.index",
+      "method": "GET",
+      "path": "/subscription/entitlements",
+      "authenticated": true,
+      "summary": "Effective capability limits and usage for this member",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.subscription.products.index",
+      "method": "GET",
+      "path": "/subscription/products",
+      "authenticated": true,
+      "summary": "Active Apple/Google product mappings for platform and country",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.subscription.purchases.store",
+      "method": "POST",
+      "path": "/subscription/purchases",
+      "authenticated": true,
+      "summary": "Verify an Apple/Google transaction and refresh server-owned subscription state",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.privacy.settings.show",
+      "method": "GET",
+      "path": "/privacy/settings",
+      "authenticated": true,
+      "summary": "Load privacy defaults",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.privacy.settings.update",
+      "method": "PUT",
+      "path": "/privacy/settings",
+      "authenticated": true,
+      "summary": "Partial privacy update",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.privacy.contacts.update",
+      "method": "PUT",
+      "path": "/privacy/contacts",
+      "authenticated": true,
+      "summary": "Replace privacy-safe contact hashes",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.privacy.exports.store",
+      "method": "POST",
+      "path": "/privacy/exports",
+      "authenticated": true,
+      "summary": "Idempotently request export",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.privacy.exports.index",
+      "method": "GET",
+      "path": "/privacy/exports",
+      "authenticated": true,
+      "summary": "Poll export status",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.privacy.exports.download",
+      "method": "GET",
+      "path": "/privacy/exports/{export}/download",
+      "authenticated": true,
+      "summary": "Owner-only private download",
+      "pathParameters": [
+        "export"
+      ]
+    },
+    {
+      "operationId": "api.v1.privacy.deletion.store",
+      "method": "POST",
+      "path": "/privacy/deletion",
+      "authenticated": true,
+      "summary": "Schedule deletion with confirmation",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.privacy.deletion.show",
+      "method": "GET",
+      "path": "/privacy/deletion",
+      "authenticated": true,
+      "summary": "Resume scheduled-deletion state",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.privacy.deletion.destroy",
+      "method": "DELETE",
+      "path": "/privacy/deletion",
+      "authenticated": true,
+      "summary": "Cancel inside grace period",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.support.tickets.index",
+      "method": "GET",
+      "path": "/support/tickets",
+      "authenticated": true,
+      "summary": "List the signed-in member's private support tickets",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.support.tickets.store",
+      "method": "POST",
+      "path": "/support/tickets",
+      "authenticated": true,
+      "summary": "Open a support ticket",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.support.tickets.show",
+      "method": "GET",
+      "path": "/support/tickets/{ticket}",
+      "authenticated": true,
+      "summary": "Read an owned support thread",
+      "pathParameters": [
+        "ticket"
+      ]
+    },
+    {
+      "operationId": "api.v1.support.tickets.replies.store",
+      "method": "POST",
+      "path": "/support/tickets/{ticket}/replies",
+      "authenticated": true,
+      "summary": "Add a member reply",
+      "pathParameters": [
+        "ticket"
+      ]
+    },
+    {
+      "operationId": "api.v1.support.attachments.store",
+      "method": "POST",
+      "path": "/support/tickets/{ticket}/attachments",
+      "authenticated": true,
+      "summary": "Upload a private JPG, PNG or PDF attachment",
+      "pathParameters": [
+        "ticket"
+      ]
+    },
+    {
+      "operationId": "api.v1.support.attachments.show",
+      "method": "GET",
+      "path": "/support/attachments/{attachment}",
+      "authenticated": true,
+      "summary": "Download an authorized private attachment",
+      "pathParameters": [
+        "attachment"
+      ]
+    },
+    {
+      "operationId": "api.v1.chat.realtime.show",
+      "method": "GET",
+      "path": "/matches/{match}/realtime",
+      "authenticated": true,
+      "summary": "Get the authorized private channel contract",
+      "pathParameters": [
+        "match"
+      ]
+    }
+  ],
+  "stableEnums": {
+    "Gender": [
+      "man",
+      "woman"
+    ],
+    "Religion discovery mode": [
+      "my_religion",
+      "all_religions"
+    ],
+    "Marital status": [
+      "never_married",
+      "married",
+      "separated",
+      "divorced",
+      "widowed"
+    ],
+    "Profession/status": [
+      "employed",
+      "self_employed",
+      "student",
+      "homemaker",
+      "unemployed",
+      "retired",
+      "other"
+    ],
+    "Smoking/alcohol": [
+      "no",
+      "occasionally",
+      "yes",
+      "prefer_not_to_say"
+    ],
+    "Current children": [
+      "no",
+      "yes_living_with_me",
+      "yes_not_living_with_me",
+      "prefer_not_to_say"
+    ],
+    "Future children": [
+      "want_children",
+      "do_not_want_children",
+      "open_to_children",
+      "not_sure",
+      "prefer_not_to_say"
+    ],
+    "Profile decision": [
+      "like",
+      "pass"
+    ],
+    "Device platform": [
+      "ios",
+      "android"
+    ],
+    "Verification type": [
+      "identity",
+      "selfie_review"
+    ],
+    "Report category": [
+      "fake_profile",
+      "scam",
+      "harassment",
+      "nudity_sexual_content",
+      "underage",
+      "false_marital_status",
+      "other"
+    ],
+    "Report action": [
+      "report_only",
+      "report_and_block"
+    ],
+    "Profile lifecycle": [
+      "draft",
+      "submitted",
+      "automated_checks",
+      "live"
+    ]
+  },
+  "transport": {
+    "successEnvelope": [
+      "success",
+      "message",
+      "data",
+      "meta"
+    ],
+    "errorEnvelope": [
+      "success",
+      "error",
+      "meta"
+    ],
+    "requestIdHeader": "X-Request-ID",
+    "localeHeader": "Accept-Language",
+    "paginationCursor": "cursor"
+  }
+}

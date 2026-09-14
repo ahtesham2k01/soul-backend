@@ -11,6 +11,18 @@ const endpoints = [...handoff.matchAll(endpointPattern)].map((match) => ({
     summary: match[4].trim(),
 }));
 
+const enumSection = handoff.match(/### Stable V1 enums\n\n([\s\S]*?)\n\nClients must tolerate/);
+if (!enumSection) {
+    throw new Error('Could not find the Stable V1 enums section.');
+}
+
+const stableEnums = Object.fromEntries(
+    [...enumSection[1].matchAll(/^- ([^:]+): (.+)$/gm)].map((match) => [
+        match[1],
+        [...match[2].matchAll(/`([^`]+)`/g)].map((value) => value[1]),
+    ]).filter(([, values]) => values.length > 0),
+);
+
 if (endpoints.length !== 150) {
     throw new Error(`Expected 150 documented endpoints, found ${endpoints.length}.`);
 }
@@ -208,4 +220,104 @@ fs.mkdirSync(output, { recursive: true });
 fs.writeFileSync(path.join(output, 'openapi-v1.json'), `${JSON.stringify(openapi, null, 2)}\n`);
 fs.writeFileSync(path.join(output, 'postman-v1.collection.json'), `${JSON.stringify(postman, null, 2)}\n`);
 
-console.log(`Generated OpenAPI and Postman contracts for ${endpoints.length} endpoints.`);
+const flutterEndpoints = endpoints
+    .filter((endpoint) => !endpoint.operationId.startsWith('api.v1.admin.'))
+    .filter((endpoint) => !endpoint.operationId.startsWith('api.v1.webhooks.'))
+    .map((endpoint) => ({
+        operationId: endpoint.operationId,
+        method: endpoint.method,
+        path: endpoint.path,
+        authenticated: !publicOperations.has(endpoint.operationId),
+        summary: endpoint.summary,
+        pathParameters: [...endpoint.path.matchAll(/\{([^}]+)\}/g)].map((match) => match[1]),
+    }));
+
+const flutterManifest = {
+    schemaVersion: 1,
+    apiVersion: 'v1',
+    basePath: '/api/v1',
+    generatedFrom: 'docs/SOUL_V1_MASTER_DOCUMENTATION.md',
+    endpointCount: flutterEndpoints.length,
+    endpoints: flutterEndpoints,
+    stableEnums,
+    transport: {
+        successEnvelope: ['success', 'message', 'data', 'meta'],
+        errorEnvelope: ['success', 'error', 'meta'],
+        requestIdHeader: 'X-Request-ID',
+        localeHeader: 'Accept-Language',
+        paginationCursor: 'cursor',
+    },
+};
+
+fs.writeFileSync(path.join(output, 'flutter-v1.json'), `${JSON.stringify(flutterManifest, null, 2)}\n`);
+
+const dartString = (value) => `'${value.replaceAll('\\', '\\\\').replaceAll("'", "\\'")}'`;
+const dartIdentifier = (value) => value
+    .replaceAll(/[^a-zA-Z0-9]+/g, ' ')
+    .trim()
+    .split(/\s+/)
+    .map((part, index) => index === 0
+        ? part.toLowerCase()
+        : part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join('');
+const dartEndpoints = flutterEndpoints.map((endpoint) => `    SoulApiEndpoint(
+      operationId: ${dartString(endpoint.operationId)},
+      method: ${dartString(endpoint.method)},
+      pathTemplate: ${dartString(endpoint.path)},
+      requiresBearerToken: ${endpoint.authenticated},
+    ),`).join('\n');
+const dartEnums = Object.entries(stableEnums).map(([name, values]) =>
+    `  static const ${dartIdentifier(name)} = <String>[${values.map(dartString).join(', ')}];`,
+).join('\n');
+
+const dart = `// GENERATED FILE. DO NOT EDIT.
+// Source: docs/SOUL_V1_MASTER_DOCUMENTATION.md
+
+class SoulApiEndpoint {
+  const SoulApiEndpoint({
+    required this.operationId,
+    required this.method,
+    required this.pathTemplate,
+    required this.requiresBearerToken,
+  });
+
+  final String operationId;
+  final String method;
+  final String pathTemplate;
+  final bool requiresBearerToken;
+
+  String path(Map<String, Object> parameters) {
+    var resolved = pathTemplate;
+    for (final entry in parameters.entries) {
+      resolved = resolved.replaceAll(
+        '{\${entry.key}}',
+        Uri.encodeComponent(entry.value.toString()),
+      );
+    }
+    if (RegExp(r'{[^}]+}').hasMatch(resolved)) {
+      throw ArgumentError('Missing path parameter for \$pathTemplate');
+    }
+    return resolved;
+  }
+}
+
+abstract final class SoulV1Api {
+  static const basePath = '/api/v1';
+
+  static const endpoints = <SoulApiEndpoint>[
+${dartEndpoints}
+  ];
+
+  static final byOperationId = <String, SoulApiEndpoint>{
+    for (final endpoint in endpoints) endpoint.operationId: endpoint,
+  };
+}
+
+abstract final class SoulV1Values {
+${dartEnums}
+}
+`;
+
+fs.writeFileSync(path.join(output, 'soul_v1_api.dart'), dart);
+
+console.log(`Generated OpenAPI/Postman contracts for ${endpoints.length} endpoints and Flutter artifacts for ${flutterEndpoints.length} member endpoints.`);

@@ -49,6 +49,7 @@ jobs:
           npm ci
           npm run contracts:generate
           git diff --exit-code -- docs/contracts
+          npm run contracts:test
           npm run localization:audit
           npm run localization:test
           npm run build

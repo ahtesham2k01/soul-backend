@@ -5,6 +5,7 @@
     "scripts": {
         "build": "vite build",
         "contracts:generate": "node scripts/generate-api-contracts.mjs",
+        "contracts:test": "node --test scripts/generate-api-contracts.test.mjs",
         "localization:audit": "node scripts/audit-localization.mjs",
         "localization:test": "node --test scripts/audit-localization.test.mjs",
         "load:smoke": "node scripts/load-api-smoke.mjs",
