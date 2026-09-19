@@ -37,6 +37,9 @@ class PrivacyEndpointTest extends TestCase
         UserProfile::factory()->for($u)->create();
         $u->devices()->create(['platform' => 'ios', 'push_token' => 'private-push-token', 'token_hash' => hash('sha256', 'private-push-token'), 'device_name' => 'My phone', 'last_seen_at' => now()]);
         $u->legalAcceptances()->create(['document_type' => 'terms', 'document_version' => 'v1', 'accepted_at' => now(), 'accepted_via' => 'onboarding', 'locale' => 'en', 'ip_address' => '192.0.2.1', 'device_context_hash' => hash('sha256', 'private-device')]);
+        $u->notificationPreference()->create(['new_matches' => true, 'new_messages' => false, 'safety_updates' => true, 'marketing' => false]);
+        $u->profile->interests()->create(['value' => 'Travel']);
+        $u->profile->personalityTraits()->create(['value' => 'Kind']);
         Sanctum::actingAs($u);
         $id = $this->postJson('/api/v1/privacy/exports')->assertStatus(202)->json('data.export.id');
         $this->postJson('/api/v1/privacy/exports')->assertJsonPath('data.export.id', $id);
@@ -46,21 +49,32 @@ class PrivacyEndpointTest extends TestCase
         $request->refresh();
         Storage::disk('local')->assertExists($request->file_path);
         $export = json_decode(Storage::disk('local')->get($request->file_path), true, flags: JSON_THROW_ON_ERROR);
-        $this->assertArrayNotHasKey('schema_version', $export);
+        $this->assertSame(2, $export['schema_version']);
+        $this->assertSame('soul.member-data', $export['format']);
         $this->assertSame($u->public_id, $export['account']['public_id']);
         $this->assertSame('My phone', $export['devices'][0]['device_name']);
         $this->assertArrayNotHasKey('push_token', $export['devices'][0]);
         $this->assertArrayNotHasKey('token_hash', $export['devices'][0]);
         $this->assertArrayNotHasKey('ip_address', $export['legal_acceptances'][0]);
         $this->assertArrayNotHasKey('device_context_hash', $export['legal_acceptances'][0]);
+        $this->assertSame('Travel', $export['profile_interests'][0]['value']);
+        $this->assertSame('Kind', $export['profile_traits'][0]['value']);
+        $this->assertFalse($export['notification_preferences'][0]['new_messages']);
+        $this->assertNoInternalIdentifiers($export);
         $this->assertSame([
             'decisions', 'matches', 'messages', 'blocks', 'reports', 'notifications',
             'legal_acceptances', 'verification_cases', 'subscriptions', 'event_registrations',
-            'support_tickets', 'devices',
+            'support_tickets', 'devices', 'support_messages', 'support_attachments',
+            'notification_preferences', 'profile_interests', 'profile_traits', 'profile_status_history',
+            'private_photo_access_requests', 'private_photo_capture_events', 'verification_appeals',
+            'account_appeals', 'event_reports',
         ], array_values(array_intersect(array_keys($export), [
             'decisions', 'matches', 'messages', 'blocks', 'reports', 'notifications',
             'legal_acceptances', 'verification_cases', 'subscriptions', 'event_registrations',
-            'support_tickets', 'devices',
+            'support_tickets', 'devices', 'support_messages', 'support_attachments',
+            'notification_preferences', 'profile_interests', 'profile_traits', 'profile_status_history',
+            'private_photo_access_requests', 'private_photo_capture_events', 'verification_appeals',
+            'account_appeals', 'event_reports',
         ])));
         $this->getJson('/api/v1/privacy/exports')->assertJsonPath('data.exports.0.download_available', true);
         $this->get('/api/v1/privacy/exports/'.$id.'/download')->assertOk();
@@ -93,5 +107,21 @@ class PrivacyEndpointTest extends TestCase
         $request->update(['scheduled_for' => now()->subMinute()]);
         (new DeleteScheduledAccount($request->id))->handle();
         $this->assertModelMissing($u);
+    }
+
+    private function assertNoInternalIdentifiers(mixed $value): void
+    {
+        if (! is_array($value)) {
+            return;
+        }
+
+        foreach ($value as $key => $item) {
+            if (is_string($key)) {
+                $this->assertNotSame('id', $key);
+                $this->assertFalse(str_ends_with($key, '_id') && $key !== 'public_id', "Unexpected internal identifier: {$key}");
+                $this->assertFalse(str_ends_with($key, '_hash'), "Unexpected internal hash: {$key}");
+            }
+            $this->assertNoInternalIdentifiers($item);
+        }
     }
 }

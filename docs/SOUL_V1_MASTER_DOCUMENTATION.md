@@ -1,3 +1,6 @@
+Warning: truncated output (original token count: 40806)
+Total output lines: 2361
+
 # SOUL Version 1 — Complete Product and Technical Documentation
 
 This is the single human-readable source for SOUL Version 1. It explains the product, member experience, Flutter integration, Laravel backend, React administration, database, security and release process in one professionally ordered document.
@@ -592,7 +595,7 @@ A final implementation audit found a smaller set of correctness and developer-ha
 
 - [x] Phase 35 — Route-derived contract parity, browser-session-only admin APIs and production session configuration gates
 - [x] Phase 36 — Typed Flutter requests/responses, standard error and cursor models, retry/session-expiry guidance, upload helpers and representative fixtures
-- [ ] Phase 37 — Versioned privacy export with complete member-owned data and no internal database identifiers
+- [x] Phase 37 — Versioned privacy export with complete member-owned data and no internal database identifiers
 - [ ] Phase 38 — Authenticated Apple/Google store-webhook admission, replay resistance and negative provider tests
 - [ ] Phase 39 — Full MySQL/Redis CI, migration rollback verification, Composer audit and release-candidate regression closure
 - [ ] Phase 40 — Decision-gated deletion, anonymization, legal-hold and safety-evidence retention after owner/legal approval
@@ -1228,73 +1231,7 @@ The update is partial: Flutter may save one screen at a time. Omitted fields kee
   "smoking": "no",
   "alcohol": "no",
   "current_children": "no",
-  "future_children": "want_children",
-  "intentions": ["marriage"],
-  "spoken_language_ids": [1, 2],
-  "interests": ["Reading", "Travel"],
-  "personality_traits": ["Kind", "Curious"]
-}
-```
-
-### Required fields
-
-Before submission, readiness requires first name, date of birth (18+), gender, real city/country, nationality, religion, marital status, at least one intention, profession/status, at least one spoken language, the four lifestyle/family answers, an approved public cover and an approved clear-face photo.
-
-Use only these stable values:
-
-| Field | Allowed values |
-|---|---|
-| `gender` | `man`, `woman` |
-| `marital_status` | `never_married`, `married`, `separated`, `divorced`, `widowed` |
-| `profession_status` | `employed`, `self_employed`, `student`, `homemaker`, `unemployed`, `retired`, `other` |
-| `smoking`, `alcohol` | `no`, `occasionally`, `yes`, `prefer_not_to_say` |
-| `current_children` | `no`, `yes_living_with_me`, `yes_not_living_with_me`, `prefer_not_to_say` |
-| `future_children` | `want_children`, `do_not_want_children`, `open_to_children`, `not_sure`, `prefer_not_to_say` |
-
-### Optional fields and limits
-
-Optional scalar fields are `bio`, `education`, `height_cm`, `job_title`, `employer`, `grew_up_in`, `ethnic_origin`, `religious_practice`, `prayer`, `diet`, `dress`, `relocation_preference` and `family_involvement_preference`.
-
-- `interests` accepts up to 15 unique, non-empty labels.
-- `personality_traits` accepts up to 5 unique, non-empty labels.
-- `detailed_religion_visible` defaults to `true`; set it to `false` to hide answered detailed-religion fields from public profile views.
-
-### Skip versus prefer not to say
-
-These are different states:
-
-- Skip: clear the optional value and do not include its name in `prefer_not_to_say_fields`.
-- Prefer not to say: clear the value and include its field name in `prefer_not_to_say_fields`.
-- Answer later: send the new value; Laravel removes that field from `prefer_not_to_say_fields`.
-
-```json
-{
-  "education": null,
-  "prefer_not_to_say_fields": ["education", "ethnic_origin"]
-}
-```
-
-Do not send a value and mark the same field as prefer-not-to-say in one request. Laravel returns validation error `422`.
-
-### Flutter model guidance
-
-Keep three states for an optional answer: `unanswered`, `answered(value)` and `preferNotToSay`. Build the request from the changed screen only; do not send a stale full form. Treat response arrays as server truth after each save.
-
-Display validation messages from the standard error envelope. A `401` means the token is invalid, `403` means the account cannot currently use protected APIs, and `422` means one or more fields must be corrected.
-
----
-
-## Religion and discovery
-
-This guide explains how religion selection affects discovery. The rule is intentionally simple: V1 matches at the top religion/belief level only.
-
-### Product rule
-
-- `my_religion` is the default.
-- `all_religions` is the only alternative.
-- The choice is saved until the member changes it.
-- A member under any Islam sect sees every eligible Islam profile in My Religion mode. The same rule applies to Christianity, Hinduism and every other configured root.
-- Sect, tradition, denomination, sub-sect, school, movement, caste and community never change V1 filtering or ranking.
+ …806 tokens truncated…and community never change V1 filtering or ranking.
 
 ### Data flow
 
@@ -1942,7 +1879,7 @@ Each extension must include reversible migrations, foreign keys, production-safe
 
 - Deletion remains recoverable for 30 days, then a queued job permanently removes eligible account data.
 - Data exports are private, expiring artifacts on a configurable non-public disk.
-- Data exports expose one current, simple JSON structure and stream large collections in database chunks instead of loading a member's complete history into worker memory. They cover account/profile data, discovery decisions, matches and conversations, blocks/reports, notifications, legal acceptances, verification cases, subscriptions, events, support and registered devices.
+- Data exports use the versioned `soul.member-data` JSON format. Version 2 deliberately excludes database primary keys, foreign keys, hashes, device tokens, storage paths and private server locations. It streams large collections in database chunks instead of loading a member's complete history into worker memory. It covers account/profile data, interests and traits, profile status history, discovery decisions, matches and conversations, blocks/reports, notifications and preferences, legal acceptances, verification cases and appeals, subscriptions, event registrations/reports, private-photo access/capture history, support tickets/messages/attachment metadata and registered devices.
 - Push tokens, token hashes, provider transaction references, IP addresses and legal request fingerprints are excluded from the generated member file.
 - Export jobs use an atomic `pending/failed -> processing -> completed` lifecycle. A scheduled recovery pass requeues work whose processing lease has remained stale for 30 minutes.
 - Admin audit evidence must not contain secrets, OTPs, provider tokens, message bodies or raw identity documents.
