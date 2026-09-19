@@ -1,6 +1,3 @@
-Warning: truncated output (original token count: 40806)
-Total output lines: 2361
-
 # SOUL Version 1 — Complete Product and Technical Documentation
 
 This is the single human-readable source for SOUL Version 1. It explains the product, member experience, Flutter integration, Laravel backend, React administration, database, security and release process in one professionally ordered document.
@@ -1231,7 +1228,73 @@ The update is partial: Flutter may save one screen at a time. Omitted fields kee
   "smoking": "no",
   "alcohol": "no",
   "current_children": "no",
- …806 tokens truncated…and community never change V1 filtering or ranking.
+  "future_children": "want_children",
+  "intentions": ["marriage"],
+  "spoken_language_ids": [1, 2],
+  "interests": ["Reading", "Travel"],
+  "personality_traits": ["Kind", "Curious"]
+}
+```
+
+### Required fields
+
+Before submission, readiness requires first name, date of birth (18+), gender, real city/country, nationality, religion, marital status, at least one intention, profession/status, at least one spoken language, the four lifestyle/family answers, an approved public cover and an approved clear-face photo.
+
+Use only these stable values:
+
+| Field | Allowed values |
+|---|---|
+| `gender` | `man`, `woman` |
+| `marital_status` | `never_married`, `married`, `separated`, `divorced`, `widowed` |
+| `profession_status` | `employed`, `self_employed`, `student`, `homemaker`, `unemployed`, `retired`, `other` |
+| `smoking`, `alcohol` | `no`, `occasionally`, `yes`, `prefer_not_to_say` |
+| `current_children` | `no`, `yes_living_with_me`, `yes_not_living_with_me`, `prefer_not_to_say` |
+| `future_children` | `want_children`, `do_not_want_children`, `open_to_children`, `not_sure`, `prefer_not_to_say` |
+
+### Optional fields and limits
+
+Optional scalar fields are `bio`, `education`, `height_cm`, `job_title`, `employer`, `grew_up_in`, `ethnic_origin`, `religious_practice`, `prayer`, `diet`, `dress`, `relocation_preference` and `family_involvement_preference`.
+
+- `interests` accepts up to 15 unique, non-empty labels.
+- `personality_traits` accepts up to 5 unique, non-empty labels.
+- `detailed_religion_visible` defaults to `true`; set it to `false` to hide answered detailed-religion fields from public profile views.
+
+### Skip versus prefer not to say
+
+These are different states:
+
+- Skip: clear the optional value and do not include its name in `prefer_not_to_say_fields`.
+- Prefer not to say: clear the value and include its field name in `prefer_not_to_say_fields`.
+- Answer later: send the new value; Laravel removes that field from `prefer_not_to_say_fields`.
+
+```json
+{
+  "education": null,
+  "prefer_not_to_say_fields": ["education", "ethnic_origin"]
+}
+```
+
+Do not send a value and mark the same field as prefer-not-to-say in one request. Laravel returns validation error `422`.
+
+### Flutter model guidance
+
+Keep three states for an optional answer: `unanswered`, `answered(value)` and `preferNotToSay`. Build the request from the changed screen only; do not send a stale full form. Treat response arrays as server truth after each save.
+
+Display validation messages from the standard error envelope. A `401` means the token is invalid, `403` means the account cannot currently use protected APIs, and `422` means one or more fields must be corrected.
+
+---
+
+## Religion and discovery
+
+This guide explains how religion selection affects discovery. The rule is intentionally simple: V1 matches at the top religion/belief level only.
+
+### Product rule
+
+- `my_religion` is the default.
+- `all_religions` is the only alternative.
+- The choice is saved until the member changes it.
+- A member under any Islam sect sees every eligible Islam profile in My Religion mode. The same rule applies to Christianity, Hinduism and every other configured root.
+- Sect, tradition, denomination, sub-sect, school, movement, caste and community never change V1 filtering or ranking.
 
 ### Data flow
 
