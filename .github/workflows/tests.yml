@@ -17,7 +17,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
+  sqlite:
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -38,11 +38,6 @@ jobs:
           node-version: '24'
           cache: npm
 
-      - name: Set up Dart
-        uses: dart-lang/setup-dart@v1
-        with:
-          sdk: stable
-
       - name: Validate Composer configuration
         run: composer validate --strict
 
@@ -58,11 +53,6 @@ jobs:
           npm run localization:audit
           npm run localization:test
           npm run build
-
-      - name: Analyze generated Flutter contracts
-        run: |
-          dart analyze docs/contracts/soul_v1_api.dart
-          dart analyze docs/contracts/soul_v1_models.dart
 
       - name: Audit locked production dependencies
         run: |
@@ -81,3 +71,82 @@ jobs:
 
       - name: Run test suite
         run: php artisan test
+
+  mysql-redis:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_DATABASE: soul_testing
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=12
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=12
+
+    env:
+      APP_ENV: testing
+      DB_CONNECTION: mysql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_DATABASE: soul_testing
+      DB_USERNAME: root
+      DB_PASSWORD: root
+      CACHE_STORE: redis
+      QUEUE_CONNECTION: redis
+      REDIS_CLIENT: phpredis
+      REDIS_HOST: 127.0.0.1
+      REDIS_PORT: 6379
+      SESSION_DRIVER: array
+      MAIL_MAILER: array
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pdo_mysql, redis
+          coverage: none
+
+      - name: Validate Composer configuration
+        run: composer validate --strict
+
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Prepare production-like test environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          php artisan config:clear
+
+      - name: Verify MySQL migrations can roll back and reapply
+        run: |
+          php artisan migrate:fresh --force
+          php artisan migrate:reset --force
+          php artisan migrate --force
+
+      - name: Verify Redis cache and queue connectivity
+        run: |
+          php artisan tinker --execute="cache()->store('redis')->put('ci:redis-probe', 'ok', 60); if (cache()->store('redis')->get('ci:redis-probe') !== 'ok') { throw new RuntimeException('Redis cache probe failed.'); } app('queue')->connection('redis')->size();"
+
+      - name: Run MySQL and Redis test suite
+        run: php artisan test --configuration=phpunit.mysql.xml

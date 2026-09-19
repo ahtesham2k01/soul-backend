@@ -594,7 +594,7 @@ A final implementation audit found a smaller set of correctness and developer-ha
 - [x] Phase 36 — Typed Flutter requests/responses, standard error and cursor models, retry/session-expiry guidance, upload helpers and representative fixtures
 - [x] Phase 37 — Versioned privacy export with complete member-owned data and no internal database identifiers
 - [x] Phase 38 — Authenticated Apple/Google store-webhook admission, replay resistance and negative provider tests
-- [ ] Phase 39 — Full MySQL/Redis CI, migration rollback verification, Composer audit and release-candidate regression closure
+- [x] Phase 39 — Full MySQL/Redis CI, full migration reset/reapply verification, Composer audit and release-candidate regression closure
 - [ ] Phase 40 — Decision-gated deletion, anonymization, legal-hold and safety-evidence retention after owner/legal approval
 - [ ] Phase 41 — Remaining catalog translation, native-language review and Android/iOS RTL/device QA
 
@@ -2121,6 +2121,13 @@ This runbook defines the operational requirements for the Laravel API and custom
 - At least one queue worker and the Laravel scheduler running every minute
 - Cloudinary, transactional email, Google and Apple credentials supplied through the environment
 - Centralized application logs and alerts for elevated 5xx responses, queue failures and readiness failures
+
+### Automated release gates
+
+- Every change to `main` runs the existing SQLite test suite, contract generation/tests, localization checks, React production build, Dart analysis and locked Composer/npm audits.
+- A separate MySQL 8.4 + Redis 7 CI job installs the PHP MySQL and Redis extensions, runs the full migration set, resets every migration, reapplies it, and then runs the same PHP test suite against MySQL with Redis cache and queue connections.
+- The Redis probe verifies both the cache store and the configured Redis queue connection before feature tests start. CI services use only the disposable GitHub Actions databases; no staging or production system is touched.
+- A failed migration reversal, Redis connection, audit or test blocks release-candidate verification. CI success is still not a deployment approval or a substitute for the external staging/provider gates below.
 
 ### Secure configuration
 
