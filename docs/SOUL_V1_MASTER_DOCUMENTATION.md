@@ -593,7 +593,7 @@ A final implementation audit found a smaller set of correctness and developer-ha
 - [x] Phase 35 — Route-derived contract parity, browser-session-only admin APIs and production session configuration gates
 - [x] Phase 36 — Typed Flutter requests/responses, standard error and cursor models, retry/session-expiry guidance, upload helpers and representative fixtures
 - [x] Phase 37 — Versioned privacy export with complete member-owned data and no internal database identifiers
-- [ ] Phase 38 — Authenticated Apple/Google store-webhook admission, replay resistance and negative provider tests
+- [x] Phase 38 — Authenticated Apple/Google store-webhook admission, replay resistance and negative provider tests
 - [ ] Phase 39 — Full MySQL/Redis CI, migration rollback verification, Composer audit and release-candidate regression closure
 - [ ] Phase 40 — Decision-gated deletion, anonymization, legal-hold and safety-evidence retention after owner/legal approval
 - [ ] Phase 41 — Remaining catalog translation, native-language review and Android/iOS RTL/device QA
@@ -1180,7 +1180,7 @@ The React admin uses same-origin secure session cookies, not mobile bearer token
 | POST | `/webhooks/cloudinary/moderation` | `api.v1.webhooks.cloudinary.moderation` | Ingest signed Cloudinary moderation notification |
 | POST | `/webhooks/stores/{platform}` | `api.v1.webhooks.stores` | Deduplicate and queue Apple/Google lifecycle notification for provider verification |
 
-These endpoints are provider callbacks only. Cloudinary requests use the configured webhook signature; store callbacks are deduplicated and must pass a fresh Apple/Google server verification before changing subscription state. Flutter must never call either webhook.
+These endpoints are provider callbacks only. Cloudinary requests use the configured webhook signature. Before a store callback can consume queue capacity or be persisted, Apple V2 callbacks must pass ES256 signature plus configured Apple-root certificate-chain validation and bundle matching; Google callbacks must carry a Google-signed Pub/Sub OIDC token with the configured audience and service-account email. Accepted callbacks are then deduplicated and must pass a fresh Apple/Google server verification before changing subscription state. Flutter must never call either webhook.
 
 ### Stable V1 enums
 
@@ -1699,7 +1699,7 @@ Laravel verifies purchases directly with App Store Server API or Google Play Dev
 
 Provider failures use stable, secret-free codes. Rate limits, provider 5xx responses and temporary authorization/network failures return a retryable `503 PURCHASE_VERIFICATION_UNAVAILABLE`. Invalid receipts, product/application mismatches and malformed notifications fail permanently with no automatic retry. Raw store tokens and permanently rejected webhook payloads are erased in both cases.
 
-Store webhook ingress is capacity-bounded. A new callback is accepted only while the pending/processing ledger is below `SOUL_STORE_WEBHOOK_BACKLOG_LIMIT`; excess new work receives a retryable `503` so Apple or Google can redeliver it later. A distributed cache lock makes admission atomic across application instances. Already-recorded callback hashes remain idempotent `202` responses even during overload and never create a second job.
+Store webhook ingress is authenticated, replay-safe and capacity-bounded. Invalid Apple certificate/JWS chains, bundle mismatches and Google OIDC issuer/audience/service-account mismatches receive `401` before they create a ledger row or queue job. A new authenticated callback is accepted only while the pending/processing ledger is below `SOUL_STORE_WEBHOOK_BACKLOG_LIMIT`; excess new work receives a retryable `503` so Apple or Google can redeliver it later. A distributed cache lock makes admission atomic across application instances. Already-recorded callback hashes remain idempotent `202` responses even during overload and never create a second job.
 
 ### Notification delivery operations
 

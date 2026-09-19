@@ -3,6 +3,7 @@
 namespace Tests\Feature\Api\V1\Subscriptions;
 
 use App\Contracts\Billing\StorePurchaseVerifier;
+use App\Contracts\Billing\StoreWebhookAuthenticator;
 use App\Jobs\ProcessStoreWebhook;
 use App\Models\StoreProduct;
 use App\Models\SubscriptionPlan;
@@ -20,6 +21,12 @@ use Tests\TestCase;
 class PurchaseLifecycleTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->bindWebhookAuthenticator(true);
+    }
 
     public function test_verified_purchase_activates_dynamic_plan_without_returning_receipt(): void
     {
@@ -109,6 +116,18 @@ class PurchaseLifecycleTest extends TestCase
         Queue::assertNothingPushed();
     }
 
+    public function test_unauthenticated_store_webhook_is_rejected_before_queue_or_ledger_write(): void
+    {
+        Queue::fake();
+        $this->bindWebhookAuthenticator(false);
+
+        $this->postJson('/api/v1/webhooks/stores/ios', ['signedPayload' => 'header.payload.signature'])
+            ->assertUnauthorized();
+
+        $this->assertDatabaseCount('store_webhook_events', 0);
+        Queue::assertNothingPushed();
+    }
+
     public function test_new_store_webhook_is_rejected_at_capacity_but_duplicate_remains_idempotent(): void
     {
         Queue::fake();
@@ -155,5 +174,17 @@ class PurchaseLifecycleTest extends TestCase
         $this->assertSame('failed', $event->status);
         $this->assertSame('MALFORMED_PROVIDER_NOTIFICATION', $event->failure_code);
         $this->assertNull($event->encrypted_payload);
+    }
+
+    private function bindWebhookAuthenticator(bool $allowed): void
+    {
+        $this->app->instance(StoreWebhookAuthenticator::class, new class($allowed) implements StoreWebhookAuthenticator {
+            public function __construct(private readonly bool $allowed) {}
+
+            public function authenticate(string $platform, \Illuminate\Http\Request $request): bool
+            {
+                return $this->allowed;
+            }
+        });
     }
 }

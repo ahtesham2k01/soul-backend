@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Webhooks;
 
 use App\Http\Controllers\Controller;
+use App\Contracts\Billing\StoreWebhookAuthenticator;
 use App\Jobs\ProcessStoreWebhook;
 use App\Models\StoreWebhookEvent;
 use App\Support\ApiResponse;
@@ -12,12 +13,13 @@ use Illuminate\Support\Facades\Cache;
 
 class StoreLifecycleController extends Controller
 {
-    public function __invoke(Request $request, string $platform): JsonResponse
+    public function __invoke(Request $request, string $platform, StoreWebhookAuthenticator $authenticator): JsonResponse
     {
         abort_unless(in_array($platform, ['ios', 'android'], true), 404);
         $payload = $request->getContent();
         abort_if($payload === '' || strlen($payload) > 100000, 400, 'Invalid webhook payload.');
         abort_unless($this->hasProviderShape($platform, $payload), 400, 'Invalid webhook payload.');
+        abort_unless($authenticator->authenticate($platform, $request), 401, 'Store webhook authentication failed.');
         $eventHash = hash('sha256', $payload);
         $existing = StoreWebhookEvent::query()->where(['platform' => $platform, 'event_hash' => $eventHash])->first();
         if ($existing !== null) return ApiResponse::success(['accepted' => true], status: 202);

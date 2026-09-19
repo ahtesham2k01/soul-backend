@@ -13,9 +13,12 @@ final class ReleaseConfigurationValidator
             'apple_sign_in' => $this->group(['client_ids' => collect(config('services.apple.client_ids', []))->filter()->first()]),
             'apple_store' => $this->group(config('services.stores.apple', []), [
                 'private_key' => fn (mixed $value): bool => $this->isPrivateKey($value),
+                'notification_root_certificate' => fn (mixed $value): bool => $this->isCertificate($value),
             ]),
             'google_play' => $this->group(config('services.stores.google', []), [
                 'service_account_json' => fn (mixed $value): bool => $this->isServiceAccount($value),
+                'pubsub_audience' => fn (mixed $value): bool => is_string($value) && trim($value) !== '',
+                'pubsub_service_account_email' => fn (mixed $value): bool => is_string($value) && filter_var($value, FILTER_VALIDATE_EMAIL) !== false,
             ]),
             'fcm' => $this->group(config('services.push.fcm', []), [
                 'service_account_json' => fn (mixed $value): bool => $this->isServiceAccount($value),
@@ -89,8 +92,8 @@ final class ReleaseConfigurationValidator
             $this->check('Cloudinary webhook signing', config('soul.media.cloudinary.response_signature_algorithm') === 'sha256', 'Production Cloudinary callbacks must use SHA-256 signatures.'),
             $this->check('Google audiences', $this->audiencesPresent('services.google.client_ids'), 'GOOGLE_CLIENT_IDS is required.'),
             $this->check('Apple audiences', $this->audiencesPresent('services.apple.client_ids'), 'APPLE_CLIENT_IDS is required.'),
-            $this->check('Apple Store API', $providers['apple_store']['ready'], 'Apple Store issuer, key, bundle and private key are required.'),
-            $this->check('Google Play API', $providers['google_play']['ready'], 'Google Play package and service account are required.'),
+            $this->check('Apple Store API and webhooks', $providers['apple_store']['ready'], 'Apple Store issuer, key, bundle, private key and notification root certificate are required.'),
+            $this->check('Google Play API and webhooks', $providers['google_play']['ready'], 'Google Play package, service account, Pub/Sub audience and Pub/Sub service-account email are required.'),
             $this->check('FCM delivery', $providers['fcm']['ready'], 'FCM project and service account are required.'),
             $this->check('APNs delivery', $providers['apns']['ready'], 'APNs team, key, bundle and private key are required.'),
             $this->check('Broadcast transport', $providers['broadcasting']['ready'], 'Configure a non-log broadcast transport.'),
@@ -229,5 +232,12 @@ final class ReleaseConfigurationValidator
         }
 
         return openssl_pkey_get_private(str_replace('\\n', "\n", $value)) !== false;
+    }
+
+    private function isCertificate(mixed $value): bool
+    {
+        return is_string($value)
+            && $value !== ''
+            && openssl_x509_read(str_replace('\\n', "\n", $value)) !== false;
     }
 }

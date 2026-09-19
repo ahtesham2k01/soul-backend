@@ -90,10 +90,13 @@ return [
             'key_id' => env('APPLE_STORE_KEY_ID'),
             'bundle_id' => env('APPLE_STORE_BUNDLE_ID'),
             'private_key' => env('APPLE_STORE_PRIVATE_KEY'),
+            'notification_root_certificate' => env('APPLE_STORE_NOTIFICATION_ROOT_CERTIFICATE'),
         ],
         'google' => [
             'package_name' => env('GOOGLE_PLAY_PACKAGE_NAME'),
             'service_account_json' => env('GOOGLE_PLAY_SERVICE_ACCOUNT_JSON'),
+            'pubsub_audience' => env('GOOGLE_PLAY_PUBSUB_AUDIENCE'),
+            'pubsub_service_account_email' => env('GOOGLE_PLAY_PUBSUB_SERVICE_ACCOUNT_EMAIL'),
         ],
     ],
 
