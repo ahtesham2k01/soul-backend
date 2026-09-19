@@ -1,0 +1,54 @@
+import '../../core/api_client.dart';
+import '../../core/session_store.dart';
+
+class OtpChallenge {
+  const OtpChallenge({required this.verificationId, required this.email});
+
+  final String verificationId;
+  final String email;
+}
+
+class AuthRepository {
+  AuthRepository(this._api, this._sessions);
+
+  final SoulApiClient _api;
+  final SessionStore _sessions;
+
+  Future<OtpChallenge> requestLoginOtp(String email) async {
+    final data = await _api.post('auth/login/request-otp', data: {'email': email});
+    return OtpChallenge(
+      verificationId: data['verification_id']!.toString(),
+      email: email,
+    );
+  }
+
+  Future<String> verifyLoginOtp({
+    required OtpChallenge challenge,
+    required String code,
+    required String deviceName,
+  }) async {
+    final data = await _api.post(
+      'auth/login/verify-otp',
+      data: {
+        'email': challenge.email,
+        'verification_id': challenge.verificationId,
+        'code': code,
+        'device_name': deviceName,
+        'locale': 'en',
+      },
+    );
+    final authentication = data['authentication'];
+    final token = authentication is Map<String, dynamic>
+        ? authentication['access_token']?.toString()
+        : null;
+    if (token == null || token.isEmpty) {
+      throw const SoulApiFailure(
+        statusCode: null,
+        code: 'INVALID_AUTH_RESPONSE',
+        message: 'SOUL did not return a session.',
+      );
+    }
+    await _sessions.saveToken(token);
+    return data['next_step']?.toString() ?? 'home';
+  }
+}

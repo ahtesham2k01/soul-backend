@@ -600,6 +600,19 @@ A final implementation audit found a smaller set of correctness and developer-ha
 
 Phases 35–39 are unambiguous engineering work. Phase 40 must not be implemented until the retention duration and legal-hold rules are approved. Phase 41 is deliberately last. Staging/provider gates remain tracked separately and cannot be completed from source code alone.
 
+### Mobile client delivery roadmap
+
+The Flutter member app is maintained in `apps/member_app`. It consumes only the generated member contracts and never the React-admin or provider-webhook surface.
+
+- [x] Mobile M1 — Flutter package foundation, Laravel bootstrap/direction handling, Keychain/Keystore session storage, cold-launch token validation, email OTP login, generated-contract drift guard and Android debug CI build
+- [ ] Mobile M2 — Registration, social Apple/Google authentication, account-state routing and complete profile/religion onboarding
+- [ ] Mobile M3 — Cloudinary photo onboarding, discovery preferences, candidate cards, Like/Pass and incoming Likes
+- [ ] Mobile M4 — Matches, cursor-paginated chat, read receipts, presence/typing and protected private-photo viewer
+- [ ] Mobile M5 — Safety/report/block/appeal, verification, events, notifications, subscriptions, privacy and device-session settings
+- [ ] Mobile M6 — Native Android/iOS runner commit, device permissions, Apple/Google store integration, APNs/FCM, accessibility, RTL and full device E2E QA
+
+M1 adds a Linux CI Android debug build. The runner project is generated from the checked-in Flutter package until Flutter is available in the development workspace. iOS signing, APNs, Apple sign-in and store verification require the owner's Apple developer account and a macOS/device verification phase.
+
 ### Global localization expansion
 
 - [x] React admin interface fixed to English-only
