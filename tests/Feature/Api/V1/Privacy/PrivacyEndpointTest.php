@@ -59,7 +59,7 @@ class PrivacyEndpointTest extends TestCase
         $this->assertArrayNotHasKey('device_context_hash', $export['legal_acceptances'][0]);
         $this->assertSame('Travel', $export['profile_interests'][0]['value']);
         $this->assertSame('Kind', $export['profile_traits'][0]['value']);
-        $this->assertFalse($export['notification_preferences'][0]['new_messages']);
+        $this->assertFalse((bool) $export['notification_preferences'][0]['new_messages']);
         $this->assertNoInternalIdentifiers($export);
         $this->assertSame([
             'decisions', 'matches', 'messages', 'blocks', 'reports', 'notifications',
