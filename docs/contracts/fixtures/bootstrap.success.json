@@ -1,0 +1,40 @@
+{
+  "success": true,
+  "message": "App bootstrap loaded successfully.",
+  "data": {
+    "brand": {
+      "name": "SOUL",
+      "translate": false
+    },
+    "locale": {
+      "requested": "ur-PK",
+      "matched": "ur",
+      "resolved": "ur",
+      "fallback": "en",
+      "direction": "ltr"
+    },
+    "translations": {
+      "version": "17",
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "values": {
+        "auth.login": "Login"
+      }
+    },
+    "supported_languages": [
+      {
+        "code": "en",
+        "name": "English",
+        "native_name": "English",
+        "direction": "ltr",
+        "is_launch_target": true,
+        "is_launch_ready": true
+      }
+    ],
+    "location": null,
+    "location_status": "unavailable",
+    "capabilities": null
+  },
+  "meta": {
+    "request_id": "01J00000000000000000000091"
+  }
+}

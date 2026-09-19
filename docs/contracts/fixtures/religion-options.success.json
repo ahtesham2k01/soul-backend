@@ -1,0 +1,22 @@
+{
+  "success": true,
+  "message": "Religion options loaded successfully.",
+  "data": {
+    "parent": null,
+    "options": [
+      {
+        "id": "01J00000000000000000000010",
+        "type": "religion",
+        "slug": "islam",
+        "label": "Islam",
+        "label_locale": "en",
+        "has_children": true
+      }
+    ]
+  },
+  "meta": {
+    "request_id": "01J00000000000000000000089",
+    "locale": "en",
+    "country": "PK"
+  }
+}

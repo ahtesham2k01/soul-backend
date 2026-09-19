@@ -1,0 +1,16 @@
+{
+  "success": true,
+  "message": "Onboarding readiness loaded successfully.",
+  "data": {
+    "readiness": {
+      "is_ready": false,
+      "missing_requirements": [
+        "cover_photo",
+        "clear_face_photo"
+      ]
+    }
+  },
+  "meta": {
+    "request_id": "01J00000000000000000000093"
+  }
+}

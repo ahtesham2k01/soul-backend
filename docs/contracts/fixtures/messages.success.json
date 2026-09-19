@@ -1,0 +1,19 @@
+{
+  "success": true,
+  "message": "OK",
+  "data": {
+    "messages": [
+      {
+        "id": "01J00000000000000000000007",
+        "body": "Salam",
+        "is_mine": false,
+        "read_at": null,
+        "sent_at": "2026-09-14T12:16:00Z"
+      }
+    ],
+    "next_cursor": null
+  },
+  "meta": {
+    "request_id": "01J00000000000000000000097"
+  }
+}

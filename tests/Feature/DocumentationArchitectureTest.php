@@ -38,6 +38,20 @@ class DocumentationArchitectureTest extends TestCase
         }
     }
 
+    public function test_final_audit_roadmap_and_flutter_handoff_remain_current(): void
+    {
+        $contents = File::get(base_path('docs/SOUL_V1_MASTER_DOCUMENTATION.md'));
+
+        foreach (range(35, 41) as $phase) {
+            $this->assertStringContainsString("Phase {$phase} —", $contents);
+        }
+
+        $this->assertStringContainsString(
+            '- [x] Phase 36 — Typed Flutter requests/responses',
+            $contents,
+        );
+    }
+
     public function test_every_numbered_prd_section_has_traceability_evidence(): void
     {
         $contents = File::get(base_path('docs/SOUL_V1_MASTER_DOCUMENTATION.md'));
@@ -52,9 +66,25 @@ class DocumentationArchitectureTest extends TestCase
 
     public function test_machine_readable_contracts_remain_separate_and_importable(): void
     {
-        foreach (['docs/contracts/openapi-v1.json', 'docs/contracts/postman-v1.collection.json'] as $path) {
+        foreach (['docs/contracts/openapi-v1.json', 'docs/contracts/postman-v1.collection.json', 'docs/contracts/flutter-v1.json'] as $path) {
             $this->assertFileExists(base_path($path));
             $this->assertIsArray(json_decode(File::get(base_path($path)), true, flags: JSON_THROW_ON_ERROR));
+        }
+
+        foreach (['docs/contracts/soul_v1_api.dart', 'docs/contracts/soul_v1_models.dart'] as $path) {
+            $this->assertFileExists(base_path($path));
+            $this->assertNotEmpty(File::get(base_path($path)));
+        }
+
+        $fixtures = File::files(base_path('docs/contracts/fixtures'));
+        $this->assertGreaterThanOrEqual(10, count($fixtures));
+
+        foreach ($fixtures as $fixture) {
+            $payload = json_decode($fixture->getContents(), true, flags: JSON_THROW_ON_ERROR);
+            $this->assertIsArray($payload);
+            $this->assertArrayHasKey('success', $payload);
+            $this->assertArrayHasKey('meta', $payload);
+            $this->assertArrayHasKey('request_id', $payload['meta']);
         }
     }
 

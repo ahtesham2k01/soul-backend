@@ -1,0 +1,40 @@
+{
+  "success": true,
+  "message": "OK",
+  "data": {
+    "profile": {
+      "id": "01J00000000000000000000003",
+      "first_name": "Sara",
+      "age": 28,
+      "gender": "woman",
+      "marital_status": "never_married",
+      "city": "Karachi",
+      "country": "PK",
+      "intentions": [
+        "marriage"
+      ],
+      "interests": [
+        "Reading"
+      ],
+      "personality_traits": [
+        "Kind"
+      ],
+      "spoken_languages": [],
+      "religion": null,
+      "photos": [
+        {
+          "id": "01J00000000000000000000005",
+          "position": 1
+        }
+      ],
+      "verification_badges": {
+        "phone": true,
+        "selfie": false,
+        "identity_age": false
+      }
+    }
+  },
+  "meta": {
+    "request_id": "01J00000000000000000000095"
+  }
+}

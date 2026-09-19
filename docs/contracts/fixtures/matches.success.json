@@ -1,0 +1,28 @@
+{
+  "success": true,
+  "message": "OK",
+  "data": {
+    "matches": [
+      {
+        "id": "01J00000000000000000000006",
+        "matched_at": "2026-09-14T12:15:00Z",
+        "profile": {
+          "id": "01J00000000000000000000003",
+          "first_name": "Sara"
+        },
+        "presence": {
+          "is_online": true,
+          "last_seen_at": "2026-09-14T12:16:00Z"
+        },
+        "conversation": {
+          "last_message": null,
+          "unread_count": 0
+        }
+      }
+    ],
+    "next_cursor": null
+  },
+  "meta": {
+    "request_id": "01J00000000000000000000096"
+  }
+}

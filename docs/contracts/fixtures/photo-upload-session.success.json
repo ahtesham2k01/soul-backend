@@ -1,0 +1,22 @@
+{
+  "success": true,
+  "message": "Photo upload session created successfully.",
+  "data": {
+    "upload": {
+      "token": "01J00000000000000000000008",
+      "position": 1,
+      "expires_at": "2026-09-14T12:10:00Z",
+      "url": "https://api.cloudinary.com/v1_1/example/image/upload",
+      "parameters": {
+        "api_key": "<redacted-example-api-key>",
+        "timestamp": 1789387200,
+        "public_id": "<redacted-example-asset-id>",
+        "type": "upload",
+        "signature": "<redacted-example-signature>"
+      }
+    }
+  },
+  "meta": {
+    "request_id": "01J00000000000000000000098"
+  }
+}

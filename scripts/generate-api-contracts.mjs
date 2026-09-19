@@ -1,5 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import {
+    flutterContractVersion,
+    flutterTypedHandoff,
+    writeFlutterTypedArtifacts,
+} from './flutter-handoff.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
 const handoff = fs.readFileSync(path.join(root, 'docs/SOUL_V1_MASTER_DOCUMENTATION.md'), 'utf8');
@@ -50,9 +55,9 @@ const requestExamples = {
     'api.v1.auth.login.request-otp': { email: '<user-email>' },
     'api.v1.auth.login.verify-otp': { verification_id: '01H...', code: '123456' },
     'api.v1.auth.google': { id_token: '<google-id-token>', device_name: 'Pixel' },
-    'api.v1.auth.apple': { identity_token: '<apple-identity-token>', device_name: 'iPhone' },
+    'api.v1.auth.apple': { identity_token: '<apple-identity-token>', raw_nonce: '<original-apple-sign-in-nonce>', device_name: 'iPhone' },
     'api.v1.location.resolve': { latitude: 24.8607, longitude: 67.0011, accuracy_meters: 25 },
-    'api.v1.onboarding.profile.update': { first_name: 'Ayesha', marital_status: 'never_married', profession_status: 'employed', smoking: 'no', alcohol: 'no', current_children: 'no', future_children: 'want_children', intentions: ['marriage'], spoken_language_ids: [1], interests: ['Reading'], personality_traits: ['Kind'], prefer_not_to_say_fields: [] },
+    'api.v1.onboarding.profile.update': { first_name: 'Ayesha', marital_status: 'never_married', profession_status: 'employed', smoking: 'no', alcohol: 'no', current_children: 'no', future_children: 'want_children', intentions: ['marriage'], spoken_language_codes: ['ur'], interests: ['Reading'], personality_traits: ['Kind'], prefer_not_to_say_fields: [] },
     'api.v1.onboarding.photos.register': { upload_token: '01K...', provider_asset_id: 'soul/profile-photos/USER/ASSET', provider_version: 1788220800, provider_format: 'jpg', provider_signature: '<cloudinary-response-signature>', visibility: 'private' },
     'api.v1.discovery.preferences.update': { preferred_gender: 'woman', minimum_age: 24, maximum_age: 35, same_country_only: true, religion_mode: 'my_religion', location_mode: 'current', radius_km: 50, selected_locations: [], intentions: ['marriage'] },
     'api.v1.privacy.contacts.update': { phone_numbers: ['<e164-phone-number>'] },
@@ -237,7 +242,7 @@ const flutterEndpoints = endpoints
     }));
 
 const flutterManifest = {
-    schemaVersion: 1,
+    schemaVersion: flutterContractVersion,
     apiVersion: 'v1',
     basePath: '/api/v1',
     generatedFrom: 'docs/SOUL_V1_MASTER_DOCUMENTATION.md',
@@ -251,6 +256,7 @@ const flutterManifest = {
         localeHeader: 'Accept-Language',
         paginationCursor: 'cursor',
     },
+    typedHandoff: flutterTypedHandoff,
 };
 
 fs.writeFileSync(path.join(output, 'flutter-v1.json'), `${JSON.stringify(flutterManifest, null, 2)}\n`);
@@ -323,5 +329,6 @@ ${dartEnums}
 `;
 
 fs.writeFileSync(path.join(output, 'soul_v1_api.dart'), dart);
+writeFlutterTypedArtifacts(output);
 
-console.log(`Generated OpenAPI/Postman contracts for ${endpoints.length} endpoints and Flutter artifacts for ${flutterEndpoints.length} member endpoints.`);
+console.log(`Generated OpenAPI/Postman contracts for ${endpoints.length} endpoints and typed Flutter artifacts for ${flutterEndpoints.length} member endpoints.`);

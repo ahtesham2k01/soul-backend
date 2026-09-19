@@ -303,6 +303,7 @@
               },
               "example": {
                 "identity_token": "<apple-identity-token>",
+                "raw_nonce": "<original-apple-sign-in-nonce>",
                 "device_name": "iPhone"
               }
             }
@@ -645,8 +646,8 @@
                 "intentions": [
                   "marriage"
                 ],
-                "spoken_language_ids": [
-                  1
+                "spoken_language_codes": [
+                  "ur"
                 ],
                 "interests": [
                   "Reading"

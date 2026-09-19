@@ -8,15 +8,99 @@ const contracts = path.join(root, 'docs/contracts');
 const manifest = JSON.parse(fs.readFileSync(path.join(contracts, 'flutter-v1.json'), 'utf8'));
 const openapi = JSON.parse(fs.readFileSync(path.join(contracts, 'openapi-v1.json'), 'utf8'));
 const dart = fs.readFileSync(path.join(contracts, 'soul_v1_api.dart'), 'utf8');
+const models = fs.readFileSync(path.join(contracts, 'soul_v1_models.dart'), 'utf8');
 
 test('Flutter manifest contains only the complete member API surface', () => {
-    assert.equal(manifest.schemaVersion, 1);
+    assert.equal(manifest.schemaVersion, 2);
     assert.equal(manifest.basePath, '/api/v1');
     assert.equal(manifest.endpointCount, 91);
     assert.equal(manifest.endpoints.length, manifest.endpointCount);
     assert.equal(new Set(manifest.endpoints.map(({ operationId }) => operationId)).size, manifest.endpointCount);
     assert.ok(manifest.endpoints.every(({ operationId }) => !operationId.includes('.admin.')));
     assert.ok(manifest.endpoints.every(({ operationId }) => !operationId.includes('.webhooks.')));
+});
+
+test('typed Flutter handoff covers the core implementation journeys', () => {
+    const typed = manifest.typedHandoff;
+    assert.deepEqual(typed.coveredJourneys, [
+        'bootstrap', 'authentication', 'onboarding', 'photo_upload',
+        'discovery', 'matches', 'chat',
+    ]);
+    assert.equal(typed.sessionPolicy.refreshEndpoint, null);
+    assert.equal(typed.sessionPolicy.unauthorizedAction, 'clear_secure_token_and_reauthenticate');
+    assert.deepEqual(typed.retryPolicy.idempotentMethods, ['GET', 'PUT', 'DELETE']);
+    assert.equal(typed.retryPolicy.maximumAttempts, 3);
+
+    const operationIds = new Set(manifest.endpoints.map(({ operationId }) => operationId));
+    for (const [operationId, mapping] of Object.entries(typed.operationModels)) {
+        assert.ok(operationIds.has(operationId), `${operationId} must remain a member operation`);
+        for (const model of [mapping.request, mapping.response].filter(Boolean)) {
+            const baseModel = model.replace(/[?<].*$/, '');
+            assert.match(models, new RegExp(`class ${baseModel}(?:<[^>]+>)?\\b`));
+        }
+    }
+});
+
+test('representative Flutter fixtures are mapped, valid and privacy-safe', () => {
+    const typed = manifest.typedHandoff;
+    const operationIds = new Set(manifest.endpoints.map(({ operationId }) => operationId));
+    const forbiddenKeys = /^(?:user_id|actor_user_id|target_user_id|sender_user_id|conversation_id|first_user_id|second_user_id|provider_asset_id)$/;
+    assert.ok(typed.fixtures.length >= 10);
+
+    const visit = (value) => {
+        if (Array.isArray(value)) return value.forEach(visit);
+        if (value === null || typeof value !== 'object') return;
+        for (const [key, child] of Object.entries(value)) {
+            assert.doesNotMatch(key, forbiddenKeys);
+            visit(child);
+        }
+    };
+
+    for (const fixture of typed.fixtures) {
+        assert.ok(operationIds.has(fixture.operationId));
+        const payload = JSON.parse(fs.readFileSync(path.join(contracts, 'fixtures', fixture.file), 'utf8'));
+        assert.equal(payload.success, fixture.kind === 'success');
+        assert.equal(typeof payload.meta.request_id, 'string');
+        if (fixture.kind === 'success') {
+            assert.equal(typeof payload.message, 'string');
+            assert.ok(Object.hasOwn(payload, 'data'));
+        } else {
+            assert.equal(typeof payload.error.code, 'string');
+        }
+        visit(payload);
+        assert.doesNotMatch(JSON.stringify(payload), /sk_live|-----BEGIN|ya29\.|eyJhbGciOi/i);
+    }
+});
+
+test('typed models remain null-safe and free from admin contracts', () => {
+    assert.match(models, /class SoulPatch<T>/);
+    assert.match(models, /class SoulApiError/);
+    assert.match(models, /class SoulCursorPage<T>/);
+    assert.match(models, /abstract final class SoulTransportPolicy/);
+    assert.match(models, /clear_secure_token_and_reauthenticate/);
+    assert.match(models, /class SoulCloudinaryUploadResult/);
+    assert.match(models, /class SoulV1Decoders/);
+    assert.match(models, /'raw_nonce': rawNonce/);
+    assert.match(models, /'expires_in_seconds'/);
+    assert.doesNotMatch(models, /api\.v1\.admin\.|password|private_key|client_secret/i);
+
+    const pairs = [['(', ')'], ['[', ']'], ['{', '}']];
+    for (const [open, close] of pairs) {
+        assert.equal([...models].filter((char) => char === open).length, [...models].filter((char) => char === close).length);
+    }
+});
+
+test('Apple sign-in example carries the original nonce required by Laravel', () => {
+    const operation = openapi.paths['/auth/apple'].post;
+    const example = operation.requestBody.content['application/json'].example;
+    assert.equal(example.raw_nonce, '<original-apple-sign-in-nonce>');
+});
+
+test('profile example uses public language codes instead of database identifiers', () => {
+    const operation = openapi.paths['/onboarding/profile'].put;
+    const example = operation.requestBody.content['application/json'].example;
+    assert.deepEqual(example.spoken_language_codes, ['ur']);
+    assert.equal(example.spoken_language_ids, undefined);
 });
 
 test('Flutter endpoints match their OpenAPI operation method and path', () => {

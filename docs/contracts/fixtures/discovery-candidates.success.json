@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "message": "OK",
+  "data": {
+    "candidates": [
+      {
+        "id": "01J00000000000000000000003",
+        "first_name": "Sara",
+        "age": 28,
+        "marital_status": "never_married",
+        "city": "Karachi",
+        "country": "PK",
+        "distance_band": "distance.within_10_km",
+        "photos": [
+          {
+            "id": "01J00000000000000000000005",
+            "position": 1
+          }
+        ]
+      }
+    ],
+    "next_cursor": "<opaque-example-cursor>"
+  },
+  "meta": {
+    "request_id": "01J00000000000000000000094"
+  }
+}

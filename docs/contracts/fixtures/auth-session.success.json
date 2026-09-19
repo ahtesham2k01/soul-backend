@@ -1,0 +1,25 @@
+{
+  "success": true,
+  "message": "Signed in successfully.",
+  "data": {
+    "user": {
+      "id": "01J00000000000000000000001",
+      "name": null,
+      "email": "member@example.test",
+      "email_verified": true,
+      "preferred_locale": "en",
+      "status": "active",
+      "onboarding_completed": false
+    },
+    "is_new_user": false,
+    "next_step": "onboarding",
+    "authentication": {
+      "token_type": "Bearer",
+      "access_token": "<redacted-example-access-token>",
+      "expires_at": "2026-12-13T12:00:00Z"
+    }
+  },
+  "meta": {
+    "request_id": "01J00000000000000000000090"
+  }
+}

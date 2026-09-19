@@ -38,6 +38,11 @@ jobs:
           node-version: '24'
           cache: npm
 
+      - name: Set up Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
       - name: Validate Composer configuration
         run: composer validate --strict
 
@@ -53,6 +58,11 @@ jobs:
           npm run localization:audit
           npm run localization:test
           npm run build
+
+      - name: Analyze generated Flutter contracts
+        run: |
+          dart analyze docs/contracts/soul_v1_api.dart
+          dart analyze docs/contracts/soul_v1_models.dart
 
       - name: Audit locked production dependencies
         run: |

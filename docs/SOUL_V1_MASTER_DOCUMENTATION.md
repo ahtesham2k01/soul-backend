@@ -17,6 +17,10 @@ Machine-readable companions remain separate because development tools import the
 
 - `docs/contracts/openapi-v1.json` — OpenAPI 3.1 contract.
 - `docs/contracts/postman-v1.collection.json` — importable Postman collection.
+- `docs/contracts/flutter-v1.json` — Flutter-only endpoint/model manifest.
+- `docs/contracts/soul_v1_api.dart` — generated member route catalog.
+- `docs/contracts/soul_v1_models.dart` — generated core request/response, error and cursor models.
+- `docs/contracts/fixtures/` — synthetic core-journey response fixtures for Flutter tests.
 
 ## Executive summary
 
@@ -505,6 +509,8 @@ Provider readiness is exposed to super-admin operations as safe booleans and mis
 - [x] Cloudinary direct-upload sequence documented
 - [x] Stable V1 enums and compatibility rules documented
 - [x] Automated route-to-handoff drift test
+- [x] Typed core DTOs, standard error/cursor parsing and three-state partial-update helper
+- [x] Bounded retry/session-expiry policy, Cloudinary registration helper and synthetic fixtures
 
 ### Machine-readable client contracts
 
@@ -513,6 +519,7 @@ Provider readiness is exposed to super-admin operations as safe booleans and mis
 - [x] Safe request examples and bearer-token variables
 - [x] Automated Laravel-route/OpenAPI/Postman parity tests
 - [x] Generated Flutter-only endpoint manifest and copy-ready Dart route catalog
+- [x] Generated core typed Dart models and representative journey fixtures
 - [x] Automated Flutter/OpenAPI and client-boundary contract tests
 - [x] Admin OpenAPI operations use browser-session and CSRF schemes, never Flutter bearer authentication
 
@@ -584,7 +591,7 @@ Fresh-audit completion: **5/5 phases complete (100%)**. Provider code fails clos
 A final implementation audit found a smaller set of correctness and developer-handoff tasks that must be closed before the backend is called launch-ready. Flutter development does not need to wait: the generated 91-endpoint member catalog and this document are stable enough to begin integration while these backend packages are completed in parallel. Localization remains the last engineering package so it cannot delay core app work.
 
 - [x] Phase 35 — Route-derived contract parity, browser-session-only admin APIs and production session configuration gates
-- [ ] Phase 36 — Typed Flutter requests/responses, standard error and cursor models, retry/token-refresh guidance, upload helpers and representative fixtures
+- [x] Phase 36 — Typed Flutter requests/responses, standard error and cursor models, retry/session-expiry guidance, upload helpers and representative fixtures
 - [ ] Phase 37 — Versioned privacy export with complete member-owned data and no internal database identifiers
 - [ ] Phase 38 — Authenticated Apple/Google store-webhook admission, replay resistance and negative provider tests
 - [ ] Phase 39 — Full MySQL/Redis CI, migration rollback verification, Composer audit and release-candidate regression closure
@@ -801,7 +808,7 @@ Use the Profile catalogs and support chapter for interests, traits and help. Use
 8. Read Marital status before building discovery cards or full profiles.
 9. Read Verification badges before building verification or public badges.
 10. Read Safety and moderation before building reports, blocks or account appeals.
-11. Import `contracts/openapi-v1.json` or `contracts/postman-v1.collection.json` while building the API client. Flutter may instead copy `contracts/soul_v1_api.dart` into its networking layer and consume `contracts/flutter-v1.json` in client tooling. Both Flutter artifacts are generated from this document and intentionally exclude React-admin routes and provider webhooks.
+11. Import `contracts/openapi-v1.json` or `contracts/postman-v1.collection.json` while building the API client. Flutter may copy `contracts/soul_v1_api.dart` and `contracts/soul_v1_models.dart` into its networking layer, consume `contracts/flutter-v1.json` in client tooling and use `contracts/fixtures/` in repository/widget tests. These Flutter artifacts are generated from this document and intentionally exclude React-admin routes and provider webhooks.
 12. Read Database design only to understand ownership and relationships; Flutter never uses internal database IDs.
 13. Read Backend scope before implementing a screen so unfinished modules are not mistaken for available APIs.
 
@@ -840,7 +847,7 @@ flowchart TD
 ### Localization contract
 
 - Laravel JSON catalogs are the source of truth. Do not hard-code user-facing production copy in Flutter.
-- `brand.name` is deliberately absent: render `SOUL` as a non-translatable brand asset/string.
+- The translation catalog deliberately has no brand key. Bootstrap still returns `brand.name: SOUL` with `translate: false`; render that value as a non-translatable brand asset/string.
 - Apply `data.locale.direction` globally before rendering the localized route.
 - Cache by `translations.version` plus `translations.hash`; retain the last valid catalog for offline startup.
 - If a key is absent in a newly added client screen, show the server-provided English fallback and report the missing key in non-sensitive telemetry.
@@ -867,6 +874,18 @@ Build the production language picker from `supported_languages` entries where `i
 - Treat 429 as retryable using `Retry-After`; use bounded exponential backoff for network errors.
 - Retry idempotent GET/PUT/DELETE requests safely. Do not automatically replay non-idempotent POST requests unless their endpoint explicitly documents idempotency.
 - Server authorization is final even if a control is hidden in Flutter.
+
+### Generated typed handoff
+
+`soul_v1_models.dart` is the copy-ready core model layer for the first Flutter implementation journeys: bootstrap, authentication, onboarding, direct photo upload, discovery, matches and chat. `flutter-v1.json` maps each covered operation to its request and response model, while the route catalog remains the complete 91-endpoint member surface. This split lets Flutter start with safe typed core flows without pretending every less-common endpoint already has a generated domain model.
+
+- `SoulApiSuccess<T>` and `SoulApiError` parse the standard envelopes and preserve `meta.request_id` for support diagnostics.
+- `SoulCursorPage<T>` preserves the opaque `next_cursor`; Flutter must never decode or construct cursors.
+- `SoulPatch<T>` distinguishes an omitted profile field from an explicitly cleared nullable value.
+- There is no refresh-token endpoint in V1. A 401 clears secure token storage and returns to authentication; clients must not invent a refresh flow.
+- Automatic retry is capped at three attempts and only applies to idempotent GET/PUT/DELETE calls for network failure or documented retry statuses. POST is not replayed automatically.
+- Photo helpers convert the signed upload session and Cloudinary result into the exact Laravel registration payload. Provider signatures/tokens must never be logged.
+- Fixture values are synthetic and safe for source control. They cover auth, bootstrap, religion, profile/readiness, discovery/profile, matches/chat, photo upload and validation errors.
 
 ### Authentication implementation
 

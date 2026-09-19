@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "apiVersion": "v1",
   "basePath": "/api/v1",
   "generatedFrom": "docs/SOUL_V1_MASTER_DOCUMENTATION.md",
@@ -893,5 +893,187 @@
     "requestIdHeader": "X-Request-ID",
     "localeHeader": "Accept-Language",
     "paginationCursor": "cursor"
+  },
+  "typedHandoff": {
+    "dartModels": "docs/contracts/soul_v1_models.dart",
+    "fixtureDirectory": "docs/contracts/fixtures",
+    "fixtures": [
+      {
+        "file": "auth-session.success.json",
+        "operationId": "api.v1.auth.login.verify-otp",
+        "kind": "success"
+      },
+      {
+        "file": "bootstrap.success.json",
+        "operationId": "api.v1.bootstrap",
+        "kind": "success"
+      },
+      {
+        "file": "religion-options.success.json",
+        "operationId": "api.v1.onboarding.religion-options",
+        "kind": "success"
+      },
+      {
+        "file": "onboarding-profile.success.json",
+        "operationId": "api.v1.onboarding.profile.show",
+        "kind": "success"
+      },
+      {
+        "file": "onboarding-readiness.success.json",
+        "operationId": "api.v1.onboarding.readiness.show",
+        "kind": "success"
+      },
+      {
+        "file": "discovery-candidates.success.json",
+        "operationId": "api.v1.discovery.candidates.index",
+        "kind": "success"
+      },
+      {
+        "file": "public-profile.success.json",
+        "operationId": "api.v1.profiles.show",
+        "kind": "success"
+      },
+      {
+        "file": "matches.success.json",
+        "operationId": "api.v1.matches.index",
+        "kind": "success"
+      },
+      {
+        "file": "messages.success.json",
+        "operationId": "api.v1.messages.index",
+        "kind": "success"
+      },
+      {
+        "file": "photo-upload-session.success.json",
+        "operationId": "api.v1.onboarding.photos.upload-session.create",
+        "kind": "success"
+      },
+      {
+        "file": "validation-error.json",
+        "operationId": "api.v1.onboarding.profile.update",
+        "kind": "error"
+      }
+    ],
+    "coveredJourneys": [
+      "bootstrap",
+      "authentication",
+      "onboarding",
+      "photo_upload",
+      "discovery",
+      "matches",
+      "chat"
+    ],
+    "operationModels": {
+      "api.v1.bootstrap": {
+        "request": null,
+        "response": "SoulBootstrap"
+      },
+      "api.v1.auth.register.request-otp": {
+        "request": "SoulRequestOtpRequest",
+        "response": "SoulOtpChallenge"
+      },
+      "api.v1.auth.register.verify-otp": {
+        "request": "SoulVerifyOtpRequest",
+        "response": "SoulAuthSession"
+      },
+      "api.v1.auth.login.request-otp": {
+        "request": "SoulRequestOtpRequest",
+        "response": "SoulOtpChallenge"
+      },
+      "api.v1.auth.login.verify-otp": {
+        "request": "SoulVerifyOtpRequest",
+        "response": "SoulAuthSession"
+      },
+      "api.v1.auth.google": {
+        "request": "SoulGoogleSignInRequest",
+        "response": "SoulAuthSession"
+      },
+      "api.v1.auth.apple": {
+        "request": "SoulAppleSignInRequest",
+        "response": "SoulAuthSession"
+      },
+      "api.v1.auth.me": {
+        "request": null,
+        "response": "SoulCurrentAccount"
+      },
+      "api.v1.location.resolve": {
+        "request": "SoulResolveLocationRequest",
+        "response": "SoulResolvedLocation"
+      },
+      "api.v1.onboarding.religion-options": {
+        "request": null,
+        "response": "SoulReligionOptions"
+      },
+      "api.v1.onboarding.religion-profile.store": {
+        "request": "SoulReligionSelectionRequest",
+        "response": "SoulReligionProfile"
+      },
+      "api.v1.onboarding.profile.show": {
+        "request": null,
+        "response": "SoulProfileDraft?"
+      },
+      "api.v1.onboarding.profile.update": {
+        "request": "SoulUpdateProfileDraftRequest",
+        "response": "SoulProfileDraft"
+      },
+      "api.v1.onboarding.readiness.show": {
+        "request": null,
+        "response": "SoulReadiness"
+      },
+      "api.v1.onboarding.photos.upload-session.create": {
+        "request": "SoulPhotoUploadSessionRequest",
+        "response": "SoulPhotoUploadSession"
+      },
+      "api.v1.onboarding.photos.register": {
+        "request": "SoulRegisterProfilePhotoRequest",
+        "response": "SoulProfilePhoto"
+      },
+      "api.v1.discovery.preferences.update": {
+        "request": "SoulDiscoveryPreferencesRequest",
+        "response": "SoulDiscoveryPreferencesRequest"
+      },
+      "api.v1.discovery.candidates.index": {
+        "request": null,
+        "response": "SoulCursorPage<SoulDiscoveryCandidate>"
+      },
+      "api.v1.profiles.show": {
+        "request": null,
+        "response": "SoulPublicProfile"
+      },
+      "api.v1.matching.decisions.store": {
+        "request": "SoulProfileDecisionRequest",
+        "response": null
+      },
+      "api.v1.matches.index": {
+        "request": null,
+        "response": "SoulCursorPage<SoulMatchSummary>"
+      },
+      "api.v1.messages.index": {
+        "request": null,
+        "response": "SoulCursorPage<SoulMessage>"
+      },
+      "api.v1.messages.store": {
+        "request": "SoulSendMessageRequest",
+        "response": "SoulMessage"
+      }
+    },
+    "sessionPolicy": {
+      "refreshEndpoint": null,
+      "unauthorizedAction": "clear_secure_token_and_reauthenticate"
+    },
+    "retryPolicy": {
+      "maximumAttempts": 3,
+      "idempotentMethods": [
+        "GET",
+        "PUT",
+        "DELETE"
+      ],
+      "statuses": [
+        429,
+        502,
+        503,
+        504
+      ]
+    }
   }
 }
