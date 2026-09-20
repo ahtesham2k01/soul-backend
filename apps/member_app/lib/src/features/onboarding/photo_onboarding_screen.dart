@@ -180,7 +180,7 @@ class _PhotoOnboardingScreenState
                 ],
                 const SizedBox(height: 12),
                 Card(
-                  color: SoulColors.lime.withOpacity(.12),
+                  color: SoulColors.lime.withValues(alpha: .12),
                   child: Padding(
                     padding: const EdgeInsets.all(16),
                     child: Row(
@@ -257,7 +257,7 @@ class _PhotoSlot extends StatelessWidget {
             Row(
               children: [
                 CircleAvatar(
-                  backgroundColor: SoulColors.lime.withOpacity(.18),
+                  backgroundColor: SoulColors.lime.withValues(alpha: .18),
                   child: Text('$position'),
                 ),
                 const SizedBox(width: 12),

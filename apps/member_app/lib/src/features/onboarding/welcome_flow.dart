@@ -148,9 +148,9 @@ class _OnboardingSlide extends StatelessWidget {
                     width: 220,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: SoulColors.lime.withOpacity(.10),
+                      color: SoulColors.lime.withValues(alpha: .10),
                       border: Border.all(
-                        color: SoulColors.lime.withOpacity(.45),
+                        color: SoulColors.lime.withValues(alpha: .45),
                         width: 2,
                       ),
                     ),

@@ -8,7 +8,7 @@ void main() {
   });
 
   test('member visual system keeps the approved SOUL lime and forest palette', () {
-    expect(SoulColors.lime.value, 0xffb4d63c);
-    expect(SoulColors.forestDeep.value, 0xff0a1b02);
+    expect(SoulColors.lime.toARGB32(), 0xffb4d63c);
+    expect(SoulColors.forestDeep.toARGB32(), 0xff0a1b02);
   });
 }

@@ -126,12 +126,12 @@ class _GlobePainter extends CustomPainter {
     final center = size.center(Offset.zero);
     final radius = size.shortestSide / 2;
     final grid = Paint()
-      ..color = SoulColors.lime.withOpacity(.58)
+      ..color = SoulColors.lime.withValues(alpha: .58)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
     final glow = Paint()
       ..shader = RadialGradient(
-        colors: [SoulColors.lime.withOpacity(.26), Colors.transparent],
+        colors: [SoulColors.lime.withValues(alpha: .26), Colors.transparent],
       ).createShader(Rect.fromCircle(center: center, radius: radius));
     canvas.drawCircle(center, radius, glow);
     canvas.drawCircle(center, radius - 3, grid..strokeWidth = 2.2);
