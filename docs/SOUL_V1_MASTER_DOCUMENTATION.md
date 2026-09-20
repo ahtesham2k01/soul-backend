@@ -1998,6 +1998,8 @@ Spanish, French, German, Italian, Russian, Dutch, Indonesian, Malay and Turkish 
 
 Brazilian Portuguese, European Portuguese, Polish and Ukrainian now have complete draft coverage for all 179 member-facing keys, including authentication, shared actions, navigation, chat, profile answers, distance labels, onboarding, discovery, matches, likes, photo safety, notifications, privacy/account controls and legal consent. These four catalogs have no unresolved English fallbacks, and the coverage gate prevents them from regressing. Their regional wording remains separate—for example Brazilian Portuguese uses “carregando/salvar/buscar”, while European Portuguese uses “a carregar/guardar/pesquisar”. They remain drafts until native-language review and device QA are complete.
 
+Hebrew, Punjabi and Gujarati now provide reviewed draft copy for the first 59 of 179 member-facing keys. Their implemented journey covers bootstrap and location messages, social and email entry, authentication failures, shared actions, primary navigation, discovery, matching and chat presence/messaging. Hebrew remains an RTL catalog and Flutter must render it using the bootstrap direction rather than hard-coded language rules. The remaining keys continue to use safe English fallbacks until later translation packages and native-language review.
+
 ### Flutter: load translations
 
 Call:
