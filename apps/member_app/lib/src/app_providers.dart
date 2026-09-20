@@ -25,13 +25,15 @@ final authRepositoryProvider = Provider<AuthRepository>(
   ),
 );
 
-/// A token is never trusted locally. The API must confirm it on every cold launch.
+/// A token is never trusted locally. The API confirms it and supplies the
+/// account state on every cold launch, so onboarding cannot be bypassed.
 final sessionRouteProvider = FutureProvider<String>((ref) async {
   final sessions = ref.watch(sessionStoreProvider);
   if (await sessions.readToken() == null) return 'auth';
   try {
-    await ref.watch(apiClientProvider).get('auth/me');
-    return 'home';
+    final account = await ref.watch(apiClientProvider).get('auth/me');
+    final nextStep = account['next_step']?.toString();
+    return nextStep == 'onboarding' ? 'onboarding' : 'home';
   } on SoulApiFailure catch (failure) {
     if (failure.statusCode == 401) return 'auth';
     rethrow;

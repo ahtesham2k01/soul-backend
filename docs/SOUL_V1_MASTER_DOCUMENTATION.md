@@ -613,6 +613,10 @@ The Flutter member app is maintained in `apps/member_app`. It consumes only the 
 
 M1 adds a Linux CI Android debug build. The runner project is generated from the checked-in Flutter package until Flutter is available in the development workspace. iOS signing, APNs, Apple sign-in and store verification require the owner's Apple developer account and a macOS/device verification phase.
 
+The first M2 vertical slice is implemented from the owner-supplied 188-frame Figma/PDF handoff: SOUL's lime/forest visual tokens, reduced-motion launch animation, three-page welcome flow, distinct registration and returning-member email OTP paths, server-confirmed cold-start routing, partial profile resume/save, adult date validation and country-aware religion traversal. Religion, sect, sub-sect and community/caste are not hard-coded screens: Flutter requests each child level only when Laravel returns `has_children`, skips unavailable levels and saves the selected public leaf ID. The visual file remains a presentation reference; sample names, cities, countries, prices, Muslim-only copy and static choice lists are never promoted into product rules. Apple/Google native credential acquisition, the remaining profile/photo steps and M3 surfaces remain open until their cohesive packages are implemented and tested.
+
+The design handoff currently contains 188 portrait frames covering launch/authentication, onboarding, discovery/filtering, likes, chat, profile/settings, subscriptions, support, events and verification. Before a frame is implemented, it must be reconciled with this document and the generated API contract. Missing loading, empty, permission-denied, offline, retry, restricted-account and accessibility states must be added even when absent from Figma. Exact location, prices, entitlements and religion hierarchy always come from Laravel; Flutter must not copy the illustrative values embedded in the design.
+
 ### Global localization expansion
 
 - [x] React admin interface fixed to English-only

@@ -22,6 +22,14 @@ class AuthRepository {
     );
   }
 
+  Future<OtpChallenge> requestRegistrationOtp(String email) async {
+    final data = await _api.post('auth/register/request-otp', data: {'email': email});
+    return OtpChallenge(
+      verificationId: data['verification_id']!.toString(),
+      email: email,
+    );
+  }
+
   Future<String> verifyLoginOtp({
     required OtpChallenge challenge,
     required String code,
@@ -37,6 +45,28 @@ class AuthRepository {
         'locale': 'en',
       },
     );
+    return _storeAuthentication(data);
+  }
+
+  Future<String> verifyRegistrationOtp({
+    required OtpChallenge challenge,
+    required String code,
+    required String deviceName,
+  }) async {
+    final data = await _api.post(
+      'auth/register/verify-otp',
+      data: {
+        'email': challenge.email,
+        'verification_id': challenge.verificationId,
+        'code': code,
+        'device_name': deviceName,
+        'locale': 'en',
+      },
+    );
+    return _storeAuthentication(data);
+  }
+
+  Future<String> _storeAuthentication(Map<String, dynamic> data) async {
     final authentication = data['authentication'];
     final token = authentication is Map<String, dynamic>
         ? authentication['access_token']?.toString()

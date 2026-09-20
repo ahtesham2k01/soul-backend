@@ -2,34 +2,45 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_providers.dart';
-import 'features/auth/auth_screen.dart';
+import 'core/soul_theme.dart';
+import 'features/launch/launch_screen.dart';
+import 'features/onboarding/onboarding_screen.dart';
+import 'features/onboarding/welcome_flow.dart';
 
-class SoulApp extends ConsumerWidget {
+class SoulApp extends ConsumerStatefulWidget {
   const SoulApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SoulApp> createState() => _SoulAppState();
+}
+
+class _SoulAppState extends ConsumerState<SoulApp> {
+  bool _launchFinished = false;
+
+  @override
+  Widget build(BuildContext context) {
     final bootstrap = ref.watch(bootstrapProvider);
     final sessionRoute = ref.watch(sessionRouteProvider);
     return bootstrap.when(
       data: (state) => MaterialApp(
         title: 'SOUL',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xff9c4a62),
-            brightness: Brightness.light,
-          ),
-          useMaterial3: true,
-        ),
+        theme: soulTheme(),
         home: Directionality(
           textDirection: state.direction == 'rtl'
               ? TextDirection.rtl
               : TextDirection.ltr,
           child: sessionRoute.when(
-            data: (route) => route == 'auth'
-                ? AuthScreen(labels: state)
-                : const _SignedInShell(),
+            data: (route) {
+              if (!_launchFinished) {
+                return LaunchScreen(
+                  onFinished: () => setState(() => _launchFinished = true),
+                );
+              }
+              if (route == 'auth') return WelcomeFlow(labels: state);
+              if (route == 'onboarding') return OnboardingScreen(labels: state);
+              return const _SignedInShell();
+            },
             error: (_, __) => const _BootstrapErrorScreen(),
             loading: () => const _LaunchScreen(),
           ),
