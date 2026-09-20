@@ -150,4 +150,4 @@ jobs:
           php artisan tinker --execute="cache()->store('redis')->put('ci:redis-probe', 'ok', 60); if (cache()->store('redis')->get('ci:redis-probe') !== 'ok') { throw new RuntimeException('Redis cache probe failed.'); } app('queue')->connection('redis')->size();"
 
       - name: Run MySQL and Redis test suite
-        run: php artisan test --configuration=phpunit.mysql.xml
+        run: vendor/bin/phpunit --configuration=phpunit.mysql.xml
