@@ -126,9 +126,7 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
           ..clear()
           ..addAll(values);
         _presence = presence;
-        if (_nextCursor == null) {
-          _nextCursor = page.nextCursor;
-        }
+        _nextCursor ??= page.nextCursor;
       });
       await _markReadIfNeeded();
     } on SoulApiFailure catch (failure) {

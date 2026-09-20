@@ -267,6 +267,8 @@ class _ChatRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final last = match.lastMessage;
+    final lastIsMine = last?.isMine == true;
+    final lastReadAt = last?.readAt;
     return InkWell(
       borderRadius: BorderRadius.circular(12),
       onTap: onTap,
@@ -325,13 +327,13 @@ class _ChatRow extends StatelessWidget {
                   const SizedBox(height: 3),
                   Row(
                     children: [
-                      if (last?.isMine == true) ...[
+                      if (lastIsMine) ...[
                         Icon(
-                          last.readAt == null
+                          lastReadAt == null
                               ? Icons.check_rounded
                               : Icons.done_all_rounded,
                           size: 17,
-                          color: last.readAt == null
+                          color: lastReadAt == null
                               ? SoulColors.muted
                               : const Color(0xff00b978),
                         ),
