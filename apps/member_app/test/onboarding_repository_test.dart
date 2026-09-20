@@ -26,4 +26,15 @@ void main() {
     expect(choice.hasChildren, isFalse);
     expect(choice.level, isNull);
   });
+
+  test('spoken language prefers the member-facing native name', () {
+    final language = SpokenLanguageChoice.fromJson({
+      'code': 'ur',
+      'name': 'Urdu',
+      'native_name': 'Urdu',
+    });
+
+    expect(language.code, 'ur');
+    expect(language.label, 'Urdu');
+  });
 }

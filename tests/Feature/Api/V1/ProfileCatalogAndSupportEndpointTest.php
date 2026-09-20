@@ -4,6 +4,7 @@ namespace Tests\Feature\Api\V1;
 
 use App\Models\User;
 use Database\Seeders\ProfileAndSupportCatalogSeeder;
+use Database\Seeders\SpokenLanguageSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -18,6 +19,7 @@ class ProfileCatalogAndSupportEndpointTest extends TestCase
     {
         parent::setUp();
         $this->seed(ProfileAndSupportCatalogSeeder::class);
+        $this->seed(SpokenLanguageSeeder::class);
     }
 
     public function test_catalogs_are_localized_with_english_fallback(): void
@@ -27,6 +29,9 @@ class ProfileCatalogAndSupportEndpointTest extends TestCase
             ->assertJsonFragment(['key' => 'safety', 'name' => 'Safety aur reporting']);
         $this->getJson('/api/v1/catalogs/profile?locale=fr')->assertOk()
             ->assertJsonFragment(['key' => 'reading', 'label' => 'Reading']);
+
+        $this->getJson('/api/v1/catalogs/profile')->assertOk()
+            ->assertJsonStructure(['data' => ['spoken_languages' => [['code', 'name', 'native_name']]]]);
     }
 
     public function test_member_can_open_reply_to_and_privately_read_own_ticket(): void

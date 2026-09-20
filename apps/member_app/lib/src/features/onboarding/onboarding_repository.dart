@@ -21,6 +21,22 @@ class ReligionChoice {
       );
 }
 
+class SpokenLanguageChoice {
+  const SpokenLanguageChoice({required this.code, required this.label});
+
+  final String code;
+  final String label;
+
+  factory SpokenLanguageChoice.fromJson(Map<String, dynamic> json) {
+    final nativeName = json['native_name']?.toString().trim() ?? '';
+    final name = json['name']?.toString().trim() ?? '';
+    return SpokenLanguageChoice(
+      code: json['code']?.toString() ?? '',
+      label: nativeName.isNotEmpty ? nativeName : name,
+    );
+  }
+}
+
 class OnboardingRepository {
   OnboardingRepository(this._api);
 
@@ -36,6 +52,17 @@ class OnboardingRepository {
 
   Future<Map<String, dynamic>> readiness() =>
       _api.get('onboarding/readiness');
+
+  Future<List<SpokenLanguageChoice>> spokenLanguages() async {
+    final data = await _api.get('catalogs/profile');
+    final raw = data['spoken_languages'];
+    if (raw is! List) return const [];
+    return raw
+        .whereType<Map>()
+        .map((item) => SpokenLanguageChoice.fromJson(Map<String, dynamic>.from(item)))
+        .where((item) => item.code.isNotEmpty && item.label.isNotEmpty)
+        .toList(growable: false);
+  }
 
   Future<void> saveProfile(Map<String, Object?> changes) async {
     await _api.put('onboarding/profile', data: changes);
@@ -68,4 +95,7 @@ class OnboardingRepository {
       if (country != null && country.isNotEmpty) 'country': country,
     });
   }
+
+  Future<Map<String, dynamic>> submit(Map<String, Object?> legalVersions) =>
+      _api.post('onboarding/submit', data: legalVersions);
 }
