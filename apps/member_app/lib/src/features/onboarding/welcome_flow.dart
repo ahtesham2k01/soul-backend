@@ -1,21 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app_providers.dart';
+import '../../core/api_client.dart';
 import '../../core/soul_theme.dart';
 import '../auth/auth_screen.dart';
+import '../auth/native_identity_service.dart';
 import '../bootstrap/bootstrap_repository.dart';
 
-class WelcomeFlow extends StatefulWidget {
+class WelcomeFlow extends ConsumerStatefulWidget {
   const WelcomeFlow({required this.labels, super.key});
 
   final BootstrapState labels;
 
   @override
-  State<WelcomeFlow> createState() => _WelcomeFlowState();
+  ConsumerState<WelcomeFlow> createState() => _WelcomeFlowState();
 }
 
-class _WelcomeFlowState extends State<WelcomeFlow> {
+class _WelcomeFlowState extends ConsumerState<WelcomeFlow> {
   final _controller = PageController();
   int _page = 0;
+  bool _socialBusy = false;
+  String? _socialError;
 
   @override
   void dispose() {
@@ -32,6 +38,41 @@ class _WelcomeFlowState extends State<WelcomeFlow> {
         ),
       ),
     );
+  }
+
+  Future<void> _socialSignIn({required bool apple}) async {
+    setState(() { _socialBusy = true; _socialError = null; });
+    try {
+      final native = ref.read(nativeIdentityProvider);
+      final auth = ref.read(authRepositoryProvider);
+      if (apple) {
+        final credential = await native.apple();
+        await auth.signInWithApple(
+          identityToken: credential.identityToken,
+          rawNonce: credential.rawNonce,
+          deviceName: 'SOUL mobile app',
+          locale: widget.labels.locale,
+          givenName: credential.givenName,
+          familyName: credential.familyName,
+        );
+      } else {
+        final credential = await native.google();
+        await auth.signInWithGoogle(
+          idToken: credential.idToken,
+          deviceName: 'SOUL mobile app',
+          locale: widget.labels.locale,
+        );
+      }
+      ref.invalidate(sessionRouteProvider);
+    } on NativeIdentityCancelled {
+      // Closing the provider sheet is not an error and must not show a warning.
+    } on SoulApiFailure catch (failure) {
+      if (mounted) setState(() => _socialError = failure.message);
+    } catch (_) {
+      if (mounted) setState(() => _socialError = 'Sign-in could not be completed. Please try again.');
+    } finally {
+      if (mounted) setState(() => _socialBusy = false);
+    }
   }
 
   @override
@@ -86,6 +127,28 @@ class _WelcomeFlowState extends State<WelcomeFlow> {
                       ),
                     ),
                     const SizedBox(height: 34),
+                    if (_socialError != null) ...[
+                      Text(_socialError!, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white)),
+                      const SizedBox(height: 10),
+                    ],
+                    Row(children: [
+                      Expanded(child: OutlinedButton.icon(
+                        onPressed: _socialBusy ? null : () => _socialSignIn(apple: false),
+                        icon: const Icon(Icons.g_mobiledata, size: 27),
+                        label: Text(widget.labels.text('auth.continue_with_google', 'Continue with Google')),
+                        style: OutlinedButton.styleFrom(foregroundColor: Colors.white, side: const BorderSide(color: Colors.white54)),
+                      )),
+                    ]),
+                    const SizedBox(height: 8),
+                    Row(children: [
+                      Expanded(child: OutlinedButton.icon(
+                        onPressed: _socialBusy ? null : () => _socialSignIn(apple: true),
+                        icon: const Icon(Icons.apple),
+                        label: Text(widget.labels.text('auth.continue_with_apple', 'Continue with Apple')),
+                        style: OutlinedButton.styleFrom(foregroundColor: Colors.white, side: const BorderSide(color: Colors.white54)),
+                      )),
+                    ]),
+                    const SizedBox(height: 8),
                     SizedBox(
                       width: double.infinity,
                       height: 49,

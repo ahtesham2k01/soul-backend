@@ -4,6 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'core/api_client.dart';
 import 'core/session_store.dart';
 import 'features/auth/auth_repository.dart';
+import 'features/auth/native_identity_service.dart';
 import 'features/bootstrap/bootstrap_repository.dart';
 
 final sessionStoreProvider = Provider<SessionStore>(
@@ -25,6 +26,10 @@ final authRepositoryProvider = Provider<AuthRepository>(
   ),
 );
 
+final nativeIdentityProvider = Provider<NativeIdentityService>(
+  (_) => NativeIdentityService(),
+);
+
 /// A token is never trusted locally. The API confirms it and supplies the
 /// account state on every cold launch, so onboarding cannot be bypassed.
 final sessionRouteProvider = FutureProvider<String>((ref) async {
@@ -33,7 +38,11 @@ final sessionRouteProvider = FutureProvider<String>((ref) async {
   try {
     final account = await ref.watch(apiClientProvider).get('auth/me');
     final nextStep = account['next_step']?.toString();
-    return nextStep == 'onboarding' ? 'onboarding' : 'home';
+    if (nextStep == 'onboarding') return 'onboarding';
+    final consent = await ref.watch(apiClientProvider).get('legal/consent');
+    final legal = consent['legal'];
+    if (legal is Map && legal['requires_acceptance'] == true) return 'legal';
+    return 'home';
   } on SoulApiFailure catch (failure) {
     if (failure.statusCode == 401) return 'auth';
     rethrow;

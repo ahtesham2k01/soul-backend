@@ -98,4 +98,86 @@ class OnboardingRepository {
 
   Future<Map<String, dynamic>> submit(Map<String, Object?> legalVersions) =>
       _api.post('onboarding/submit', data: legalVersions);
+
+  Future<Map<String, dynamic>> resubmit() =>
+      _api.post('onboarding/resubmit');
+
+  Future<ProfileLifecycle> status() async {
+    final data = await _api.get('onboarding/status');
+    final profile = data['profile'];
+    return ProfileLifecycle.fromJson(
+      profile is Map ? Map<String, dynamic>.from(profile) : const {},
+    );
+  }
+
+  Future<LegalConsentState> legalConsent() async {
+    final data = await _api.get('legal/consent');
+    final legal = data['legal'];
+    return LegalConsentState.fromJson(
+      legal is Map ? Map<String, dynamic>.from(legal) : const {},
+    );
+  }
+
+  Future<void> acceptLegal(Map<String, Object?> versions) async {
+    await _api.post('legal/consent', data: versions);
+  }
+}
+
+class LegalConsentState {
+  const LegalConsentState({
+    required this.requiresAcceptance,
+    required this.versions,
+    required this.commitmentKeys,
+  });
+
+  final bool requiresAcceptance;
+  final Map<String, String> versions;
+  final List<String> commitmentKeys;
+
+  factory LegalConsentState.fromJson(Map<String, dynamic> json) {
+    final versions = <String, String>{};
+    final documents = json['documents'];
+    if (documents is List) {
+      for (final document in documents.whereType<Map>()) {
+        final type = document['type']?.toString();
+        final version = document['current_version']?.toString();
+        if (type != null && version != null) versions[type] = version;
+      }
+    }
+    return LegalConsentState(
+      requiresAcceptance: json['requires_acceptance'] == true,
+      versions: versions,
+      commitmentKeys: json['commitment_keys'] is List
+          ? (json['commitment_keys'] as List).map((item) => item.toString()).toList(growable: false)
+          : const [],
+    );
+  }
+
+  Map<String, Object?> submissionPayload() => {
+        'terms_version': versions['terms'],
+        'privacy_version': versions['privacy'],
+        'community_guidelines_version': versions['community_guidelines'],
+        'community_commitment_version': versions['community_commitment'],
+      };
+}
+
+class ProfileLifecycle {
+  const ProfileLifecycle({
+    required this.status,
+    this.reason,
+    this.correctionScreen,
+  });
+  final String status;
+  final String? reason;
+  final String? correctionScreen;
+
+  bool get processing => status == 'submitted' || status == 'automated_checks';
+  bool get live => status == 'live';
+  bool get correctable => status == 'changes_required';
+
+  factory ProfileLifecycle.fromJson(Map<String, dynamic> json) => ProfileLifecycle(
+        status: json['status']?.toString() ?? 'draft',
+        reason: json['reason']?.toString(),
+        correctionScreen: json['correction_screen']?.toString(),
+      );
 }

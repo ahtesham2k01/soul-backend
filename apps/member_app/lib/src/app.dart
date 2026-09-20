@@ -5,6 +5,8 @@ import 'app_providers.dart';
 import 'core/soul_theme.dart';
 import 'features/launch/launch_screen.dart';
 import 'features/onboarding/onboarding_screen.dart';
+import 'features/onboarding/legal_submission_screen.dart';
+import 'features/onboarding/onboarding_repository.dart';
 import 'features/onboarding/welcome_flow.dart';
 
 class SoulApp extends ConsumerStatefulWidget {
@@ -39,6 +41,13 @@ class _SoulAppState extends ConsumerState<SoulApp> {
               }
               if (route == 'auth') return WelcomeFlow(labels: state);
               if (route == 'onboarding') return OnboardingScreen(labels: state);
+              if (route == 'legal') {
+                return LegalReconsentScreen(
+                  repository: OnboardingRepository(ref.read(apiClientProvider)),
+                  labels: state,
+                  onAccepted: () => ref.invalidate(sessionRouteProvider),
+                );
+              }
               return const _SignedInShell();
             },
             error: (_, __) => const _BootstrapErrorScreen(),

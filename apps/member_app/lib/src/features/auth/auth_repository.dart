@@ -66,6 +66,32 @@ class AuthRepository {
     return _storeAuthentication(data);
   }
 
+  Future<String> signInWithGoogle({
+    required String idToken,
+    required String deviceName,
+    required String locale,
+  }) async => _storeAuthentication(await _api.post('auth/google', data: {
+        'id_token': idToken,
+        'device_name': deviceName,
+        'locale': locale,
+      }));
+
+  Future<String> signInWithApple({
+    required String identityToken,
+    required String rawNonce,
+    required String deviceName,
+    required String locale,
+    String? givenName,
+    String? familyName,
+  }) async => _storeAuthentication(await _api.post('auth/apple', data: {
+        'identity_token': identityToken,
+        'raw_nonce': rawNonce,
+        'device_name': deviceName,
+        'locale': locale,
+        if (givenName != null && givenName.isNotEmpty) 'given_name': givenName,
+        if (familyName != null && familyName.isNotEmpty) 'family_name': familyName,
+      }));
+
   Future<String> _storeAuthentication(Map<String, dynamic> data) async {
     final authentication = data['authentication'];
     final token = authentication is Map<String, dynamic>

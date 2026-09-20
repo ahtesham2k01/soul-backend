@@ -6,6 +6,7 @@ import '../../core/api_client.dart';
 import '../../core/soul_theme.dart';
 import '../bootstrap/bootstrap_repository.dart';
 import 'onboarding_repository.dart';
+import 'legal_submission_screen.dart';
 import 'photo_onboarding_screen.dart';
 
 final onboardingRepositoryProvider = Provider<OnboardingRepository>(
@@ -207,6 +208,23 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     }
   }
 
+  Future<void> _reviewAndSubmit() async {
+    final correction = await Navigator.of(context).push<String>(
+      MaterialPageRoute<String>(
+        builder: (_) => LegalSubmissionScreen(
+          repository: ref.read(onboardingRepositoryProvider),
+          labels: widget.labels,
+        ),
+      ),
+    );
+    if (!mounted || correction == null) return;
+    if (correction == 'onboarding.photos') {
+      await _openPhotos();
+    } else {
+      setState(() => _step = 0);
+    }
+  }
+
   void _back() {
     if (_step == 13 && _religionPath.isNotEmpty) {
       setState(() => _religionPath.removeLast());
@@ -269,7 +287,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         11 => _singleChoice('Do you have children?', 'current_children', const [('no', 'No'), ('yes_living_with_me', 'Yes, living with me'), ('yes_not_living_with_me', 'Yes, not living with me'), ('prefer_not_to_say', 'Prefer not to say')]),
         12 => _singleChoice('How do you feel about children in future?', 'future_children', const [('want_children', 'Want children'), ('do_not_want_children', 'Do not want children'), ('open_to_children', 'Open to children'), ('not_sure', 'Not sure'), ('prefer_not_to_say', 'Prefer not to say')]),
         13 => _ReligionStep(path: _religionPath, options: _religions, busy: _busy, onSelected: _chooseReligion, onRetry: _reloadReligionLevel),
-        _ => _CompletionStep(missing: _missing, onAddPhotos: _openPhotos),
+        _ => _CompletionStep(missing: _missing, onAddPhotos: _openPhotos, onSubmit: _reviewAndSubmit),
       };
 
   Widget _singleChoice(String title, String field, List<(String, String)> choices) => _SingleChoiceStep(
@@ -390,9 +408,10 @@ class _ReligionStep extends StatelessWidget {
 }
 
 class _CompletionStep extends StatelessWidget {
-  const _CompletionStep({required this.missing, required this.onAddPhotos});
+  const _CompletionStep({required this.missing, required this.onAddPhotos, required this.onSubmit});
   final List<String> missing;
   final VoidCallback onAddPhotos;
+  final VoidCallback onSubmit;
   @override
   Widget build(BuildContext context) {
     final profileMissing = missing.where((item) => item != 'cover_photo' && item != 'clear_face_photo').toList();
@@ -418,6 +437,18 @@ class _CompletionStep extends StatelessWidget {
           ),
         ),
       ),
+      if (missing.isEmpty) ...[
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          height: 50,
+          child: FilledButton.icon(
+            onPressed: onSubmit,
+            icon: const Icon(Icons.fact_check_outlined),
+            label: const Text('Review commitments and submit'),
+          ),
+        ),
+      ],
     ]);
   }
 }

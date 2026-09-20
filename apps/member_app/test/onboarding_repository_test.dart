@@ -37,4 +37,33 @@ void main() {
     expect(language.code, 'ur');
     expect(language.label, 'Urdu');
   });
+
+  test('legal consent maps current versions into submission payload', () {
+    final legal = LegalConsentState.fromJson({
+      'requires_acceptance': true,
+      'documents': [
+        {'type': 'terms', 'current_version': '1.0'},
+        {'type': 'privacy', 'current_version': '1.1'},
+        {'type': 'community_guidelines', 'current_version': '2.0'},
+        {'type': 'community_commitment', 'current_version': '1.0'},
+      ],
+      'commitment_keys': ['legal.commitment.respect'],
+    });
+
+    expect(legal.requiresAcceptance, isTrue);
+    expect(legal.submissionPayload()['privacy_version'], '1.1');
+    expect(legal.commitmentKeys, ['legal.commitment.respect']);
+  });
+
+  test('profile lifecycle preserves correction routing', () {
+    final state = ProfileLifecycle.fromJson({
+      'status': 'changes_required',
+      'reason': 'Replace the rejected photo.',
+      'correction_screen': 'onboarding.photos',
+    });
+
+    expect(state.correctable, isTrue);
+    expect(state.processing, isFalse);
+    expect(state.correctionScreen, 'onboarding.photos');
+  });
 }
