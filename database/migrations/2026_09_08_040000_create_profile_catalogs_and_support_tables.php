@@ -27,7 +27,10 @@ return new class extends Migration
             $table->string('locale', 12);
             $table->string('label', 120);
             $table->timestamps();
-            $table->unique(['profile_catalog_item_id', 'locale']);
+            $table->unique(
+                ['profile_catalog_item_id', 'locale'],
+                'profile_catalog_translation_locale_unique',
+            );
         });
 
         Schema::table('user_profile_interests', function (Blueprint $table): void {
