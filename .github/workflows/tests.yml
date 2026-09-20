@@ -53,6 +53,8 @@ jobs:
           npm run contracts:test
           npm run localization:audit
           npm run localization:test
+          npm run migrations:audit
+          npm run migrations:test
           npm run build
 
       - name: Audit locked production dependencies

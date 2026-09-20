@@ -8,6 +8,8 @@
         "contracts:test": "node --test scripts/generate-api-contracts.test.mjs",
         "localization:audit": "node scripts/audit-localization.mjs",
         "localization:test": "node --test scripts/audit-localization.test.mjs",
+        "migrations:audit": "node scripts/audit-migration-identifiers.mjs",
+        "migrations:test": "node --test scripts/audit-migration-identifiers.test.mjs",
         "load:smoke": "node scripts/load-api-smoke.mjs",
         "dev": "vite"
     },
