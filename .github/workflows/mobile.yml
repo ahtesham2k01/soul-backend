@@ -36,7 +36,9 @@ jobs:
           cache: true
 
       - name: Generate Android and iOS runner projects
-        run: flutter create --platforms=android,ios --org com.soul .
+        run: |
+          flutter create --platforms=android,ios --org com.soul .
+          node ../../scripts/configure-flutter-platforms.mjs .
 
       - name: Verify generated API contracts are synchronized
         run: |

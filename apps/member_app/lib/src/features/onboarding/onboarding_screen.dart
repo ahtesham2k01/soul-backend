@@ -6,6 +6,7 @@ import '../../core/api_client.dart';
 import '../../core/soul_theme.dart';
 import '../bootstrap/bootstrap_repository.dart';
 import 'onboarding_repository.dart';
+import 'photo_onboarding_screen.dart';
 
 final onboardingRepositoryProvider = Provider<OnboardingRepository>(
   (ref) => OnboardingRepository(ref.watch(apiClientProvider)),
@@ -189,6 +190,23 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     setState(() => _missing = _stringList(readiness['missing_requirements']));
   }
 
+  Future<void> _openPhotos() async {
+    await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(
+        builder: (_) => const PhotoOnboardingScreen(),
+      ),
+    );
+    if (!mounted) return;
+    setState(() => _busy = true);
+    try {
+      await _loadReadiness();
+    } on SoulApiFailure catch (failure) {
+      if (mounted) setState(() => _error = failure.message);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
   void _back() {
     if (_step == 13 && _religionPath.isNotEmpty) {
       setState(() => _religionPath.removeLast());
@@ -251,7 +269,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         11 => _singleChoice('Do you have children?', 'current_children', const [('no', 'No'), ('yes_living_with_me', 'Yes, living with me'), ('yes_not_living_with_me', 'Yes, not living with me'), ('prefer_not_to_say', 'Prefer not to say')]),
         12 => _singleChoice('How do you feel about children in future?', 'future_children', const [('want_children', 'Want children'), ('do_not_want_children', 'Do not want children'), ('open_to_children', 'Open to children'), ('not_sure', 'Not sure'), ('prefer_not_to_say', 'Prefer not to say')]),
         13 => _ReligionStep(path: _religionPath, options: _religions, busy: _busy, onSelected: _chooseReligion, onRetry: _reloadReligionLevel),
-        _ => _CompletionStep(missing: _missing),
+        _ => _CompletionStep(missing: _missing, onAddPhotos: _openPhotos),
       };
 
   Widget _singleChoice(String title, String field, List<(String, String)> choices) => _SingleChoiceStep(
@@ -372,8 +390,9 @@ class _ReligionStep extends StatelessWidget {
 }
 
 class _CompletionStep extends StatelessWidget {
-  const _CompletionStep({required this.missing});
+  const _CompletionStep({required this.missing, required this.onAddPhotos});
   final List<String> missing;
+  final VoidCallback onAddPhotos;
   @override
   Widget build(BuildContext context) {
     final profileMissing = missing.where((item) => item != 'cover_photo' && item != 'clear_face_photo').toList();
@@ -385,6 +404,20 @@ class _CompletionStep extends StatelessWidget {
       Text(profileMissing.isEmpty ? 'Your answers and religion path are saved. Add your public cover and clear-face photos next.' : 'These required answers still need attention: ${profileMissing.join(', ')}.'),
       const SizedBox(height: 24),
       const Card(child: Padding(padding: EdgeInsets.all(18), child: Row(children: [Icon(Icons.lock_outline), SizedBox(width: 12), Expanded(child: Text('Exact location and detailed religion answers follow your privacy settings and are never used as hard-coded assumptions.'))]))),
+      const SizedBox(height: 18),
+      SizedBox(
+        width: double.infinity,
+        height: 50,
+        child: FilledButton.icon(
+          onPressed: onAddPhotos,
+          icon: const Icon(Icons.add_a_photo_outlined),
+          label: Text(
+            missing.contains('cover_photo') || missing.contains('clear_face_photo')
+                ? 'Add required photos'
+                : 'Review photos',
+          ),
+        ),
+      ),
     ]);
   }
 }
