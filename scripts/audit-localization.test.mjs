@@ -127,6 +127,67 @@ test('baseline locale drift and invalid counts are rejected', (context) => {
     assert.ok(report.failures.includes('es: localization baseline is invalid'));
 });
 
+test('member copy with surrounding whitespace or non-NFC Unicode is rejected', (context) => {
+    const root = createFixture();
+    context.after(() => fs.rmSync(root, { recursive: true, force: true }));
+    const catalogPath = path.join(root, 'resources/lang/es.json');
+    const catalog = JSON.parse(fs.readFileSync(catalogPath, 'utf8'));
+    catalog['common.close'] = ' Cerrar';
+    catalog['common.continue'] = 'Continuacio\u0301n';
+    fs.writeFileSync(catalogPath, `${JSON.stringify(catalog, null, 2)}\n`);
+
+    const result = runAudit(root);
+    const report = JSON.parse(result.stdout);
+    const row = report.catalogs.find(({ locale }) => locale === 'es');
+
+    assert.equal(result.status, 1);
+    assert.ok(report.failures.includes('es: whitespace=1, normalization=1, unsafe-controls=0, placeholders=0'));
+    assert.deepEqual(row.qualityIssueKeys.surroundingWhitespace, ['common.close']);
+    assert.deepEqual(row.qualityIssueKeys.nonNormalized, ['common.continue']);
+});
+
+test('invisible bidirectional controls in member copy are rejected', (context) => {
+    const root = createFixture();
+    context.after(() => fs.rmSync(root, { recursive: true, force: true }));
+    const catalogPath = path.join(root, 'resources/lang/es.json');
+    const catalog = JSON.parse(fs.readFileSync(catalogPath, 'utf8'));
+    catalog['common.close'] = `Cerrar\u202E`;
+    fs.writeFileSync(catalogPath, `${JSON.stringify(catalog, null, 2)}\n`);
+
+    const result = runAudit(root);
+    const report = JSON.parse(result.stdout);
+
+    assert.equal(result.status, 1);
+    assert.ok(report.failures.includes('es: whitespace=0, normalization=0, unsafe-controls=1, placeholders=0'));
+    assert.deepEqual(
+        report.catalogs.find(({ locale }) => locale === 'es').qualityIssueKeys.unsafeControls,
+        ['common.close'],
+    );
+});
+
+test('translation placeholders must exactly match the English contract', (context) => {
+    const root = createFixture();
+    context.after(() => fs.rmSync(root, { recursive: true, force: true }));
+    const englishPath = path.join(root, 'resources/lang/en.json');
+    const spanishPath = path.join(root, 'resources/lang/es.json');
+    const english = JSON.parse(fs.readFileSync(englishPath, 'utf8'));
+    const spanish = JSON.parse(fs.readFileSync(spanishPath, 'utf8'));
+    english['common.retry'] = 'Retry in :seconds seconds';
+    spanish['common.retry'] = 'Reintentar en :minutes segundos';
+    fs.writeFileSync(englishPath, `${JSON.stringify(english, null, 2)}\n`);
+    fs.writeFileSync(spanishPath, `${JSON.stringify(spanish, null, 2)}\n`);
+
+    const result = runAudit(root);
+    const report = JSON.parse(result.stdout);
+
+    assert.equal(result.status, 1);
+    assert.ok(report.failures.includes('es: whitespace=0, normalization=0, unsafe-controls=0, placeholders=1'));
+    assert.deepEqual(
+        report.catalogs.find(({ locale }) => locale === 'es').qualityIssueKeys.placeholderMismatch,
+        ['common.retry'],
+    );
+});
+
 test('unsupported output formats fail without running the audit', () => {
     const result = spawnSync(
         process.execPath,

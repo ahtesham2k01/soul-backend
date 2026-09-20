@@ -67,6 +67,10 @@ const intentionalIdenticalMemberTerms = {
 };
 const failures = [];
 const rows = [];
+const unsafeControlPattern = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F\u202A-\u202E\u2066-\u2069]/u;
+const placeholderPattern = /:[A-Za-z_][A-Za-z0-9_]*|\{[A-Za-z_][A-Za-z0-9_]*\}/g;
+
+const placeholders = (value) => [...(value.match(placeholderPattern) ?? [])].sort();
 
 const missingBaselineLocales = targetLocales.filter((locale) => ! Object.hasOwn(baseline, locale));
 const unexpectedBaselineLocales = Object.keys(baseline).filter((locale) => ! targetLocales.includes(locale));
@@ -90,6 +94,19 @@ for (const locale of targetLocales) {
     const missing = englishKeys.filter((key) => ! keys.includes(key));
     const extra = keys.filter((key) => ! englishKeys.includes(key));
     const empty = keys.filter((key) => typeof catalog[key] !== 'string' || catalog[key].trim() === '');
+    const memberCatalogKeys = memberKeys.filter((key) => typeof catalog[key] === 'string');
+    const surroundingWhitespaceKeys = memberCatalogKeys.filter(
+        (key) => catalog[key] !== catalog[key].trim(),
+    );
+    const nonNormalizedKeys = memberCatalogKeys.filter(
+        (key) => catalog[key] !== catalog[key].normalize('NFC'),
+    );
+    const unsafeControlKeys = memberCatalogKeys.filter(
+        (key) => unsafeControlPattern.test(catalog[key]),
+    );
+    const placeholderMismatchKeys = memberCatalogKeys.filter(
+        (key) => JSON.stringify(placeholders(catalog[key])) !== JSON.stringify(placeholders(english[key])),
+    );
     const allowedIdenticalTerms = intentionalIdenticalMemberTerms[locale] ?? new Set();
     const fallbackKeys = sourceCatalogLocales.has(locale) ? [] : memberKeys.filter(
         (key) => catalog[key] === english[key] && ! allowedIdenticalTerms.has(key),
@@ -100,6 +117,12 @@ for (const locale of targetLocales) {
     if (missing.length || extra.length || empty.length) {
         failures.push(
             `${locale}: missing=${missing.length}, extra=${extra.length}, empty=${empty.length}`,
+        );
+    }
+
+    if (surroundingWhitespaceKeys.length || nonNormalizedKeys.length || unsafeControlKeys.length || placeholderMismatchKeys.length) {
+        failures.push(
+            `${locale}: whitespace=${surroundingWhitespaceKeys.length}, normalization=${nonNormalizedKeys.length}, unsafe-controls=${unsafeControlKeys.length}, placeholders=${placeholderMismatchKeys.length}`,
         );
     }
 
@@ -122,6 +145,12 @@ for (const locale of targetLocales) {
         progress: localized === memberKeys.length ? 'complete' : 'in-progress',
         englishFallbacks: fallbackKeys.length,
         fallbackKeys,
+        qualityIssueKeys: {
+            surroundingWhitespace: surroundingWhitespaceKeys,
+            nonNormalized: nonNormalizedKeys,
+            unsafeControls: unsafeControlKeys,
+            placeholderMismatch: placeholderMismatchKeys,
+        },
     });
 }
 

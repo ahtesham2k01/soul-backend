@@ -1,6 +1,7 @@
 name: Flutter member app
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
