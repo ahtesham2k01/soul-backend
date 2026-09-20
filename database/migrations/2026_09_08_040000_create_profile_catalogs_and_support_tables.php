@@ -36,13 +36,19 @@ return new class extends Migration
         Schema::table('user_profile_interests', function (Blueprint $table): void {
             $table->foreignId('profile_catalog_item_id')->nullable()->after('user_profile_id')
                 ->constrained()->nullOnDelete();
-            $table->index(['user_profile_id', 'profile_catalog_item_id']);
+            $table->index(
+                ['user_profile_id', 'profile_catalog_item_id'],
+                'profile_interest_catalog_item_index',
+            );
         });
 
         Schema::table('user_profile_traits', function (Blueprint $table): void {
             $table->foreignId('profile_catalog_item_id')->nullable()->after('user_profile_id')
                 ->constrained()->nullOnDelete();
-            $table->index(['user_profile_id', 'profile_catalog_item_id']);
+            $table->index(
+                ['user_profile_id', 'profile_catalog_item_id'],
+                'profile_trait_catalog_item_index',
+            );
         });
 
         Schema::create('help_categories', function (Blueprint $table): void {
