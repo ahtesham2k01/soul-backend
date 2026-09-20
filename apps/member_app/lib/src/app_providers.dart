@@ -6,6 +6,7 @@ import 'core/session_store.dart';
 import 'features/auth/auth_repository.dart';
 import 'features/auth/native_identity_service.dart';
 import 'features/bootstrap/bootstrap_repository.dart';
+import 'features/chat/chat_repository.dart';
 import 'features/discovery/discovery_repository.dart';
 
 final sessionStoreProvider = Provider<SessionStore>(
@@ -52,4 +53,8 @@ final sessionRouteProvider = FutureProvider<String>((ref) async {
 
 final discoveryRepositoryProvider = Provider<DiscoveryRepository>(
   (ref) => DiscoveryRepository(ref.watch(apiClientProvider)),
+);
+
+final chatRepositoryProvider = Provider<ChatRepository>(
+  (ref) => ChatRepository(ref.watch(apiClientProvider)),
 );

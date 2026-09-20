@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:dio/dio.dart';
 
 import 'environment.dart';
@@ -58,6 +60,36 @@ class SoulApiClient {
 
   Future<Map<String, dynamic>> delete(String path, {Object? data}) =>
       _request('DELETE', path, data: data);
+
+  Future<Uint8List> getBytes(String path) async {
+    try {
+      final response = await _dio.get<List<int>>(
+        path,
+        options: Options(
+          responseType: ResponseType.bytes,
+          headers: const {'Accept': 'image/*'},
+        ),
+      );
+      final bytes = response.data;
+      if (bytes == null || bytes.isEmpty) {
+        throw const SoulApiFailure(
+          statusCode: null,
+          code: 'INVALID_RESPONSE',
+          message: 'SOUL returned an empty protected image.',
+        );
+      }
+      return Uint8List.fromList(bytes);
+    } on DioException catch (error) {
+      if (error.response?.statusCode == 401) {
+        await _sessions.clear();
+      }
+      throw SoulApiFailure(
+        statusCode: error.response?.statusCode,
+        code: 'MEDIA_REQUEST_FAILED',
+        message: 'Unable to load this protected photo right now.',
+      );
+    }
+  }
 
   Future<Map<String, dynamic>> _request(
     String method,

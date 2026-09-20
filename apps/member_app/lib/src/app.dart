@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app_providers.dart';
 import 'core/soul_theme.dart';
 import 'features/bootstrap/bootstrap_repository.dart';
+import 'features/chat/chat_list_screen.dart';
 import 'features/discovery/discovery_screen.dart';
 import 'features/launch/launch_screen.dart';
 import 'features/likes/received_likes_screen.dart';
@@ -126,6 +127,7 @@ class _SignedInShellState extends ConsumerState<_SignedInShell> {
   Widget build(BuildContext context) {
     final labels = widget.labels;
     final discovery = ref.watch(discoveryRepositoryProvider);
+    final chat = ref.watch(chatRepositoryProvider);
     final pages = <Widget>[
       DiscoveryScreen(repository: discovery, labels: labels),
       ReceivedLikesScreen(
@@ -133,10 +135,7 @@ class _SignedInShellState extends ConsumerState<_SignedInShell> {
         labels: labels,
         onStartDiscovering: () => setState(() => _index = 0),
       ),
-      _ComingSoon(
-        icon: Icons.chat_bubble_outline_rounded,
-        title: labels.text('nav.chat', 'Chat'),
-      ),
+      ChatListScreen(repository: chat, labels: labels),
       _ComingSoon(
         icon: Icons.person_outline_rounded,
         title: labels.text('nav.profile', 'Profile'),

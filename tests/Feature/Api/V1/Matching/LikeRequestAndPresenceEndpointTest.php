@@ -4,6 +4,7 @@ namespace Tests\Feature\Api\V1\Matching;
 
 use App\Models\Conversation;
 use App\Models\ProfileDecision;
+use App\Models\ProfilePhoto;
 use App\Models\User;
 use App\Models\UserMatch;
 use App\Models\UserProfile;
@@ -102,11 +103,22 @@ class LikeRequestAndPresenceEndpointTest extends TestCase
         $second->profile->update(['last_active_at' => now()]);
         $conversation = Conversation::query()->create(['user_match_id' => $match->id, 'last_message_at' => now()]);
         $message = $conversation->messages()->create(['sender_user_id' => $second->id, 'body' => 'Salam']);
+        ProfilePhoto::factory()->for($second->profile)->create([
+            'position' => 1,
+            'visibility' => 'public',
+            'provider_asset_id' => 'soul/users/chat-cover',
+            'format' => 'jpg',
+            'moderation_status' => 'approved',
+        ]);
+        config()->set('soul.media.cloudinary.cloud_name', 'demo');
         Sanctum::actingAs($first);
 
         $this->getJson('/api/v1/matches')->assertOk()
             ->assertJsonPath('data.matches.0.presence.is_online', true)
+            ->assertJsonPath('data.matches.0.profile.photo.id', fn ($value) => is_string($value) && $value !== '')
+            ->assertJsonPath('data.matches.0.profile.photo.url', 'https://res.cloudinary.com/demo/image/upload/c_fill,g_auto,h_1600,q_auto,w_1200/soul/users/chat-cover.jpg')
             ->assertJsonPath('data.matches.0.conversation.last_message.id', $message->public_id)
+            ->assertJsonPath('data.matches.0.conversation.last_message.read_at', null)
             ->assertJsonPath('data.matches.0.conversation.unread_count', 1);
     }
 
