@@ -250,34 +250,24 @@ class _DiscoveryFiltersScreenState extends State<DiscoveryFiltersScreen> {
                   _SectionTitle(labels.text('profile.religion', 'Religion or belief')),
                   _FilterCard(
                     children: [
-                      RadioListTile<String>(
-                        value: 'my_religion',
-                        groupValue: _religionMode,
-                        contentPadding:
-                            const EdgeInsets.symmetric(horizontal: 8),
-                        title: Text(
-                          labels.text(
-                            'discovery.my_religion',
-                            'My Religion',
-                          ),
+                      _SelectRow(
+                        label: labels.text(
+                          'discovery.my_religion',
+                          'My Religion',
                         ),
-                        onChanged: (value) =>
-                            setState(() => _religionMode = value!),
+                        selected: _religionMode == 'my_religion',
+                        onTap: () =>
+                            setState(() => _religionMode = 'my_religion'),
                       ),
                       const Divider(height: 1),
-                      RadioListTile<String>(
-                        value: 'all_religions',
-                        groupValue: _religionMode,
-                        contentPadding:
-                            const EdgeInsets.symmetric(horizontal: 8),
-                        title: Text(
-                          labels.text(
-                            'discovery.all_religions',
-                            'All Religions',
-                          ),
+                      _SelectRow(
+                        label: labels.text(
+                          'discovery.all_religions',
+                          'All Religions',
                         ),
-                        onChanged: (value) =>
-                            setState(() => _religionMode = value!),
+                        selected: _religionMode == 'all_religions',
+                        onTap: () =>
+                            setState(() => _religionMode = 'all_religions'),
                       ),
                     ],
                   ),
@@ -398,14 +388,11 @@ class _DiscoveryFiltersScreenState extends State<DiscoveryFiltersScreen> {
                       ),
                     ],
                   ),
-                  RadioListTile<String>(
-                    value: 'current',
-                    groupValue: _locationMode,
-                    title: Text(
-                      widget.labels.text('profile.city', 'Current city'),
-                    ),
-                    onChanged: (value) => update(() {
-                      _locationMode = value!;
+                  _SelectRow(
+                    label: widget.labels.text('profile.city', 'Current city'),
+                    selected: _locationMode == 'current',
+                    onTap: () => update(() {
+                      _locationMode = 'current';
                     }),
                   ),
                   if (_locationMode == 'current') ...[
@@ -429,7 +416,7 @@ class _DiscoveryFiltersScreenState extends State<DiscoveryFiltersScreen> {
                       ),
                     ),
                     DropdownButtonFormField<int?>(
-                      value: _radiusKm,
+                      initialValue: _radiusKm,
                       decoration: const InputDecoration(
                         contentPadding:
                             EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -454,14 +441,11 @@ class _DiscoveryFiltersScreenState extends State<DiscoveryFiltersScreen> {
                       onChanged: (value) => update(() => _radiusKm = value),
                     ),
                   ],
-                  RadioListTile<String>(
-                    value: 'selected',
-                    groupValue: _locationMode,
-                    title: Text(
-                      widget.labels.text('profile.country', 'Country'),
-                    ),
-                    onChanged: (value) => update(() {
-                      _locationMode = value!;
+                  _SelectRow(
+                    label: widget.labels.text('profile.country', 'Country'),
+                    selected: _locationMode == 'selected',
+                    onTap: () => update(() {
+                      _locationMode = 'selected';
                       _sameCountry = false;
                     }),
                   ),
@@ -491,14 +475,14 @@ class _DiscoveryFiltersScreenState extends State<DiscoveryFiltersScreen> {
                       onChanged: (_) => setSheetState(() {}),
                     ),
                   ],
-                  RadioListTile<String>(
-                    value: 'anywhere',
-                    groupValue: _locationMode,
-                    title: Text(
-                      widget.labels.text('discovery.anywhere', 'Anywhere'),
+                  _SelectRow(
+                    label: widget.labels.text(
+                      'discovery.anywhere',
+                      'Anywhere',
                     ),
-                    onChanged: (value) => update(() {
-                      _locationMode = value!;
+                    selected: _locationMode == 'anywhere',
+                    onTap: () => update(() {
+                      _locationMode = 'anywhere';
                       _sameCountry = false;
                       _radiusKm = null;
                     }),
@@ -537,6 +521,37 @@ class _DiscoveryFiltersScreenState extends State<DiscoveryFiltersScreen> {
             }
           });
         },
+      );
+}
+
+class _SelectRow extends StatelessWidget {
+  const _SelectRow({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => ListTile(
+        onTap: onTap,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14),
+        title: Text(
+          label,
+          style: const TextStyle(
+            color: SoulColors.ink,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        trailing: Icon(
+          selected
+              ? Icons.radio_button_checked_rounded
+              : Icons.radio_button_off_rounded,
+          color: selected ? SoulColors.lime : SoulColors.muted,
+        ),
       );
 }
 
