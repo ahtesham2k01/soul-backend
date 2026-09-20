@@ -251,52 +251,22 @@ class LoginOtpEndpointTest extends TestCase
         );
     }
 
-    public function test_blocked_and_deletion_scheduled_users_can_login_only_for_recovery(): void
+    public function test_blocked_user_can_login_only_for_account_appeal(): void
     {
-        foreach ([
-            User::STATUS_BLOCKED => 'account_appeal',
-            User::STATUS_DELETION_SCHEDULED => 'deletion_recovery',
-        ] as $status => $nextStep) {
-            $email = str_replace('_', '-', $status).'@example.com';
-            $user = User::factory()->create([
-                'email' => $email,
-                'status' => $status,
-                'onboarding_completed_at' => now(),
-            ]);
+        $this->assertRestrictedRecoveryLogin(
+            User::STATUS_BLOCKED,
+            'account_appeal',
+            'blocked@example.com',
+        );
+    }
 
-            $issued = $this->issueLoginOtp($email);
-
-            $response = $this->postJson(
-                '/api/v1/auth/login/verify-otp',
-                $this->verificationPayload(
-                    issued: $issued,
-                    email: $email,
-                ),
-            );
-
-            $response
-                ->assertOk()
-                ->assertJsonPath('data.user.status', $status)
-                ->assertJsonPath('data.next_step', $nextStep);
-
-            $token = $response->json('data.authentication.access_token');
-            $this->assertIsString($token);
-
-            $this->withToken($token)
-                ->getJson('/api/v1/auth/status')
-                ->assertOk()
-                ->assertJsonPath('data.status', $status);
-
-            $this->withToken($token)
-                ->getJson('/api/v1/auth/me')
-                ->assertForbidden()
-                ->assertJsonPath('error.code', 'ACCOUNT_UNAVAILABLE');
-
-            $this->assertDatabaseHas('personal_access_tokens', [
-                'tokenable_id' => $user->id,
-                'name' => 'Test iPhone',
-            ]);
-        }
+    public function test_deletion_scheduled_user_can_login_only_for_recovery(): void
+    {
+        $this->assertRestrictedRecoveryLogin(
+            User::STATUS_DELETION_SCHEDULED,
+            'deletion_recovery',
+            'deletion-scheduled@example.com',
+        );
     }
 
     public function test_suspended_user_cannot_login(): void
@@ -367,6 +337,51 @@ class LoginOtpEndpointTest extends TestCase
                 'data.next_step',
                 'home',
             );
+    }
+
+    private function assertRestrictedRecoveryLogin(
+        string $status,
+        string $nextStep,
+        string $email,
+    ): void {
+        $user = User::factory()->create([
+            'email' => $email,
+            'status' => $status,
+            'onboarding_completed_at' => now(),
+        ]);
+
+        $issued = $this->issueLoginOtp($email);
+
+        $response = $this->postJson(
+            '/api/v1/auth/login/verify-otp',
+            $this->verificationPayload(
+                issued: $issued,
+                email: $email,
+            ),
+        );
+
+        $response
+            ->assertOk()
+            ->assertJsonPath('data.user.status', $status)
+            ->assertJsonPath('data.next_step', $nextStep);
+
+        $token = $response->json('data.authentication.access_token');
+        $this->assertIsString($token);
+
+        $this->withToken($token)
+            ->getJson('/api/v1/auth/status')
+            ->assertOk()
+            ->assertJsonPath('data.status', $status);
+
+        $this->withToken($token)
+            ->getJson('/api/v1/auth/me')
+            ->assertForbidden()
+            ->assertJsonPath('error.code', 'ACCOUNT_UNAVAILABLE');
+
+        $this->assertDatabaseHas('personal_access_tokens', [
+            'tokenable_id' => $user->id,
+            'name' => 'Test iPhone',
+        ]);
     }
 
     private function issueLoginOtp(
