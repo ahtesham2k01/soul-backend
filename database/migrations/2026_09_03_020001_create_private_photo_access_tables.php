@@ -38,7 +38,11 @@ return new class extends Migration
 
         Schema::create('private_photo_capture_events', function (Blueprint $table): void {
             $table->id();
-            $table->foreignId('private_photo_access_request_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('private_photo_access_request_id');
+            $table->foreign(
+                'private_photo_access_request_id',
+                'private_photo_capture_request_foreign',
+            )->references('id')->on('private_photo_access_requests')->cascadeOnDelete();
             $table->foreignId('profile_photo_id')->constrained()->cascadeOnDelete();
             $table->foreignId('owner_user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('viewer_user_id')->constrained('users')->cascadeOnDelete();
