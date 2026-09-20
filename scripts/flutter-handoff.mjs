@@ -54,11 +54,11 @@ export const flutterFixtures = [
     },
     {
         file: 'discovery-candidates.success.json', operationId: 'api.v1.discovery.candidates.index', kind: 'success',
-        payload: { success: true, message: 'OK', data: { candidates: [{ id: id('03'), first_name: 'Sara', age: 28, marital_status: 'never_married', city: 'Karachi', country: 'PK', distance_band: 'distance.within_10_km', photos: [{ id: id('05'), position: 1 }] }], next_cursor: '<opaque-example-cursor>' }, meta: { request_id: id('94') } },
+        payload: { success: true, message: 'OK', data: { candidates: [{ id: id('03'), first_name: 'Sara', age: 28, marital_status: 'never_married', city: 'Karachi', country: 'PK', distance_band: 'distance.within_10_km', photos: [{ id: id('05'), position: 1, url: 'https://res.cloudinary.com/demo/image/upload/c_fill,g_auto,h_1600,q_auto,w_1200/soul/users/example.jpg' }] }], next_cursor: '<opaque-example-cursor>' }, meta: { request_id: id('94') } },
     },
     {
         file: 'public-profile.success.json', operationId: 'api.v1.profiles.show', kind: 'success',
-        payload: { success: true, message: 'OK', data: { profile: { id: id('03'), first_name: 'Sara', age: 28, gender: 'woman', marital_status: 'never_married', city: 'Karachi', country: 'PK', intentions: ['marriage'], interests: ['Reading'], personality_traits: ['Kind'], spoken_languages: [], religion: null, photos: [{ id: id('05'), position: 1 }], verification_badges: { phone: true, selfie: false, identity_age: false } } }, meta: { request_id: id('95') } },
+        payload: { success: true, message: 'OK', data: { profile: { id: id('03'), first_name: 'Sara', age: 28, gender: 'woman', marital_status: 'never_married', city: 'Karachi', country: 'PK', intentions: ['marriage'], interests: ['Reading'], personality_traits: ['Kind'], spoken_languages: [], religion: null, photos: [{ id: id('05'), position: 1, url: 'https://res.cloudinary.com/demo/image/upload/c_fill,g_auto,h_1600,q_auto,w_1200/soul/users/example.jpg' }], verification_badges: { phone: true, selfie: false, identity_age: false } } }, meta: { request_id: id('95') } },
     },
     {
         file: 'matches.success.json', operationId: 'api.v1.matches.index', kind: 'success',
@@ -339,9 +339,9 @@ class SoulReadiness {
 }
 
 class SoulProfilePhotoReference {
-  const SoulProfilePhotoReference({required this.id, required this.position});
-  final String id; final int position;
-  factory SoulProfilePhotoReference.fromJson(SoulJson json) => SoulProfilePhotoReference(id: soulString(json, 'id'), position: soulInt(json, 'position'));
+  const SoulProfilePhotoReference({required this.id, required this.position, this.url});
+  final String id; final int position; final String? url;
+  factory SoulProfilePhotoReference.fromJson(SoulJson json) => SoulProfilePhotoReference(id: soulString(json, 'id'), position: soulInt(json, 'position'), url: soulNullableString(json, 'url'));
 }
 
 class SoulDiscoveryCandidate {
