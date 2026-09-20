@@ -125,7 +125,7 @@ class _DiscoveryFiltersScreenState extends State<DiscoveryFiltersScreen> {
     if (_radiusKm == null) {
       return widget.labels.text('profile.city', 'Current city');
     }
-    return '${_radiusKm} km';
+    return '$_radiusKm km';
   }
 
   @override
