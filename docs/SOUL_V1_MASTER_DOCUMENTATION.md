@@ -2000,7 +2000,7 @@ Brazilian Portuguese, European Portuguese, Polish and Ukrainian now have complet
 
 Hebrew, Punjabi and Gujarati now have complete draft coverage for all 179 member-facing keys, with no unresolved English fallbacks. Their coverage includes authentication, navigation, profile creation and detailed answers, photo review, onboarding, discovery, matching, likes, chat, report/block safety, notifications, privacy/account settings, private-photo protection, distance labels and legal-consent prompts. The coverage gate prevents these catalogs from regressing. Hebrew remains an RTL catalog and Flutter must render it using the bootstrap direction rather than hard-coded language rules. All three remain drafts until native-language review and device QA are complete.
 
-Marathi, Tamil and Telugu now provide reviewed draft copy for the first 59 of 179 member-facing keys. Their implemented journey covers bootstrap and location messages, social and email entry, authentication failures, shared actions, primary navigation, discovery, matching and chat presence/messaging. The remaining keys continue to use safe English fallbacks until later translation packages and native-language review.
+Marathi, Tamil and Telugu now provide reviewed draft copy for the first 104 of 179 member-facing keys. Their implemented journey covers bootstrap and location messages, social and email entry, authentication failures, shared actions, primary navigation, discovery, matching, chat presence/messaging, core profile creation, public/private photo review states, onboarding review/submission and report/block safety actions. The remaining keys continue to use safe English fallbacks until later translation packages and native-language review.
 
 ### Flutter: load translations
 
