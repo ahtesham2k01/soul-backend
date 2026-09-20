@@ -16,7 +16,10 @@ return new class extends Migration
             $table->unsignedTinyInteger('maximum_age')->default(100);
             $table->boolean('same_country_only')->default(true);
             $table->timestamps();
-            $table->index(['preferred_gender', 'minimum_age', 'maximum_age']);
+            $table->index(
+                ['preferred_gender', 'minimum_age', 'maximum_age'],
+                'discovery_preferences_gender_age_index',
+            );
         });
     }
 

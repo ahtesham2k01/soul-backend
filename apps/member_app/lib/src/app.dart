@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_providers.dart';
 import 'features/auth/auth_screen.dart';
-import 'features/bootstrap/bootstrap_repository.dart';
 
 class SoulApp extends ConsumerWidget {
   const SoulApp({super.key});

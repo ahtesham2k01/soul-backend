@@ -64,14 +64,14 @@ class PrivacyEndpointTest extends TestCase
         $this->assertSame([
             'decisions', 'matches', 'messages', 'blocks', 'reports', 'notifications',
             'legal_acceptances', 'verification_cases', 'subscriptions', 'event_registrations',
-            'support_tickets', 'devices', 'support_messages', 'support_attachments',
+            'support_tickets', 'support_messages', 'support_attachments', 'devices',
             'notification_preferences', 'profile_interests', 'profile_traits', 'profile_status_history',
             'private_photo_access_requests', 'private_photo_capture_events', 'verification_appeals',
             'account_appeals', 'event_reports',
         ], array_values(array_intersect(array_keys($export), [
             'decisions', 'matches', 'messages', 'blocks', 'reports', 'notifications',
             'legal_acceptances', 'verification_cases', 'subscriptions', 'event_registrations',
-            'support_tickets', 'devices', 'support_messages', 'support_attachments',
+            'support_tickets', 'support_messages', 'support_attachments', 'devices',
             'notification_preferences', 'profile_interests', 'profile_traits', 'profile_status_history',
             'private_photo_access_requests', 'private_photo_capture_events', 'verification_appeals',
             'account_appeals', 'event_reports',

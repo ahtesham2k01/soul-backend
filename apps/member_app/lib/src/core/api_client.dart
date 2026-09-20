@@ -77,11 +77,14 @@ class SoulApiClient {
       final details = errorBody is Map<String, dynamic>
           ? errorBody['details']
           : null;
-      final fields = details is Map<String, dynamic> && details['fields'] is Map
-          ? (details['fields'] as Map).map(
+      final Map<String, List<String>> fields =
+          details is Map<String, dynamic> && details['fields'] is Map
+          ? (details['fields'] as Map<dynamic, dynamic>).map<String, List<String>>(
               (key, value) => MapEntry(
                 key.toString(),
-                value is List ? value.map((item) => item.toString()).toList() : const [],
+                value is List
+                    ? value.map((item) => item.toString()).toList()
+                    : const <String>[],
               ),
             )
           : const <String, List<String>>{};
