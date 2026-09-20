@@ -53,6 +53,9 @@ void main() {
       'profile': {
         'id': '01HPROFILE',
         'first_name': 'Ayesha',
+        'age': 27,
+        'city': 'Karachi',
+        'country': 'PK',
         'photo': {
           'id': '01HPHOTO',
           'position': 1,
@@ -64,6 +67,9 @@ void main() {
 
     expect(like.profileId, '01HPROFILE');
     expect(like.firstName, 'Ayesha');
+    expect(like.age, 27);
+    expect(like.city, 'Karachi');
+    expect(like.country, 'PK');
     expect(like.photoUrl, 'https://example.test/photo.jpg');
   });
 }

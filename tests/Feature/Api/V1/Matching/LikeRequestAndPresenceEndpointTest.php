@@ -26,7 +26,9 @@ class LikeRequestAndPresenceEndpointTest extends TestCase
 
         $this->getJson('/api/v1/likes/received')->assertOk()
             ->assertJsonCount(1, 'data.requests')
-            ->assertJsonPath('data.requests.0.profile.id', $sender->profile->public_id);
+            ->assertJsonPath('data.requests.0.profile.id', $sender->profile->public_id)
+            ->assertJsonPath('data.requests.0.profile.age', $sender->profile->date_of_birth->age)
+            ->assertJsonPath('data.requests.0.profile.country', $sender->profile->country_code);
 
         $matchId = $this->putJson("/api/v1/profiles/{$sender->profile->public_id}/like", ['decision' => 'accept'])
             ->assertOk()->assertJsonPath('data.matched', true)->json('data.match_id');

@@ -40,7 +40,7 @@ class LikeRequestController extends Controller
                 ->orWhere(fn ($block) => $block
                     ->where('blocker_user_id', $user->id)
                     ->whereColumn('blocked_user_id', 'profile_decisions.actor_user_id')))
-            ->with(['actor.profile.photos' => fn ($query) => $query
+            ->with(['actor.privacySetting', 'actor.profile.photos' => fn ($query) => $query
                 ->where('visibility', ProfilePhotoVisibility::Public->value)
                 ->where('moderation_status', ProfilePhotoModerationStatus::Approved->value)
                 ->orderBy('position')])
@@ -52,6 +52,9 @@ class LikeRequestController extends Controller
                 'profile' => [
                     'id' => $like->actor->profile->public_id,
                     'first_name' => $like->actor->profile->first_name,
+                    'age' => $like->actor->profile->date_of_birth->age,
+                    'city' => $like->actor->privacySetting?->show_city === false ? null : $like->actor->profile->city_name,
+                    'country' => $like->actor->profile->country_code,
                     'photo' => ($photo = $like->actor->profile->photos->first()) === null ? null : [
                         'id' => $photo->public_id,
                         'position' => $photo->position,

@@ -153,12 +153,18 @@ class IncomingLike {
     required this.profileId,
     required this.firstName,
     required this.receivedAt,
+    this.age,
+    this.city,
+    this.country,
     this.photoUrl,
   });
 
   final String profileId;
   final String firstName;
   final DateTime? receivedAt;
+  final int? age;
+  final String? city;
+  final String? country;
   final String? photoUrl;
 
   factory IncomingLike.fromJson(Map<String, dynamic> json) {
@@ -173,6 +179,9 @@ class IncomingLike {
       profileId: mapped['id']?.toString() ?? '',
       firstName: mapped['first_name']?.toString() ?? '',
       receivedAt: DateTime.tryParse(json['received_at']?.toString() ?? ''),
+      age: (mapped['age'] as num?)?.toInt(),
+      city: mapped['city']?.toString(),
+      country: mapped['country']?.toString(),
       photoUrl: photoMap['url']?.toString(),
     );
   }

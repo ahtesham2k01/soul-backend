@@ -128,7 +128,11 @@ class _SignedInShellState extends ConsumerState<_SignedInShell> {
     final discovery = ref.watch(discoveryRepositoryProvider);
     final pages = <Widget>[
       DiscoveryScreen(repository: discovery, labels: labels),
-      ReceivedLikesScreen(repository: discovery, labels: labels),
+      ReceivedLikesScreen(
+        repository: discovery,
+        labels: labels,
+        onStartDiscovering: () => setState(() => _index = 0),
+      ),
       _ComingSoon(
         icon: Icons.chat_bubble_outline_rounded,
         title: labels.text('nav.chat', 'Chat'),
@@ -138,36 +142,158 @@ class _SignedInShellState extends ConsumerState<_SignedInShell> {
         title: labels.text('nav.profile', 'Profile'),
       ),
     ];
+
     return Scaffold(
+      extendBody: true,
       body: IndexedStack(index: _index, children: pages),
-      bottomNavigationBar: NavigationBar(
+      bottomNavigationBar: _SoulBottomBar(
         selectedIndex: _index,
-        onDestinationSelected: (value) => setState(() => _index = value),
-        destinations: [
-          NavigationDestination(
-            icon: const Icon(Icons.favorite_outline_rounded),
-            selectedIcon: const Icon(Icons.favorite_rounded),
-            label: labels.text('nav.home', 'Home'),
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.auto_awesome_outlined),
-            selectedIcon: const Icon(Icons.auto_awesome_rounded),
-            label: labels.text('nav.explore', 'Explore'),
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.chat_bubble_outline_rounded),
-            selectedIcon: const Icon(Icons.chat_bubble_rounded),
-            label: labels.text('nav.chat', 'Chat'),
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.person_outline_rounded),
-            selectedIcon: const Icon(Icons.person_rounded),
-            label: labels.text('nav.profile', 'Profile'),
-          ),
+        dark: _index == 0,
+        labels: [
+          labels.text('nav.home', 'Home'),
+          labels.text('nav.explore', 'Explore'),
+          labels.text('nav.chat', 'Chat'),
+          labels.text('nav.profile', 'Profile'),
         ],
+        onSelected: (value) => setState(() => _index = value),
       ),
     );
   }
+}
+
+class _SoulBottomBar extends StatelessWidget {
+  const _SoulBottomBar({
+    required this.selectedIndex,
+    required this.dark,
+    required this.labels,
+    required this.onSelected,
+  });
+
+  final int selectedIndex;
+  final bool dark;
+  final List<String> labels;
+  final ValueChanged<int> onSelected;
+
+  static const _icons = <IconData>[
+    Icons.home_rounded,
+    Icons.favorite_rounded,
+    Icons.chat_bubble_outline_rounded,
+    Icons.person_outline_rounded,
+  ];
+
+  @override
+  Widget build(BuildContext context) => SafeArea(
+        minimum: const EdgeInsets.fromLTRB(24, 0, 24, 10),
+        child: Align(
+          alignment: Alignment.bottomCenter,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            height: 66,
+            padding: const EdgeInsets.symmetric(horizontal: 7),
+            decoration: BoxDecoration(
+              color: dark ? const Color(0xaa1c1c1c) : Colors.white,
+              borderRadius: BorderRadius.circular(34),
+              border: Border.all(
+                color: dark ? Colors.white24 : SoulColors.line,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(dark ? 0.16 : 0.08),
+                  blurRadius: 20,
+                  offset: const Offset(0, 7),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: List.generate(
+                _icons.length,
+                (index) => _BottomBarItem(
+                  icon: _icons[index],
+                  label: labels[index],
+                  selected: index == selectedIndex,
+                  dark: dark,
+                  onTap: () => onSelected(index),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+}
+
+class _BottomBarItem extends StatelessWidget {
+  const _BottomBarItem({
+    required this.icon,
+    required this.label,
+    required this.selected,
+    required this.dark,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final bool selected;
+  final bool dark;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+        button: true,
+        selected: selected,
+        label: label,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 2),
+          child: Material(
+            color: selected
+                ? SoulColors.limeLight
+                : dark
+                    ? const Color(0x22ffffff)
+                    : Colors.white,
+            borderRadius: BorderRadius.circular(28),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(28),
+              onTap: onTap,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                width: selected ? 104 : 52,
+                height: 52,
+                padding: const EdgeInsets.symmetric(horizontal: 13),
+                child: selected
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            icon,
+                            size: 23,
+                            color: SoulColors.ink,
+                          ),
+                          const SizedBox(width: 7),
+                          Flexible(
+                            child: Text(
+                              label,
+                              maxLines: 1,
+                              overflow: TextOverflow.fade,
+                              softWrap: false,
+                              style: const TextStyle(
+                                color: SoulColors.ink,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 15,
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    : Icon(
+                        icon,
+                        size: 25,
+                        color: dark ? Colors.white : SoulColors.ink,
+                      ),
+              ),
+            ),
+          ),
+        ),
+      );
 }
 
 class _ComingSoon extends StatelessWidget {
