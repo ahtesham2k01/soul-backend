@@ -7,6 +7,18 @@ use Tests\TestCase;
 
 class CloudinaryDeliveryUrlTest extends TestCase
 {
+    public function test_it_generates_a_public_delivery_url_with_safe_transformations(): void
+    {
+        config(['soul.media.cloudinary.cloud_name' => 'demo']);
+
+        $url = app(CloudinaryDeliveryUrl::class)->forPublicImage('soul/users/example cover', 'jpg');
+
+        $this->assertSame(
+            'https://res.cloudinary.com/demo/image/upload/c_fill,g_auto,h_1600,q_auto,w_1200/soul/users/example%20cover.jpg',
+            $url,
+        );
+    }
+
     public function test_it_generates_an_authenticated_delivery_signature_without_exposing_secret(): void
     {
         config([

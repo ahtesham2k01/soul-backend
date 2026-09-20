@@ -6,6 +6,7 @@ import 'core/session_store.dart';
 import 'features/auth/auth_repository.dart';
 import 'features/auth/native_identity_service.dart';
 import 'features/bootstrap/bootstrap_repository.dart';
+import 'features/discovery/discovery_repository.dart';
 
 final sessionStoreProvider = Provider<SessionStore>(
   (ref) => SessionStore(const FlutterSecureStorage()),
@@ -48,3 +49,7 @@ final sessionRouteProvider = FutureProvider<String>((ref) async {
     rethrow;
   }
 });
+
+final discoveryRepositoryProvider = Provider<DiscoveryRepository>(
+  (ref) => DiscoveryRepository(ref.watch(apiClientProvider)),
+);

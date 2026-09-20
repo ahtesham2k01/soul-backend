@@ -12,12 +12,13 @@ use App\Models\User;
 use App\Models\UserProfile;
 use App\Support\ApiResponse;
 use App\Support\Discovery\DistanceBand;
+use App\Support\Media\CloudinaryDeliveryUrl;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ListCandidatesController extends Controller
 {
-    public function __invoke(Request $request, DistanceBand $distanceBand): JsonResponse
+    public function __invoke(Request $request, DistanceBand $distanceBand, CloudinaryDeliveryUrl $deliveryUrl): JsonResponse
     {
         $user = $request->user();
         $viewer = $user->profile()->first();
@@ -152,6 +153,9 @@ class ListCandidatesController extends Controller
                 'photos' => $profile->photos->map(fn ($photo): array => [
                     'id' => $photo->public_id,
                     'position' => $photo->position,
+                    'url' => $photo->format === null || ! filled(config('soul.media.cloudinary.cloud_name'))
+                        ? null
+                        : $deliveryUrl->forPublicImage($photo->provider_asset_id, $photo->format),
                 ])->values(),
             ])->values(),
             'next_cursor' => $page->nextCursor()?->encode(),

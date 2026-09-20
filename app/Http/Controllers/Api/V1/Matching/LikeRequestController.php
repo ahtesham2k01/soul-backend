@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\V1\Matching;
 
+use App\Enums\Profile\ProfilePhotoModerationStatus;
+use App\Enums\Profile\ProfilePhotoVisibility;
 use App\Enums\Profile\ProfileStatus;
 use App\Http\Controllers\Controller;
 use App\Models\ProfileDecision;
@@ -9,6 +11,7 @@ use App\Models\User;
 use App\Models\UserMatch;
 use App\Models\UserProfile;
 use App\Support\ApiResponse;
+use App\Support\Media\CloudinaryDeliveryUrl;
 use App\Support\Notifications\UserNotifier;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -17,7 +20,7 @@ use Illuminate\Validation\Rule;
 
 class LikeRequestController extends Controller
 {
-    public function __construct(private readonly UserNotifier $notifier) {}
+    public function __construct(private readonly UserNotifier $notifier, private readonly CloudinaryDeliveryUrl $deliveryUrl) {}
 
     public function index(Request $request): JsonResponse
     {
@@ -37,7 +40,10 @@ class LikeRequestController extends Controller
                 ->orWhere(fn ($block) => $block
                     ->where('blocker_user_id', $user->id)
                     ->whereColumn('blocked_user_id', 'profile_decisions.actor_user_id')))
-            ->with(['actor.profile'])
+            ->with(['actor.profile.photos' => fn ($query) => $query
+                ->where('visibility', ProfilePhotoVisibility::Public->value)
+                ->where('moderation_status', ProfilePhotoModerationStatus::Approved->value)
+                ->orderBy('position')])
             ->orderByDesc('id')
             ->cursorPaginate(20);
 
@@ -46,6 +52,13 @@ class LikeRequestController extends Controller
                 'profile' => [
                     'id' => $like->actor->profile->public_id,
                     'first_name' => $like->actor->profile->first_name,
+                    'photo' => ($photo = $like->actor->profile->photos->first()) === null ? null : [
+                        'id' => $photo->public_id,
+                        'position' => $photo->position,
+                        'url' => $photo->format === null || ! filled(config('soul.media.cloudinary.cloud_name'))
+                            ? null
+                            : $this->deliveryUrl->forPublicImage($photo->provider_asset_id, $photo->format),
+                    ],
                 ],
                 'received_at' => $like->created_at->toIso8601String(),
             ])->values(),

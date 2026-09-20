@@ -4,6 +4,15 @@ namespace App\Support\Media;
 
 final class CloudinaryDeliveryUrl
 {
+    public function forPublicImage(string $publicId, string $format): string
+    {
+        $cloudName = rawurlencode((string) config('soul.media.cloudinary.cloud_name'));
+        $path = implode('/', array_map('rawurlencode', explode('/', $publicId)));
+        $extension = rawurlencode($format);
+
+        return "https://res.cloudinary.com/{$cloudName}/image/upload/c_fill,g_auto,h_1600,q_auto,w_1200/{$path}.{$extension}";
+    }
+
     public function forAuthenticatedImage(string $publicId, string $format): string
     {
         $cloudName = rawurlencode((string) config('soul.media.cloudinary.cloud_name'));

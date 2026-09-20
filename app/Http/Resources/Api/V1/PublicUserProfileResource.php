@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Api\V1;
 
 use App\Models\UserProfile;
+use App\Support\Media\CloudinaryDeliveryUrl;
 use App\Support\Verification\VerificationSummary;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -17,6 +18,7 @@ class PublicUserProfileResource extends JsonResource
         $optional = fn (string $field): mixed => in_array($field, $withheld, true) ? null : $this->{$field};
         $religion = $this->user->religionProfile;
         $verification = app(VerificationSummary::class)->for($this->user);
+        $deliveryUrl = app(CloudinaryDeliveryUrl::class);
 
         return [
             'id' => $this->public_id,
@@ -63,6 +65,9 @@ class PublicUserProfileResource extends JsonResource
             'photos' => $this->photos->map(fn ($photo): array => [
                 'id' => $photo->public_id,
                 'position' => $photo->position,
+                'url' => $photo->format === null || ! filled(config('soul.media.cloudinary.cloud_name'))
+                    ? null
+                    : $deliveryUrl->forPublicImage($photo->provider_asset_id, $photo->format),
             ])->values(),
             'verification_badges' => [
                 'phone' => $verification['phone']['verified'],

@@ -249,9 +249,9 @@ class SoulReadiness {
 }
 
 class SoulProfilePhotoReference {
-  const SoulProfilePhotoReference({required this.id, required this.position});
-  final String id; final int position;
-  factory SoulProfilePhotoReference.fromJson(SoulJson json) => SoulProfilePhotoReference(id: soulString(json, 'id'), position: soulInt(json, 'position'));
+  const SoulProfilePhotoReference({required this.id, required this.position, this.url});
+  final String id; final int position; final String? url;
+  factory SoulProfilePhotoReference.fromJson(SoulJson json) => SoulProfilePhotoReference(id: soulString(json, 'id'), position: soulInt(json, 'position'), url: soulNullableString(json, 'url'));
 }
 
 class SoulDiscoveryCandidate {
