@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'dart:ui';
 
 import 'package:dio/dio.dart';
 
@@ -39,7 +40,9 @@ class SoulApiClient {
           if (token != null && token.isNotEmpty) {
             options.headers['Authorization'] = 'Bearer $token';
           }
-          options.headers['Accept-Language'] = 'en';
+          options.headers['Accept-Language'] =
+              await _sessions.readLocale() ??
+              PlatformDispatcher.instance.locale.toLanguageTag();
           handler.next(options);
         },
       ),

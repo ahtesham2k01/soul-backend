@@ -13,6 +13,19 @@ final class CloudinaryDeliveryUrl
         return "https://res.cloudinary.com/{$cloudName}/image/upload/c_fill,g_auto,h_1600,q_auto,w_1200/{$path}.{$extension}";
     }
 
+    public function forProfileImage(string $publicId, string $format, string $deliveryType): ?string
+    {
+        if ($deliveryType === 'authenticated') {
+            if (! filled(config('soul.media.cloudinary.api_secret'))) {
+                return null;
+            }
+
+            return $this->forAuthenticatedImage($publicId, $format);
+        }
+
+        return $this->forPublicImage($publicId, $format);
+    }
+
     public function forAuthenticatedImage(string $publicId, string $format): string
     {
         $cloudName = rawurlencode((string) config('soul.media.cloudinary.cloud_name'));

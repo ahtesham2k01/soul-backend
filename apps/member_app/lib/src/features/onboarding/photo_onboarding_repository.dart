@@ -10,6 +10,7 @@ class ProfilePhotoState {
     required this.moderationStatus,
     this.rejectionReason,
     this.faceDetected,
+    this.url,
   });
 
   final int position;
@@ -17,6 +18,7 @@ class ProfilePhotoState {
   final String moderationStatus;
   final String? rejectionReason;
   final bool? faceDetected;
+  final String? url;
 
   factory ProfilePhotoState.fromJson(Map<String, dynamic> json) =>
       ProfilePhotoState(
@@ -25,6 +27,7 @@ class ProfilePhotoState {
         moderationStatus: json['moderation_status']?.toString() ?? 'pending',
         rejectionReason: json['rejection_reason']?.toString(),
         faceDetected: json['face_detected'] as bool?,
+        url: json['url']?.toString(),
       );
 }
 
@@ -118,6 +121,16 @@ class PhotoOnboardingRepository {
       'provider_signature': providerResult['signature'],
       'visibility': position == 1 ? 'public' : visibility,
     });
+  }
+
+  Future<void> updateVisibility(
+    int position,
+    String visibility,
+  ) async {
+    await _api.put(
+      'onboarding/photos/$position/visibility',
+      data: {'visibility': visibility},
+    );
   }
 
   Future<void> delete(int position) =>

@@ -608,7 +608,7 @@ The Flutter member app is maintained in `apps/member_app`. It consumes only the 
 - [x] Mobile M2 — Registration, native Apple/Google authentication, account-state/legal re-consent routing and complete profile/religion onboarding
 - [x] Mobile M3 — Cloudinary photo onboarding, discovery preferences, Figma-aligned full-photo candidate cards, Like/Pass, incoming Likes grid, cursor pagination, loading/empty/retry states and server-generated CDN delivery URLs for approved public photos
 - [x] Mobile M4 — Matches, cursor-paginated chat, read receipts, presence/typing and protected private-photo viewer
-- [ ] Mobile M5 — Safety/report/block/appeal, verification, events, notifications, subscriptions, privacy and device-session settings
+- [x] Mobile M5 — Profile/edit/settings, safety/report/block/appeal, verification, events, notifications, subscription entry, privacy, account recovery and device-session settings
 - [ ] Mobile M6 — Native Android/iOS runner commit, device permissions, Apple/Google store integration, APNs/FCM, accessibility, RTL and full device E2E QA
 
 M1 adds a Linux CI Android debug build. The runner project is generated from the checked-in Flutter package until Flutter is available in the development workspace. iOS signing, APNs, Apple sign-in and store verification require the owner's Apple developer account and a macOS/device verification phase.
@@ -618,6 +618,10 @@ The first M2 vertical slice is implemented from the owner-supplied 188-frame Fig
 The completed M3 flow uses the signed three-step media boundary end to end: Flutter selects and compresses a local gallery image, requests a short-lived Laravel upload session, uploads directly to the returned Cloudinary URL without exposing the provider secret, and registers the exact signed result back with Laravel. Slot 1 is always the public cover; slots 2 and 3 let the member choose public or private before upload. The screen restores saved slots, exposes pending/approved/rejected and clear-face states, shows safe rejection guidance, supports replacement and confirmed deletion, and refreshes server readiness after returning to onboarding. It does not reconstruct provider URLs or place provider asset identifiers in member UI/logs. Native platform photo-library permission descriptions, camera capture and real Cloudinary/device verification remain release work. Discovery preferences, full-photo candidate cards, cursor pagination, Like/Pass, reciprocal match feedback and the Explore-style incoming Likes grid with accept/decline are now wired in Flutter. The M3 presentation follows the supplied Soul1111 Discover, Filters and Explore references while limiting controls to backend-supported V1 filters rather than copying deferred Figma-only options.
 
 Mobile M4 follows the supplied Soul1111 Chat list and message-thread references while using the authoritative Laravel interaction contract. Flutter now lists matches with approved public cover photos, unread counts and presence, provides searchable cursor-paginated conversations, sends text messages, marks incoming messages read, displays read receipts, publishes typing state and refreshes message/presence state on a bounded polling interval until live broadcast transport is configured. The private-photo viewer requests match-bound access, fetches protected content through Laravel into memory, applies the server-provided viewer watermark and never reconstructs authenticated provider URLs. Native Android secure-window enforcement and iOS capture/recording hooks remain Mobile M6 device work; M4 does not make a stronger screenshot-blocking promise than the platform can enforce. Approved public photos receive server-generated Cloudinary CDN URLs; Flutter never reconstructs provider URLs or receives provider secrets.
+
+Mobile M5 follows the supplied Soul1111 Profile, Settings, visibility, events, notification and verification references after removing inherited third-party brand copy and illustrative commercial values. Flutter now renders the authenticated member profile with completion guidance, approved public cover delivery, full supported edit fields, server-backed interests/traits/languages, dynamic religion-path editing and persisted photo visibility. Settings expose notification preferences, launch-ready language selection, privacy/incognito/pause/contact controls, blocked-profile review and unblock, active-device revocation, data-export requests, deletion scheduling and recovery, logout controls and a server-authoritative membership/product entry point. Email and phone remain read-only because no verified change-contact contract exists; store purchase/restore remains Mobile M6 native-store work.
+
+Safety surfaces now provide report/block actions from discovery and chat, blocked-account appeal routing, verification summary/cases/appeals and deletion-recovery routing even when active-account middleware denies normal product access. Blocked and deletion-scheduled members may re-authenticate through verified email, Google or Apple only to reach these recovery routes; suspended accounts remain authentication-denied, and the active-account middleware still rejects normal member APIs. Events use only Laravel-provided title, time, location, capacity and registration state; sample Figma prices and locations never become runtime product data. Notification feed/read state is cursor-paginated. Approved public photos respect their Cloudinary delivery type, including authenticated assets, and existing photo public/private changes persist through a dedicated server endpoint without pretending a client-only toggle was saved.
 
 Mobile M2 now acquires native Google and Apple credentials on-device and sends only provider identity tokens to Laravel for verification and session issuance. Apple uses a cryptographically secure raw nonce, sends its SHA-256 digest to Apple and sends the original nonce to Laravel, preventing a captured identity token from being replayed outside the intended sign-in attempt. The generated iOS runner receives the Sign in with Apple entitlement and photo-library purpose string idempotently in CI. Provider client IDs, Apple capability approval and real-device provider configuration remain deployment inputs and are never committed as secrets.
 
@@ -1027,7 +1031,9 @@ Client behavior by status: 401 clears the invalid session, 403 shows account acc
 | POST | `/auth/login/verify-otp` | `api.v1.auth.login.verify-otp` | Verify login and issue token |
 | POST | `/auth/google` | `api.v1.auth.google` | Google identity sign-in |
 | POST | `/auth/apple` | `api.v1.auth.apple` | Apple identity sign-in |
-| GET | `/auth/me` | `api.v1.auth.me` | Resume current account |
+| GET | `/auth/status` | `api.v1.auth.status.show` | Resume restricted, blocked or deletion-scheduled account state before active-account routing |
+| GET | `/auth/me` | `api.v1.auth.me` | Resume current active account |
+| PUT | `/auth/preferences` | `api.v1.auth.preferences.update` | Persist member account preferences such as the selected locale |
 | POST | `/auth/logout` | `api.v1.auth.logout` | Revoke current token |
 | POST | `/auth/logout-all` | `api.v1.auth.logout-all` | Revoke all tokens |
 | GET | `/auth/devices` | `api.v1.auth.devices.index` | List active login sessions and identify the current device |
@@ -1050,6 +1056,7 @@ Client behavior by status: 401 clears the invalid session, 403 shows account acc
 | GET | `/onboarding/photos` | `api.v1.onboarding.photos.index` | List photo slots and moderation state |
 | POST | `/onboarding/photos/upload-session` | `api.v1.onboarding.photos.upload-session.create` | Create short-lived direct-upload signature |
 | PUT | `/onboarding/photos/{position}` | `api.v1.onboarding.photos.register` | Register verified Cloudinary response |
+| PUT | `/onboarding/photos/{position}/visibility` | `api.v1.onboarding.photos.visibility.update` | Persist public/private visibility without client-only state |
 | DELETE | `/onboarding/photos/{position}` | `api.v1.onboarding.photos.delete` | Remove slot and queue provider cleanup |
 
 Photo upload sequence: request a session for position 1–3, upload directly using only returned signed fields, then register the exact response and session token. Position 1 is the public cover. Render moderation and `correction_screen` from the API instead of guessing approval state.
@@ -1089,7 +1096,9 @@ Do not cache candidate, match or message pages across users. A 404 for a profile
 
 | Method | Path | Route contract | Purpose |
 |---|---|---|---|
+| GET | `/blocks` | `api.v1.safety.blocks.index` | Cursor-paginated list of profiles blocked by the current member |
 | POST | `/profiles/{profile}/block` | `api.v1.safety.blocks.store` | Block and close interaction |
+| DELETE | `/profiles/{profile}/block` | `api.v1.safety.blocks.destroy` | Unblock a profile owned by the current member |
 | POST | `/profiles/{profile}/report` | `api.v1.safety.reports.store` | Submit safe report receipt |
 | GET | `/account-appeal` | `api.v1.account-appeal.show` | Resume the blocked-account appeal state |
 | POST | `/account-appeal` | `api.v1.account-appeal.store` | Submit the one allowed blocked-account appeal |

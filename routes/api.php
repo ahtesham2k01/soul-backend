@@ -57,6 +57,7 @@ use App\Http\Controllers\Api\V1\Onboarding\ShowReligionProfileController;
 use App\Http\Controllers\Api\V1\Onboarding\StoreReligionProfileController;
 use App\Http\Controllers\Api\V1\Onboarding\SubmitProfileController;
 use App\Http\Controllers\Api\V1\Onboarding\UpdateProfileDraftController;
+use App\Http\Controllers\Api\V1\Onboarding\UpdateProfilePhotoVisibilityController;
 use App\Http\Controllers\Api\V1\Privacy\PrivacyController;
 use App\Http\Controllers\Api\V1\ProfileCatalogController;
 use App\Http\Controllers\Api\V1\ReadinessController;
@@ -189,8 +190,12 @@ Route::prefix('v1')->group(function (): void {
             ->middleware('throttle:120,1')->name('api.v1.chat.typing.update');
         Route::get('/matches/{match}/realtime', RealtimeSubscriptionController::class)
             ->middleware('throttle:60,1')->name('api.v1.chat.realtime.show');
+        Route::get('/blocks', [BlockUserController::class, 'index'])
+            ->middleware('throttle:60,1')->name('api.v1.safety.blocks.index');
         Route::post('/profiles/{profile}/block', BlockUserController::class)
             ->middleware('throttle:20,1')->name('api.v1.safety.blocks.store');
+        Route::delete('/profiles/{profile}/block', [BlockUserController::class, 'destroy'])
+            ->middleware('throttle:20,1')->name('api.v1.safety.blocks.destroy');
         Route::post('/profiles/{profile}/report', ReportUserController::class)
             ->middleware('throttle:10,1')->name('api.v1.safety.reports.store');
         Route::get('/verification/cases', [ProfileVerificationController::class, 'index'])
@@ -232,6 +237,8 @@ Route::prefix('v1')->group(function (): void {
         Route::get('/support/attachments/{attachment}', [SupportAttachmentController::class, 'show'])->name('api.v1.support.attachments.show');
     });
     Route::middleware(['auth:sanctum'])->group(function (): void {
+        Route::get('/auth/status', [CurrentUserController::class, 'status'])
+            ->name('api.v1.auth.status.show');
         Route::get('/privacy/deletion', [PrivacyController::class, 'deletionStatus'])->name('api.v1.privacy.deletion.show');
         Route::delete('/privacy/deletion', [PrivacyController::class, 'cancelDeletion'])->name('api.v1.privacy.deletion.destroy');
         Route::get('/account-appeal', [AccountAppealController::class, 'show'])
@@ -310,6 +317,11 @@ Route::prefix('v1')->group(function (): void {
                 '/me',
                 CurrentUserController::class,
             )->name('api.v1.auth.me');
+
+            Route::put(
+                '/preferences',
+                [CurrentUserController::class, 'updatePreferences'],
+            )->name('api.v1.auth.preferences.update');
 
             Route::post(
                 '/logout',
@@ -471,6 +483,17 @@ Route::prefix('v1')->group(function (): void {
             'throttle:20,1',
         ])
         ->name('api.v1.onboarding.photos.register');
+
+    Route::put(
+        '/onboarding/photos/{position}/visibility',
+        UpdateProfilePhotoVisibilityController::class,
+    )
+        ->middleware([
+            'auth:sanctum',
+            'active.account',
+            'throttle:30,1',
+        ])
+        ->name('api.v1.onboarding.photos.visibility.update');
 
     Route::delete(
         '/onboarding/photos/{position}',

@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import '../../core/api_client.dart';
 import '../../core/soul_theme.dart';
 import '../bootstrap/bootstrap_repository.dart';
+import '../safety/safety_repository.dart';
+import '../safety/safety_screen.dart';
 import 'chat_repository.dart';
 import 'private_photo_viewer_screen.dart';
 
@@ -13,11 +15,13 @@ class ChatThreadScreen extends StatefulWidget {
     super.key,
     required this.match,
     required this.repository,
+    required this.safetyRepository,
     required this.labels,
   });
 
   final ChatMatch match;
   final ChatRepository repository;
+  final SafetyRepository safetyRepository;
   final BootstrapState labels;
 
   @override
@@ -267,6 +271,18 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
     return '${widget.labels.text('chat.last_seen', 'Last seen')} $hour:$minute';
   }
 
+  Future<void> _openSafety() async {
+    final blocked = await showProfileSafetyActions(
+      context: context,
+      repository: widget.safetyRepository,
+      profileId: widget.match.profileId,
+      profileName: widget.match.firstName,
+    );
+    if (blocked && mounted) {
+      Navigator.of(context).pop();
+    }
+  }
+
   Future<void> _openPrivatePhotos() async {
     await Navigator.of(context).push<void>(
       MaterialPageRoute(
@@ -326,6 +342,8 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
               onSelected: (value) {
                 if (value == 'private_photos') {
                   unawaited(_openPrivatePhotos());
+                } else if (value == 'safety') {
+                  unawaited(_openSafety());
                 }
               },
               itemBuilder: (_) => const [
@@ -336,6 +354,16 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
                       Icon(Icons.lock_outline_rounded, size: 20),
                       SizedBox(width: 10),
                       Text('Private photos'),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'safety',
+                  child: Row(
+                    children: [
+                      Icon(Icons.shield_outlined, size: 20),
+                      SizedBox(width: 10),
+                      Text('Safety options'),
                     ],
                   ),
                 ),

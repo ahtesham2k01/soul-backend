@@ -34,6 +34,7 @@ class AuthRepository {
     required OtpChallenge challenge,
     required String code,
     required String deviceName,
+    required String locale,
   }) async {
     final data = await _api.post(
       'auth/login/verify-otp',
@@ -42,7 +43,7 @@ class AuthRepository {
         'verification_id': challenge.verificationId,
         'code': code,
         'device_name': deviceName,
-        'locale': 'en',
+        'locale': locale,
       },
     );
     return _storeAuthentication(data);
@@ -52,6 +53,7 @@ class AuthRepository {
     required OtpChallenge challenge,
     required String code,
     required String deviceName,
+    required String locale,
   }) async {
     final data = await _api.post(
       'auth/register/verify-otp',
@@ -60,7 +62,7 @@ class AuthRepository {
         'verification_id': challenge.verificationId,
         'code': code,
         'device_name': deviceName,
-        'locale': 'en',
+        'locale': locale,
       },
     );
     return _storeAuthentication(data);

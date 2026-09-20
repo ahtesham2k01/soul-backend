@@ -300,6 +300,47 @@ class AppleSignInEndpointTest extends TestCase
         );
     }
 
+    public function test_deletion_scheduled_apple_user_can_sign_in_for_recovery(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'recover@example.com',
+            'status' => User::STATUS_DELETION_SCHEDULED,
+            'onboarding_completed_at' => now(),
+        ]);
+
+        $user->socialAccounts()->create([
+            'provider' => SocialProvider::Apple,
+            'provider_user_id' => 'recover-apple-user',
+            'provider_email' => 'recover@example.com',
+            'provider_email_verified' => true,
+        ]);
+
+        $this->bindAppleIdentity(
+            new VerifiedAppleIdentity(
+                subject: 'recover-apple-user',
+                email: null,
+                emailVerified: false,
+                isPrivateEmail: false,
+            ),
+        );
+
+        $response = $this->postJson('/api/v1/auth/apple', [
+            'identity_token' => 'recover-apple-token',
+            'raw_nonce' => self::RAW_NONCE,
+            'device_name' => 'iPhone',
+            'locale' => 'en',
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertJsonPath('data.user.status', User::STATUS_DELETION_SCHEDULED)
+            ->assertJsonPath('data.next_step', 'deletion_recovery');
+
+        $this->assertDatabaseHas('personal_access_tokens', [
+            'tokenable_id' => $user->id,
+        ]);
+    }
+
     public function test_suspended_apple_user_cannot_sign_in(): void
     {
         $user = User::factory()->create([

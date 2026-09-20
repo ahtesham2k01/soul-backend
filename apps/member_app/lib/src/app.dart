@@ -12,6 +12,8 @@ import 'features/onboarding/onboarding_screen.dart';
 import 'features/onboarding/legal_submission_screen.dart';
 import 'features/onboarding/onboarding_repository.dart';
 import 'features/onboarding/welcome_flow.dart';
+import 'features/profile/account_status_screen.dart';
+import 'features/profile/profile_screen.dart';
 
 class SoulApp extends ConsumerStatefulWidget {
   const SoulApp({super.key});
@@ -44,6 +46,18 @@ class _SoulAppState extends ConsumerState<SoulApp> {
                 );
               }
               if (route == 'auth') return WelcomeFlow(labels: state);
+              if (route == 'appeal' ||
+                  route == 'deletion' ||
+                  route == 'account_unavailable') {
+                return RestrictedAccountScreen(
+                  mode: route,
+                  repository: ref.read(profileRepositoryProvider),
+                  labels: state,
+                  onAccountRestored: () =>
+                      ref.invalidate(sessionRouteProvider),
+                  onSignedOut: () => ref.invalidate(sessionRouteProvider),
+                );
+              }
               if (route == 'onboarding') return OnboardingScreen(labels: state);
               if (route == 'legal') {
                 return LegalReconsentScreen(
@@ -128,17 +142,32 @@ class _SignedInShellState extends ConsumerState<_SignedInShell> {
     final labels = widget.labels;
     final discovery = ref.watch(discoveryRepositoryProvider);
     final chat = ref.watch(chatRepositoryProvider);
+    final profile = ref.watch(profileRepositoryProvider);
+    final safety = ref.watch(safetyRepositoryProvider);
+    final events = ref.watch(eventRepositoryProvider);
     final pages = <Widget>[
-      DiscoveryScreen(repository: discovery, labels: labels),
+      DiscoveryScreen(
+        repository: discovery,
+        safetyRepository: safety,
+        labels: labels,
+      ),
       ReceivedLikesScreen(
         repository: discovery,
         labels: labels,
         onStartDiscovering: () => setState(() => _index = 0),
       ),
-      ChatListScreen(repository: chat, labels: labels),
-      _ComingSoon(
-        icon: Icons.person_outline_rounded,
-        title: labels.text('nav.profile', 'Profile'),
+      ChatListScreen(
+        repository: chat,
+        safetyRepository: safety,
+        labels: labels,
+      ),
+      ProfileScreen(
+        repository: profile,
+        safetyRepository: safety,
+        eventRepository: events,
+        labels: labels,
+        onSessionEnded: () => ref.invalidate(sessionRouteProvider),
+        onLocaleChanged: () => ref.invalidate(bootstrapProvider),
       ),
     ];
 
@@ -291,25 +320,6 @@ class _BottomBarItem extends StatelessWidget {
               ),
             ),
           ),
-        ),
-      );
-}
-
-class _ComingSoon extends StatelessWidget {
-  const _ComingSoon({required this.icon, required this.title});
-
-  final IconData icon;
-  final String title;
-
-  @override
-  Widget build(BuildContext context) => Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 48),
-            const SizedBox(height: 12),
-            Text(title, style: Theme.of(context).textTheme.headlineMedium),
-          ],
         ),
       );
 }

@@ -97,7 +97,7 @@ class PrivacyController extends Controller
             $record = $r->user()->deletionRequests()->create(['status' => 'scheduled', 'previous_profile_status' => $profile?->profile_status?->value, 'scheduled_for' => now()->addDays(30)]);
             $profile?->update(['profile_status' => ProfileStatus::PausedVerification]);
             $r->user()->devices()->update(['revoked_at' => now()]);
-            $r->user()->forceFill(['status' => 'deletion_scheduled'])->save();
+            $r->user()->forceFill(['status' => User::STATUS_DELETION_SCHEDULED])->save();
             DB::afterCommit(fn () => DeleteScheduledAccount::dispatch($record->id)->delay($record->scheduled_for));
 
             return $record;

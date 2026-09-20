@@ -5,7 +5,6 @@ import '../../app_providers.dart';
 import '../../core/api_client.dart';
 import '../../core/soul_theme.dart';
 import '../bootstrap/bootstrap_repository.dart';
-import '../onboarding/onboarding_screen.dart';
 import 'auth_repository.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
@@ -71,25 +70,24 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     });
     try {
       final repository = ref.read(authRepositoryProvider);
-      final next = widget.registration
-          ? await repository.verifyRegistrationOtp(
+      if (widget.registration) {
+        await repository.verifyRegistrationOtp(
               challenge: challenge,
               code: _code.text.trim(),
               deviceName: 'SOUL mobile app',
-            )
-          : await repository.verifyLoginOtp(
-              challenge: challenge,
-              code: _code.text.trim(),
-              deviceName: 'SOUL mobile app',
+              locale: widget.labels.locale,
             );
+      } else {
+        await repository.verifyLoginOtp(
+              challenge: challenge,
+              code: _code.text.trim(),
+              deviceName: 'SOUL mobile app',
+              locale: widget.labels.locale,
+            );
+      }
       if (!mounted) return;
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute<void>(
-          builder: (_) => next == 'onboarding'
-              ? OnboardingScreen(labels: widget.labels)
-              : _SignedInScreen(nextStep: next),
-        ),
-      );
+      ref.invalidate(sessionRouteProvider);
+      Navigator.of(context).popUntil((route) => route.isFirst);
     } on SoulApiFailure catch (failure) {
       if (mounted) setState(() => _error = failure.message);
     } finally {
@@ -207,18 +205,4 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       ),
     );
   }
-}
-
-class _SignedInScreen extends StatelessWidget {
-  const _SignedInScreen({required this.nextStep});
-
-  final String nextStep;
-
-  @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('SOUL')),
-        body: Center(
-          child: Text(nextStep == 'onboarding' ? 'Your onboarding will continue here.' : 'Your SOUL home will appear here.'),
-        ),
-      );
 }

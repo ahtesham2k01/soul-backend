@@ -40,6 +40,8 @@ class User extends Authenticatable
 
     public const STATUS_BLOCKED = 'blocked';
 
+    public const STATUS_DELETION_SCHEDULED = 'deletion_scheduled';
+
     /**
      * Get the social identities linked to this user.
      *

@@ -60,7 +60,7 @@ class LikeRequestController extends Controller
                         'position' => $photo->position,
                         'url' => $photo->format === null || ! filled(config('soul.media.cloudinary.cloud_name'))
                             ? null
-                            : $this->deliveryUrl->forPublicImage($photo->provider_asset_id, $photo->format),
+                            : $this->deliveryUrl->forProfileImage($photo->provider_asset_id, $photo->format, $photo->delivery_type),
                     ],
                 ],
                 'received_at' => $like->created_at->toIso8601String(),

@@ -1,5 +1,30 @@
 import '../../core/api_client.dart';
 
+class SupportedLanguage {
+  const SupportedLanguage({
+    required this.code,
+    required this.name,
+    required this.nativeName,
+    required this.direction,
+    required this.isLaunchReady,
+  });
+
+  final String code;
+  final String name;
+  final String nativeName;
+  final String direction;
+  final bool isLaunchReady;
+
+  factory SupportedLanguage.fromJson(Map<String, dynamic> json) =>
+      SupportedLanguage(
+        code: json['code']?.toString() ?? '',
+        name: json['name']?.toString() ?? '',
+        nativeName: json['native_name']?.toString() ?? '',
+        direction: json['direction']?.toString() ?? 'ltr',
+        isLaunchReady: json['is_launch_ready'] == true,
+      );
+}
+
 class BootstrapState {
   const BootstrapState({
     required this.direction,
@@ -7,6 +32,7 @@ class BootstrapState {
     required this.translations,
     required this.legalVersions,
     required this.commitmentKeys,
+    required this.supportedLanguages,
   });
 
   final String direction;
@@ -14,6 +40,7 @@ class BootstrapState {
   final Map<String, String> translations;
   final Map<String, String> legalVersions;
   final List<String> commitmentKeys;
+  final List<SupportedLanguage> supportedLanguages;
 
   String text(String key, String fallback) => translations[key] ?? fallback;
 }
@@ -49,6 +76,15 @@ class BootstrapRepository {
       commitmentKeys: commitments is List
           ? commitments.map((item) => item.toString()).toList(growable: false)
           : const <String>[],
+      supportedLanguages: data['supported_languages'] is List
+          ? (data['supported_languages'] as List)
+              .whereType<Map>()
+              .map((item) => SupportedLanguage.fromJson(
+                    Map<String, dynamic>.from(item),
+                  ))
+              .where((item) => item.code.isNotEmpty)
+              .toList(growable: false)
+          : const <SupportedLanguage>[],
     );
   }
 }

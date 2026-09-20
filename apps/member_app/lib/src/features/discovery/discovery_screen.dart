@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../core/api_client.dart';
 import '../../core/soul_theme.dart';
 import '../bootstrap/bootstrap_repository.dart';
+import '../safety/safety_repository.dart';
+import '../safety/safety_screen.dart';
 import 'discovery_filters_screen.dart';
 import 'discovery_repository.dart';
 
@@ -10,10 +12,12 @@ class DiscoveryScreen extends StatefulWidget {
   const DiscoveryScreen({
     super.key,
     required this.repository,
+    required this.safetyRepository,
     required this.labels,
   });
 
   final DiscoveryRepository repository;
+  final SafetyRepository safetyRepository;
   final BootstrapState labels;
 
   @override
@@ -180,6 +184,18 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
     }
   }
 
+  Future<void> _safety(DiscoveryCandidate candidate) async {
+    final blocked = await showProfileSafetyActions(
+      context: context,
+      repository: widget.safetyRepository,
+      profileId: candidate.id,
+      profileName: candidate.firstName,
+    );
+    if (!blocked || !mounted) return;
+    setState(() => _candidates.removeWhere((item) => item.id == candidate.id));
+    if (_candidates.length < 4) await _loadMore();
+  }
+
   String _maritalLabel(String value) =>
       widget.labels.text('profile.$value', value.replaceAll('_', ' '));
 
@@ -276,9 +292,10 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
               child: Align(
                 alignment: Alignment.topRight,
                 child: _CircleAction(
-                  icon: Icons.refresh_rounded,
-                  semanticLabel: widget.labels.text('common.retry', 'Try again'),
-                  onPressed: _savingDecision ? null : _load,
+                  icon: Icons.more_horiz_rounded,
+                  semanticLabel: 'Safety options',
+                  onPressed:
+                      _savingDecision ? null : () => _safety(candidate),
                 ),
               ),
             ),

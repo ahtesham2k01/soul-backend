@@ -119,6 +119,45 @@ class AuthSessionEndpointTest extends TestCase
             );
     }
 
+    public function test_authenticated_user_can_update_preferred_locale(): void
+    {
+        $user = User::factory()->create([
+            'status' => User::STATUS_ACTIVE,
+            'preferred_locale' => 'en',
+        ]);
+        $token = $user->createToken('Current Android', ['mobile'], now()->addDays(90));
+
+        $this->withToken($token->plainTextToken)
+            ->putJson('/api/v1/auth/preferences', ['preferred_locale' => 'ur'])
+            ->assertOk()
+            ->assertJsonPath('data.user.preferred_locale', 'ur');
+
+        $this->assertSame('ur', $user->refresh()->preferred_locale);
+
+        $this->withToken($token->plainTextToken)
+            ->putJson('/api/v1/auth/preferences', ['preferred_locale' => 'xx'])
+            ->assertUnprocessable();
+    }
+
+    public function test_account_status_remains_available_when_active_account_routes_are_restricted(): void
+    {
+        $user = User::factory()->create([
+            'status' => User::STATUS_BLOCKED,
+        ]);
+        $token = $user->createToken('Blocked Android', ['mobile'], now()->addDays(90));
+
+        $this->withToken($token->plainTextToken)
+            ->getJson('/api/v1/auth/status')
+            ->assertOk()
+            ->assertJsonPath('data.status', User::STATUS_BLOCKED)
+            ->assertJsonPath('data.appeal_available', true);
+
+        $this->withToken($token->plainTextToken)
+            ->getJson('/api/v1/auth/me')
+            ->assertForbidden()
+            ->assertJsonPath('error.code', 'ACCOUNT_UNAVAILABLE');
+    }
+
     public function test_logout_revokes_only_current_device_token(): void
     {
         $user = User::factory()->create([

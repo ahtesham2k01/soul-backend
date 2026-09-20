@@ -19,6 +19,26 @@ class CloudinaryDeliveryUrlTest extends TestCase
         );
     }
 
+    public function test_profile_delivery_respects_the_cloudinary_delivery_type(): void
+    {
+        config([
+            'soul.media.cloudinary.cloud_name' => 'demo',
+            'soul.media.cloudinary.api_secret' => 'abcd',
+            'soul.media.cloudinary.response_signature_algorithm' => 'sha256',
+        ]);
+
+        $delivery = app(CloudinaryDeliveryUrl::class);
+
+        $this->assertStringContainsString(
+            '/image/upload/',
+            $delivery->forProfileImage('soul/users/public', 'jpg', 'upload'),
+        );
+        $this->assertStringContainsString(
+            '/image/authenticated/s--',
+            $delivery->forProfileImage('soul/users/public-auth', 'jpg', 'authenticated'),
+        );
+    }
+
     public function test_it_generates_an_authenticated_delivery_signature_without_exposing_secret(): void
     {
         config([
