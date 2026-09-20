@@ -360,7 +360,30 @@
           }
         },
         {
-          "name": "Resume current account",
+          "name": "Resume restricted, blocked or deletion-scheduled account state before active-account routing",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "status"
+              ]
+            },
+            "description": "api.v1.auth.status.show: Resume restricted, blocked or deletion-scheduled account state before active-account routing"
+          }
+        },
+        {
+          "name": "Resume current active account",
           "request": {
             "method": "GET",
             "header": [
@@ -379,7 +402,39 @@
                 "me"
               ]
             },
-            "description": "api.v1.auth.me: Resume current account"
+            "description": "api.v1.auth.me: Resume current active account"
+          }
+        },
+        {
+          "name": "Persist member account preferences such as the selected locale",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"preferred_locale\": \"ur\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/preferences",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "preferences"
+              ]
+            },
+            "description": "api.v1.auth.preferences.update: Persist member account preferences such as the selected locale"
           }
         },
         {
@@ -817,6 +872,40 @@
               ]
             },
             "description": "api.v1.onboarding.photos.register: Register verified Cloudinary response"
+          }
+        },
+        {
+          "name": "Persist public/private visibility without client-only state",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"visibility\": \"private\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/onboarding/photos/{position}/visibility",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "onboarding",
+                "photos",
+                "{position}",
+                "visibility"
+              ]
+            },
+            "description": "api.v1.onboarding.photos.visibility.update: Persist public/private visibility without client-only state"
           }
         },
         {
@@ -1497,6 +1586,28 @@
       "name": "Safety",
       "item": [
         {
+          "name": "Cursor-paginated list of profiles blocked by the current member",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/blocks",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "blocks"
+              ]
+            },
+            "description": "api.v1.safety.blocks.index: Cursor-paginated list of profiles blocked by the current member"
+          }
+        },
+        {
           "name": "Block and close interaction",
           "request": {
             "method": "POST",
@@ -1527,6 +1638,30 @@
               ]
             },
             "description": "api.v1.safety.blocks.store: Block and close interaction"
+          }
+        },
+        {
+          "name": "Unblock a profile owned by the current member",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profiles/{profile}/block",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profiles",
+                "{profile}",
+                "block"
+              ]
+            },
+            "description": "api.v1.safety.blocks.destroy: Unblock a profile owned by the current member"
           }
         },
         {

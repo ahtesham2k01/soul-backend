@@ -13,7 +13,7 @@ const models = fs.readFileSync(path.join(contracts, 'soul_v1_models.dart'), 'utf
 test('Flutter manifest contains only the complete member API surface', () => {
     assert.equal(manifest.schemaVersion, 2);
     assert.equal(manifest.basePath, '/api/v1');
-    assert.equal(manifest.endpointCount, 91);
+    assert.equal(manifest.endpointCount, 96);
     assert.equal(manifest.endpoints.length, manifest.endpointCount);
     assert.equal(new Set(manifest.endpoints.map(({ operationId }) => operationId)).size, manifest.endpointCount);
     assert.ok(manifest.endpoints.every(({ operationId }) => !operationId.includes('.admin.')));

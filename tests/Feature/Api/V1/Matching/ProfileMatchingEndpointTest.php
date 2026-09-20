@@ -3,6 +3,7 @@
 namespace Tests\Feature\Api\V1\Matching;
 
 use App\Models\User;
+use App\Models\UserBlock;
 use App\Models\UserProfile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
@@ -110,6 +111,47 @@ class ProfileMatchingEndpointTest extends TestCase
         $this->getJson('/api/v1/matches')
             ->assertOk()
             ->assertJsonCount(0, 'data.matches');
+    }
+
+
+    public function test_user_can_list_and_unblock_only_their_own_blocked_profiles(): void
+    {
+        [$actor, $target] = $this->liveUsers();
+        [, $foreignTarget] = $this->liveUsers();
+
+        UserBlock::query()->create([
+            'blocker_user_id' => $actor->id,
+            'blocked_user_id' => $target->id,
+            'reason' => 'not_interested',
+        ]);
+        UserBlock::query()->create([
+            'blocker_user_id' => $foreignTarget->id,
+            'blocked_user_id' => $actor->id,
+        ]);
+
+        Sanctum::actingAs($actor);
+
+        $this->getJson('/api/v1/blocks')
+            ->assertOk()
+            ->assertJsonCount(1, 'data.blocks')
+            ->assertJsonPath('data.blocks.0.profile.id', $target->profile->public_id)
+            ->assertJsonPath('data.blocks.0.profile.first_name', $target->profile->first_name);
+
+        $this->deleteJson("/api/v1/profiles/{$target->profile->public_id}/block")
+            ->assertOk()
+            ->assertJsonPath('data.blocked', false);
+
+        $this->assertDatabaseMissing('user_blocks', [
+            'blocker_user_id' => $actor->id,
+            'blocked_user_id' => $target->id,
+        ]);
+        $this->assertDatabaseHas('user_blocks', [
+            'blocker_user_id' => $foreignTarget->id,
+            'blocked_user_id' => $actor->id,
+        ]);
+        $this->getJson('/api/v1/blocks')
+            ->assertOk()
+            ->assertJsonCount(0, 'data.blocks');
     }
 
     private function liveUsers(): array

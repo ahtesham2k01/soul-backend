@@ -24,6 +24,7 @@ class ProfilePhotoEndpointTest extends TestCase
         parent::setUp();
 
         config()->set('soul.media.cloudinary.api_secret', self::SECRET);
+        config()->set('soul.media.cloudinary.cloud_name', 'demo');
         config()->set(
             'soul.media.cloudinary.response_signature_algorithm',
             'sha1',
@@ -220,6 +221,92 @@ class ProfilePhotoEndpointTest extends TestCase
         $this->putJson('/api/v1/onboarding/photos/2', $payload)
             ->assertUnprocessable()->assertJsonPath('error.code', 'VALIDATION_ERROR');
         $this->assertDatabaseCount('profile_photos', 0);
+    }
+
+
+    public function test_approved_public_authenticated_photo_gets_a_safe_delivery_url(): void
+    {
+        $user = User::factory()->create(['status' => User::STATUS_ACTIVE]);
+        $profile = UserProfile::factory()->for($user)->create();
+        ProfilePhoto::factory()->for($profile)->create([
+            'position' => 2,
+            'visibility' => 'public',
+            'provider_asset_id' => 'soul/users/public-authenticated',
+            'delivery_type' => 'authenticated',
+            'format' => 'jpg',
+            'moderation_status' => ProfilePhotoModerationStatus::Approved,
+        ]);
+        Sanctum::actingAs($user);
+
+        $url = $this->getJson('/api/v1/onboarding/photos')
+            ->assertOk()
+            ->assertJsonPath('data.photos.0.visibility', 'public')
+            ->json('data.photos.0.url');
+
+        $this->assertIsString($url);
+        $this->assertStringContainsString('/image/authenticated/s--', $url);
+        $this->assertStringContainsString('/soul/users/public-authenticated.jpg', $url);
+    }
+
+    public function test_existing_authenticated_photo_visibility_can_be_changed_without_reupload(): void
+    {
+        $user = User::factory()->create(['status' => User::STATUS_ACTIVE]);
+        $profile = UserProfile::factory()->for($user)->create();
+        ProfilePhoto::factory()->for($profile)->create([
+            'position' => 2,
+            'visibility' => 'public',
+            'provider_asset_id' => 'soul/users/visibility',
+            'delivery_type' => 'authenticated',
+            'format' => 'jpg',
+            'moderation_status' => ProfilePhotoModerationStatus::Approved,
+        ]);
+        Sanctum::actingAs($user);
+
+        $this->putJson('/api/v1/onboarding/photos/2/visibility', [
+            'visibility' => 'private',
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.photo.visibility', 'private')
+            ->assertJsonPath('data.photo.url', null);
+
+        $this->putJson('/api/v1/onboarding/photos/2/visibility', [
+            'visibility' => 'public',
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.photo.visibility', 'public');
+
+        $this->assertDatabaseHas('profile_photos', [
+            'user_profile_id' => $profile->id,
+            'position' => 2,
+            'visibility' => 'public',
+        ]);
+    }
+
+    public function test_cover_cannot_be_made_private_and_legacy_upload_requires_reupload(): void
+    {
+        $user = User::factory()->create(['status' => User::STATUS_ACTIVE]);
+        $profile = UserProfile::factory()->for($user)->create();
+        ProfilePhoto::factory()->for($profile)->create([
+            'position' => 1,
+            'visibility' => 'public',
+            'delivery_type' => 'upload',
+        ]);
+        ProfilePhoto::factory()->for($profile)->create([
+            'position' => 2,
+            'visibility' => 'public',
+            'delivery_type' => 'upload',
+        ]);
+        Sanctum::actingAs($user);
+
+        $this->putJson('/api/v1/onboarding/photos/1/visibility', [
+            'visibility' => 'private',
+        ])->assertUnprocessable();
+
+        $this->putJson('/api/v1/onboarding/photos/2/visibility', [
+            'visibility' => 'private',
+        ])
+            ->assertConflict()
+            ->assertJsonPath('error.code', 'PRIVATE_PHOTO_REUPLOAD_REQUIRED');
     }
 
     /** @return array<string, int|string> */

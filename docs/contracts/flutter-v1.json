@@ -3,7 +3,7 @@
   "apiVersion": "v1",
   "basePath": "/api/v1",
   "generatedFrom": "docs/SOUL_V1_MASTER_DOCUMENTATION.md",
-  "endpointCount": 91,
+  "endpointCount": 96,
   "endpoints": [
     {
       "operationId": "api.v1.health",
@@ -86,11 +86,27 @@
       "pathParameters": []
     },
     {
+      "operationId": "api.v1.auth.status.show",
+      "method": "GET",
+      "path": "/auth/status",
+      "authenticated": true,
+      "summary": "Resume restricted, blocked or deletion-scheduled account state before active-account routing",
+      "pathParameters": []
+    },
+    {
       "operationId": "api.v1.auth.me",
       "method": "GET",
       "path": "/auth/me",
       "authenticated": true,
-      "summary": "Resume current account",
+      "summary": "Resume current active account",
+      "pathParameters": []
+    },
+    {
+      "operationId": "api.v1.auth.preferences.update",
+      "method": "PUT",
+      "path": "/auth/preferences",
+      "authenticated": true,
+      "summary": "Persist member account preferences such as the selected locale",
       "pathParameters": []
     },
     {
@@ -229,6 +245,16 @@
       "path": "/onboarding/photos/{position}",
       "authenticated": true,
       "summary": "Register verified Cloudinary response",
+      "pathParameters": [
+        "position"
+      ]
+    },
+    {
+      "operationId": "api.v1.onboarding.photos.visibility.update",
+      "method": "PUT",
+      "path": "/onboarding/photos/{position}/visibility",
+      "authenticated": true,
+      "summary": "Persist public/private visibility without client-only state",
       "pathParameters": [
         "position"
       ]
@@ -452,11 +478,29 @@
       ]
     },
     {
+      "operationId": "api.v1.safety.blocks.index",
+      "method": "GET",
+      "path": "/blocks",
+      "authenticated": true,
+      "summary": "Cursor-paginated list of profiles blocked by the current member",
+      "pathParameters": []
+    },
+    {
       "operationId": "api.v1.safety.blocks.store",
       "method": "POST",
       "path": "/profiles/{profile}/block",
       "authenticated": true,
       "summary": "Block and close interaction",
+      "pathParameters": [
+        "profile"
+      ]
+    },
+    {
+      "operationId": "api.v1.safety.blocks.destroy",
+      "method": "DELETE",
+      "path": "/profiles/{profile}/block",
+      "authenticated": true,
+      "summary": "Unblock a profile owned by the current member",
       "pathParameters": [
         "profile"
       ]

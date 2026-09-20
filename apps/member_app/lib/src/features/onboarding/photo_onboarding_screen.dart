@@ -80,6 +80,37 @@ class _PhotoOnboardingScreenState
     }
   }
 
+  Future<void> _setVisibility(
+    int position,
+    String visibility,
+  ) async {
+    final photo = _at(position);
+    if (photo == null) {
+      setState(() => _visibility[position] = visibility);
+      return;
+    }
+
+    setState(() {
+      _busyPosition = position;
+      _error = null;
+      _visibility[position] = visibility;
+    });
+    try {
+      await ref
+          .read(photoOnboardingRepositoryProvider)
+          .updateVisibility(position, visibility);
+      await _load();
+    } on SoulApiFailure catch (failure) {
+      if (!mounted) return;
+      setState(() {
+        _visibility[position] = photo.visibility;
+        _error = failure.message;
+      });
+    } finally {
+      if (mounted) setState(() => _busyPosition = null);
+    }
+  }
+
   Future<void> _delete(int position) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -159,9 +190,7 @@ class _PhotoOnboardingScreenState
                         : (_visibility[position] ?? 'private'),
                     onVisibilityChanged: position == 1
                         ? null
-                        : (value) => setState(
-                              () => _visibility[position] = value,
-                            ),
+                        : (value) => _setVisibility(position, value),
                     onUpload: () => _pickAndUpload(position),
                     onDelete: _at(position) == null
                         ? null
@@ -280,6 +309,28 @@ class _PhotoSlot extends StatelessWidget {
                 ),
               ],
             ),
+            if (photo?.url case final url?) ...[
+              const SizedBox(height: 12),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: AspectRatio(
+                  aspectRatio: 4 / 5,
+                  child: Image.network(
+                    url,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => const ColoredBox(
+                      color: SoulColors.softSurface,
+                      child: Center(
+                        child: Icon(
+                          Icons.broken_image_outlined,
+                          color: SoulColors.muted,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
             if (photo?.rejectionReason case final reason?) ...[
               const SizedBox(height: 10),
               Text(reason, style: const TextStyle(color: Colors.red)),

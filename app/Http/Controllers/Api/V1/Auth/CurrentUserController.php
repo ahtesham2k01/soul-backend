@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Api\V1\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\V1\UserResource;
+use App\Models\User;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class CurrentUserController extends Controller
 {
@@ -26,6 +28,40 @@ class CurrentUserController extends Controller
                         : 'home',
             ],
             message: 'Current user loaded successfully.',
+        );
+    }
+
+    public function status(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        return ApiResponse::success([
+            'status' => $user->status,
+            'appeal_available' => $user->status === User::STATUS_BLOCKED,
+            'deletion_scheduled' => $user->status === 'deletion_scheduled',
+        ]);
+    }
+
+    public function updatePreferences(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'preferred_locale' => [
+                'required',
+                'string',
+                Rule::in(array_keys(config('soul.translations.locales', []))),
+            ],
+        ]);
+
+        $request->user()->update([
+            'preferred_locale' => $validated['preferred_locale'],
+        ]);
+
+        return ApiResponse::success(
+            data: [
+                'user' => (new UserResource($request->user()->fresh()))
+                    ->resolve($request),
+            ],
+            message: 'Account preferences updated successfully.',
         );
     }
 }

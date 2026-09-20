@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/api_client.dart';
 import '../../core/soul_theme.dart';
 import '../bootstrap/bootstrap_repository.dart';
+import '../safety/safety_repository.dart';
 import 'chat_repository.dart';
 import 'chat_thread_screen.dart';
 
@@ -10,10 +11,12 @@ class ChatListScreen extends StatefulWidget {
   const ChatListScreen({
     super.key,
     required this.repository,
+    required this.safetyRepository,
     required this.labels,
   });
 
   final ChatRepository repository;
+  final SafetyRepository safetyRepository;
   final BootstrapState labels;
 
   @override
@@ -108,6 +111,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
         builder: (_) => ChatThreadScreen(
           match: match,
           repository: widget.repository,
+          safetyRepository: widget.safetyRepository,
           labels: widget.labels,
         ),
       ),

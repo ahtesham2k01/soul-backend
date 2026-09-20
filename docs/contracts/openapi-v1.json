@@ -325,10 +325,10 @@
         }
       }
     },
-    "/auth/me": {
+    "/auth/status": {
       "get": {
-        "operationId": "api.v1.auth.me",
-        "summary": "Resume current account",
+        "operationId": "api.v1.auth.status.show",
+        "summary": "Resume restricted, blocked or deletion-scheduled account state before active-account routing",
         "tags": [
           "Auth"
         ],
@@ -337,6 +337,75 @@
             "bearerAuth": []
           }
         ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "operationId": "api.v1.auth.me",
+        "summary": "Resume current active account",
+        "tags": [
+          "Auth"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/auth/preferences": {
+      "put": {
+        "operationId": "api.v1.auth.preferences.update",
+        "summary": "Persist member account preferences such as the selected locale",
+        "tags": [
+          "Auth"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "preferred_locale": "ur"
+              }
+            }
+          }
+        },
         "responses": {
           "401": {
             "$ref": "#/components/responses/Error"
@@ -920,6 +989,57 @@
             "bearerAuth": []
           }
         ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
+    "/onboarding/photos/{position}/visibility": {
+      "put": {
+        "operationId": "api.v1.onboarding.photos.visibility.update",
+        "summary": "Persist public/private visibility without client-only state",
+        "tags": [
+          "Onboarding"
+        ],
+        "parameters": [
+          {
+            "name": "position",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "visibility": "private"
+              }
+            }
+          }
+        },
         "responses": {
           "401": {
             "$ref": "#/components/responses/Error"
@@ -1825,6 +1945,34 @@
         }
       }
     },
+    "/blocks": {
+      "get": {
+        "operationId": "api.v1.safety.blocks.index",
+        "summary": "Cursor-paginated list of profiles blocked by the current member",
+        "tags": [
+          "Safety"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      }
+    },
     "/profiles/{profile}/block": {
       "post": {
         "operationId": "api.v1.safety.blocks.store",
@@ -1860,6 +2008,42 @@
             }
           }
         },
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "api.v1.safety.blocks.destroy",
+        "summary": "Unblock a profile owned by the current member",
+        "tags": [
+          "Safety"
+        ],
+        "parameters": [
+          {
+            "name": "profile",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "responses": {
           "401": {
             "$ref": "#/components/responses/Error"

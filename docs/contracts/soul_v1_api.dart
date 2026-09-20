@@ -94,9 +94,21 @@ abstract final class SoulV1Api {
       requiresBearerToken: false,
     ),
     SoulApiEndpoint(
+      operationId: 'api.v1.auth.status.show',
+      method: 'GET',
+      pathTemplate: '/auth/status',
+      requiresBearerToken: true,
+    ),
+    SoulApiEndpoint(
       operationId: 'api.v1.auth.me',
       method: 'GET',
       pathTemplate: '/auth/me',
+      requiresBearerToken: true,
+    ),
+    SoulApiEndpoint(
+      operationId: 'api.v1.auth.preferences.update',
+      method: 'PUT',
+      pathTemplate: '/auth/preferences',
       requiresBearerToken: true,
     ),
     SoulApiEndpoint(
@@ -199,6 +211,12 @@ abstract final class SoulV1Api {
       operationId: 'api.v1.onboarding.photos.register',
       method: 'PUT',
       pathTemplate: '/onboarding/photos/{position}',
+      requiresBearerToken: true,
+    ),
+    SoulApiEndpoint(
+      operationId: 'api.v1.onboarding.photos.visibility.update',
+      method: 'PUT',
+      pathTemplate: '/onboarding/photos/{position}/visibility',
       requiresBearerToken: true,
     ),
     SoulApiEndpoint(
@@ -340,8 +358,20 @@ abstract final class SoulV1Api {
       requiresBearerToken: true,
     ),
     SoulApiEndpoint(
+      operationId: 'api.v1.safety.blocks.index',
+      method: 'GET',
+      pathTemplate: '/blocks',
+      requiresBearerToken: true,
+    ),
+    SoulApiEndpoint(
       operationId: 'api.v1.safety.blocks.store',
       method: 'POST',
+      pathTemplate: '/profiles/{profile}/block',
+      requiresBearerToken: true,
+    ),
+    SoulApiEndpoint(
+      operationId: 'api.v1.safety.blocks.destroy',
+      method: 'DELETE',
       pathTemplate: '/profiles/{profile}/block',
       requiresBearerToken: true,
     ),

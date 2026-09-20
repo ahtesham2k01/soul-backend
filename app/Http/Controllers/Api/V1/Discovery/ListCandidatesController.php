@@ -155,7 +155,7 @@ class ListCandidatesController extends Controller
                     'position' => $photo->position,
                     'url' => $photo->format === null || ! filled(config('soul.media.cloudinary.cloud_name'))
                         ? null
-                        : $deliveryUrl->forPublicImage($photo->provider_asset_id, $photo->format),
+                        : $deliveryUrl->forProfileImage($photo->provider_asset_id, $photo->format, $photo->delivery_type),
                 ])->values(),
             ])->values(),
             'next_cursor' => $page->nextCursor()?->encode(),

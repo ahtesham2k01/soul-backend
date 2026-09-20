@@ -8,6 +8,9 @@ import 'features/auth/native_identity_service.dart';
 import 'features/bootstrap/bootstrap_repository.dart';
 import 'features/chat/chat_repository.dart';
 import 'features/discovery/discovery_repository.dart';
+import 'features/events/event_repository.dart';
+import 'features/profile/profile_repository.dart';
+import 'features/safety/safety_repository.dart';
 
 final sessionStoreProvider = Provider<SessionStore>(
   (ref) => SessionStore(const FlutterSecureStorage()),
@@ -38,10 +41,17 @@ final sessionRouteProvider = FutureProvider<String>((ref) async {
   final sessions = ref.watch(sessionStoreProvider);
   if (await sessions.readToken() == null) return 'auth';
   try {
-    final account = await ref.watch(apiClientProvider).get('auth/me');
+    final api = ref.watch(apiClientProvider);
+    final accountStatus = await api.get('auth/status');
+    final status = accountStatus['status']?.toString();
+    if (status == 'blocked') return 'appeal';
+    if (status == 'deletion_scheduled') return 'deletion';
+    if (status != 'active') return 'account_unavailable';
+
+    final account = await api.get('auth/me');
     final nextStep = account['next_step']?.toString();
     if (nextStep == 'onboarding') return 'onboarding';
-    final consent = await ref.watch(apiClientProvider).get('legal/consent');
+    final consent = await api.get('legal/consent');
     final legal = consent['legal'];
     if (legal is Map && legal['requires_acceptance'] == true) return 'legal';
     return 'home';
@@ -57,4 +67,19 @@ final discoveryRepositoryProvider = Provider<DiscoveryRepository>(
 
 final chatRepositoryProvider = Provider<ChatRepository>(
   (ref) => ChatRepository(ref.watch(apiClientProvider)),
+);
+
+final profileRepositoryProvider = Provider<ProfileRepository>(
+  (ref) => ProfileRepository(
+    ref.watch(apiClientProvider),
+    ref.watch(sessionStoreProvider),
+  ),
+);
+
+final safetyRepositoryProvider = Provider<SafetyRepository>(
+  (ref) => SafetyRepository(ref.watch(apiClientProvider)),
+);
+
+final eventRepositoryProvider = Provider<EventRepository>(
+  (ref) => EventRepository(ref.watch(apiClientProvider)),
 );
