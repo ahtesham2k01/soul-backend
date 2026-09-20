@@ -36,8 +36,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('user_religion_profiles', function (Blueprint $table): void {
+            $table->dropForeign(['root_node_id']);
             $table->dropIndex('user_religion_root_user_index');
-            $table->dropConstrainedForeignId('root_node_id');
+            $table->dropColumn('root_node_id');
         });
 
         Schema::table('discovery_preferences', function (Blueprint $table): void {
