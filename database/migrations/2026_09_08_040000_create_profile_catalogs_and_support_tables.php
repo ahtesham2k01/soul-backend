@@ -122,11 +122,11 @@ return new class extends Migration
         Schema::dropIfExists('help_categories');
 
         Schema::table('user_profile_traits', function (Blueprint $table): void {
-            $table->dropIndex(['user_profile_id', 'profile_catalog_item_id']);
+            $table->dropIndex('profile_trait_catalog_item_index');
             $table->dropConstrainedForeignId('profile_catalog_item_id');
         });
         Schema::table('user_profile_interests', function (Blueprint $table): void {
-            $table->dropIndex(['user_profile_id', 'profile_catalog_item_id']);
+            $table->dropIndex('profile_interest_catalog_item_index');
             $table->dropConstrainedForeignId('profile_catalog_item_id');
         });
 
