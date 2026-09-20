@@ -278,6 +278,47 @@ class GoogleSignInEndpointTest extends TestCase
         );
     }
 
+    public function test_blocked_google_user_can_sign_in_for_account_appeal(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'blocked@gmail.com',
+            'status' => User::STATUS_BLOCKED,
+            'onboarding_completed_at' => now(),
+        ]);
+
+        $user->socialAccounts()->create([
+            'provider' => SocialProvider::Google,
+            'provider_user_id' => 'blocked-google-user',
+            'provider_email' => 'blocked@gmail.com',
+            'provider_email_verified' => true,
+        ]);
+
+        $this->bindGoogleIdentity(
+            new VerifiedGoogleIdentity(
+                subject: 'blocked-google-user',
+                email: 'blocked@gmail.com',
+                emailVerified: true,
+                name: 'Blocked User',
+                avatarUrl: null,
+            ),
+        );
+
+        $response = $this->postJson('/api/v1/auth/google', [
+            'id_token' => 'blocked-user-token',
+            'device_name' => 'Pixel',
+            'locale' => 'en',
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertJsonPath('data.user.status', User::STATUS_BLOCKED)
+            ->assertJsonPath('data.next_step', 'account_appeal');
+
+        $this->assertDatabaseHas('personal_access_tokens', [
+            'tokenable_id' => $user->id,
+        ]);
+    }
+
     public function test_suspended_google_user_cannot_sign_in(): void
     {
         $user = User::factory()->create([

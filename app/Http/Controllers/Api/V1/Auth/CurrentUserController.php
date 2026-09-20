@@ -38,7 +38,7 @@ class CurrentUserController extends Controller
         return ApiResponse::success([
             'status' => $user->status,
             'appeal_available' => $user->status === User::STATUS_BLOCKED,
-            'deletion_scheduled' => $user->status === 'deletion_scheduled',
+            'deletion_scheduled' => $user->status === User::STATUS_DELETION_SCHEDULED,
         ]);
     }
 
