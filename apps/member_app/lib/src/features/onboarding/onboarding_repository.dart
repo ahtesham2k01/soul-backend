@@ -26,17 +26,23 @@ class ReligionProfilePathNode {
     required this.id,
     required this.type,
     required this.slug,
+    this.label,
+    this.labelLocale,
   });
 
   final String id;
   final String type;
   final String slug;
+  final String? label;
+  final String? labelLocale;
 
   factory ReligionProfilePathNode.fromJson(Map<String, dynamic> json) =>
       ReligionProfilePathNode(
         id: json['id']?.toString() ?? '',
         type: json['type']?.toString() ?? '',
         slug: json['slug']?.toString() ?? '',
+        label: json['label']?.toString(),
+        labelLocale: json['label_locale']?.toString(),
       );
 }
 

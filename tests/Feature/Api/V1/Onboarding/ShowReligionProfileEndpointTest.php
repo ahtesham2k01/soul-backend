@@ -27,7 +27,8 @@ class ShowReligionProfileEndpointTest extends TestCase
         ]);
         Sanctum::actingAs($user);
 
-        $this->getJson('/api/v1/onboarding/religion-profile')
+        $this->withHeader('Accept-Language', 'ur-PK')
+            ->getJson('/api/v1/onboarding/religion-profile')
             ->assertOk()
             ->assertJsonPath('data.religion_profile', null);
     }
@@ -48,6 +49,14 @@ class ShowReligionProfileEndpointTest extends TestCase
             'type' => ReligionNodeType::Sect,
             'slug' => 'sunni',
             'path' => 'islam/sunni',
+        ]);
+        $religion->translations()->createMany([
+            ['locale' => 'en', 'label' => 'Islam'],
+            ['locale' => 'ur', 'label' => 'Islam'],
+        ]);
+        $sect->translations()->createMany([
+            ['locale' => 'en', 'label' => 'Sunni'],
+            ['locale' => 'ur', 'label' => 'Sunni'],
         ]);
 
         UserReligionProfile::query()->create([
@@ -70,6 +79,18 @@ class ShowReligionProfileEndpointTest extends TestCase
             ->assertJsonPath(
                 'data.religion_profile.path.1.id',
                 $sect->public_id,
+            )
+            ->assertJsonPath(
+                'data.religion_profile.path.0.label',
+                'Islam',
+            )
+            ->assertJsonPath(
+                'data.religion_profile.path.0.label_locale',
+                'ur',
+            )
+            ->assertJsonPath(
+                'data.religion_profile.path.1.label',
+                'Sunni',
             )
             ->assertJsonCount(2, 'data.religion_profile.path');
     }

@@ -6,13 +6,30 @@ use App\Http\Controllers\Controller;
 use App\Models\ReligionTaxonomyNode;
 use App\Models\UserReligionProfile;
 use App\Support\ApiResponse;
+use App\Support\Localization\LocaleResolver;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ShowReligionProfileController extends Controller
 {
-    public function __invoke(Request $request): JsonResponse
-    {
+    public function __invoke(
+        Request $request,
+        LocaleResolver $localeResolver,
+    ): JsonResponse {
+        $resolvedLocale = $localeResolver->resolve(
+            requestedLocale: null,
+            acceptLanguage: $request->header('Accept-Language'),
+        );
+        $fallbackLocale = config(
+            'soul.translations.fallback_locale',
+            'en',
+        );
+        $localeCandidates = array_values(array_unique([
+            $resolvedLocale,
+            strtolower(explode('-', $resolvedLocale)[0]),
+            $fallbackLocale,
+        ]));
+
         $profile = UserReligionProfile::query()
             ->with(['selectedNode', 'rootNode'])
             ->where('user_id', $request->user()->getKey())
@@ -38,15 +55,37 @@ class ShowReligionProfileController extends Controller
 
         $path = ReligionTaxonomyNode::query()
             ->whereIn('path', $ancestorPaths)
+            ->with([
+                'translations' => fn ($query) => $query
+                    ->whereIn('locale', $localeCandidates),
+            ])
             ->orderByRaw(
                 "LENGTH(path) - LENGTH(REPLACE(path, '/', ''))",
             )
             ->get()
-            ->map(fn (ReligionTaxonomyNode $node): array => [
-                'id' => $node->public_id,
-                'type' => $node->type->value,
-                'slug' => $node->slug,
-            ])
+            ->map(function (ReligionTaxonomyNode $node) use (
+                $localeCandidates,
+            ): array {
+                $translation = null;
+
+                foreach ($localeCandidates as $candidate) {
+                    $translation = $node->translations
+                        ->firstWhere('locale', $candidate);
+
+                    if ($translation !== null) {
+                        break;
+                    }
+                }
+
+                return [
+                    'id' => $node->public_id,
+                    'type' => $node->type->value,
+                    'slug' => $node->slug,
+                    'label' => $translation?->label
+                        ?? str($node->slug)->replace('-', ' ')->title()->toString(),
+                    'label_locale' => $translation?->locale,
+                ];
+            })
             ->values();
 
         return ApiResponse::success(

@@ -157,6 +157,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final raw = _religion['path'];
     if (raw is! List || raw.isEmpty) return '—';
     return raw.whereType<Map>().map((item) {
+      final label = item['label']?.toString().trim() ?? '';
+      if (label.isNotEmpty) return label;
       final slug = item['slug']?.toString() ?? '';
       return slug
           .split('-')

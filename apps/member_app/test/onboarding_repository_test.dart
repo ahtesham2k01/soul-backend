@@ -72,9 +72,15 @@ void main() {
       'selected_node_id': '01HLEAF',
       'country': 'PK',
       'path': [
-        {'id': '01HROOT', 'type': 'religion', 'slug': 'islam'},
-        {'id': '01HSECT', 'type': 'sect', 'slug': 'sunni'},
-        {'id': '01HLEAF', 'type': 'school', 'slug': 'hanafi'},
+        {
+          'id': '01HROOT',
+          'type': 'religion',
+          'slug': 'islam',
+          'label': 'Islam',
+          'label_locale': 'ur',
+        },
+        {'id': '01HSECT', 'type': 'sect', 'slug': 'sunni', 'label': 'Sunni'},
+        {'id': '01HLEAF', 'type': 'school', 'slug': 'hanafi', 'label': 'Hanafi'},
       ],
     });
 
@@ -86,6 +92,8 @@ void main() {
       '01HLEAF',
     ]);
     expect(profile.path.last.type, 'school');
+    expect(profile.path.first.label, 'Islam');
+    expect(profile.path.first.labelLocale, 'ur');
   });
 
   test('profile catalog keeps stable keys and localized labels', () {
