@@ -75,6 +75,23 @@ class ReligionProfileSnapshot {
           : const [],
     );
   }
+
+  List<ReligionChoice> restoreChoices() => List<ReligionChoice>.generate(
+        path.length,
+        (index) {
+          final node = path[index];
+          final label = node.label?.trim();
+          return ReligionChoice(
+            id: node.id,
+            label: label != null && label.isNotEmpty
+                ? label
+                : node.slug.replaceAll('-', ' '),
+            hasChildren: index < path.length - 1,
+            level: node.type,
+          );
+        },
+        growable: false,
+      );
 }
 
 class OnboardingCatalogChoice {

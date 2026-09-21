@@ -78,6 +78,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       final languages = results[1] as List<SpokenLanguageChoice>;
       final religionProfile = results[2] as ReligionProfileSnapshot?;
       final country = profile['country_code']?.toString().toUpperCase() ?? '';
+      final restoredReligionPath =
+          religionProfile?.restoreChoices() ?? const <ReligionChoice>[];
       final resumeStep = _resumeStep(profile, religionProfile != null);
 
       if (!mounted) return;
@@ -113,6 +115,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           );
         }
         _languages = languages;
+        _religionPath
+          ..clear()
+          ..addAll(restoredReligionPath);
         _step = resumeStep;
       });
 
@@ -262,8 +267,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       }[step]!;
 
   Future<void> _loadReligion() async {
-    final options = await ref.read(onboardingRepositoryProvider).religionOptions(country: _country.text.trim().toUpperCase());
-    if (mounted) setState(() { _step = 5; _religions = options; });
+    final options = await ref
+        .read(onboardingRepositoryProvider)
+        .religionOptions(country: _country.text.trim().toUpperCase());
+    if (!mounted) return;
+    setState(() {
+      _step = 5;
+      _religionPath.clear();
+      _religions = options;
+    });
   }
 
   Future<void> _chooseReligion(ReligionChoice choice) async {

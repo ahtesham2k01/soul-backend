@@ -112,4 +112,44 @@ void main() {
     expect(catalog.personalityTraits.single.label, 'Meharban');
   });
 
+  test('saved religion profile restores localized hierarchy choices', () {
+    final profile = ReligionProfileSnapshot.fromJson({
+      'selected_node_id': '01HLEAF',
+      'country': 'PK',
+      'path': [
+        {
+          'id': '01HROOT',
+          'type': 'religion',
+          'slug': 'islam',
+          'label': 'Islam',
+        },
+        {
+          'id': '01HSECT',
+          'type': 'sect',
+          'slug': 'sunni',
+          'label': 'Sunni',
+        },
+        {
+          'id': '01HLEAF',
+          'type': 'school',
+          'slug': 'hanafi',
+          'label': 'Hanafi',
+        },
+      ],
+    });
+
+    final choices = profile.restoreChoices();
+
+    expect(choices.map((item) => item.id), [
+      '01HROOT',
+      '01HSECT',
+      '01HLEAF',
+    ]);
+    expect(choices.map((item) => item.label), ['Islam', 'Sunni', 'Hanafi']);
+    expect(choices[0].hasChildren, isTrue);
+    expect(choices[1].hasChildren, isTrue);
+    expect(choices[2].hasChildren, isFalse);
+    expect(choices[2].level, 'school');
+  });
+
 }

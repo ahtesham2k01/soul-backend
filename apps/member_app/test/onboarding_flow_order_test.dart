@@ -61,4 +61,14 @@ void main() {
   });
 
 
+  test('resume restores the saved religion path before later onboarding steps', () {
+    final source = File(
+      'lib/src/features/onboarding/onboarding_screen.dart',
+    ).readAsStringSync();
+
+    expect(source, contains('religionProfile?.restoreChoices()'));
+    expect(source, contains('..addAll(restoredReligionPath)'));
+    expect(source, contains('_religionPath.clear()'));
+  });
+
 }
