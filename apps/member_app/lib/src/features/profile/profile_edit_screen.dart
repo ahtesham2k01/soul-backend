@@ -490,12 +490,11 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                       'common.select',
                       'Select',
                     ),
-                    selectLabel: widget.labels.text('common.select', 'Select'),
                     label: widget.labels.text('profile.gender', 'Gender'),
                     value: _gender,
-                    choices: const {
-                      'man': 'Man',
-                      'woman': 'Woman',
+                    choices: {
+                      'man': widget.labels.text('profile.man', 'Man'),
+                      'woman': widget.labels.text('profile.woman', 'Woman'),
                     },
                     onChanged: (value) => _setValue(() => _gender = value),
                   ),
@@ -528,18 +527,26 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                       'common.select',
                       'Select',
                     ),
-                    selectLabel: widget.labels.text('common.select', 'Select'),
                     label: widget.labels.text(
                       'profile.marital_status',
                       'Marital status',
                     ),
                     value: _maritalStatus,
-                    choices: const {
-                      'never_married': 'Never married',
-                      'married': 'Married',
-                      'separated': 'Separated',
-                      'divorced': 'Divorced',
-                      'widowed': 'Widowed',
+                    choices: {
+                      'never_married': widget.labels.text(
+                        'profile.never_married',
+                        'Never married',
+                      ),
+                      'married': widget.labels.text('profile.married', 'Married'),
+                      'separated': widget.labels.text(
+                        'profile.separated',
+                        'Separated',
+                      ),
+                      'divorced': widget.labels.text(
+                        'profile.divorced',
+                        'Divorced',
+                      ),
+                      'widowed': widget.labels.text('profile.widowed', 'Widowed'),
                     },
                     onChanged: (value) =>
                         _setValue(() => _maritalStatus = value),
@@ -642,20 +649,28 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                       'common.select',
                       'Select',
                     ),
-                    selectLabel: widget.labels.text('common.select', 'Select'),
                     label: widget.labels.text(
                       'profile.profession',
                       'Profession or status',
                     ),
                     value: _professionStatus,
-                    choices: const {
-                      'employed': 'Employed',
-                      'self_employed': 'Self-employed',
-                      'student': 'Student',
-                      'homemaker': 'Homemaker',
-                      'unemployed': 'Not currently working',
-                      'retired': 'Retired',
-                      'other': 'Other',
+                    choices: {
+                      'employed': widget.labels.text('profile.employed', 'Employed'),
+                      'self_employed': widget.labels.text(
+                        'profile.self_employed',
+                        'Self-employed',
+                      ),
+                      'student': widget.labels.text('profile.student', 'Student'),
+                      'homemaker': widget.labels.text(
+                        'profile.homemaker',
+                        'Homemaker',
+                      ),
+                      'unemployed': widget.labels.text(
+                        'profile.unemployed',
+                        'Unemployed',
+                      ),
+                      'retired': widget.labels.text('profile.retired', 'Retired'),
+                      'other': widget.labels.text('profile.other', 'Other'),
                     },
                     onChanged: (value) =>
                         _setValue(() => _professionStatus = value),
@@ -827,17 +842,22 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                       'common.select',
                       'Select',
                     ),
-                    selectLabel: widget.labels.text('common.select', 'Select'),
                     label: widget.labels.text(
                       'profile.smoking',
                       'Do you smoke?',
                     ),
                     value: _smoking,
-                    choices: const {
-                      'no': 'No',
-                      'occasionally': 'Occasionally',
-                      'yes': 'Yes',
-                      'prefer_not_to_say': 'Prefer not to say',
+                    choices: {
+                      'no': widget.labels.text('profile.answer_no', 'No'),
+                      'occasionally': widget.labels.text(
+                        'profile.answer_occasionally',
+                        'Occasionally',
+                      ),
+                      'yes': widget.labels.text('profile.answer_yes', 'Yes'),
+                      'prefer_not_to_say': widget.labels.text(
+                        'common.prefer_not_to_say',
+                        'Prefer not to say',
+                      ),
                     },
                     onChanged: (value) =>
                         _setValue(() => _smoking = value),
@@ -847,17 +867,22 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                       'common.select',
                       'Select',
                     ),
-                    selectLabel: widget.labels.text('common.select', 'Select'),
                     label: widget.labels.text(
                       'profile.alcohol',
                       'Do you drink alcohol?',
                     ),
                     value: _alcohol,
-                    choices: const {
-                      'no': 'No',
-                      'occasionally': 'Occasionally',
-                      'yes': 'Yes',
-                      'prefer_not_to_say': 'Prefer not to say',
+                    choices: {
+                      'no': widget.labels.text('profile.answer_no', 'No'),
+                      'occasionally': widget.labels.text(
+                        'profile.answer_occasionally',
+                        'Occasionally',
+                      ),
+                      'yes': widget.labels.text('profile.answer_yes', 'Yes'),
+                      'prefer_not_to_say': widget.labels.text(
+                        'common.prefer_not_to_say',
+                        'Prefer not to say',
+                      ),
                     },
                     onChanged: (value) =>
                         _setValue(() => _alcohol = value),
@@ -867,17 +892,25 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                       'common.select',
                       'Select',
                     ),
-                    selectLabel: widget.labels.text('common.select', 'Select'),
                     label: widget.labels.text(
                       'profile.children_now',
                       'Do you have children?',
                     ),
                     value: _currentChildren,
-                    choices: const {
-                      'no': 'No',
-                      'yes_living_with_me': 'Yes, living with me',
-                      'yes_not_living_with_me': 'Yes, not living with me',
-                      'prefer_not_to_say': 'Prefer not to say',
+                    choices: {
+                      'no': widget.labels.text('profile.answer_no', 'No'),
+                      'yes_living_with_me': widget.labels.text(
+                        'profile.children_living_with_me',
+                        'Yes, living with me',
+                      ),
+                      'yes_not_living_with_me': widget.labels.text(
+                        'profile.children_not_living_with_me',
+                        'Yes, not living with me',
+                      ),
+                      'prefer_not_to_say': widget.labels.text(
+                        'common.prefer_not_to_say',
+                        'Prefer not to say',
+                      ),
                     },
                     onChanged: (value) =>
                         _setValue(() => _currentChildren = value),
@@ -887,18 +920,32 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                       'common.select',
                       'Select',
                     ),
-                    selectLabel: widget.labels.text('common.select', 'Select'),
                     label: widget.labels.text(
                       'profile.children_future',
                       'Do you want children?',
                     ),
                     value: _futureChildren,
-                    choices: const {
-                      'want_children': 'Want children',
-                      'do_not_want_children': 'Do not want children',
-                      'open_to_children': 'Open to children',
-                      'not_sure': 'Not sure',
-                      'prefer_not_to_say': 'Prefer not to say',
+                    choices: {
+                      'want_children': widget.labels.text(
+                        'profile.want_children',
+                        'Want children',
+                      ),
+                      'do_not_want_children': widget.labels.text(
+                        'profile.do_not_want_children',
+                        'Do not want children',
+                      ),
+                      'open_to_children': widget.labels.text(
+                        'profile.open_to_children',
+                        'Open to children',
+                      ),
+                      'not_sure': widget.labels.text(
+                        'profile.not_sure',
+                        'Not sure',
+                      ),
+                      'prefer_not_to_say': widget.labels.text(
+                        'common.prefer_not_to_say',
+                        'Prefer not to say',
+                      ),
                     },
                     onChanged: (value) =>
                         _setValue(() => _futureChildren = value),

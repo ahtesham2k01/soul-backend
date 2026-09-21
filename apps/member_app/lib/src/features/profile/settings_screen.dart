@@ -44,11 +44,11 @@ class SettingsScreen extends StatelessWidget {
                   value: profile['first_name']?.toString() ?? '—',
                 ),
                 _ReadOnlyRow(
-                  label: 'Email address',
+                  label: labels.text('auth.email', 'Email'),
                   value: account.email ?? '—',
                 ),
                 _ReadOnlyRow(
-                  label: 'Phone number',
+                  label: labels.text('verification.phone', 'Phone'),
                   value: account.phone ?? '—',
                 ),
               ],

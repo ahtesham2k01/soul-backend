@@ -36,4 +36,27 @@ void main() {
       expect(safety, contains(key));
     }
   });
+  test('profile edit choice values are translated by Laravel keys', () {
+    final source = File(
+      'lib/src/features/profile/profile_edit_screen.dart',
+    ).readAsStringSync();
+
+    for (final key in [
+      'profile.man',
+      'profile.never_married',
+      'profile.employed',
+      'profile.answer_occasionally',
+      'profile.children_living_with_me',
+      'profile.want_children',
+      'common.prefer_not_to_say',
+    ]) {
+      expect(source, contains(key));
+    }
+
+    expect(
+      RegExp(r'selectLabel:\s*widget\.labels\.text').allMatches(source).length,
+      7,
+    );
+  });
+
 }
