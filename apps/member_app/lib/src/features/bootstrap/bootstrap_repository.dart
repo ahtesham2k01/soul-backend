@@ -70,6 +70,21 @@ class BootstrapState {
   final BootstrapLocation? location;
 
   String text(String key, String fallback) => translations[key] ?? fallback;
+
+  String format(
+    String key,
+    String fallback,
+    Map<String, Object?> values,
+  ) {
+    var value = text(key, fallback);
+    for (final entry in values.entries) {
+      value = value.replaceAll(
+        '{${entry.key}}',
+        entry.value?.toString() ?? '',
+      );
+    }
+    return value;
+  }
 }
 
 class BootstrapRepository {
