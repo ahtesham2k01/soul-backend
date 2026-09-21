@@ -357,7 +357,7 @@ class _ProtectedPhotoPageState extends State<_ProtectedPhotoPage> {
               child: TextButton.icon(
                 onPressed: _retry,
                 icon: const Icon(Icons.refresh_rounded),
-                label: const Text('Try again'),
+                label: Text(widget.labels.text('common.retry', 'Try again')),
               ),
             );
           }

@@ -133,7 +133,9 @@ class _NotificationCenterScreenState
   @override
   Widget build(BuildContext context) => Scaffold(
         backgroundColor: const Color(0xfff7f7f4),
-        appBar: AppBar(title: const Text('Notifications')),
+        appBar: AppBar(
+          title: Text(widget.labels.text('notifications.title', 'Notifications')),
+        ),
         body: _loading
             ? const Center(child: CircularProgressIndicator())
             : _error != null && _items.isEmpty
@@ -150,7 +152,14 @@ class _NotificationCenterScreenState
                                 color: SoulColors.muted,
                               ),
                               SizedBox(height: 14),
-                              Center(child: Text('No notifications yet')),
+                              Center(
+                          child: Text(
+                            widget.labels.text(
+                              'notifications.empty',
+                              'No notifications yet',
+                            ),
+                          ),
+                        ),
                             ],
                           )
                         : NotificationListener<ScrollNotification>(
@@ -276,7 +285,10 @@ class _NotificationError extends StatelessWidget {
             children: [
               Text(message, textAlign: TextAlign.center),
               const SizedBox(height: 14),
-              FilledButton(onPressed: onRetry, child: const Text('Try again')),
+              FilledButton(
+                onPressed: onRetry,
+                child: Text(labels.text('common.retry', 'Try again')),
+              ),
             ],
           ),
         ),

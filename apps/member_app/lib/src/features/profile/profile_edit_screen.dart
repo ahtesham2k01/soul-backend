@@ -276,7 +276,9 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     final discard = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Discard changes?'),
+        title: Text(
+          widget.labels.text('profile.discard_changes', 'Discard changes?'),
+        ),
         content: const Text(
           'Your unsaved profile changes will be lost.',
         ),
@@ -287,7 +289,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Discard'),
+            child: Text(widget.labels.text('common.discard', 'Discard')),
           ),
         ],
       ),
@@ -1250,7 +1252,7 @@ class _ChoiceRow extends StatelessWidget {
             const SizedBox(width: 12),
             DropdownButton<String>(
               value: value != null && choices.containsKey(value) ? value : null,
-              hint: const Text('Select'),
+              hint: Text(widget.labels.text('common.select', 'Select')),
               underline: const SizedBox.shrink(),
               items: choices.entries
                   .map(

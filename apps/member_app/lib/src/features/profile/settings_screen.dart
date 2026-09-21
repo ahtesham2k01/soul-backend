@@ -62,7 +62,10 @@ class SettingsScreen extends StatelessWidget {
                     'notifications.title',
                     'Notifications',
                   ),
-                  subtitle: 'New likes, matches, messages and account updates',
+                  subtitle: labels.text(
+                    'notifications.default_subtitle',
+                    'New likes, matches, messages and account updates',
+                  ),
                   onTap: () => Navigator.of(context).push<void>(
                     MaterialPageRoute(
                       builder: (_) => NotificationSettingsScreen(
@@ -471,7 +474,12 @@ class _NotificationSettingsScreenState
                             ),
                           ),
                           const ListTile(
-                            title: Text('Safety updates'),
+                            title: Text(
+                          widget.labels.text(
+                            'notifications.safety',
+                            'Safety updates',
+                          ),
+                        ),
                             subtitle: Text(
                               'Always on for important safety notices.',
                             ),
@@ -534,7 +542,12 @@ class _NotificationSettingsScreenState
                             ),
                           ),
                           const ListTile(
-                            title: Text('Safety updates'),
+                            title: Text(
+                          widget.labels.text(
+                            'notifications.safety',
+                            'Safety updates',
+                          ),
+                        ),
                             subtitle: Text(
                               'Always on for important safety notices.',
                             ),
@@ -1710,7 +1723,7 @@ class _Retry extends StatelessWidget {
               const SizedBox(height: 14),
               FilledButton(
                 onPressed: onRetry,
-                child: const Text('Try again'),
+                child: Text(widget.labels.text('common.retry', 'Try again')),
               ),
             ],
           ),

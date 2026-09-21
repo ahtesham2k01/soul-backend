@@ -556,26 +556,52 @@ class _ReportDialogState extends State<_ReportDialog> {
                 items: const [
                   DropdownMenuItem(
                     value: 'fake_profile',
-                    child: Text('Fake profile'),
+                    child: Text(widget.labels.text('safety.reason.fake_profile', 'Fake profile')),
                   ),
-                  DropdownMenuItem(value: 'scam', child: Text('Scam')),
+                  DropdownMenuItem(
+                    value: 'scam',
+                    child: Text(widget.labels.text('safety.reason.scam', 'Scam')),
+                  ),
                   DropdownMenuItem(
                     value: 'harassment',
-                    child: Text('Harassment'),
+                    child: Text(
+                      widget.labels.text(
+                        'safety.reason.harassment',
+                        'Harassment',
+                      ),
+                    ),
                   ),
                   DropdownMenuItem(
                     value: 'nudity_sexual_content',
-                    child: Text('Sexual content'),
+                    child: Text(
+                      widget.labels.text(
+                        'safety.reason.sexual_content',
+                        'Sexual content',
+                      ),
+                    ),
                   ),
                   DropdownMenuItem(
                     value: 'underage',
-                    child: Text('Underage concern'),
+                    child: Text(
+                      widget.labels.text(
+                        'safety.reason.underage',
+                        'Underage concern',
+                      ),
+                    ),
                   ),
                   DropdownMenuItem(
                     value: 'false_marital_status',
-                    child: Text('False marital status'),
+                    child: Text(
+                      widget.labels.text(
+                        'safety.reason.false_marital_status',
+                        'False marital status',
+                      ),
+                    ),
                   ),
-                  DropdownMenuItem(value: 'other', child: Text('Other')),
+                  DropdownMenuItem(
+                    value: 'other',
+                    child: Text(widget.labels.text('common.other', 'Other')),
+                  ),
                 ],
                 onChanged: (value) {
                   if (value != null) setState(() => _category = value);
@@ -599,7 +625,12 @@ class _ReportDialogState extends State<_ReportDialog> {
                 value: _block,
                 onChanged: (value) =>
                     setState(() => _block = value ?? true),
-                title: const Text('Block this profile too'),
+                title: Text(
+                  widget.labels.text(
+                    'safety.block_too',
+                    'Block this profile too',
+                  ),
+                ),
               ),
             ],
           ),

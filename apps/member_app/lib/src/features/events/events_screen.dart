@@ -626,7 +626,10 @@ class _EventError extends StatelessWidget {
             children: [
               Text(message, textAlign: TextAlign.center),
               const SizedBox(height: 14),
-              FilledButton(onPressed: onRetry, child: const Text('Try again')),
+              FilledButton(
+                onPressed: onRetry,
+                child: Text(labels.text('common.retry', 'Try again')),
+              ),
             ],
           ),
         ),
