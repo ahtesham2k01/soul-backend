@@ -588,7 +588,7 @@ Fresh-audit completion: **5/5 phases complete (100%)**. Provider code fails clos
 
 ### Final audit closure roadmap
 
-A final implementation audit found a smaller set of correctness and developer-handoff tasks that must be closed before the backend is called launch-ready. Flutter development does not need to wait: the generated 91-endpoint member catalog and this document are stable enough to begin integration while these backend packages are completed in parallel. Localization remains the last engineering package so it cannot delay core app work.
+A final implementation audit found a smaller set of correctness and developer-handoff tasks that must be closed before the backend is called launch-ready. Flutter development does not need to wait: the generated 96-endpoint member catalog and this document are stable enough to begin integration while these backend packages are completed in parallel. Localization remains the last engineering package so it cannot delay core app work.
 
 - [x] Phase 35 — Route-derived contract parity, browser-session-only admin APIs and production session configuration gates
 - [x] Phase 36 — Typed Flutter requests/responses, standard error and cursor models, retry/session-expiry guidance, upload helpers and representative fixtures
@@ -908,7 +908,7 @@ Build the production language picker from `supported_languages` entries where `i
 
 ### Generated typed handoff
 
-`soul_v1_models.dart` is the copy-ready core model layer for the first Flutter implementation journeys: bootstrap, authentication, onboarding, direct photo upload, discovery, matches and chat. `flutter-v1.json` maps each covered operation to its request and response model, while the route catalog remains the complete 91-endpoint member surface. This split lets Flutter start with safe typed core flows without pretending every less-common endpoint already has a generated domain model.
+`soul_v1_models.dart` is the copy-ready core model layer for the first Flutter implementation journeys: bootstrap, authentication, onboarding, direct photo upload, discovery, matches and chat. `flutter-v1.json` maps each covered operation to its request and response model, while the route catalog remains the complete 96-endpoint member surface. This split lets Flutter start with safe typed core flows without pretending every less-common endpoint already has a generated domain model.
 
 - `SoulApiSuccess<T>` and `SoulApiError` parse the standard envelopes and preserve `meta.request_id` for support diagnostics.
 - `SoulCursorPage<T>` preserves the opaque `next_cursor`; Flutter must never decode or construct cursors.
@@ -1266,7 +1266,7 @@ The update is partial: Flutter may save one screen at a time. Omitted fields kee
   "current_children": "no",
   "future_children": "want_children",
   "intentions": ["marriage"],
-  "spoken_language_ids": [1, 2],
+  "spoken_language_codes": ["en", "ur"],
   "interests": ["Reading", "Travel"],
   "personality_traits": ["Kind", "Curious"]
 }
@@ -1964,15 +1964,9 @@ erDiagram
 
 Application/database checks jointly enforce photo slot range, profile enum values, age eligibility at submission, active-account access, country-aware taxonomy paths and non-enumerating interaction visibility.
 
-### Planned V1 schema extensions
+### Current V1 schema extension status
 
-These are required by the confirmed PRD but are not represented by complete current migrations yet:
-
-| Phase | Planned storage |
-|---|---|
-| Chat presence | Presence/last-seen and ephemeral typing state (cache preferred for typing) |
-
-Each extension must include reversible migrations, foreign keys, production-safe indexes, factories and model/API tests. Pricing and exact plan allocation remain configuration data, not schema constants.
+No confirmed V1 feature currently requires an unimplemented database extension. Durable presence uses the existing profile activity timestamp, while typing state is intentionally ephemeral cache data and real-time channel authorization does not require a dedicated table. Phase 40 retention/legal-hold storage must not be added until its owner/legal decisions are approved. Pricing and exact plan allocation remain configuration data, not schema constants.
 
 ### Data retention and security
 
@@ -1987,7 +1981,7 @@ Each extension must include reversible migrations, foreign keys, production-safe
 - Delivered notification-attempt rows are pruned after `SOUL_DELIVERED_NOTIFICATION_RETENTION_DAYS` (default 90 days); failed attempts are retained for `SOUL_FAILED_NOTIFICATION_RETENTION_DAYS` (default 180 days).
 - The English-only admin operations screen exposes retained-payload counts, so unexpected sensitive-data backlog is visible without revealing payload contents.
 - Contact discovery should store normalized keyed hashes, not a reusable address book.
-- Exact location requires restricted storage, retention and access logging before its discovery phase ships.
+- Exact coordinates are restricted server-side profile data used only for location/radius calculations and are never returned to members. Deployment owners must enforce approved database access and retention controls.
 - Backup/restore, retention and regional compliance are deployment gates, not assumptions encoded in Flutter.
 
 ---
@@ -2135,7 +2129,7 @@ SOUL uses a custom Laravel + React admin. It has no paid admin-panel dependency.
 
 Source JSON files define the allowed translation keys and safe fallback. A super-admin may override an existing key for a configured locale. Unknown keys are rejected so the API, Flutter and React catalogs cannot silently drift. Overrides take effect in bootstrap immediately and keep the base files unchanged for rollback.
 
-Spoken-language options can be renamed, ordered or deactivated. Deactivation hides future selection without deleting existing member data. Interests and personality traits are member-provided bounded values in V1, not global admin taxonomies.
+Spoken-language options can be renamed, ordered or deactivated. Deactivation hides future selection without deleting existing member data. Interests and personality traits use admin-managed profile catalogs with stable keys and localized labels; deactivation hides an option from new selection without deleting existing member selections.
 
 ### Privacy and account operations
 
