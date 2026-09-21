@@ -12,7 +12,11 @@ class ProfileCatalogItem extends Model
 
     protected static function booted(): void
     {
-        static::creating(fn (self $item) => $item->public_id ??= (string) Str::ulid());
+        static::creating(function (self $item): void {
+            if ($item->public_id === null) {
+                $item->public_id = (string) Str::ulid();
+            }
+        });
     }
 
     protected function casts(): array

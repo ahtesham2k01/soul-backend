@@ -103,6 +103,12 @@ class ReleaseCommandsTest extends TestCase
             'https://staging.soul.test/api/v1/bootstrap' => Http::response([
                 'success' => true, 'data' => ['brand' => ['name' => 'SOUL']],
             ], 200, ['X-Request-ID' => 'bootstrap-id']),
+            'https://staging.soul.test/api/v1/onboarding/religion-options' => Http::response([
+                'success' => true, 'data' => ['options' => [['id' => 'root']]],
+            ], 200, ['X-Request-ID' => 'religion-id']),
+            'https://staging.soul.test/api/v1/catalogs/profile' => Http::response([
+                'success' => true, 'data' => ['spoken_languages' => [['code' => 'en']]],
+            ], 200, ['X-Request-ID' => 'catalog-id']),
         ]);
 
         $exit = Artisan::call('soul:smoke', ['--base-url' => 'https://staging.soul.test']);

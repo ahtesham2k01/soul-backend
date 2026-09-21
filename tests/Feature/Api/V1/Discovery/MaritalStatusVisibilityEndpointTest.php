@@ -48,6 +48,7 @@ class MaritalStatusVisibilityEndpointTest extends TestCase
     public function test_marital_status_cannot_be_hidden_or_replaced_by_partner_questions(): void
     {
         [$viewer, , $profile] = $this->viewerAndCandidate();
+        $viewer->profile()->update(['profile_status' => 'draft']);
         Sanctum::actingAs($viewer);
 
         $this->putJson('/api/v1/onboarding/profile', [

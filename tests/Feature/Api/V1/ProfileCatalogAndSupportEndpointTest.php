@@ -79,7 +79,7 @@ class ProfileCatalogAndSupportEndpointTest extends TestCase
         $viewer = User::factory()->create(['status' => User::STATUS_ACTIVE]);
         $candidate = User::factory()->create(['status' => User::STATUS_ACTIVE]);
         $profile = UserProfile::factory()->for($candidate)->create([
-            'profile_status' => 'live',
+            'profile_status' => 'draft',
             'gender' => 'woman',
             'date_of_birth' => now()->subYears(30),
         ]);
@@ -89,6 +89,8 @@ class ProfileCatalogAndSupportEndpointTest extends TestCase
             'interests' => ['reading'],
             'personality_traits' => ['kind'],
         ])->assertOk();
+
+        $profile->refresh()->update(['profile_status' => 'live']);
 
         Sanctum::actingAs($viewer);
         $this->withHeader('Accept-Language', 'ur')

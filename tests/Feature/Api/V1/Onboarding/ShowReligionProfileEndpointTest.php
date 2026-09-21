@@ -65,7 +65,8 @@ class ShowReligionProfileEndpointTest extends TestCase
             'country_code' => 'PK',
         ]);
 
-        $this->getJson('/api/v1/onboarding/religion-profile')
+        $this->withHeader('Accept-Language', 'ur')
+            ->getJson('/api/v1/onboarding/religion-profile')
             ->assertOk()
             ->assertJsonPath(
                 'data.religion_profile.selected_node_id',

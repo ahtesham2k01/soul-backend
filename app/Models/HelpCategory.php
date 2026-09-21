@@ -12,7 +12,11 @@ class HelpCategory extends Model
 
     protected static function booted(): void
     {
-        static::creating(fn (self $category) => $category->public_id ??= (string) Str::ulid());
+        static::creating(function (self $category): void {
+            if ($category->public_id === null) {
+                $category->public_id = (string) Str::ulid();
+            }
+        });
     }
 
     protected function casts(): array
