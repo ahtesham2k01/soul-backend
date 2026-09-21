@@ -177,88 +177,101 @@ class SoulChoiceTile extends StatelessWidget {
   final bool trailingChevron;
 
   @override
-  Widget build(BuildContext context) => Material(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(SoulDesign.cardRadius),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(SoulDesign.cardRadius),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 140),
-            constraints: const BoxConstraints(minHeight: 58),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
-            decoration: BoxDecoration(
+  Widget build(BuildContext context) => Semantics(
+        container: true,
+        button: true,
+        selected: selected,
+        label: label,
+        hint: subtitle,
+        onTap: onTap,
+        child: ExcludeSemantics(
+          child: Material(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(SoulDesign.cardRadius),
+            child: InkWell(
+              onTap: onTap,
               borderRadius: BorderRadius.circular(SoulDesign.cardRadius),
-              border: Border.all(
-                color: selected ? SoulColors.limeLight : SoulColors.line,
-                width: selected ? 1.6 : 1,
-              ),
-            ),
-            child: Row(
-              children: [
-                if (leading != null) ...[
-                  leading!,
-                  const SizedBox(width: 12),
-                ],
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        label,
-                        style: const TextStyle(
-                          color: SoulColors.ink,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      if (subtitle != null && subtitle!.isNotEmpty) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                          subtitle!,
-                          style: const TextStyle(
-                            color: SoulColors.muted,
-                            fontSize: 11.5,
-                          ),
-                        ),
-                      ],
-                    ],
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 140),
+                constraints: const BoxConstraints(minHeight: 58),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 11,
+                ),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(SoulDesign.cardRadius),
+                  border: Border.all(
+                    color: selected ? SoulColors.limeLight : SoulColors.line,
+                    width: selected ? 1.6 : 1,
                   ),
                 ),
-                if (trailingChevron)
-                  const Icon(
-                    Icons.chevron_right_rounded,
-                    color: SoulColors.muted,
-                  )
-                else
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 140),
-                    width: 18,
-                    height: 18,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: selected
-                            ? SoulColors.limeLight
-                            : const Color(0xffd9ddd2),
-                        width: 1.5,
-                      ),
-                    ),
-                    child: selected
-                        ? Center(
-                            child: Container(
-                              width: 10,
-                              height: 10,
-                              decoration: const BoxDecoration(
-                                color: SoulColors.limeLight,
-                                shape: BoxShape.circle,
+                child: Row(
+                  children: [
+                    if (leading != null) ...[
+                      leading!,
+                      const SizedBox(width: 12),
+                    ],
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            label,
+                            style: const TextStyle(
+                              color: SoulColors.ink,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          if (subtitle != null && subtitle!.isNotEmpty) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              subtitle!,
+                              style: const TextStyle(
+                                color: SoulColors.muted,
+                                fontSize: 11.5,
                               ),
                             ),
-                          )
-                        : null,
-                  ),
-              ],
+                          ],
+                        ],
+                      ),
+                    ),
+                    if (trailingChevron)
+                      const Icon(
+                        Icons.chevron_right_rounded,
+                        color: SoulColors.muted,
+                      )
+                    else
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 140),
+                        width: 18,
+                        height: 18,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: selected
+                                ? SoulColors.limeLight
+                                : const Color(0xffd9ddd2),
+                            width: 1.5,
+                          ),
+                        ),
+                        child: selected
+                            ? Center(
+                                child: Container(
+                                  width: 10,
+                                  height: 10,
+                                  decoration: const BoxDecoration(
+                                    color: SoulColors.limeLight,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              )
+                            : null,
+                      ),
+                  ],
+                ),
+              ),
             ),
           ),
         ),

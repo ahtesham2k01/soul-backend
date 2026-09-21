@@ -52,6 +52,18 @@ class DocumentationArchitectureTest extends TestCase
         );
     }
 
+
+    public function test_member_app_readme_preserves_checked_in_native_runners(): void
+    {
+        $contents = File::get(base_path('apps/member_app/README.md'));
+
+        $this->assertStringContainsString('Android and iOS runners are version-controlled', $contents);
+        $this->assertStringContainsString('Do **not** run `flutter create`', $contents);
+        $this->assertStringContainsString('flutter analyze', $contents);
+        $this->assertStringContainsString('flutter test', $contents);
+        $this->assertStringContainsString('SOUL_API_ORIGIN', $contents);
+    }
+
     public function test_every_numbered_prd_section_has_traceability_evidence(): void
     {
         $contents = File::get(base_path('docs/SOUL_V1_MASTER_DOCUMENTATION.md'));

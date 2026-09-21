@@ -6,12 +6,21 @@ The Flutter Android/iOS member application lives here. It uses the Laravel membe
 
 ## Local bootstrap
 
-Install Flutter stable, then run the following once from this folder to generate the native Android and iOS runners without changing the Dart package name:
+Android and iOS runners are version-controlled. Do **not** run `flutter create` over this directory: it can overwrite reviewed native permissions, entitlements and release configuration.
+
+From this folder:
 
 ```bash
-flutter create --platforms=android,ios --org com.soul .
 flutter pub get
+flutter analyze
+flutter test
 flutter run --dart-define=SOUL_API_ORIGIN=http://10.0.2.2:8000
 ```
 
-Use an HTTPS API origin for release builds. Apple/Google identity setup, APNs/FCM credentials and store signing remain environment/account work; do not commit them here.
+Use an HTTPS API origin for release builds.
+
+## Native/provider release gates
+
+Source integration for Apple/Google sign-in, APNs/FCM, store purchases and protected-photo handling is checked in and covered by CI. Real release verification still requires the owner's provider accounts, credentials, signing and physical devices.
+
+Before production release, follow the Production readiness and Release closure chapters in `docs/SOUL_V1_MASTER_DOCUMENTATION.md` and run the documented production configuration checks. Never commit provider secrets.
