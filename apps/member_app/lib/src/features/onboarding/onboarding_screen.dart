@@ -497,6 +497,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             ],
           ),
         7 => _MultiChoiceStep(
+            labels: widget.labels,
             title: widget.labels.text('profile.intentions', 'What are you looking for?'),
             choices: [
               ('marriage', widget.labels.text('profile.intention_marriage', 'Marriage')),
@@ -687,7 +688,16 @@ class _SingleChoiceStep extends StatelessWidget {
 }
 
 class _MultiChoiceStep extends StatelessWidget {
-  const _MultiChoiceStep({required this.title, required this.choices, required this.selected, required this.maximum, required this.onChanged});
+  const _MultiChoiceStep({
+    required this.labels,
+    required this.title,
+    required this.choices,
+    required this.selected,
+    required this.maximum,
+    required this.onChanged,
+  });
+
+  final BootstrapState labels;
   final String title;
   final List<(String, String)> choices;
   final Set<String> selected;

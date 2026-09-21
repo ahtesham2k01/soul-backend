@@ -71,4 +71,14 @@ void main() {
     expect(source, contains('_religionPath.clear()'));
   });
 
+  test('multi-choice onboarding copy uses the server translation catalog', () {
+    final source = File(
+      'lib/src/features/onboarding/onboarding_screen.dart',
+    ).readAsStringSync();
+
+    expect(source, contains('labels: widget.labels'));
+    expect(source, contains('final BootstrapState labels;'));
+    expect(source, contains("'common.choose_up_to'"));
+  });
+
 }
