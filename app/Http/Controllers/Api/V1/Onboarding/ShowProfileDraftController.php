@@ -15,8 +15,10 @@ class ShowProfileDraftController extends Controller
         $profile = $request->user()
             ->profile()
             ->with([
-                'intentions', 'spokenLanguages', 'interests',
-                'personalityTraits', 'withheldFields',
+                'intentions', 'spokenLanguages',
+                'interests.catalogItem.translations',
+                'personalityTraits.catalogItem.translations',
+                'withheldFields',
             ])
             ->first();
 
