@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import 'app_providers.dart';
 import 'core/soul_theme.dart';
@@ -91,12 +92,46 @@ class _LaunchScreen extends StatelessWidget {
   const _LaunchScreen();
 
   @override
-  Widget build(BuildContext context) => const Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [Text('SOUL', style: TextStyle(fontSize: 36)), SizedBox(height: 20), CircularProgressIndicator()],
-          ),
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: SoulColors.forestDeep,
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            const DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topRight,
+                  end: Alignment.bottomLeft,
+                  colors: [
+                    Color(0xff648d1e),
+                    SoulColors.forestDeep,
+                    Color(0xff173105),
+                  ],
+                ),
+              ),
+            ),
+            Center(
+              child: SvgPicture.asset(
+                'assets/design/welcome/soul_lime.svg',
+                width: 122,
+              ),
+            ),
+            const Positioned(
+              left: 0,
+              right: 0,
+              bottom: 72,
+              child: Center(
+                child: SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: SoulColors.limeLight,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       );
 }
