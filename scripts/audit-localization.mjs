@@ -171,7 +171,7 @@ if (failures.length) {
         console.error('\nLocalization audit failed:');
         failures.forEach((failure) => console.error(`- ${failure}`));
     }
-    process.exit(1);
+    process.exitCode = 1;
 }
 
 if (outputFormat === 'table') {

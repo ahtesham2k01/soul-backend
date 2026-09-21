@@ -163,7 +163,7 @@ class _NotificationCenterScreenState
                                 size: 58,
                                 color: SoulColors.muted,
                               ),
-                              SizedBox(height: 14),
+                              const SizedBox(height: 14),
                               Center(
                           child: Text(
                             widget.labels.text(
