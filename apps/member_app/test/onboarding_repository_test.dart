@@ -7,7 +7,7 @@ void main() {
       'id': '01HRELIGION',
       'label': 'Islam',
       'has_children': true,
-      'level': 'religion',
+      'type': 'religion',
     });
 
     expect(choice.id, '01HRELIGION');
@@ -21,10 +21,11 @@ void main() {
       'id': '01HLEAF',
       'label': 'Hanafi',
       'has_children': false,
+      'type': 'school',
     });
 
     expect(choice.hasChildren, isFalse);
-    expect(choice.level, isNull);
+    expect(choice.level, 'school');
   });
 
   test('spoken language prefers the member-facing native name', () {

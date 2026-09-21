@@ -284,7 +284,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         _religionPath.add(choice);
         _religions = next;
       });
-      if (!choice.hasChildren) {
+      if (!choice.hasChildren || next.isEmpty) {
         await repository.saveReligion(
           selectedNodeId: choice.id,
           country: _country.text.trim().toUpperCase(),
@@ -733,8 +733,7 @@ class _ReligionStep extends StatelessWidget {
         SoulPageTitle(
           path.isEmpty
               ? labels.text('profile.religion', 'Religion or belief')
-              : _religionTitle(path),
-          subtitle: _religionSubtitle(path),
+              : path.last.label,
         ),
         if (path.isNotEmpty) ...[
           const SizedBox(height: 14),
@@ -750,27 +749,24 @@ class _ReligionStep extends StatelessWidget {
           ),
         ],
         const SizedBox(height: 20),
-        if (busy) const Expanded(child: Center(child: CircularProgressIndicator())) else if (options.isEmpty) Expanded(child: Center(child: OutlinedButton.icon(onPressed: onRetry, icon: const Icon(Icons.refresh), label: const Text('Retry options')))) else Expanded(child: ListView.separated(itemCount: options.length, separatorBuilder: (_, __) => const SizedBox(height: 10), itemBuilder: (_, index) {
+        if (busy)
+          const Expanded(child: Center(child: CircularProgressIndicator()))
+        else if (options.isEmpty)
+          Expanded(
+            child: Center(
+              child: OutlinedButton.icon(
+                onPressed: onRetry,
+                icon: const Icon(Icons.refresh),
+                label: Text(labels.text('common.retry', 'Try again')),
+              ),
+            ),
+          )
+        else
+          Expanded(child: ListView.separated(itemCount: options.length, separatorBuilder: (_, __) => const SizedBox(height: 10), itemBuilder: (_, index) {
           final item = options[index];
           return _ChoiceTile(label: item.label, selected: false, onTap: () => onSelected(item));
         })),
       ]);
-}
-
-String _religionTitle(List<ReligionChoice> path) {
-  if (path.isEmpty) return 'What is your religion?';
-  final level = path.last.level?.toLowerCase();
-  if (level == 'religion') return 'Which sect do you follow?';
-  if (level == 'sect') return 'Which sub-sect do you follow?';
-  if (level == 'sub_sect' || level == 'sub-sect' || level == 'subsect') {
-    return 'Select your caste or community';
-  }
-  return 'Tell us a little more';
-}
-
-String _religionSubtitle(List<ReligionChoice> path) {
-  if (path.isEmpty) return 'Choose the option that best describes you.';
-  return 'Only relevant options are shown. If there is no next level, we’ll continue automatically.';
 }
 
 class _CompletionStep extends StatelessWidget {

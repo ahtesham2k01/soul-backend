@@ -17,7 +17,7 @@ class ReligionChoice {
         id: json['id']!.toString(),
         label: json['label']?.toString() ?? '',
         hasChildren: json['has_children'] == true,
-        level: json['level']?.toString(),
+        level: json['type']?.toString() ?? json['level']?.toString(),
       );
 }
 
