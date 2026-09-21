@@ -199,4 +199,27 @@ class ReleaseCommandsTest extends TestCase
         config()->set('soul.operations.runbook_url', 'http://unsafe.test/runbook');
         $this->assertSame(['runbook_url'], app(ReleaseConfigurationValidator::class)->monitoringReadiness()['invalid']);
     }
+    public function test_gps_geocoding_readiness_is_fail_closed_and_secret_safe(): void
+    {
+        config([
+            'soul.location.coordinate_driver' => 'none',
+            'soul.location.google_geocoding.api_key' => null,
+        ]);
+
+        $readiness = app(ReleaseConfigurationValidator::class)->providerReadiness();
+        $this->assertFalse($readiness['gps_geocoding']['ready']);
+        $this->assertSame(['coordinate_driver'], $readiness['gps_geocoding']['missing']);
+
+        config([
+            'soul.location.coordinate_driver' => 'google',
+            'soul.location.google_geocoding.api_key' => 'geocoding-secret',
+        ]);
+
+        $readiness = app(ReleaseConfigurationValidator::class)->providerReadiness();
+        $this->assertTrue($readiness['gps_geocoding']['ready']);
+        $this->assertSame([], $readiness['gps_geocoding']['missing']);
+        $this->assertStringNotContainsString('geocoding-secret', json_encode($readiness));
+    }
+
+
 }

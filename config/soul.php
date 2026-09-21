@@ -262,8 +262,18 @@ return [
     */
 
     'location' => [
+        /*
+         * IP location and GPS reverse geocoding are intentionally separate.
+         * Cloudflare supplies approximate visitor headers, while precise
+         * device coordinates require a reverse-geocoding provider.
+         */
         'driver' => env(
             'GEOLOCATION_DRIVER',
+            'none',
+        ),
+
+        'coordinate_driver' => env(
+            'GEOLOCATION_COORDINATE_DRIVER',
             'none',
         ),
 
@@ -274,6 +284,14 @@ return [
             ),
             FILTER_VALIDATE_BOOL,
         ),
+
+        'google_geocoding' => [
+            'api_key' => env('GOOGLE_GEOCODING_API_KEY'),
+            'timeout_seconds' => (int) env(
+                'GOOGLE_GEOCODING_TIMEOUT_SECONDS',
+                4,
+            ),
+        ],
     ],
 
     'privacy' => [

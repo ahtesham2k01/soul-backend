@@ -8,6 +8,7 @@ final class ReleaseConfigurationValidator
     public function providerReadiness(): array
     {
         return [
+            'gps_geocoding' => $this->gpsGeocodingReadiness(),
             'cloudinary' => $this->group(['cloud_name' => config('soul.media.cloudinary.cloud_name'), 'api_key' => config('soul.media.cloudinary.api_key'), 'api_secret' => config('soul.media.cloudinary.api_secret')]),
             'google_sign_in' => $this->group(['client_ids' => collect(config('services.google.client_ids', []))->filter()->first()]),
             'apple_sign_in' => $this->group(['client_ids' => collect(config('services.apple.client_ids', []))->filter()->first()]),
@@ -88,6 +89,7 @@ final class ReleaseConfigurationValidator
             $this->check('Backup freshness policy', (int) config('soul.release.backup.maximum_age_hours') > 0, 'SOUL_BACKUP_MAXIMUM_AGE_HOURS must be positive.'),
             $this->check('Connection warning policy', in_array((int) config('soul.operations.database_connection_warning_percent'), range(1, 100), true), 'Database connection warning percent must be between 1 and 100.'),
             $this->check('Incident alert routing', $monitoring['ready'], 'Configure a supported alert channel, accountable owner and HTTPS runbook URL.'),
+            $this->check('GPS reverse geocoding', $providers['gps_geocoding']['ready'], 'Configure a supported coordinate geolocation driver and credentials.'),
             $this->check('Cloudinary credentials', $this->cloudinaryCredentialsPresent(), 'Cloudinary cloud, key and secret are required.'),
             $this->check('Cloudinary webhook signing', config('soul.media.cloudinary.response_signature_algorithm') === 'sha256', 'Production Cloudinary callbacks must use SHA-256 signatures.'),
             $this->check('Google audiences', $this->audiencesPresent('services.google.client_ids'), 'GOOGLE_CLIENT_IDS is required.'),
@@ -114,6 +116,32 @@ final class ReleaseConfigurationValidator
             'status' => $passes ? 'pass' : 'fail',
             'message' => $passes ? 'Ready' : $failure,
         ];
+    }
+
+    /** @return array{ready: bool, missing: array<int, string>, invalid: array<int, string>} */
+    private function gpsGeocodingReadiness(): array
+    {
+        $driver = (string) config('soul.location.coordinate_driver', 'none');
+
+        if ($driver === 'none') {
+            return [
+                'ready' => false,
+                'missing' => ['coordinate_driver'],
+                'invalid' => [],
+            ];
+        }
+
+        if ($driver !== 'google') {
+            return [
+                'ready' => false,
+                'missing' => [],
+                'invalid' => ['coordinate_driver'],
+            ];
+        }
+
+        return $this->group([
+            'api_key' => config('soul.location.google_geocoding.api_key'),
+        ]);
     }
 
     private function cloudinaryCredentialsPresent(): bool

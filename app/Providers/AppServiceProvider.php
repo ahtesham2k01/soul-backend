@@ -11,6 +11,8 @@ use App\Contracts\Notifications\NotificationChannelSender;
 use App\Infrastructure\Auth\AppleIdentityTokenVerifier;
 use App\Infrastructure\Auth\GoogleAuthTokenVerifier;
 use App\Infrastructure\Location\CloudflareGeolocationProvider;
+use App\Infrastructure\Location\CompositeGeolocationProvider;
+use App\Infrastructure\Location\GoogleGeolocationProvider;
 use App\Infrastructure\Location\NullGeolocationProvider;
 use App\Infrastructure\Billing\ConfiguredStorePurchaseVerifier;
 use App\Infrastructure\Billing\ConfiguredStoreWebhookAuthenticator;
@@ -40,12 +42,16 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(
             GeolocationProvider::class,
             function ($app): GeolocationProvider {
-                $driver = config(
+                $ipDriver = config(
                     'soul.location.driver',
                     'none',
                 );
+                $coordinateDriver = config(
+                    'soul.location.coordinate_driver',
+                    'none',
+                );
 
-                return match ($driver) {
+                $ipProvider = match ($ipDriver) {
                     'none' => $app->make(
                         NullGeolocationProvider::class,
                     ),
@@ -55,9 +61,28 @@ class AppServiceProvider extends ServiceProvider
                     ),
 
                     default => throw new InvalidArgumentException(
-                        "Unsupported geolocation driver [{$driver}].",
+                        "Unsupported geolocation driver [{$ipDriver}].",
                     ),
                 };
+
+                $coordinateProvider = match ($coordinateDriver) {
+                    'none' => $app->make(
+                        NullGeolocationProvider::class,
+                    ),
+
+                    'google' => $app->make(
+                        GoogleGeolocationProvider::class,
+                    ),
+
+                    default => throw new InvalidArgumentException(
+                        "Unsupported coordinate geolocation driver [{$coordinateDriver}].",
+                    ),
+                };
+
+                return new CompositeGeolocationProvider(
+                    ipProvider: $ipProvider,
+                    coordinateProvider: $coordinateProvider,
+                );
             },
         );
 

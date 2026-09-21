@@ -4,6 +4,7 @@ namespace Tests\Feature\Api\V1;
 
 use App\Contracts\Location\GeolocationProvider;
 use App\Data\LocationData;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
@@ -211,6 +212,56 @@ class ResolveLocationEndpointTest extends TestCase
             ],
         )->assertTooManyRequests();
     }
+
+    public function test_configured_google_coordinate_driver_resolves_real_city_contract(): void
+    {
+        config([
+            'soul.location.driver' => 'none',
+            'soul.location.coordinate_driver' => 'google',
+            'soul.location.google_geocoding.api_key' => 'test-geocoding-key',
+        ]);
+
+        Http::fake([
+            'https://maps.googleapis.com/maps/api/geocode/json*' => Http::response([
+                'status' => 'OK',
+                'results' => [[
+                    'address_components' => [
+                        [
+                            'long_name' => 'Karachi',
+                            'short_name' => 'Karachi',
+                            'types' => ['locality', 'political'],
+                        ],
+                        [
+                            'long_name' => 'Sindh',
+                            'short_name' => 'SD',
+                            'types' => ['administrative_area_level_1', 'political'],
+                        ],
+                        [
+                            'long_name' => 'Pakistan',
+                            'short_name' => 'PK',
+                            'types' => ['country', 'political'],
+                        ],
+                    ],
+                ]],
+            ]),
+        ]);
+
+        $this->postJson('/api/v1/location/resolve', [
+            'latitude' => 24.8607,
+            'longitude' => 67.0011,
+            'accuracy_meters' => 12,
+        ])->assertOk()
+            ->assertJsonPath('data.location.city', 'Karachi')
+            ->assertJsonPath('data.location.region', 'Sindh')
+            ->assertJsonPath('data.location.country', 'Pakistan')
+            ->assertJsonPath('data.location.country_code', 'PK')
+            ->assertJsonPath('data.location.source', 'gps')
+            ->assertJsonPath('data.location.is_approximate', false)
+            ->assertJsonPath('data.location_status', 'resolved');
+
+        Http::assertSentCount(1);
+    }
+
 
     /**
      * @param array<int, string> $fields
