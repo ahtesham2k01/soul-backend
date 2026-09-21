@@ -22,7 +22,10 @@ class ReligionChoice {
 }
 
 class SpokenLanguageChoice {
-  const SpokenLanguageChoice({required this.code, required this.label});
+  const SpokenLanguageChoice({
+    required this.code,
+    required this.label,
+  });
 
   final String code;
   final String label;
@@ -35,6 +38,37 @@ class SpokenLanguageChoice {
       label: nativeName.isNotEmpty ? nativeName : name,
     );
   }
+}
+
+class ProfileChoice {
+  const ProfileChoice({
+    required this.value,
+    required this.label,
+  });
+
+  final String value;
+  final String label;
+
+  factory ProfileChoice.fromJson(Map<String, dynamic> json) {
+    final value =
+        json['key']?.toString() ?? json['label']?.toString() ?? '';
+    return ProfileChoice(
+      value: value,
+      label: json['label']?.toString() ?? value,
+    );
+  }
+}
+
+class OnboardingCatalog {
+  const OnboardingCatalog({
+    required this.languages,
+    required this.interests,
+    required this.personalityTraits,
+  });
+
+  final List<SpokenLanguageChoice> languages;
+  final List<ProfileChoice> interests;
+  final List<ProfileChoice> personalityTraits;
 }
 
 class OnboardingRepository {
@@ -53,16 +87,45 @@ class OnboardingRepository {
   Future<Map<String, dynamic>> readiness() =>
       _api.get('onboarding/readiness');
 
-  Future<List<SpokenLanguageChoice>> spokenLanguages() async {
+  Future<OnboardingCatalog> catalog() async {
     final data = await _api.get('catalogs/profile');
-    final raw = data['spoken_languages'];
-    if (raw is! List) return const [];
-    return raw
-        .whereType<Map>()
-        .map((item) => SpokenLanguageChoice.fromJson(Map<String, dynamic>.from(item)))
-        .where((item) => item.code.isNotEmpty && item.label.isNotEmpty)
-        .toList(growable: false);
+
+    List<ProfileChoice> options(String key) {
+      final raw = data[key];
+      if (raw is! List) return const [];
+      return raw
+          .whereType<Map>()
+          .map(
+            (item) => ProfileChoice.fromJson(
+              Map<String, dynamic>.from(item),
+            ),
+          )
+          .where((item) => item.value.isNotEmpty && item.label.isNotEmpty)
+          .toList(growable: false);
+    }
+
+    final rawLanguages = data['spoken_languages'];
+    final languages = rawLanguages is List
+        ? rawLanguages
+            .whereType<Map>()
+            .map(
+              (item) => SpokenLanguageChoice.fromJson(
+                Map<String, dynamic>.from(item),
+              ),
+            )
+            .where((item) => item.code.isNotEmpty && item.label.isNotEmpty)
+            .toList(growable: false)
+        : const <SpokenLanguageChoice>[];
+
+    return OnboardingCatalog(
+      languages: languages,
+      interests: options('interests'),
+      personalityTraits: options('personality_traits'),
+    );
   }
+
+  Future<List<SpokenLanguageChoice>> spokenLanguages() async =>
+      (await catalog()).languages;
 
   Future<void> saveProfile(Map<String, Object?> changes) async {
     await _api.put('onboarding/profile', data: changes);
@@ -76,12 +139,19 @@ class OnboardingRepository {
       if (parentId != null) 'parent_id': parentId,
       if (country != null && country.isNotEmpty) 'country': country,
     };
-    final data = await _api.get('onboarding/religion-options', query: query);
+    final data = await _api.get(
+      'onboarding/religion-options',
+      query: query,
+    );
     final raw = data['options'];
     if (raw is! List) return const [];
     return raw
         .whereType<Map>()
-        .map((item) => ReligionChoice.fromJson(Map<String, dynamic>.from(item)))
+        .map(
+          (item) => ReligionChoice.fromJson(
+            Map<String, dynamic>.from(item),
+          ),
+        )
         .where((item) => item.id.isNotEmpty && item.label.isNotEmpty)
         .toList(growable: false);
   }
@@ -90,13 +160,18 @@ class OnboardingRepository {
     required String selectedNodeId,
     String? country,
   }) async {
-    await _api.put('onboarding/religion-profile', data: {
-      'selected_node_id': selectedNodeId,
-      if (country != null && country.isNotEmpty) 'country': country,
-    });
+    await _api.put(
+      'onboarding/religion-profile',
+      data: {
+        'selected_node_id': selectedNodeId,
+        if (country != null && country.isNotEmpty) 'country': country,
+      },
+    );
   }
 
-  Future<Map<String, dynamic>> submit(Map<String, Object?> legalVersions) =>
+  Future<Map<String, dynamic>> submit(
+    Map<String, Object?> legalVersions,
+  ) =>
       _api.post('onboarding/submit', data: legalVersions);
 
   Future<Map<String, dynamic>> resubmit() =>
@@ -148,7 +223,9 @@ class LegalConsentState {
       requiresAcceptance: json['requires_acceptance'] == true,
       versions: versions,
       commitmentKeys: json['commitment_keys'] is List
-          ? (json['commitment_keys'] as List).map((item) => item.toString()).toList(growable: false)
+          ? (json['commitment_keys'] as List)
+              .map((item) => item.toString())
+              .toList(growable: false)
           : const [],
     );
   }
@@ -156,8 +233,10 @@ class LegalConsentState {
   Map<String, Object?> submissionPayload() => {
         'terms_version': versions['terms'],
         'privacy_version': versions['privacy'],
-        'community_guidelines_version': versions['community_guidelines'],
-        'community_commitment_version': versions['community_commitment'],
+        'community_guidelines_version':
+            versions['community_guidelines'],
+        'community_commitment_version':
+            versions['community_commitment'],
       };
 }
 
@@ -167,15 +246,18 @@ class ProfileLifecycle {
     this.reason,
     this.correctionScreen,
   });
+
   final String status;
   final String? reason;
   final String? correctionScreen;
 
-  bool get processing => status == 'submitted' || status == 'automated_checks';
+  bool get processing =>
+      status == 'submitted' || status == 'automated_checks';
   bool get live => status == 'live';
   bool get correctable => status == 'changes_required';
 
-  factory ProfileLifecycle.fromJson(Map<String, dynamic> json) => ProfileLifecycle(
+  factory ProfileLifecycle.fromJson(Map<String, dynamic> json) =>
+      ProfileLifecycle(
         status: json['status']?.toString() ?? 'draft',
         reason: json['reason']?.toString(),
         correctionScreen: json['correction_screen']?.toString(),
