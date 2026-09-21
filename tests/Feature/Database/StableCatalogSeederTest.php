@@ -89,7 +89,7 @@ class StableCatalogSeederTest extends TestCase
             'is_active' => false,
             'sort_order' => 999,
         ]);
-        $this->assertDatabaseHas('profile_catalog_item_translations', [
+        $this->assertDatabaseHas('profile_catalog_translations', [
             'profile_catalog_item_id' => $interest->id,
             'locale' => 'en',
             'label' => 'Operator Reading',

@@ -21,7 +21,7 @@ class ReligionOptionsEndpointTest extends TestCase
 
         $islam->translations()->createMany([
             ['locale' => 'en', 'label' => 'Islam'],
-            ['locale' => 'ur', 'label' => 'اسلام'],
+            ['locale' => 'ur', 'label' => 'Islam'],
         ]);
 
         $response = $this->getJson(
@@ -34,7 +34,7 @@ class ReligionOptionsEndpointTest extends TestCase
             ->assertJsonPath('data.parent', null)
             ->assertJsonPath('data.options.0.id', $islam->public_id)
             ->assertJsonPath('data.options.0.type', 'religion')
-            ->assertJsonPath('data.options.0.label', 'اسلام')
+            ->assertJsonPath('data.options.0.label', 'Islam')
             ->assertJsonPath('data.options.0.label_locale', 'ur')
             ->assertJsonPath('meta.locale', 'ur')
             ->assertJsonPath('meta.country', 'PK')

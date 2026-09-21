@@ -1372,6 +1372,10 @@ Candidate results include only the public root religion identifier and slug. Pro
 
 Flutter must fetch the country-aware hierarchy from Laravel. Never hard-code sects, skip rules or country availability in the app.
 
+Fresh installs seed a neutral global set of root religion/belief options so onboarding is never blocked by an empty catalog. Sect, denomination, school, caste and community children remain explicitly admin-managed because those trees are community/country content, not code defaults.
+
+Stable catalog seeders are non-destructive: rerunning `db:seed` adds missing baseline rows but never reactivates or overwrites admin-curated spoken-language, profile/support or religion catalog entries.
+
 ---
 
 ## Discovery and privacy
