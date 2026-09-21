@@ -55,6 +55,7 @@ jobs:
           npm run localization:test
           npm run migrations:audit
           npm run migrations:test
+          npm run flutter-platforms:test
           npm run build
 
       - name: Audit locked production dependencies

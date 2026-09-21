@@ -3,6 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'core/api_client.dart';
 import 'core/session_store.dart';
+import 'core/push_registration_service.dart';
 import 'features/auth/auth_repository.dart';
 import 'features/auth/native_identity_service.dart';
 import 'features/bootstrap/bootstrap_repository.dart';
@@ -33,6 +34,19 @@ final authRepositoryProvider = Provider<AuthRepository>(
 
 final nativeIdentityProvider = Provider<NativeIdentityService>(
   (_) => NativeIdentityService(),
+);
+
+final pushRegistrationServiceProvider = Provider<PushRegistrationService>(
+  (ref) {
+    final service = PushRegistrationService(
+      ref.watch(apiClientProvider),
+      ref.watch(sessionStoreProvider),
+    );
+    ref.onDispose(() {
+      service.dispose();
+    });
+    return service;
+  },
 );
 
 /// A token is never trusted locally. The API confirms it and supplies the

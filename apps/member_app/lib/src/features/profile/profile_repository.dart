@@ -420,6 +420,25 @@ class ProfileCatalog {
   }
 }
 
+class PurchaseVerification {
+  const PurchaseVerification({
+    required this.id,
+    required this.status,
+    this.expiresAt,
+  });
+
+  final String id;
+  final String status;
+  final DateTime? expiresAt;
+
+  factory PurchaseVerification.fromJson(Map<String, dynamic> json) =>
+      PurchaseVerification(
+        id: json['id']?.toString() ?? '',
+        status: json['status']?.toString() ?? '',
+        expiresAt: DateTime.tryParse(json['expires_at']?.toString() ?? ''),
+      );
+}
+
 class SubscriptionProduct {
   const SubscriptionProduct({
     required this.id,
@@ -653,11 +672,32 @@ class ProfileRepository {
         : const <String, dynamic>{};
   }
 
-  Future<void> clearLocalSession() => _sessions.clear();
+  Future<void> clearLocalSession() async {
+    await Future.wait([
+      _sessions.clear(),
+      _sessions.clearPushDeviceId(),
+    ]);
+  }
 
   Future<void> logout({bool allDevices = false}) async {
+    await _revokePushDevice();
     await _api.post(allDevices ? 'auth/logout-all' : 'auth/logout');
-    await _sessions.clear();
+    await Future.wait([
+      _sessions.clear(),
+      _sessions.clearPushDeviceId(),
+    ]);
+  }
+
+  Future<void> _revokePushDevice() async {
+    final deviceId = await _sessions.readPushDeviceId();
+    if (deviceId == null || deviceId.isEmpty) return;
+    try {
+      await _api.delete('devices/${Uri.encodeComponent(deviceId)}');
+    } on SoulApiFailure {
+      // Logout still clears the local authenticated session.
+    } finally {
+      await _sessions.clearPushDeviceId();
+    }
   }
 
   Future<void> saveLocale(String locale) async {
@@ -738,5 +778,31 @@ class ProfileRepository {
     return raw is Map
         ? Map<String, dynamic>.from(raw)
         : const <String, dynamic>{};
+  }
+
+  Future<PurchaseVerification> verifyPurchase({
+    required String platform,
+    required String productId,
+    required String receipt,
+  }) async {
+    final data = await _api.post(
+      'subscription/purchases',
+      data: {
+        'platform': platform,
+        'product_id': productId,
+        'receipt': receipt,
+      },
+    );
+    final raw = data['purchase'];
+    if (raw is! Map) {
+      throw const SoulApiFailure(
+        statusCode: null,
+        code: 'INVALID_PURCHASE_RESPONSE',
+        message: 'SOUL returned an invalid purchase response.',
+      );
+    }
+    return PurchaseVerification.fromJson(
+      Map<String, dynamic>.from(raw),
+    );
   }
 }

@@ -361,4 +361,18 @@ class ChatRepository {
 
   Future<Uint8List> privatePhotoContent(String contentPath) =>
       _api.getBytes(contentPath);
+
+  Future<void> recordPrivatePhotoCapture({
+    required String photoId,
+    required String clientEventId,
+    required String eventType,
+  }) async {
+    await _api.post(
+      'private-photos/${Uri.encodeComponent(photoId)}/capture-events',
+      data: {
+        'client_event_id': clientEventId,
+        'event_type': eventType,
+      },
+    );
+  }
 }
