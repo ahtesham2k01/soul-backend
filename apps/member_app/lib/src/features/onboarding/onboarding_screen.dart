@@ -80,6 +80,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           _languageCodes.addAll(savedLanguages.whereType<Map>().map((item) => item['code']?.toString() ?? '').where((code) => code.isNotEmpty));
         }
         _languages = languages;
+        final hasName = _name.text.trim().length >= 2;
+        final hasDob = _isAdultDate(_dob.text.trim());
+        if (hasName && hasDob) {
+          _step = 2;
+        } else if (hasName) {
+          _step = 1;
+        }
       });
     } on SoulApiFailure catch (failure) {
       if (mounted) setState(() => _error = failure.message);
@@ -257,7 +264,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(children: [IconButton(onPressed: _busy ? null : _back, icon: const Icon(Icons.arrow_back)), const Spacer(), const Icon(Icons.info_outline)]),
               const SizedBox(height: 14),
-              LinearProgressIndicator(value: (_step + 1) / _totalSteps, minHeight: 5, borderRadius: BorderRadius.circular(99), color: SoulColors.lime, backgroundColor: SoulColors.line),
+              LinearProgressIndicator(
+                value: (_step + 1) / _totalSteps,
+                minHeight: 5,
+                borderRadius: BorderRadius.circular(99),
+                color: SoulColors.lime,
+                backgroundColor: SoulColors.line,
+              ),
               const SizedBox(height: 30),
               Expanded(child: _busy && _step == 0 ? const Center(child: CircularProgressIndicator()) : _content()),
               if (_error != null) Padding(padding: const EdgeInsets.only(bottom: 12), child: Text(_error!, style: const TextStyle(color: Colors.red))),
@@ -274,8 +287,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   Widget _content() => switch (_step) {
         0 => _TextStep(title: 'What should we call you?', hint: 'First name', controller: _name),
-        1 => _TextStep(title: 'What’s your date of birth?', hint: 'YYYY-MM-DD', controller: _dob, keyboardType: TextInputType.datetime),
-        2 => _singleChoice('Select your gender.', 'gender', const [('man', 'Man'), ('woman', 'Woman')]),
+        1 => _TextStep(title: 'What’s your DOB ?', hint: 'YYYY-MM-DD', controller: _dob, keyboardType: TextInputType.datetime),
+        2 => _singleChoice('Select your gender.', 'gender', const [('man', 'Men'), ('woman', 'Women')]),
         3 => _LocationStep(city: _city, country: _country),
         4 => _TextStep(title: 'What is your nationality?', hint: 'Two-letter country code, e.g. PK', controller: _nationality),
         5 => _singleChoice('What is your marital status?', 'marital_status', const [('never_married', 'Never married'), ('married', 'Married'), ('separated', 'Separated'), ('divorced', 'Divorced'), ('widowed', 'Widowed')]),
@@ -310,7 +323,6 @@ class _TextStep extends StatelessWidget {
   Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(title, style: Theme.of(context).textTheme.headlineMedium),
         const SizedBox(height: 8),
-        Text('Your answer is saved, so you can safely continue later.', style: Theme.of(context).textTheme.bodyMedium),
         const SizedBox(height: 28),
         TextField(controller: controller, keyboardType: keyboardType, decoration: InputDecoration(hintText: hint)),
       ]);
@@ -459,9 +471,72 @@ class _ChoiceTile extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
   @override
-  Widget build(BuildContext context) => Material(color: Colors.white, borderRadius: BorderRadius.circular(11), child: InkWell(onTap: onTap, borderRadius: BorderRadius.circular(11), child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 17),
-        decoration: BoxDecoration(border: Border.all(color: selected ? SoulColors.lime : SoulColors.line, width: selected ? 1.5 : 1), borderRadius: BorderRadius.circular(11)),
-        child: Row(children: [Expanded(child: Text(label, style: const TextStyle(color: SoulColors.ink, fontWeight: FontWeight.w600, fontSize: 16))), Icon(selected ? Icons.check_circle : Icons.chevron_right, color: selected ? SoulColors.lime : SoulColors.muted)]),
-      )));
+  Widget build(BuildContext context) {
+    final genderChoice = label == 'Men' || label == 'Women';
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(11),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(11),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 17),
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: selected ? SoulColors.lime : SoulColors.line,
+              width: selected ? 1.5 : 1,
+            ),
+            borderRadius: BorderRadius.circular(11),
+          ),
+          child: Row(
+            children: [
+              if (genderChoice) ...[
+                CircleAvatar(
+                  radius: 23,
+                  backgroundColor: SoulColors.softSurface,
+                  child: Icon(
+                    label == 'Men' ? Icons.person_rounded : Icons.person_2_rounded,
+                    color: SoulColors.forest,
+                  ),
+                ),
+                const SizedBox(width: 16),
+              ],
+              Expanded(
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                    color: SoulColors.ink,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+              Container(
+                width: 25,
+                height: 25,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: selected ? SoulColors.lime : SoulColors.line,
+                    width: selected ? 2 : 1.5,
+                  ),
+                ),
+                child: selected
+                    ? Container(
+                        width: 13,
+                        height: 13,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: SoulColors.lime,
+                        ),
+                      )
+                    : null,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
