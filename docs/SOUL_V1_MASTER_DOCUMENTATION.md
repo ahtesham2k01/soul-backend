@@ -2204,13 +2204,14 @@ This runbook defines the operational requirements for the Laravel API and custom
 3. Install locked PHP dependencies with production flags.
 4. Install locked Node dependencies and build the React administration assets.
 5. Run database migrations with the production confirmation flag.
-6. Cache Laravel configuration, routes and views.
-7. Restart queue workers and confirm the scheduler is active.
-8. Run `php artisan soul:smoke --base-url=https://staging.example.com` against staging.
-9. Smoke-test authenticated onboarding, discovery, messaging, moderation and privacy export flows.
-10. Monitor errors, latency and queue depth during rollout; use the previous release artifact for rollback.
+6. Run `php artisan db:seed --force` to add any missing stable catalog baselines. Seeders are non-destructive and do not create member or admin accounts.
+7. Cache Laravel configuration, routes and views.
+8. Restart queue workers and confirm the scheduler is active.
+9. Run `php artisan soul:smoke --base-url=https://staging.example.com` against staging.
+10. Smoke-test authenticated onboarding, discovery, messaging, moderation and privacy export flows.
+11. Monitor errors, latency and queue depth during rollout; use the previous release artifact for rollback.
 
-The automated smoke command performs GET requests only against health, readiness and bootstrap. It does not create users, mutate records or expose configuration values.
+The automated smoke command performs GET requests only against health, readiness, bootstrap, country-aware religion root options and the public profile catalog/spoken-language catalog. It requires those launch catalogs to be non-empty. It does not create users, mutate records or expose configuration values.
 
 ### Backup and restore evidence
 
