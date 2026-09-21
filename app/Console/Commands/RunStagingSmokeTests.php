@@ -24,12 +24,14 @@ class RunStagingSmokeTests extends Command
         }
 
         $checks = [
-            ['/api/v1/health', 'data.status', 'ok'],
-            ['/api/v1/health/ready', 'data.status', 'ready'],
-            ['/api/v1/bootstrap', 'data.brand.name', 'SOUL'],
+            ['/api/v1/health', 'data.status', fn (mixed $value): bool => $value === 'ok'],
+            ['/api/v1/health/ready', 'data.status', fn (mixed $value): bool => $value === 'ready'],
+            ['/api/v1/bootstrap', 'data.brand.name', fn (mixed $value): bool => $value === 'SOUL'],
+            ['/api/v1/onboarding/religion-options', 'data.options', fn (mixed $value): bool => is_array($value) && $value !== []],
+            ['/api/v1/catalogs/profile', 'data.spoken_languages', fn (mixed $value): bool => is_array($value) && $value !== []],
         ];
 
-        foreach ($checks as [$path, $jsonPath, $expected]) {
+        foreach ($checks as [$path, $jsonPath, $validator]) {
             try {
                 $response = Http::acceptJson()->timeout(10)->get($origin.$path);
             } catch (Throwable) {
@@ -38,7 +40,7 @@ class RunStagingSmokeTests extends Command
                 return self::FAILURE;
             }
 
-            if (! $this->valid($response, $jsonPath, $expected)) {
+            if (! $this->valid($response, $jsonPath, $validator)) {
                 $this->error("FAIL {$path}: unexpected status or response contract.");
 
                 return self::FAILURE;
@@ -52,11 +54,12 @@ class RunStagingSmokeTests extends Command
         return self::SUCCESS;
     }
 
-    private function valid(Response $response, string $jsonPath, string $expected): bool
+    /** @param callable(mixed): bool $validator */
+    private function valid(Response $response, string $jsonPath, callable $validator): bool
     {
         return $response->successful()
             && $response->json('success') === true
-            && $response->json($jsonPath) === $expected
+            && $validator($response->json($jsonPath))
             && filled($response->header('X-Request-ID'));
     }
 }

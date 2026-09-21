@@ -109,8 +109,34 @@ class ReleaseCommandsTest extends TestCase
 
         $this->assertSame(0, $exit);
         $this->assertStringContainsString('smoke tests passed', Artisan::output());
-        Http::assertSentCount(3);
+        Http::assertSentCount(5);
         Http::assertSent(fn ($request): bool => $request->method() === 'GET');
+    }
+
+    public function test_smoke_command_fails_when_required_launch_catalogs_are_empty(): void
+    {
+        Http::fake([
+            'https://staging.soul.test/api/v1/health' => Http::response([
+                'success' => true, 'data' => ['status' => 'ok'],
+            ], 200, ['X-Request-ID' => 'health-id']),
+            'https://staging.soul.test/api/v1/health/ready' => Http::response([
+                'success' => true, 'data' => ['status' => 'ready'],
+            ], 200, ['X-Request-ID' => 'ready-id']),
+            'https://staging.soul.test/api/v1/bootstrap' => Http::response([
+                'success' => true, 'data' => ['brand' => ['name' => 'SOUL']],
+            ], 200, ['X-Request-ID' => 'bootstrap-id']),
+            'https://staging.soul.test/api/v1/onboarding/religion-options' => Http::response([
+                'success' => true, 'data' => ['options' => []],
+            ], 200, ['X-Request-ID' => 'religion-id']),
+        ]);
+
+        $exit = Artisan::call('soul:smoke', ['--base-url' => 'https://staging.soul.test']);
+
+        $this->assertSame(1, $exit);
+        $this->assertStringContainsString(
+            'FAIL /api/v1/onboarding/religion-options',
+            Artisan::output(),
+        );
     }
 
     public function test_provider_readiness_reports_only_names_and_missing_fields(): void

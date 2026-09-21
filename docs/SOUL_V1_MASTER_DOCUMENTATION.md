@@ -2233,7 +2233,7 @@ A complete restore drill still requires an isolated environment:
 2. Provision an empty, access-restricted database with the same engine/version.
 3. Restore using the infrastructure provider's approved procedure and keys.
 4. Run `php artisan migrate:status`, `php artisan soul:config-check` and `php artisan soul:performance-check`.
-5. Start the API and run `php artisan soul:smoke` plus authenticated critical journeys.
+5. Start the API and run `php artisan soul:smoke` plus authenticated critical journeys. The public smoke gate also requires a non-empty root religion catalog and at least one active spoken language, so an otherwise healthy but unusable environment cannot pass launch smoke checks.
 6. Record recovery time, recovery point, backup identifier, migration head and approver in the external operations record.
 7. Securely destroy the isolated drill environment after approval.
 
