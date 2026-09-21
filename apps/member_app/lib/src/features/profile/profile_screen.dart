@@ -189,7 +189,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _photosEditor() async {
     await Navigator.of(context).push<bool>(
-      MaterialPageRoute(builder: (_) => const PhotoOnboardingScreen()),
+      MaterialPageRoute(
+        builder: (_) => PhotoOnboardingScreen(labels: widget.labels),
+      ),
     );
     if (mounted) await _load();
   }

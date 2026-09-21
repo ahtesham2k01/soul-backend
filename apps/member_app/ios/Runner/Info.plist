@@ -74,5 +74,7 @@
 	<array>
 		<string>remote-notification</string>
 	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>SOUL uses your location while the app is open to resolve your current city for matchmaking.</string>
 </dict>
 </plist>

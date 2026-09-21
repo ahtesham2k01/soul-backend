@@ -1,3 +1,24 @@
+class DiscoveryPrivacyState {
+  const DiscoveryPrivacyState({
+    required this.discoverable,
+    required this.incognito,
+    required this.profilePaused,
+  });
+
+  final bool discoverable;
+  final bool incognito;
+  final bool profilePaused;
+
+  bool get limitedVisibility => !discoverable || incognito || profilePaused;
+
+  factory DiscoveryPrivacyState.fromJson(Map<String, dynamic> json) =>
+      DiscoveryPrivacyState(
+        discoverable: json['discoverable'] != false,
+        incognito: json['incognito'] == true,
+        profilePaused: json['profile_paused'] == true,
+      );
+}
+
 import '../../core/api_client.dart';
 
 class DiscoveryPhoto {
@@ -24,6 +45,7 @@ class DiscoveryCandidate {
     required this.firstName,
     required this.age,
     required this.maritalStatus,
+    required this.intentions,
     required this.country,
     required this.photos,
     this.city,
@@ -34,6 +56,7 @@ class DiscoveryCandidate {
   final String firstName;
   final int age;
   final String maritalStatus;
+  final List<String> intentions;
   final String country;
   final String? city;
   final String? distanceBand;
@@ -46,6 +69,11 @@ class DiscoveryCandidate {
       firstName: json['first_name']?.toString() ?? '',
       age: (json['age'] as num?)?.toInt() ?? 0,
       maritalStatus: json['marital_status']?.toString() ?? '',
+      intentions: json['intentions'] is List
+          ? (json['intentions'] as List)
+              .map((item) => item.toString())
+              .toList(growable: false)
+          : const [],
       country: json['country']?.toString() ?? '',
       city: json['city']?.toString(),
       distanceBand: json['distance_band']?.toString(),
@@ -55,6 +83,126 @@ class DiscoveryCandidate {
               .map((item) => DiscoveryPhoto.fromJson(Map<String, dynamic>.from(item)))
               .toList(growable: false)
           : const [],
+    );
+  }
+}
+
+
+class DiscoveryProfile {
+  const DiscoveryProfile({
+    required this.id,
+    required this.firstName,
+    required this.age,
+    required this.maritalStatus,
+    required this.country,
+    required this.intentions,
+    required this.photos,
+    required this.spokenLanguages,
+    required this.interests,
+    required this.personalityTraits,
+    required this.verificationBadges,
+    this.city,
+    this.bio,
+    this.education,
+    this.heightCm,
+    this.jobTitle,
+    this.employer,
+    this.grewUpIn,
+    this.ethnicOrigin,
+    this.religiousPractice,
+    this.prayer,
+    this.diet,
+    this.dress,
+    this.relocationPreference,
+    this.familyInvolvementPreference,
+  });
+
+  final String id;
+  final String firstName;
+  final int age;
+  final String maritalStatus;
+  final String country;
+  final String? city;
+  final String? bio;
+  final String? education;
+  final int? heightCm;
+  final String? jobTitle;
+  final String? employer;
+  final String? grewUpIn;
+  final String? ethnicOrigin;
+  final String? religiousPractice;
+  final String? prayer;
+  final String? diet;
+  final String? dress;
+  final String? relocationPreference;
+  final String? familyInvolvementPreference;
+  final List<String> intentions;
+  final List<DiscoveryPhoto> photos;
+  final List<String> spokenLanguages;
+  final List<String> interests;
+  final List<String> personalityTraits;
+  final Map<String, bool> verificationBadges;
+
+  factory DiscoveryProfile.fromJson(Map<String, dynamic> json) {
+    List<String> strings(Object? value) => value is List
+        ? value.map((item) => item.toString()).toList(growable: false)
+        : const [];
+
+    final rawLanguages = json['spoken_languages'];
+    final rawPhotos = json['photos'];
+    final rawBadges = json['verification_badges'];
+
+    return DiscoveryProfile(
+      id: json['id']?.toString() ?? '',
+      firstName: json['first_name']?.toString() ?? '',
+      age: (json['age'] as num?)?.toInt() ?? 0,
+      maritalStatus: json['marital_status']?.toString() ?? '',
+      country: json['country']?.toString() ?? '',
+      city: json['city']?.toString(),
+      bio: json['bio']?.toString(),
+      education: json['education']?.toString(),
+      heightCm: (json['height_cm'] as num?)?.toInt(),
+      jobTitle: json['job_title']?.toString(),
+      employer: json['employer']?.toString(),
+      grewUpIn: json['grew_up_in']?.toString(),
+      ethnicOrigin: json['ethnic_origin']?.toString(),
+      religiousPractice: json['religious_practice']?.toString(),
+      prayer: json['prayer']?.toString(),
+      diet: json['diet']?.toString(),
+      dress: json['dress']?.toString(),
+      relocationPreference: json['relocation_preference']?.toString(),
+      familyInvolvementPreference:
+          json['family_involvement_preference']?.toString(),
+      intentions: strings(json['intentions']),
+      interests: strings(json['interests']),
+      personalityTraits: strings(json['personality_traits']),
+      spokenLanguages: rawLanguages is List
+          ? rawLanguages
+              .whereType<Map>()
+              .map((item) {
+                final mapped = Map<String, dynamic>.from(item);
+                final native = mapped['native_name']?.toString() ?? '';
+                final name = mapped['name']?.toString() ?? '';
+                return native.isNotEmpty ? native : name;
+              })
+              .where((value) => value.isNotEmpty)
+              .toList(growable: false)
+          : const [],
+      photos: rawPhotos is List
+          ? rawPhotos
+              .whereType<Map>()
+              .map(
+                (item) => DiscoveryPhoto.fromJson(
+                  Map<String, dynamic>.from(item),
+                ),
+              )
+              .toList(growable: false)
+          : const [],
+      verificationBadges: rawBadges is Map
+          ? Map<String, dynamic>.from(rawBadges).map(
+              (key, value) => MapEntry(key, value == true),
+            )
+          : const {},
     );
   }
 }
@@ -214,6 +362,14 @@ class DiscoveryRepository {
 
   final SoulApiClient _api;
 
+  Future<DiscoveryPrivacyState> privacyState() async {
+    final data = await _api.get('privacy/settings');
+    final raw = data['privacy'];
+    return DiscoveryPrivacyState.fromJson(
+      raw is Map ? Map<String, dynamic>.from(raw) : const {},
+    );
+  }
+
   Future<DiscoveryPreferences?> preferences() async {
     final data = await _api.get('discovery/preferences');
     final raw = data['preferences'];
@@ -259,12 +415,36 @@ class DiscoveryRepository {
     );
   }
 
+
+  Future<DiscoveryProfile> profile(String profileId) async {
+    final data = await _api.get(
+      'profiles/${Uri.encodeComponent(profileId)}',
+    );
+    final raw = data['profile'];
+    if (raw is! Map) {
+      throw const SoulApiFailure(
+        statusCode: null,
+        code: 'INVALID_PROFILE_RESPONSE',
+        message: 'SOUL returned an invalid profile response.',
+      );
+    }
+    return DiscoveryProfile.fromJson(
+      Map<String, dynamic>.from(raw),
+    );
+  }
+
   Future<DecisionResult> decide(String profileId, String decision) async {
     final data = await _api.post(
       'profiles/${Uri.encodeComponent(profileId)}/decision',
       data: {'decision': decision},
     );
     return DecisionResult.fromJson(data);
+  }
+
+  Future<void> withdrawLike(String profileId) async {
+    await _api.delete(
+      'profiles/${Uri.encodeComponent(profileId)}/like',
+    );
   }
 
   Future<IncomingLikePage> receivedLikes({String? cursor}) async {

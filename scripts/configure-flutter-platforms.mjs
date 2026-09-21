@@ -53,6 +53,10 @@ for (const [key, insertion] of [
     'NSCameraUsageDescription',
     '<key>NSCameraUsageDescription</key>\n\t<string>SOUL uses the camera only when you choose to take a profile or verification photo.</string>',
   ],
+  [
+    'NSLocationWhenInUseUsageDescription',
+    '<key>NSLocationWhenInUseUsageDescription</key>\n\t<string>SOUL uses your location while the app is open to resolve your current city for matchmaking.</string>',
+  ],
 ]) {
   if (!plist.includes(`<key>${key}</key>`)) {
     plist = plist.replace(/\n<\/dict>/, `\n\t${insertion}\n</dict>`);
@@ -202,6 +206,8 @@ let manifest = fs.readFileSync(androidManifestPath, 'utf8');
 for (const permission of [
   'android.permission.CAMERA',
   'android.permission.POST_NOTIFICATIONS',
+  'android.permission.ACCESS_COARSE_LOCATION',
+  'android.permission.ACCESS_FINE_LOCATION',
 ]) {
   if (!manifest.includes(`android:name="${permission}"`)) {
     manifest = manifest.replace(
@@ -272,6 +278,7 @@ class MainActivity : FlutterActivity() {
 for (const [file, pattern] of [
   [plistPath, /NSPhotoLibraryUsageDescription/],
   [plistPath, /NSCameraUsageDescription/],
+  [plistPath, /NSLocationWhenInUseUsageDescription/],
   [plistPath, /remote-notification/],
   [entitlementPath, /com\.apple\.developer\.applesignin/],
   [entitlementPath, /aps-environment/],
@@ -279,6 +286,8 @@ for (const [file, pattern] of [
   [appDelegatePath, /guard let registrar/],
   [appDelegatePath, /userDidTakeScreenshotNotification/],
   [androidManifestPath, /android\.permission\.POST_NOTIFICATIONS/],
+  [androidManifestPath, /android\.permission\.ACCESS_COARSE_LOCATION/],
+  [androidManifestPath, /android\.permission\.ACCESS_FINE_LOCATION/],
   [androidBuildPath, /maxOf\(flutter\.minSdkVersion, 24\)/],
   [mainActivityPath, /FLAG_SECURE/],
 ]) {

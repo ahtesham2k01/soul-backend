@@ -8,6 +8,7 @@ import '../bootstrap/bootstrap_repository.dart';
 import '../safety/safety_repository.dart';
 import '../safety/safety_screen.dart';
 import 'chat_repository.dart';
+import 'private_photo_access_screen.dart';
 import 'private_photo_viewer_screen.dart';
 
 class ChatThreadScreen extends StatefulWidget {
@@ -37,6 +38,7 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
   ChatPresence? _presence;
   Timer? _pollTimer;
   Timer? _typingTimer;
+  Timer? _typingHeartbeatTimer;
   bool _loading = true;
   bool _loadingOlder = false;
   bool _sending = false;
@@ -56,6 +58,7 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
   void dispose() {
     _pollTimer?.cancel();
     _typingTimer?.cancel();
+    _typingHeartbeatTimer?.cancel();
     _composer
       ..removeListener(_composerChanged)
       ..dispose();
@@ -192,16 +195,28 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
     if (hasText && !_typingSent) {
       _typingSent = true;
       unawaited(_safeTyping(true));
+      _typingHeartbeatTimer?.cancel();
+      _typingHeartbeatTimer = Timer.periodic(
+        const Duration(seconds: 5),
+        (_) {
+          if (_typingSent) {
+            unawaited(_safeTyping(true));
+          }
+        },
+      );
     }
     if (!hasText && _typingSent) {
       _typingSent = false;
+      _typingHeartbeatTimer?.cancel();
       unawaited(_safeTyping(false));
     }
+
     _typingTimer?.cancel();
     if (hasText) {
       _typingTimer = Timer(const Duration(seconds: 2), () {
         if (_typingSent) {
           _typingSent = false;
+          _typingHeartbeatTimer?.cancel();
           unawaited(_safeTyping(false));
         }
       });
@@ -230,6 +245,8 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
       if (!mounted) return;
       _composer.clear();
       _typingSent = false;
+      _typingTimer?.cancel();
+      _typingHeartbeatTimer?.cancel();
       unawaited(_safeTyping(false));
       setState(() {
         _messages.insert(0, message);
@@ -280,6 +297,53 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
     );
     if (blocked && mounted) {
       Navigator.of(context).pop();
+    }
+  }
+
+  Future<void> _openPrivatePhotoAccess() async {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(
+        builder: (_) => PrivatePhotoAccessScreen(
+          matchId: widget.match.id,
+          profileName: widget.match.firstName,
+          repository: widget.repository,
+          labels: widget.labels,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _unmatch() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          widget.labels.text('matches.unmatch', 'Unmatch'),
+        ),
+        content: Text(
+          'Your conversation with ${widget.match.firstName} will be removed, and private photo access will be revoked.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(widget.labels.text('common.cancel', 'Cancel')),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(
+              widget.labels.text('matches.unmatch', 'Unmatch'),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    try {
+      await widget.repository.unmatch(widget.match.id);
+      if (mounted) Navigator.of(context).pop();
+    } on SoulApiFailure catch (failure) {
+      if (mounted) setState(() => _error = failure.message);
     }
   }
 
@@ -342,6 +406,10 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
               onSelected: (value) {
                 if (value == 'private_photos') {
                   unawaited(_openPrivatePhotos());
+                } else if (value == 'private_photo_access') {
+                  unawaited(_openPrivatePhotoAccess());
+                } else if (value == 'unmatch') {
+                  unawaited(_unmatch());
                 } else if (value == 'safety') {
                   unawaited(_openSafety());
                 }
@@ -354,6 +422,26 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
                       Icon(Icons.lock_outline_rounded, size: 20),
                       SizedBox(width: 10),
                       Text('Private photos'),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'private_photo_access',
+                  child: Row(
+                    children: [
+                      Icon(Icons.photo_size_select_actual_outlined, size: 20),
+                      SizedBox(width: 10),
+                      Text('Photo access requests'),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'unmatch',
+                  child: Row(
+                    children: [
+                      Icon(Icons.link_off_rounded, size: 20),
+                      SizedBox(width: 10),
+                      Text('Unmatch'),
                     ],
                   ),
                 ),

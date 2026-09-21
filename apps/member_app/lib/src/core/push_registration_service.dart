@@ -14,7 +14,6 @@ class PushRegistrationService {
   final SoulApiClient _api;
   final SessionStore _sessions;
   StreamSubscription<String>? _refreshSubscription;
-  bool _started = false;
 
   bool get _supported =>
       !kIsWeb &&
@@ -34,41 +33,76 @@ class PushRegistrationService {
     );
   }
 
+  /// Signed-in launches may synchronize an already-authorized device, but
+  /// must never trigger the operating-system permission prompt by themselves.
   Future<void> synchronize() async {
-    if (_started || !_supported) return;
-    _started = true;
-    final options = _firebaseOptions;
-    if (options == null) return;
+    final messaging = await _messaging();
+    if (messaging == null) return;
 
     try {
-      if (Firebase.apps.isEmpty) {
-        await Firebase.initializeApp(options: options);
-      }
-      final messaging = FirebaseMessaging.instance;
-      final permission = await messaging.requestPermission(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
-      if (permission.authorizationStatus == AuthorizationStatus.denied) {
-        return;
-      }
-      await messaging.setForegroundNotificationPresentationOptions(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
-      final token = await messaging.getToken();
-      if (token != null && token.isNotEmpty) await _registerToken(token);
-      await _refreshSubscription?.cancel();
-      _refreshSubscription = messaging.onTokenRefresh.listen(
-        (token) => unawaited(_registerToken(token)),
-      );
+      final settings = await messaging.getNotificationSettings();
+      if (!_authorized(settings.authorizationStatus)) return;
+      await _synchronizeAuthorized(messaging);
     } on FirebaseException {
       // Provider credentials are an external release gate.
     } on SoulApiFailure {
       // A later authenticated launch retries registration.
     }
+  }
+
+  /// Called only from the explicit onboarding/settings permission action.
+  /// A denial is returned to the UI but never blocks profile completion.
+  Future<bool> requestPermissionAndSynchronize() async {
+    final messaging = await _messaging();
+    if (messaging == null) return false;
+
+    try {
+      final settings = await messaging.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+      if (!_authorized(settings.authorizationStatus)) return false;
+      await _synchronizeAuthorized(messaging);
+      return true;
+    } on FirebaseException {
+      return false;
+    } on SoulApiFailure {
+      return false;
+    }
+  }
+
+  Future<FirebaseMessaging?> _messaging() async {
+    if (!_supported) return null;
+    final options = _firebaseOptions;
+    if (options == null) return null;
+
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp(options: options);
+    }
+    return FirebaseMessaging.instance;
+  }
+
+  bool _authorized(AuthorizationStatus status) =>
+      status == AuthorizationStatus.authorized ||
+      status == AuthorizationStatus.provisional;
+
+  Future<void> _synchronizeAuthorized(FirebaseMessaging messaging) async {
+    await messaging.setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+
+    final token = await messaging.getToken();
+    if (token != null && token.isNotEmpty) {
+      await _registerToken(token);
+    }
+
+    await _refreshSubscription?.cancel();
+    _refreshSubscription = messaging.onTokenRefresh.listen(
+      (token) => unawaited(_registerToken(token)),
+    );
   }
 
   Future<void> _registerToken(String token) async {

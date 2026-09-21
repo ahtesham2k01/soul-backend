@@ -48,6 +48,7 @@ test('configures native permissions, push and protected-view hooks idempotently'
   const plist = fs.readFileSync(path.join(root, 'ios', 'Runner', 'Info.plist'), 'utf8');
   assert.equal(plist.match(/NSPhotoLibraryUsageDescription/g)?.length, 1);
   assert.equal(plist.match(/NSCameraUsageDescription/g)?.length, 1);
+  assert.equal(plist.match(/NSLocationWhenInUseUsageDescription/g)?.length, 1);
   assert.equal(plist.match(/UIBackgroundModes/g)?.length, 1);
   assert.match(plist, /remote-notification/);
 
@@ -66,6 +67,8 @@ test('configures native permissions, push and protected-view hooks idempotently'
   const manifest = fs.readFileSync(path.join(root, 'android', 'app', 'src', 'main', 'AndroidManifest.xml'), 'utf8');
   assert.equal(manifest.match(/android\.permission\.CAMERA/g)?.length, 1);
   assert.equal(manifest.match(/android\.permission\.POST_NOTIFICATIONS/g)?.length, 1);
+  assert.equal(manifest.match(/android\.permission\.ACCESS_COARSE_LOCATION/g)?.length, 1);
+  assert.equal(manifest.match(/android\.permission\.ACCESS_FINE_LOCATION/g)?.length, 1);
   assert.match(manifest, /android:label="SOUL"/);
 
   const gradle = fs.readFileSync(path.join(root, 'android', 'app', 'build.gradle.kts'), 'utf8');

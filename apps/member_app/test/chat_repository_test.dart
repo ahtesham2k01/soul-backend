@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:soul_member_app/src/features/chat/chat_repository.dart';
 
@@ -65,4 +67,40 @@ void main() {
     expect(protection.androidSecureWindowRequired, isTrue);
     expect(protection.viewerWatermark, '01HVIEWER');
   });
+  test('private photo access request preserves direction and status', () {
+    final request = PrivatePhotoAccessItem.fromJson({
+      'id': '01HREQUEST',
+      'match_id': '01HMATCH',
+      'direction': 'incoming',
+      'status': 'pending',
+      'profile': {
+        'id': '01HPROFILE',
+        'first_name': 'Sara',
+      },
+      'created_at': '2026-09-21T01:00:00Z',
+    });
+
+    expect(request.incoming, isTrue);
+    expect(request.pending, isTrue);
+    expect(request.approved, isFalse);
+    expect(request.firstName, 'Sara');
+  });
+
+  test('chat client exposes owner decisions revoke and unmatch paths', () {
+    final repository = File(
+      'lib/src/features/chat/chat_repository.dart',
+    ).readAsStringSync();
+    final thread = File(
+      'lib/src/features/chat/chat_thread_screen.dart',
+    ).readAsStringSync();
+
+    expect(repository, contains("'private-photo-access'"));
+    expect(repository, contains("'decision': decision"));
+    expect(repository, contains('revokePrivatePhotoAccess'));
+    expect(repository, contains("'matches/${Uri.encodeComponent(matchId)}'"));
+    expect(thread, contains('PrivatePhotoAccessScreen('));
+    expect(thread, contains("value: 'unmatch'"));
+    expect(thread, contains('widget.repository.unmatch(widget.match.id)'));
+  });
+
 }

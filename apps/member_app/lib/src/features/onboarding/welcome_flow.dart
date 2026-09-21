@@ -38,6 +38,13 @@ class _WelcomeFlowState extends ConsumerState<WelcomeFlow> {
     return widget.labels.locale.toUpperCase();
   }
 
+  String? get _locationLabel {
+    final location = widget.labels.location;
+    if (location == null || location.city.trim().isEmpty) return null;
+    final country = location.countryCode.trim();
+    return country.isEmpty ? location.city : '${location.city}, $country';
+  }
+
   void _openEmail({required bool registration}) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
@@ -91,7 +98,17 @@ class _WelcomeFlowState extends ConsumerState<WelcomeFlow> {
     } on SoulApiFailure catch (failure) {
       _showMessage(failure.message);
     } catch (_) {
-      _showMessage('Sign-in could not be completed. Please try again.');
+      _showMessage(
+        apple
+            ? widget.labels.text(
+                'auth.error.apple_failed',
+                'Apple sign-in could not be completed. Please try again.',
+              )
+            : widget.labels.text(
+                'auth.error.google_failed',
+                'Google sign-in could not be completed. Please try again.',
+              ),
+      );
     } finally {
       if (mounted) setState(() => _socialBusy = false);
     }
@@ -120,11 +137,14 @@ class _WelcomeFlowState extends ConsumerState<WelcomeFlow> {
                         onPressed: () => Navigator.of(sheetContext).pop(),
                         icon: const Icon(Icons.close_rounded),
                       ),
-                      const Expanded(
+                      Expanded(
                         child: Text(
-                          'Select language',
+                          widget.labels.text(
+                            'language.select',
+                            'Select language',
+                          ),
                           textAlign: TextAlign.center,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: SoulColors.ink,
                             fontSize: 17,
                             fontWeight: FontWeight.w700,
@@ -209,14 +229,14 @@ class _WelcomeFlowState extends ConsumerState<WelcomeFlow> {
       context: context,
       backgroundColor: Colors.white,
       showDragHandle: true,
-      builder: (context) => const SafeArea(
+      builder: (context) => SafeArea(
         child: Padding(
-          padding: EdgeInsets.fromLTRB(24, 8, 24, 28),
+          padding: const EdgeInsets.fromLTRB(24, 8, 24, 28),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 'SOUL',
                 style: TextStyle(
                   color: SoulColors.ink,
@@ -224,10 +244,13 @@ class _WelcomeFlowState extends ConsumerState<WelcomeFlow> {
                   fontWeight: FontWeight.w900,
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
-                'Start your journey to meaningful connections and lasting relationships today.',
-                style: TextStyle(
+                widget.labels.text(
+                  'onboarding.subtitle',
+                  'Start your journey to meaningful connections and lasting relationships today',
+                ),
+                style: const TextStyle(
                   color: SoulColors.muted,
                   height: 1.4,
                 ),
@@ -255,7 +278,10 @@ class _WelcomeFlowState extends ConsumerState<WelcomeFlow> {
                       controller: _controller,
                       itemCount: 3,
                       onPageChanged: (value) => setState(() => _page = value),
-                      itemBuilder: (_, index) => _WelcomeArtwork(index: index),
+                      itemBuilder: (_, index) => _WelcomeArtwork(
+                        index: index,
+                        locationLabel: _locationLabel,
+                      ),
                     ),
                   ),
                   Positioned(
@@ -350,9 +376,13 @@ class _WelcomeBackdrop extends StatelessWidget {
 }
 
 class _WelcomeArtwork extends StatelessWidget {
-  const _WelcomeArtwork({required this.index});
+  const _WelcomeArtwork({
+    required this.index,
+    required this.locationLabel,
+  });
 
   final int index;
+  final String? locationLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -481,39 +511,40 @@ class _WelcomeArtwork extends StatelessWidget {
               height: size.width * .62,
             ),
           ),
-          Positioned(
-            top: 68,
-            right: size.width * .14,
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 5,
-              ),
-              decoration: BoxDecoration(
-                color: SoulColors.limeLight,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.location_on_rounded,
-                    size: 11,
-                    color: SoulColors.ink,
-                  ),
-                  SizedBox(width: 3),
-                  Text(
-                    '45KM Away',
-                    style: TextStyle(
+          if (locationLabel != null)
+            Positioned(
+              top: 68,
+              right: size.width * .14,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 5,
+                ),
+                decoration: BoxDecoration(
+                  color: SoulColors.limeLight,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.location_on_rounded,
+                      size: 11,
                       color: SoulColors.ink,
-                      fontSize: 8,
-                      fontWeight: FontWeight.w700,
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 3),
+                    Text(
+                      locationLabel!,
+                      style: const TextStyle(
+                        color: SoulColors.ink,
+                        fontSize: 8,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
         ],
       ),
     );
@@ -546,9 +577,12 @@ class _HeadlineBlock extends StatelessWidget {
               color: SoulColors.limeLight,
               borderRadius: BorderRadius.circular(2),
             ),
-            child: const Text(
-              'Swipe to Your',
-              style: TextStyle(
+            child: Text(
+              labels.text(
+                'onboarding.headline_highlight',
+                'Swipe to Your',
+              ),
+              style: const TextStyle(
                 color: SoulColors.ink,
                 fontSize: 28,
                 height: 1.02,
@@ -557,9 +591,12 @@ class _HeadlineBlock extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 3),
-          const Text(
-            'Happily Ever After',
-            style: TextStyle(
+          Text(
+            labels.text(
+              'onboarding.headline_rest',
+              'Happily Ever After',
+            ),
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 28,
               height: 1.04,
@@ -567,9 +604,12 @@ class _HeadlineBlock extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          const Text(
-            'Start your journey to meaningful\nconnections and lasting relationships today',
-            style: TextStyle(
+          Text(
+            labels.text(
+              'onboarding.subtitle',
+              'Start your journey to meaningful connections and lasting relationships today',
+            ),
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 12.5,
               height: 1.3,
@@ -681,19 +721,25 @@ class _AuthBar extends StatelessWidget {
           InkWell(
             onTap: busy ? null : onLogin,
             borderRadius: BorderRadius.circular(16),
-            child: const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 5,
+              ),
               child: Text.rich(
                 TextSpan(
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 11.5,
                   ),
                   children: [
-                    TextSpan(text: 'Already have an account? '),
                     TextSpan(
-                      text: 'Log in',
-                      style: TextStyle(
+                      text:
+                          '${labels.text('auth.already_have_account', 'Already have an account?')} ',
+                    ),
+                    TextSpan(
+                      text: labels.text('auth.log_in', 'Log in'),
+                      style: const TextStyle(
                         decoration: TextDecoration.underline,
                         decorationColor: Colors.white,
                         fontWeight: FontWeight.w600,

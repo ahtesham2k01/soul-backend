@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Api\V1\Discovery;
 
+use App\Enums\Profile\DiscoveryLocationMode;
+use App\Enums\Profile\Gender;
+use App\Enums\Profile\ReligionDiscoveryMode;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\Discovery\UpdateDiscoveryPreferenceRequest;
 use App\Models\DiscoveryPreference;
@@ -14,8 +17,26 @@ class DiscoveryPreferenceController extends Controller
 {
     public function show(Request $request): JsonResponse
     {
+        $user = $request->user();
+        $preference = $user->discoveryPreference;
+
+        if ($preference === null && $user->profile?->gender !== null) {
+            $preference = $user->discoveryPreference()->create([
+                'preferred_gender' => $user->profile->gender === Gender::Man
+                    ? Gender::Woman
+                    : Gender::Man,
+                'minimum_age' => 18,
+                'maximum_age' => 100,
+                'same_country_only' => true,
+                'religion_mode' => ReligionDiscoveryMode::MyReligion,
+                'location_mode' => DiscoveryLocationMode::Current,
+            ]);
+        }
+
         return ApiResponse::success([
-            'preferences' => $this->serialize($request->user()->discoveryPreference?->load(['locations', 'intentions'])),
+            'preferences' => $this->serialize(
+                $preference?->load(['locations', 'intentions']),
+            ),
         ]);
     }
 

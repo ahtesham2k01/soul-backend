@@ -9,10 +9,10 @@ void main() {
     ).readAsStringSync();
 
     expect(source, contains('int _registrationStep = 0;'));
-    expect(source, contains("if (_registrationStep == 0) return 'What should we call you?'"));
-    expect(source, contains("return 'What’s your DOB ?';"));
-    expect(source, contains("return 'What’s your email address?';"));
-    expect(source, contains("if (_challenge != null) return 'Enter Your OTP';"));
+    expect(source, contains("'profile.first_name'"));
+    expect(source, contains("'profile.date_of_birth'"));
+    expect(source, contains("'auth.email'"));
+    expect(source, contains("'auth.enter_code'"));
     expect(source, contains("'first_name': _name.text.trim()"));
     expect(source, contains("'date_of_birth': dob"));
   });

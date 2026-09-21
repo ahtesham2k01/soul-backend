@@ -7,11 +7,19 @@ import '../../core/soul_design.dart';
 import '../../core/soul_theme.dart';
 import '../bootstrap/bootstrap_repository.dart';
 import 'onboarding_repository.dart';
+import 'optional_profile_details_screen.dart';
+import 'location_repository.dart';
+import 'notification_permission_screen.dart';
 import 'legal_submission_screen.dart';
 import 'photo_onboarding_screen.dart';
 
 final onboardingRepositoryProvider = Provider<OnboardingRepository>(
   (ref) => OnboardingRepository(ref.watch(apiClientProvider)),
+);
+
+final onboardingLocationRepositoryProvider =
+    Provider<OnboardingLocationRepository>(
+  (ref) => OnboardingLocationRepository(ref.watch(apiClientProvider)),
 );
 
 class OnboardingScreen extends ConsumerStatefulWidget {
@@ -31,7 +39,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final _nationality = TextEditingController();
   int _step = 0;
   bool _busy = true;
+  bool _resolvingLocation = false;
+  bool _notificationStepShown = false;
   String? _error;
+  String? _locationMessage;
   final Map<String, String?> _answers = {};
   final Set<String> _intentions = {};
   final Set<String> _languageCodes = {};
@@ -59,36 +70,67 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   Future<void> _restore() async {
     try {
       final repository = ref.read(onboardingRepositoryProvider);
-      final results = await Future.wait<Object>([
+      final results = await Future.wait<Object?>([
         repository.profile(),
         repository.spokenLanguages(),
+        repository.religionProfile(),
       ]);
       final profile = results[0] as Map<String, dynamic>;
       final languages = results[1] as List<SpokenLanguageChoice>;
+      final religionProfile = results[2] as ReligionProfileSnapshot?;
+
+      final country = profile['country_code']?.toString().toUpperCase() ?? '';
+      final restoredReligionPath = await _resolveReligionPath(
+        repository,
+        religionProfile,
+        country,
+      );
+      final resumeStep = _resumeStep(profile, religionProfile != null);
+      final rootReligionOptions = resumeStep == 5
+          ? await repository.religionOptions(country: country)
+          : const <ReligionChoice>[];
+
       if (!mounted) return;
       setState(() {
         _name.text = profile['first_name']?.toString() ?? '';
         _dob.text = profile['date_of_birth']?.toString() ?? '';
         _city.text = profile['city_name']?.toString() ?? '';
-        _country.text = profile['country_code']?.toString() ?? '';
-        _nationality.text = profile['nationality_country_code']?.toString() ?? '';
-        for (final key in ['gender', 'marital_status', 'profession_status', 'smoking', 'alcohol', 'current_children', 'future_children']) {
+        _country.text = country;
+        _nationality.text =
+            profile['nationality_country_code']?.toString() ?? '';
+        for (final key in [
+          'gender',
+          'marital_status',
+          'profession_status',
+          'smoking',
+          'alcohol',
+          'current_children',
+          'future_children',
+        ]) {
           _answers[key] = profile[key]?.toString();
         }
-        _intentions.addAll(_stringList(profile['intentions']));
+        _intentions
+          ..clear()
+          ..addAll(_stringList(profile['intentions']));
+        _languageCodes.clear();
         final savedLanguages = profile['spoken_languages'];
         if (savedLanguages is List) {
-          _languageCodes.addAll(savedLanguages.whereType<Map>().map((item) => item['code']?.toString() ?? '').where((code) => code.isNotEmpty));
+          _languageCodes.addAll(
+            savedLanguages
+                .whereType<Map>()
+                .map((item) => item['code']?.toString() ?? '')
+                .where((code) => code.isNotEmpty),
+          );
         }
         _languages = languages;
-        final hasName = _name.text.trim().length >= 2;
-        final hasDob = _isAdultDate(_dob.text.trim());
-        if (hasName && hasDob) {
-          _step = 2;
-        } else if (hasName) {
-          _step = 1;
-        }
+        _religionPath
+          ..clear()
+          ..addAll(restoredReligionPath);
+        _religions = rootReligionOptions;
+        _step = resumeStep;
       });
+
+      if (resumeStep == 14) await _loadReadiness();
     } on SoulApiFailure catch (failure) {
       if (mounted) setState(() => _error = failure.message);
     } finally {
@@ -96,7 +138,82 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     }
   }
 
+  int _resumeStep(Map<String, dynamic> profile, bool hasReligion) {
+    if ((profile['first_name']?.toString().trim().length ?? 0) < 2) return 0;
+    if (!_isAdultDate(profile['date_of_birth']?.toString() ?? '')) return 1;
+    if ((profile['gender']?.toString().isEmpty ?? true)) return 2;
+    final city = profile['city_name']?.toString().trim() ?? '';
+    final country = profile['country_code']?.toString().trim() ?? '';
+    if (city.isEmpty || !_validCountryCode(country)) return 3;
+    final nationality =
+        profile['nationality_country_code']?.toString().trim() ?? '';
+    if (!_validCountryCode(nationality)) return 4;
+    if (!hasReligion) return 5;
+    if ((profile['marital_status']?.toString().isEmpty ?? true)) return 6;
+    if (_stringList(profile['intentions']).isEmpty) return 7;
+    if ((profile['profession_status']?.toString().isEmpty ?? true)) return 8;
+    final spokenLanguages = profile['spoken_languages'];
+    if (spokenLanguages is! List || spokenLanguages.isEmpty) return 9;
+    if ((profile['smoking']?.toString().isEmpty ?? true)) return 10;
+    if ((profile['alcohol']?.toString().isEmpty ?? true)) return 11;
+    if ((profile['current_children']?.toString().isEmpty ?? true)) return 12;
+    if ((profile['future_children']?.toString().isEmpty ?? true)) return 13;
+    return 14;
+  }
+
+  Future<List<ReligionChoice>> _resolveReligionPath(
+    OnboardingRepository repository,
+    ReligionProfileSnapshot? profile,
+    String country,
+  ) async {
+    if (profile == null || profile.path.isEmpty) return const [];
+    final resolved = <ReligionChoice>[];
+    String? parentId;
+    final effectiveCountry = country.isNotEmpty ? country : profile.country;
+    for (final savedNode in profile.path) {
+      final options = await repository.religionOptions(
+        parentId: parentId,
+        country: effectiveCountry,
+      );
+      ReligionChoice? match;
+      for (final option in options) {
+        if (option.id == savedNode.id) {
+          match = option;
+          break;
+        }
+      }
+      if (match == null) break;
+      resolved.add(match);
+      parentId = match.id;
+    }
+    return resolved;
+  }
+
   List<String> _stringList(Object? value) => value is List ? value.map((item) => item.toString()).toList(growable: false) : const [];
+
+  Future<void> _resolveCurrentLocation() async {
+    if (_resolvingLocation) return;
+    setState(() {
+      _resolvingLocation = true;
+      _locationMessage = null;
+    });
+    try {
+      final location =
+          await ref.read(onboardingLocationRepositoryProvider).resolveCurrent();
+      if (!mounted) return;
+      setState(() {
+        _city.text = location.city;
+        _country.text = location.countryCode;
+        _locationMessage = '${location.city}, ${location.countryCode}';
+      });
+    } on LocationResolutionFailure catch (failure) {
+      if (mounted) setState(() => _locationMessage = failure.message);
+    } on SoulApiFailure catch (failure) {
+      if (mounted) setState(() => _locationMessage = failure.message);
+    } finally {
+      if (mounted) setState(() => _resolvingLocation = false);
+    }
+  }
 
   Future<void> _continue() async {
     final validation = _validation();
@@ -112,7 +229,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       if (_step == 4) {
         await _loadReligion();
       } else if (_step == 13) {
-        setState(() => _step = 6);
+        setState(() => _step = 14);
+        await _loadReadiness();
       } else {
         setState(() => _step++);
       }
@@ -154,7 +272,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     return null;
   }
 
-  bool _countryCode(TextEditingController controller) => RegExp(r'^[A-Za-z]{2}$').hasMatch(controller.text.trim());
+  bool _countryCode(TextEditingController controller) =>
+      _validCountryCode(controller.text);
+
+  bool _validCountryCode(String value) =>
+      RegExp(r'^[A-Za-z]{2}$').hasMatch(value.trim());
 
   bool _isAdultDate(String input) {
     final birthDate = DateTime.tryParse(input);
@@ -174,7 +296,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   Future<void> _loadReligion() async {
     final options = await ref.read(onboardingRepositoryProvider).religionOptions(country: _country.text.trim().toUpperCase());
-    if (mounted) setState(() { _step = 5; _religions = options; });
+    if (mounted) {
+      setState(() {
+        _step = 5;
+        _religionPath.clear();
+        _religions = options;
+      });
+    }
   }
 
   Future<void> _chooseReligion(ReligionChoice choice) async {
@@ -189,8 +317,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       if (!choice.hasChildren) {
         await repository.saveReligion(selectedNodeId: choice.id, country: _country.text.trim().toUpperCase());
         if (!mounted) return;
-        setState(() => _step = 14);
-        await _loadReadiness();
+        setState(() => _step = 6);
       }
     } on SoulApiFailure catch (failure) {
       if (mounted) setState(() => _error = failure.message);
@@ -206,13 +333,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     setState(() => _missing = _stringList(readiness['missing_requirements']));
   }
 
-  Future<void> _openPhotos() async {
-    await Navigator.of(context).push<bool>(
+  Future<void> _openOptionalDetails() async {
+    final changed = await Navigator.of(context).push<bool>(
       MaterialPageRoute<bool>(
-        builder: (_) => const PhotoOnboardingScreen(),
+        builder: (_) => OptionalProfileDetailsScreen(
+          repository: ref.read(onboardingRepositoryProvider),
+          labels: widget.labels,
+        ),
       ),
     );
-    if (!mounted) return;
+    if (!mounted || changed != true) return;
     setState(() => _busy = true);
     try {
       await _loadReadiness();
@@ -221,6 +351,36 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+  }
+
+  Future<void> _openPhotos() async {
+    final changed = await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(
+        builder: (_) => PhotoOnboardingScreen(labels: widget.labels),
+      ),
+    );
+    if (!mounted) return;
+
+    setState(() => _busy = true);
+    try {
+      await _loadReadiness();
+    } on SoulApiFailure catch (failure) {
+      if (mounted) setState(() => _error = failure.message);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+
+    if (!mounted || changed != true || _notificationStepShown) return;
+    final photosMissing = _missing.contains('cover_photo') ||
+        _missing.contains('clear_face_photo');
+    if (photosMissing) return;
+
+    _notificationStepShown = true;
+    await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(
+        builder: (_) => NotificationPermissionScreen(labels: widget.labels),
+      ),
+    );
   }
 
   Future<void> _reviewAndSubmit() async {
@@ -244,10 +404,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     if (_step == 5 && _religionPath.isNotEmpty) {
       setState(() => _religionPath.removeLast());
       _reloadReligionLevel();
-    } else if (_step == 6 && _religionPath.isNotEmpty) {
+    } else if (_step == 6) {
       setState(() {
         _step = 5;
-        _religionPath.removeLast();
+        if (_religionPath.isNotEmpty) _religionPath.removeLast();
       });
       _reloadReligionLevel();
     } else if (_step > 0) {
@@ -302,21 +462,125 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       );
 
   Widget _content() => switch (_step) {
-        0 => _TextStep(title: 'What should we call you?', hint: 'First name', controller: _name),
-        1 => _TextStep(title: 'What’s your DOB ?', hint: 'YYYY-MM-DD', controller: _dob, keyboardType: TextInputType.datetime),
-        2 => _singleChoice('Select your gender.', 'gender', const [('man', 'Men'), ('woman', 'Women')]),
-        3 => _LocationStep(city: _city, country: _country),
-        4 => _TextStep(title: 'What is your nationality?', hint: 'Two-letter country code, e.g. PK', controller: _nationality),
-        5 => _ReligionStep(path: _religionPath, options: _religions, busy: _busy, onSelected: _chooseReligion, onRetry: _reloadReligionLevel),
-        6 => _singleChoice('What is your marital status?', 'marital_status', const [('never_married', 'Never married'), ('married', 'Married'), ('separated', 'Separated'), ('divorced', 'Divorced'), ('widowed', 'Widowed')]),
-        7 => _MultiChoiceStep(title: 'What are you looking for?', choices: const [('marriage', 'Marriage'), ('serious_relationship', 'Serious relationship'), ('casual_dating', 'Dating')], selected: _intentions, maximum: 3, onChanged: () => setState(() {})),
-        8 => _singleChoice('What best describes your work?', 'profession_status', const [('employed', 'Employed'), ('self_employed', 'Self-employed'), ('student', 'Student'), ('homemaker', 'Homemaker'), ('unemployed', 'Not currently working'), ('retired', 'Retired'), ('other', 'Other')]),
-        9 => _LanguageStep(languages: _languages, selected: _languageCodes, onChanged: () => setState(() {})),
-        10 => _singleChoice('Do you smoke?', 'smoking', _lifestyleChoices),
-        11 => _singleChoice('Do you drink alcohol?', 'alcohol', _lifestyleChoices),
-        12 => _singleChoice('Do you have children?', 'current_children', const [('no', 'No'), ('yes_living_with_me', 'Yes, living with me'), ('yes_not_living_with_me', 'Yes, not living with me'), ('prefer_not_to_say', 'Prefer not to say')]),
-        13 => _singleChoice('How do you feel about children in future?', 'future_children', const [('want_children', 'Want children'), ('do_not_want_children', 'Do not want children'), ('open_to_children', 'Open to children'), ('not_sure', 'Not sure'), ('prefer_not_to_say', 'Prefer not to say')]),
-        _ => _CompletionStep(missing: _missing, onAddPhotos: _openPhotos, onSubmit: _reviewAndSubmit),
+        0 => _TextStep(
+            title: widget.labels.text('profile.first_name', 'First name'),
+            hint: widget.labels.text('profile.first_name', 'First name'),
+            controller: _name,
+          ),
+        1 => _TextStep(
+            title: widget.labels.text('profile.date_of_birth', 'Date of birth'),
+            hint: 'YYYY-MM-DD',
+            controller: _dob,
+            keyboardType: TextInputType.datetime,
+          ),
+        2 => _singleChoice(
+            widget.labels.text('profile.gender', 'Gender'),
+            'gender',
+            [
+              ('man', widget.labels.text('profile.man', 'Man')),
+              ('woman', widget.labels.text('profile.woman', 'Woman')),
+            ],
+          ),
+        3 => _LocationStep(
+            labels: widget.labels,
+            city: _city,
+            country: _country,
+            resolving: _resolvingLocation,
+            message: _locationMessage,
+            onUseCurrentLocation: _resolveCurrentLocation,
+          ),
+        4 => _TextStep(
+            title: widget.labels.text('profile.nationality', 'Nationality'),
+            hint: 'PK',
+            controller: _nationality,
+          ),
+        5 => _ReligionStep(
+            title: widget.labels.text('profile.religion', 'Religion or belief'),
+            path: _religionPath,
+            options: _religions,
+            busy: _busy,
+            onSelected: _chooseReligion,
+            onRetry: _reloadReligionLevel,
+          ),
+        6 => _singleChoice(
+            widget.labels.text('profile.marital_status', 'Marital status'),
+            'marital_status',
+            [
+              ('never_married', widget.labels.text('profile.never_married', 'Never married')),
+              ('married', widget.labels.text('profile.married', 'Married')),
+              ('separated', widget.labels.text('profile.separated', 'Separated')),
+              ('divorced', widget.labels.text('profile.divorced', 'Divorced')),
+              ('widowed', widget.labels.text('profile.widowed', 'Widowed')),
+            ],
+          ),
+        7 => _MultiChoiceStep(
+            title: widget.labels.text('profile.intentions', 'What are you looking for?'),
+            choices: [
+              ('marriage', widget.labels.text('profile.intention_marriage', 'Marriage')),
+              ('serious_relationship', widget.labels.text('profile.intention_serious', 'Serious relationship')),
+              ('casual_dating', widget.labels.text('profile.intention_casual', 'Dating')),
+            ],
+            selected: _intentions,
+            maximum: 3,
+            onChanged: () => setState(() {}),
+          ),
+        8 => _singleChoice(
+            widget.labels.text('profile.profession', 'Profession or status'),
+            'profession_status',
+            [
+              ('employed', widget.labels.text('profile.employed', 'Employed')),
+              ('self_employed', widget.labels.text('profile.self_employed', 'Self-employed')),
+              ('student', widget.labels.text('profile.student', 'Student')),
+              ('homemaker', widget.labels.text('profile.homemaker', 'Homemaker')),
+              ('unemployed', widget.labels.text('profile.unemployed', 'Unemployed')),
+              ('retired', widget.labels.text('profile.retired', 'Retired')),
+              ('other', widget.labels.text('profile.other', 'Other')),
+            ],
+          ),
+        9 => _LanguageStep(
+            title: widget.labels.text('profile.languages', 'Languages you speak'),
+            languages: _languages,
+            selected: _languageCodes,
+            onChanged: () => setState(() {}),
+          ),
+        10 => _singleChoice(
+            widget.labels.text('profile.smoking', 'Do you smoke?'),
+            'smoking',
+            _lifestyleChoices(widget.labels),
+          ),
+        11 => _singleChoice(
+            widget.labels.text('profile.alcohol', 'Do you drink alcohol?'),
+            'alcohol',
+            _lifestyleChoices(widget.labels),
+          ),
+        12 => _singleChoice(
+            widget.labels.text('profile.children_now', 'Do you have children?'),
+            'current_children',
+            [
+              ('no', widget.labels.text('profile.answer_no', 'No')),
+              ('yes_living_with_me', widget.labels.text('profile.children_living_with_me', 'Yes, living with me')),
+              ('yes_not_living_with_me', widget.labels.text('profile.children_not_living_with_me', 'Yes, not living with me')),
+              ('prefer_not_to_say', widget.labels.text('common.prefer_not_to_say', 'Prefer not to say')),
+            ],
+          ),
+        13 => _singleChoice(
+            widget.labels.text('profile.children_future', 'Do you want children?'),
+            'future_children',
+            [
+              ('want_children', widget.labels.text('profile.want_children', 'Want children')),
+              ('do_not_want_children', widget.labels.text('profile.do_not_want_children', 'Do not want children')),
+              ('open_to_children', widget.labels.text('profile.open_to_children', 'Open to children')),
+              ('not_sure', widget.labels.text('profile.not_sure', 'Not sure')),
+              ('prefer_not_to_say', widget.labels.text('common.prefer_not_to_say', 'Prefer not to say')),
+            ],
+          ),
+        _ => _CompletionStep(
+            labels: widget.labels,
+            missing: _missing,
+            onAddDetails: _openOptionalDetails,
+            onAddPhotos: _openPhotos,
+            onSubmit: _reviewAndSubmit,
+          ),
       };
 
   Widget _singleChoice(String title, String field, List<(String, String)> choices) => _SingleChoiceStep(
@@ -327,7 +591,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       );
 }
 
-const _lifestyleChoices = [('no', 'No'), ('occasionally', 'Occasionally'), ('yes', 'Yes'), ('prefer_not_to_say', 'Prefer not to say')];
+List<(String, String)> _lifestyleChoices(BootstrapState labels) => [
+      ('no', labels.text('profile.answer_no', 'No')),
+      ('occasionally', labels.text('profile.answer_occasionally', 'Occasionally')),
+      ('yes', labels.text('profile.answer_yes', 'Yes')),
+      ('prefer_not_to_say', labels.text('common.prefer_not_to_say', 'Prefer not to say')),
+    ];
 
 class _TextStep extends StatelessWidget {
   const _TextStep({required this.title, required this.hint, required this.controller, this.keyboardType = TextInputType.text});
@@ -351,29 +620,65 @@ class _TextStep extends StatelessWidget {
 }
 
 class _LocationStep extends StatelessWidget {
-  const _LocationStep({required this.city, required this.country});
+  const _LocationStep({
+    required this.labels,
+    required this.city,
+    required this.country,
+    required this.resolving,
+    required this.onUseCurrentLocation,
+    this.message,
+  });
+  final BootstrapState labels;
   final TextEditingController city;
   final TextEditingController country;
+  final bool resolving;
+  final VoidCallback onUseCurrentLocation;
+  final String? message;
+
   @override
-  Widget build(BuildContext context) => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+  Widget build(BuildContext context) => ListView(
         children: [
-          const SoulPageTitle(
-            'Where do you live?',
+          SoulPageTitle(
+            labels.text('profile.city', 'Current city'),
             subtitle:
-                'Use your real current city. Precise coordinates are never shown publicly.',
+                'Use your current city for better matches. Exact coordinates are never public.',
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 22),
+          OutlinedButton.icon(
+            onPressed: resolving ? null : onUseCurrentLocation,
+            icon: resolving
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.my_location_rounded),
+            label: Text(
+              resolving
+                  ? labels.text('location.detecting', 'Detecting your location...')
+                  : labels.text('profile.city', 'Current city'),
+            ),
+          ),
+          if (message != null && message!.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Text(message!),
+          ],
+          const SizedBox(height: 20),
           TextField(
             controller: city,
-            decoration: const InputDecoration(hintText: 'City'),
+            decoration: InputDecoration(
+              labelText: labels.text('profile.city', 'Current city'),
+            ),
           ),
           const SizedBox(height: 14),
           TextField(
             controller: country,
             textCapitalization: TextCapitalization.characters,
             maxLength: 2,
-            decoration: const InputDecoration(hintText: 'Country code, e.g. PK'),
+            decoration: InputDecoration(
+              labelText: labels.text('profile.country', 'Country of residence'),
+              hintText: 'PK',
+            ),
           ),
         ],
       );
@@ -415,14 +720,20 @@ class _MultiChoiceStep extends StatelessWidget {
 }
 
 class _LanguageStep extends StatelessWidget {
-  const _LanguageStep({required this.languages, required this.selected, required this.onChanged});
+  const _LanguageStep({
+    required this.title,
+    required this.languages,
+    required this.selected,
+    required this.onChanged,
+  });
+  final String title;
   final List<SpokenLanguageChoice> languages;
   final Set<String> selected;
   final VoidCallback onChanged;
   @override
   Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const SoulPageTitle(
-          'Which languages do you speak?',
+        SoulPageTitle(
+          title,
           subtitle: 'Select at least one. You can add more later.',
         ),
         const SizedBox(height: 18),
@@ -434,7 +745,15 @@ class _LanguageStep extends StatelessWidget {
 }
 
 class _ReligionStep extends StatelessWidget {
-  const _ReligionStep({required this.path, required this.options, required this.busy, required this.onSelected, required this.onRetry});
+  const _ReligionStep({
+    required this.title,
+    required this.path,
+    required this.options,
+    required this.busy,
+    required this.onSelected,
+    required this.onRetry,
+  });
+  final String title;
   final List<ReligionChoice> path;
   final List<ReligionChoice> options;
   final bool busy;
@@ -443,7 +762,7 @@ class _ReligionStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         SoulPageTitle(
-          _religionTitle(path),
+          title,
           subtitle: _religionSubtitle(path),
         ),
         if (path.isNotEmpty) ...[
@@ -467,25 +786,22 @@ class _ReligionStep extends StatelessWidget {
       ]);
 }
 
-String _religionTitle(List<ReligionChoice> path) {
-  if (path.isEmpty) return 'What is your religion?';
-  final level = path.last.level?.toLowerCase();
-  if (level == 'religion') return 'Which sect do you follow?';
-  if (level == 'sect') return 'Which sub-sect do you follow?';
-  if (level == 'sub_sect' || level == 'sub-sect' || level == 'subsect') {
-    return 'Select your caste or community';
-  }
-  return 'Tell us a little more';
-}
-
 String _religionSubtitle(List<ReligionChoice> path) {
   if (path.isEmpty) return 'Choose the option that best describes you.';
   return 'Only relevant options are shown. If there is no next level, we’ll continue automatically.';
 }
 
 class _CompletionStep extends StatelessWidget {
-  const _CompletionStep({required this.missing, required this.onAddPhotos, required this.onSubmit});
+  const _CompletionStep({
+    required this.labels,
+    required this.missing,
+    required this.onAddDetails,
+    required this.onAddPhotos,
+    required this.onSubmit,
+  });
+  final BootstrapState labels;
   final List<String> missing;
+  final VoidCallback onAddDetails;
   final VoidCallback onAddPhotos;
   final VoidCallback onSubmit;
   @override
@@ -503,13 +819,21 @@ class _CompletionStep extends StatelessWidget {
       SizedBox(
         width: double.infinity,
         height: 50,
+        child: OutlinedButton.icon(
+          onPressed: onAddDetails,
+          icon: const Icon(Icons.tune_rounded),
+          label: Text(labels.text('common.edit', 'Edit')),
+        ),
+      ),
+      const SizedBox(height: 12),
+      SizedBox(
+        width: double.infinity,
+        height: 50,
         child: FilledButton.icon(
           onPressed: onAddPhotos,
           icon: const Icon(Icons.add_a_photo_outlined),
           label: Text(
-            missing.contains('cover_photo') || missing.contains('clear_face_photo')
-                ? 'Add required photos'
-                : 'Review photos',
+            labels.text('photos.title', 'Add your photos'),
           ),
         ),
       ),
@@ -521,7 +845,7 @@ class _CompletionStep extends StatelessWidget {
           child: FilledButton.icon(
             onPressed: onSubmit,
             icon: const Icon(Icons.fact_check_outlined),
-            label: const Text('Review commitments and submit'),
+            label: Text(labels.text('onboarding.submit', 'Submit profile')),
           ),
         ),
       ],
@@ -536,23 +860,10 @@ class _ChoiceTile extends StatelessWidget {
   final VoidCallback onTap;
   @override
   Widget build(BuildContext context) {
-    final genderChoice = label == 'Men' || label == 'Women';
     return SoulChoiceTile(
       label: label,
       selected: selected,
       onTap: onTap,
-      leading: genderChoice
-          ? CircleAvatar(
-              radius: 20,
-              backgroundColor: SoulColors.softSurface,
-              child: Icon(
-                label == 'Men'
-                    ? Icons.person_rounded
-                    : Icons.person_2_rounded,
-                color: SoulColors.forest,
-              ),
-            )
-          : null,
     );
   }
 }

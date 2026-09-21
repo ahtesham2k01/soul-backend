@@ -193,12 +193,19 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
 
 
   String _title() {
-    if (_challenge != null) return 'Enter Your OTP';
-    if (!widget.registration || _registrationStep == 2) {
-      return 'What’s your email address?';
+    if (_challenge != null) {
+      return widget.labels.text(
+        'auth.enter_code',
+        'Enter the verification code',
+      );
     }
-    if (_registrationStep == 0) return 'What should we call you?';
-    return 'What’s your DOB ?';
+    if (!widget.registration || _registrationStep == 2) {
+      return widget.labels.text('auth.email', 'Email');
+    }
+    if (_registrationStep == 0) {
+      return widget.labels.text('profile.first_name', 'First name');
+    }
+    return widget.labels.text('profile.date_of_birth', 'Date of birth');
   }
 
   String _subtitle() {
@@ -223,9 +230,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Email',
-            style: TextStyle(color: SoulColors.ink, fontSize: 13),
+          Text(
+            widget.labels.text('auth.email', 'Email'),
+            style: const TextStyle(color: SoulColors.ink, fontSize: 13),
           ),
           const SizedBox(height: 6),
           TextField(
@@ -245,9 +252,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Full Name',
-            style: TextStyle(color: SoulColors.ink, fontSize: 13),
+          Text(
+            widget.labels.text('profile.first_name', 'First name'),
+            style: const TextStyle(color: SoulColors.ink, fontSize: 13),
           ),
           const SizedBox(height: 6),
           TextField(
@@ -263,9 +270,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'DOB',
-          style: TextStyle(color: SoulColors.ink, fontSize: 13),
+        Text(
+          widget.labels.text('profile.date_of_birth', 'Date of birth'),
+          style: const TextStyle(color: SoulColors.ink, fontSize: 13),
         ),
         const SizedBox(height: 6),
         TextField(
@@ -289,6 +296,11 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     return SoulStepScaffold(
       progress: progress,
       onBack: _back,
+      footer: SoulPrimaryButton(
+        label: labels.text('common.continue', 'Continue'),
+        onPressed: _busy ? null : _continue,
+        busy: _busy,
+      ),
       child: ListView(
         children: [
           SoulPageTitle(
@@ -307,23 +319,19 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
             ),
           ],
           const SizedBox(height: 18),
-          const Text(
-            'By continuing you agree to our Terms and Privacy Policy',
+          Text(
+            labels.text(
+              'legal.commitment.policies',
+              'Accept the Terms and Privacy Policy',
+            ),
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 12,
               color: SoulColors.muted,
               height: 1.45,
             ),
           ),
         ],
-      ),
-      footer: SoulPrimaryButton(
-        label: _challenge == null
-            ? labels.text('common.continue', 'Continue')
-            : 'Verify Code',
-        onPressed: _busy ? null : _continue,
-        busy: _busy,
       ),
     );
   }
