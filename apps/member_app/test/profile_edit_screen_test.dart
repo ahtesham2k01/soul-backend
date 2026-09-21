@@ -37,5 +37,16 @@ void main() {
     expect(validation, contains('_intentions.isEmpty'));
     expect(validation, contains('_languageCodes.isEmpty'));
   });
+  test('profile edit source is not accidentally duplicated', () {
+    final source = File(
+      'lib/src/features/profile/profile_edit_screen.dart',
+    ).readAsStringSync();
+
+    expect(RegExp(r'class _ProfileEditScreenState').allMatches(source).length, 1);
+    expect(RegExp(r'Future<void> _save').allMatches(source).length, 1);
+    expect(RegExp(r'Map<String, Object\?> _payload\(\)').allMatches(source).length, 1);
+    expect(source.split('\n').length, lessThan(1600));
+  });
+
 
 }
