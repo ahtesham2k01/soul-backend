@@ -263,7 +263,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             padding: const EdgeInsets.fromLTRB(24, 12, 24, 22),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(children: [IconButton(onPressed: _busy ? null : _back, icon: const Icon(Icons.arrow_back)), const Spacer(), const Icon(Icons.info_outline)]),
-              const SizedBox(height: 26),
+              const SizedBox(height: 14),
+              LinearProgressIndicator(
+                value: (_step + 1) / _totalSteps,
+                minHeight: 5,
+                borderRadius: BorderRadius.circular(99),
+                color: SoulColors.lime,
+                backgroundColor: SoulColors.line,
+              ),
+              const SizedBox(height: 30),
               Expanded(child: _busy && _step == 0 ? const Center(child: CircularProgressIndicator()) : _content()),
               if (_error != null) Padding(padding: const EdgeInsets.only(bottom: 12), child: Text(_error!, style: const TextStyle(color: Colors.red))),
               if (_step < 13)
@@ -463,9 +471,72 @@ class _ChoiceTile extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
   @override
-  Widget build(BuildContext context) => Material(color: Colors.white, borderRadius: BorderRadius.circular(11), child: InkWell(onTap: onTap, borderRadius: BorderRadius.circular(11), child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 17),
-        decoration: BoxDecoration(border: Border.all(color: selected ? SoulColors.lime : SoulColors.line, width: selected ? 1.5 : 1), borderRadius: BorderRadius.circular(11)),
-        child: Row(children: [Expanded(child: Text(label, style: const TextStyle(color: SoulColors.ink, fontWeight: FontWeight.w600, fontSize: 16))), Icon(selected ? Icons.check_circle : Icons.chevron_right, color: selected ? SoulColors.lime : SoulColors.muted)]),
-      )));
+  Widget build(BuildContext context) {
+    final genderChoice = label == 'Men' || label == 'Women';
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(11),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(11),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 17),
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: selected ? SoulColors.lime : SoulColors.line,
+              width: selected ? 1.5 : 1,
+            ),
+            borderRadius: BorderRadius.circular(11),
+          ),
+          child: Row(
+            children: [
+              if (genderChoice) ...[
+                CircleAvatar(
+                  radius: 23,
+                  backgroundColor: SoulColors.softSurface,
+                  child: Icon(
+                    label == 'Men' ? Icons.person_rounded : Icons.person_2_rounded,
+                    color: SoulColors.forest,
+                  ),
+                ),
+                const SizedBox(width: 16),
+              ],
+              Expanded(
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                    color: SoulColors.ink,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+              Container(
+                width: 25,
+                height: 25,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: selected ? SoulColors.lime : SoulColors.line,
+                    width: selected ? 2 : 1.5,
+                  ),
+                ),
+                child: selected
+                    ? Container(
+                        width: 13,
+                        height: 13,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: SoulColors.lime,
+                        ),
+                      )
+                    : null,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
