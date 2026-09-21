@@ -185,7 +185,7 @@ class SoulChoiceTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(SoulDesign.cardRadius),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 140),
-            minHeight: 58,
+            constraints: const BoxConstraints(minHeight: 58),
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(SoulDesign.cardRadius),

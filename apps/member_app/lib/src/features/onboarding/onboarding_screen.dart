@@ -1161,7 +1161,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               childDelegate: ListWheelChildBuilderDelegate(
                 childCount: 99,
                 builder: (context, index) {
-                  if (index == null) return null;
                   final cm = 122 + index;
                   final inches = (cm / 2.54).round();
                   final feet = inches ~/ 12;
@@ -1179,12 +1178,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                             active ? FontWeight.w800 : FontWeight.w500,
                       ),
                       child: Text(
-                        cm.toString() +
-                            'cm   ' +
-                            feet.toString() +
-                            "'" +
-                            remaining.toString() +
-                            '"',
+                        "${cm}cm   $feet'${remaining}\"",
                       ),
                     ),
                   );
