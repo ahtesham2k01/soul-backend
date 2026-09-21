@@ -1,9 +1,12 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 
 import '../../core/api_client.dart';
+import '../../core/native_security_service.dart';
 import '../../core/soul_theme.dart';
+import '../../core/ulid.dart';
 import '../bootstrap/bootstrap_repository.dart';
 import 'chat_repository.dart';
 
@@ -33,11 +36,26 @@ class _PrivatePhotoViewerScreenState extends State<PrivatePhotoViewerScreen> {
   bool _accessRequired = false;
   bool _requestPending = false;
   String? _error;
+  final NativeSecurityService _nativeSecurity =
+      const NativeSecurityService();
+  StreamSubscription<NativeCaptureEvent>? _captureSubscription;
+  int _photoIndex = 0;
+  bool _recordingCaptured = false;
 
   @override
   void initState() {
     super.initState();
+    _captureSubscription = _nativeSecurity.captureEvents().listen(
+      (event) => unawaited(_handleCapture(event)),
+    );
     _load();
+  }
+
+  @override
+  void dispose() {
+    _captureSubscription?.cancel();
+    unawaited(_nativeSecurity.setPrivateScreenProtected(false));
+    super.dispose();
   }
 
   Future<void> _load() async {
@@ -49,10 +67,16 @@ class _PrivatePhotoViewerScreenState extends State<PrivatePhotoViewerScreen> {
     try {
       final album = await widget.repository.privatePhotos(widget.matchId);
       if (!mounted) return;
+      final captured = album.protection.enabled
+          ? await _nativeSecurity.setPrivateScreenProtected(true)
+          : await _nativeSecurity.setPrivateScreenProtected(false);
+      if (!mounted) return;
       setState(() {
         _album = album;
         _loading = false;
         _requestPending = false;
+        _recordingCaptured =
+            album.protection.iosRecordingMaskRequired && captured;
       });
     } on SoulApiFailure catch (failure) {
       if (!mounted) return;
@@ -68,6 +92,39 @@ class _PrivatePhotoViewerScreenState extends State<PrivatePhotoViewerScreen> {
         _loading = false;
         _error = failure.message;
       });
+    }
+  }
+
+  Future<void> _handleCapture(NativeCaptureEvent event) async {
+    final album = _album;
+    if (album == null || !album.protection.enabled) return;
+
+    if (event.type == 'screen_recording' &&
+        album.protection.iosRecordingMaskRequired &&
+        mounted) {
+      setState(() => _recordingCaptured = event.active);
+    }
+
+    if (!event.active) return;
+    if (event.type == 'screenshot' &&
+        !album.protection.iosCaptureDetectionRequired) {
+      return;
+    }
+    if (event.type == 'screen_recording' &&
+        !album.protection.iosRecordingMaskRequired) {
+      return;
+    }
+    if (_photoIndex < 0 || _photoIndex >= album.photos.length) return;
+
+    try {
+      await widget.repository.recordPrivatePhotoCapture(
+        photoId: album.photos[_photoIndex].id,
+        clientEventId: SoulUlid.generate(),
+        eventType:
+            event.type == 'screenshot' ? 'screenshot' : 'screen_recording',
+      );
+    } on SoulApiFailure {
+      // Best effort by contract; protected content stays usable/offline-safe.
     }
   }
 
@@ -166,12 +223,42 @@ class _PrivatePhotoViewerScreenState extends State<PrivatePhotoViewerScreen> {
       children: [
         PageView.builder(
           itemCount: album.photos.length,
+          onPageChanged: (index) => _photoIndex = index,
           itemBuilder: (_, index) => _ProtectedPhotoPage(
             photo: album.photos[index],
             repository: widget.repository,
             protection: album.protection,
           ),
         ),
+        if (_recordingCaptured)
+          const ColoredBox(
+            color: Colors.black,
+            child: Center(
+              child: Padding(
+                padding: EdgeInsets.all(28),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.shield_rounded,
+                      color: SoulColors.limeLight,
+                      size: 54,
+                    ),
+                    SizedBox(height: 14),
+                    Text(
+                      'Private photos are hidden while screen recording is active.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         Positioned(
           left: 18,
           right: 18,

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -136,6 +138,14 @@ class _SignedInShell extends ConsumerStatefulWidget {
 
 class _SignedInShellState extends ConsumerState<_SignedInShell> {
   int _index = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(ref.read(pushRegistrationServiceProvider).synchronize());
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

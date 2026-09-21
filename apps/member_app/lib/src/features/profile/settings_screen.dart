@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
 
 import '../../core/api_client.dart';
 import '../../core/soul_theme.dart';
@@ -1184,10 +1187,17 @@ class MembershipScreen extends StatefulWidget {
 }
 
 class _MembershipScreenState extends State<MembershipScreen> {
+  final InAppPurchase _store = InAppPurchase.instance;
+  StreamSubscription<List<PurchaseDetails>>? _purchaseSubscription;
   List<SubscriptionProduct> _products = const [];
+  Map<String, ProductDetails> _storeProducts = const {};
   Map<String, dynamic> _capabilities = const {};
+  Set<String> _pendingProducts = const {};
   bool _loading = true;
+  bool _storeAvailable = false;
+  bool _restoring = false;
   String? _error;
+  String? _storeMessage;
 
   String get _platform => defaultTargetPlatform == TargetPlatform.iOS
       ? 'ios'
@@ -1196,7 +1206,24 @@ class _MembershipScreenState extends State<MembershipScreen> {
   @override
   void initState() {
     super.initState();
+    _purchaseSubscription = _store.purchaseStream.listen(
+      (purchases) => unawaited(_handlePurchases(purchases)),
+      onError: (_) {
+        if (mounted) {
+          setState(() {
+            _storeMessage = 'The store could not complete this request.';
+            _pendingProducts = const {};
+          });
+        }
+      },
+    );
     _load();
+  }
+
+  @override
+  void dispose() {
+    _purchaseSubscription?.cancel();
+    super.dispose();
   }
 
   Future<void> _load() async {
@@ -1205,10 +1232,33 @@ class _MembershipScreenState extends State<MembershipScreen> {
         widget.repository.subscriptionProducts(_platform),
         widget.repository.entitlements(_platform),
       ]);
+      final products = values[0] as List<SubscriptionProduct>;
+      final available = await _store.isAvailable();
+      Map<String, ProductDetails> storeProducts = const {};
+      String? storeMessage;
+
+      if (available && products.isNotEmpty) {
+        final response = await _store.queryProductDetails(
+          products.map((item) => item.productId).toSet(),
+        );
+        storeProducts = {
+          for (final detail in response.productDetails) detail.id: detail,
+        };
+        if (response.error != null) {
+          storeMessage = response.error!.message;
+        } else if (response.notFoundIDs.isNotEmpty) {
+          storeMessage =
+              'Some membership options are not configured in this store yet.';
+        }
+      }
+
       if (!mounted) return;
       setState(() {
-        _products = values[0] as List<SubscriptionProduct>;
+        _products = products;
         _capabilities = values[1] as Map<String, dynamic>;
+        _storeAvailable = available;
+        _storeProducts = storeProducts;
+        _storeMessage = storeMessage;
         _loading = false;
         _error = null;
       });
@@ -1218,6 +1268,136 @@ class _MembershipScreenState extends State<MembershipScreen> {
         _loading = false;
         _error = failure.message;
       });
+    }
+  }
+
+  Future<void> _buy(SubscriptionProduct product) async {
+    final details = _storeProducts[product.productId];
+    if (details == null) {
+      setState(() => _storeMessage =
+          'This membership is not available from your platform store right now.');
+      return;
+    }
+
+    setState(() {
+      _pendingProducts = {..._pendingProducts, product.productId};
+      _storeMessage = null;
+    });
+
+    try {
+      final started = await _store.buyNonConsumable(
+        purchaseParam: PurchaseParam(productDetails: details),
+      );
+      if (!started && mounted) {
+        setState(() {
+          _pendingProducts = {..._pendingProducts}..remove(product.productId);
+          _storeMessage = 'The store did not start the purchase.';
+        });
+      }
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _pendingProducts = {..._pendingProducts}..remove(product.productId);
+        _storeMessage = 'The store could not start the purchase.';
+      });
+    }
+  }
+
+  Future<void> _restore() async {
+    if (_restoring || !_storeAvailable) return;
+    setState(() {
+      _restoring = true;
+      _storeMessage = null;
+    });
+    try {
+      await _store.restorePurchases();
+      if (mounted) {
+        setState(() {
+          _storeMessage =
+              'Restore requested. SOUL will verify any store purchases returned.';
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _storeMessage = 'Purchases could not be restored.');
+      }
+    } finally {
+      if (mounted) setState(() => _restoring = false);
+    }
+  }
+
+  Future<void> _handlePurchases(List<PurchaseDetails> purchases) async {
+    for (final purchase in purchases) {
+      if (purchase.status == PurchaseStatus.pending) {
+        if (mounted) {
+          setState(() {
+            _pendingProducts = {..._pendingProducts, purchase.productID};
+          });
+        }
+        continue;
+      }
+
+      if (purchase.status == PurchaseStatus.error ||
+          purchase.status == PurchaseStatus.canceled) {
+        if (mounted) {
+          setState(() {
+            _pendingProducts = {..._pendingProducts}
+              ..remove(purchase.productID);
+            _storeMessage = purchase.error?.message ??
+                'The purchase was cancelled or could not be completed.';
+          });
+        }
+        continue;
+      }
+
+      if (purchase.status != PurchaseStatus.purchased &&
+          purchase.status != PurchaseStatus.restored) {
+        continue;
+      }
+
+      final receipt = _platform == 'ios'
+          ? (purchase.purchaseID ?? '')
+          : purchase.verificationData.serverVerificationData;
+      if (receipt.isEmpty) {
+        if (mounted) {
+          setState(() {
+            _pendingProducts = {..._pendingProducts}
+              ..remove(purchase.productID);
+            _storeMessage =
+                'The store did not return a verifiable transaction.';
+          });
+        }
+        continue;
+      }
+
+      try {
+        final verified = await widget.repository.verifyPurchase(
+          platform: _platform,
+          productId: purchase.productID,
+          receipt: receipt,
+        );
+        if (purchase.pendingCompletePurchase) {
+          await _store.completePurchase(purchase);
+        }
+        final capabilities =
+            await widget.repository.entitlements(_platform);
+        if (!mounted) return;
+        setState(() {
+          _pendingProducts = {..._pendingProducts}
+            ..remove(purchase.productID);
+          _capabilities = capabilities;
+          _storeMessage = verified.status == 'active'
+              ? 'Membership is active on your SOUL account.'
+              : 'The store transaction was verified.';
+        });
+      } on SoulApiFailure catch (failure) {
+        if (!mounted) return;
+        setState(() {
+          _pendingProducts = {..._pendingProducts}
+            ..remove(purchase.productID);
+          _storeMessage = failure.message;
+        });
+      }
     }
   }
 
@@ -1257,6 +1437,10 @@ class _MembershipScreenState extends State<MembershipScreen> {
                           ],
                         ),
                       ),
+                      if (_storeMessage != null) ...[
+                        const SizedBox(height: 14),
+                        _InlineError(message: _storeMessage!),
+                      ],
                       const SizedBox(height: 18),
                       for (final product in _products)
                         Card(
@@ -1288,6 +1472,34 @@ class _MembershipScreenState extends State<MembershipScreen> {
                                     ),
                                   ),
                                 ],
+                                if (_storeProducts[product.productId]
+                                    case final details?) ...[
+                                  const SizedBox(height: 10),
+                                  Text(
+                                    details.price,
+                                    style: const TextStyle(
+                                      color: SoulColors.ink,
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: FilledButton(
+                                      onPressed: _pendingProducts
+                                              .contains(product.productId)
+                                          ? null
+                                          : () => _buy(product),
+                                      child: Text(
+                                        _pendingProducts
+                                                .contains(product.productId)
+                                            ? 'Waiting for store…'
+                                            : 'Continue with store',
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ],
                             ),
                           ),
@@ -1301,8 +1513,17 @@ class _MembershipScreenState extends State<MembershipScreen> {
                           ),
                         ),
                       const SizedBox(height: 8),
+                      OutlinedButton.icon(
+                        onPressed:
+                            _storeAvailable && !_restoring ? _restore : null,
+                        icon: const Icon(Icons.restore_rounded),
+                        label: Text(
+                          _restoring ? 'Restoring…' : 'Restore purchases',
+                        ),
+                      ),
+                      const SizedBox(height: 12),
                       const Text(
-                        'Purchase and restore actions will use the platform store and server receipt verification; SOUL never trusts a client-only entitlement.',
+                        'Apple or Google processes payment. SOUL activates membership only after the server verifies the store transaction.',
                         style: TextStyle(
                           color: SoulColors.muted,
                           fontSize: 12,
