@@ -1850,7 +1850,7 @@ For a safe auth-only duplicate, social logins and support tickets move to the re
 
 ## Database design
 
-This document describes the current Laravel schema and the planned V1 domain extensions. Migrations remain the executable source of truth. Numeric keys are internal; public API resources use ULIDs.
+This document describes the current Laravel schema and the remaining decision-gated storage considerations. Migrations remain the executable source of truth. Numeric keys are internal; public API resources use ULIDs.
 
 ### Design rules
 
