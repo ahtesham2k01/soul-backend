@@ -17,4 +17,25 @@ void main() {
     expect(source, contains("common.prefer_not_to_say"));
     expect(source, contains("common.skip"));
   });
+  test('profile edit protects all required V1 fields before save', () {
+    final source = File(
+      'lib/src/features/profile/profile_edit_screen.dart',
+    ).readAsStringSync();
+    final start = source.indexOf('String? _validate()');
+    final end = source.indexOf('Map<String, Object?> _payload()', start);
+    final validation = source.substring(start, end);
+
+    expect(validation, contains('_city.text.trim().isEmpty'));
+    expect(validation, contains("_nationality.text.trim()"));
+    expect(validation, contains('_gender == null'));
+    expect(validation, contains('_maritalStatus == null'));
+    expect(validation, contains('_professionStatus == null'));
+    expect(validation, contains('_smoking == null'));
+    expect(validation, contains('_alcohol == null'));
+    expect(validation, contains('_currentChildren == null'));
+    expect(validation, contains('_futureChildren == null'));
+    expect(validation, contains('_intentions.isEmpty'));
+    expect(validation, contains('_languageCodes.isEmpty'));
+  });
+
 }

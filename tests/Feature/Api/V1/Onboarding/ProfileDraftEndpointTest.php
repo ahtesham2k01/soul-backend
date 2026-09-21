@@ -2,8 +2,17 @@
 
 namespace Tests\Feature\Api\V1\Onboarding;
 
+use App\Enums\Profile\ProfilePhotoModerationStatus;
+use App\Enums\Profile\ProfilePhotoVisibility;
+use App\Enums\Profile\RelationshipIntention;
+use App\Enums\Profile\ReligionNodeType;
+use App\Models\ProfilePhoto;
+use App\Models\ReligionTaxonomyNode;
 use App\Models\SpokenLanguage;
 use App\Models\User;
+use App\Models\UserProfile;
+use App\Models\UserProfileIntention;
+use App\Models\UserReligionProfile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -105,6 +114,54 @@ class ProfileDraftEndpointTest extends TestCase
         $this->assertDatabaseCount('user_profiles', 1);
         $this->assertDatabaseCount('user_profile_intentions', 1);
         $this->assertDatabaseCount('spoken_language_user_profile', 1);
+    }
+
+    public function test_live_profile_cannot_be_saved_in_an_incomplete_state(): void
+    {
+        $user = User::factory()->create([
+            'status' => User::STATUS_ACTIVE,
+        ]);
+        $profile = UserProfile::factory()->for($user)->create([
+            'profile_status' => 'live',
+            'city_name' => 'Karachi',
+        ]);
+        $language = SpokenLanguage::factory()->create();
+        $profile->spokenLanguages()->attach($language);
+        UserProfileIntention::factory()->for($profile)->create([
+            'intention' => RelationshipIntention::Marriage,
+        ]);
+
+        $religion = ReligionTaxonomyNode::query()->create([
+            'type' => ReligionNodeType::Religion,
+            'slug' => 'islam',
+            'path' => 'islam',
+            'is_active' => true,
+        ]);
+        UserReligionProfile::query()->create([
+            'user_id' => $user->id,
+            'selected_node_id' => $religion->id,
+            'country_code' => 'PK',
+        ]);
+        ProfilePhoto::factory()->for($profile)->create([
+            'position' => 1,
+            'visibility' => ProfilePhotoVisibility::Public,
+            'moderation_status' => ProfilePhotoModerationStatus::Approved,
+            'face_detected' => true,
+        ]);
+
+        Sanctum::actingAs($user);
+
+        $this->putJson('/api/v1/onboarding/profile', [
+            'city_name' => null,
+        ])
+            ->assertUnprocessable()
+            ->assertJsonPath('error.code', 'VALIDATION_ERROR');
+
+        $this->assertDatabaseHas('user_profiles', [
+            'id' => $profile->id,
+            'profile_status' => 'live',
+            'city_name' => 'Karachi',
+        ]);
     }
 
     public function test_returns_422_for_underage_or_unknown_language(): void

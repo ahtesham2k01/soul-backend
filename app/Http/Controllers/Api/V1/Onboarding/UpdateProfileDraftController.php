@@ -4,14 +4,17 @@ namespace App\Http\Controllers\Api\V1\Onboarding;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\Onboarding\UpdateProfileDraftRequest;
+use App\Enums\Profile\ProfileStatus;
 use App\Http\Resources\Api\V1\UserProfileDraftResource;
 use App\Models\ProfileCatalogItem;
 use App\Models\SpokenLanguage;
 use App\Models\UserProfile;
 use App\Support\ApiResponse;
+use App\Support\Onboarding\ProfileReadiness;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class UpdateProfileDraftController extends Controller
 {
@@ -21,13 +24,16 @@ class UpdateProfileDraftController extends Controller
         'relocation_preference', 'family_involvement_preference',
     ];
 
-    public function __invoke(UpdateProfileDraftRequest $request): JsonResponse
-    {
+    public function __invoke(
+        UpdateProfileDraftRequest $request,
+        ProfileReadiness $readiness,
+    ): JsonResponse {
         $validated = $request->validated();
 
         $profile = DB::transaction(function () use (
             $request,
             $validated,
+            $readiness,
         ): UserProfile {
             $profile = $request->user()->profile()->updateOrCreate(
                 [],
@@ -74,6 +80,18 @@ class UpdateProfileDraftController extends Controller
             }
 
             $this->syncWithheldFields($profile, $validated);
+
+            if ($profile->profile_status === ProfileStatus::Live) {
+                $state = $readiness->for($request->user());
+
+                if (! $state['is_ready']) {
+                    throw ValidationException::withMessages([
+                        'profile' => [
+                            'A live profile must keep all required profile information complete.',
+                        ],
+                    ]);
+                }
+            }
 
             return $profile->load([
                 'intentions', 'spokenLanguages',
