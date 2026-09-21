@@ -107,7 +107,13 @@ class _ReceivedLikesScreenState extends State<ReceivedLikesScreen> {
             title: Text(
               widget.labels.text('matches.new_match', 'It is a match!'),
             ),
-            content: Text('${item.firstName} is now in your matches.'),
+            content: Text(
+              widget.labels.format(
+                'likes.match_added',
+                '{name} is now in your matches.',
+                {'name': item.firstName},
+              ),
+            ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),

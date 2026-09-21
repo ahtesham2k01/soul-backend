@@ -23,8 +23,10 @@ void main() {
     ).readAsStringSync();
 
     expect(source, contains('choice.hasChildren'));
-    expect(source, contains('religionOptions(parentId: choice.id'));
-    expect(source, contains('saveReligion(selectedNodeId: choice.id'));
+    expect(source, contains('religionOptions('));
+    expect(source, contains('parentId: choice.id'));
+    expect(source, contains('saveReligion('));
+    expect(source, contains('selectedNodeId: choice.id'));
     expect(source, contains("setState(() => _step = 6);"));
   });
   test('resume flow uses the server draft and completes after future children', () {

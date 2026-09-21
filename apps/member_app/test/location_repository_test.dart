@@ -30,7 +30,8 @@ void main() {
     expect(repository, contains("'location/resolve'"));
     expect(repository, contains("'accuracy_meters': position.accuracy"));
     expect(screen, contains('Use current location'));
-    expect(screen, contains('Enter city manually'));
+    expect(screen, contains("'profile.city'"));
+    expect(screen, contains("'profile.country'"));
     expect(screen, contains('_resolveCurrentLocation'));
   });
 }

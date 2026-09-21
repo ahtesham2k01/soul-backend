@@ -178,7 +178,13 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
         controller.hideCurrentSnackBar();
         controller.showSnackBar(
           SnackBar(
-            content: Text('Like sent to ${candidate.firstName}.'),
+            content: Text(
+              widget.labels.format(
+                'likes.sent',
+                'Like sent to {name}.',
+                {'name': candidate.firstName},
+              ),
+            ),
             action: SnackBarAction(
               label: 'Undo',
               onPressed: () async {
@@ -334,10 +340,19 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                   ),
                   child: Text(
                     _privacy!.profilePaused
-                        ? 'Profile paused'
+                        ? widget.labels.text(
+                            'discovery.profile_paused',
+                            'Profile paused',
+                          )
                         : _privacy!.incognito
-                            ? 'Incognito is on'
-                            : 'Discovery visibility is off',
+                            ? widget.labels.text(
+                                'discovery.incognito_on',
+                                'Incognito is on',
+                              )
+                            : widget.labels.text(
+                                'discovery.visibility_off',
+                                'Discovery visibility is off',
+                              ),
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       color: Colors.white,

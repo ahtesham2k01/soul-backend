@@ -8,8 +8,8 @@ import '../../core/soul_theme.dart';
 import '../bootstrap/bootstrap_repository.dart';
 import 'onboarding_repository.dart';
 import 'optional_profile_details_screen.dart';
-import 'location_repository.dart';
 import 'notification_permission_screen.dart';
+import 'location_repository.dart';
 import 'legal_submission_screen.dart';
 import 'photo_onboarding_screen.dart';
 
@@ -40,7 +40,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   int _step = 0;
   bool _busy = true;
   bool _resolvingLocation = false;
-  bool _notificationStepShown = false;
   String? _error;
   String? _locationMessage;
   final Map<String, String?> _answers = {};
@@ -78,17 +77,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       final profile = results[0] as Map<String, dynamic>;
       final languages = results[1] as List<SpokenLanguageChoice>;
       final religionProfile = results[2] as ReligionProfileSnapshot?;
-
       final country = profile['country_code']?.toString().toUpperCase() ?? '';
-      final restoredReligionPath = await _resolveReligionPath(
-        repository,
-        religionProfile,
-        country,
-      );
       final resumeStep = _resumeStep(profile, religionProfile != null);
-      final rootReligionOptions = resumeStep == 5
-          ? await repository.religionOptions(country: country)
-          : const <ReligionChoice>[];
 
       if (!mounted) return;
       setState(() {
@@ -119,18 +109,18 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             savedLanguages
                 .whereType<Map>()
                 .map((item) => item['code']?.toString() ?? '')
-                .where((code) => code.isNotEmpty),
+                .where((value) => value.isNotEmpty),
           );
         }
         _languages = languages;
-        _religionPath
-          ..clear()
-          ..addAll(restoredReligionPath);
-        _religions = rootReligionOptions;
         _step = resumeStep;
       });
 
-      if (resumeStep == 14) await _loadReadiness();
+      if (resumeStep == 5) {
+        await _loadReligion();
+      } else if (resumeStep == 14) {
+        await _loadReadiness();
+      }
     } on SoulApiFailure catch (failure) {
       if (mounted) setState(() => _error = failure.message);
     } finally {
@@ -152,41 +142,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     if ((profile['marital_status']?.toString().isEmpty ?? true)) return 6;
     if (_stringList(profile['intentions']).isEmpty) return 7;
     if ((profile['profession_status']?.toString().isEmpty ?? true)) return 8;
-    final spokenLanguages = profile['spoken_languages'];
-    if (spokenLanguages is! List || spokenLanguages.isEmpty) return 9;
+    final spoken = profile['spoken_languages'];
+    if (spoken is! List || spoken.isEmpty) return 9;
     if ((profile['smoking']?.toString().isEmpty ?? true)) return 10;
     if ((profile['alcohol']?.toString().isEmpty ?? true)) return 11;
     if ((profile['current_children']?.toString().isEmpty ?? true)) return 12;
     if ((profile['future_children']?.toString().isEmpty ?? true)) return 13;
     return 14;
-  }
-
-  Future<List<ReligionChoice>> _resolveReligionPath(
-    OnboardingRepository repository,
-    ReligionProfileSnapshot? profile,
-    String country,
-  ) async {
-    if (profile == null || profile.path.isEmpty) return const [];
-    final resolved = <ReligionChoice>[];
-    String? parentId;
-    final effectiveCountry = country.isNotEmpty ? country : profile.country;
-    for (final savedNode in profile.path) {
-      final options = await repository.religionOptions(
-        parentId: parentId,
-        country: effectiveCountry,
-      );
-      ReligionChoice? match;
-      for (final option in options) {
-        if (option.id == savedNode.id) {
-          match = option;
-          break;
-        }
-      }
-      if (match == null) break;
-      resolved.add(match);
-      parentId = match.id;
-    }
-    return resolved;
   }
 
   List<String> _stringList(Object? value) => value is List ? value.map((item) => item.toString()).toList(growable: false) : const [];
@@ -222,9 +184,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       return;
     }
     final payload = _payload();
-    setState(() { _busy = true; _error = null; });
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
     try {
-      if (payload.isNotEmpty) await ref.read(onboardingRepositoryProvider).saveProfile(payload);
+      if (payload.isNotEmpty) {
+        await ref.read(onboardingRepositoryProvider).saveProfile(payload);
+      }
       if (!mounted) return;
       if (_step == 4) {
         await _loadReligion();
@@ -276,7 +243,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       _validCountryCode(controller.text);
 
   bool _validCountryCode(String value) =>
-      RegExp(r'^[A-Za-z]{2}$').hasMatch(value.trim());
+      RegExp(r'^[A-Za-z]{2}
 
   bool _isAdultDate(String input) {
     final birthDate = DateTime.tryParse(input);
@@ -296,26 +263,32 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   Future<void> _loadReligion() async {
     final options = await ref.read(onboardingRepositoryProvider).religionOptions(country: _country.text.trim().toUpperCase());
-    if (mounted) {
-      setState(() {
-        _step = 5;
-        _religionPath.clear();
-        _religions = options;
-      });
-    }
+    if (mounted) setState(() { _step = 5; _religions = options; });
   }
 
   Future<void> _chooseReligion(ReligionChoice choice) async {
-    setState(() { _busy = true; _error = null; });
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
     try {
       final repository = ref.read(onboardingRepositoryProvider);
       final next = choice.hasChildren
-          ? await repository.religionOptions(parentId: choice.id, country: _country.text.trim().toUpperCase())
+          ? await repository.religionOptions(
+              parentId: choice.id,
+              country: _country.text.trim().toUpperCase(),
+            )
           : const <ReligionChoice>[];
       if (!mounted) return;
-      setState(() { _religionPath.add(choice); _religions = next; });
+      setState(() {
+        _religionPath.add(choice);
+        _religions = next;
+      });
       if (!choice.hasChildren) {
-        await repository.saveReligion(selectedNodeId: choice.id, country: _country.text.trim().toUpperCase());
+        await repository.saveReligion(
+          selectedNodeId: choice.id,
+          country: _country.text.trim().toUpperCase(),
+        );
         if (!mounted) return;
         setState(() => _step = 6);
       }
@@ -354,13 +327,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   Future<void> _openPhotos() async {
-    final changed = await Navigator.of(context).push<bool>(
+    await Navigator.of(context).push<bool>(
       MaterialPageRoute<bool>(
         builder: (_) => PhotoOnboardingScreen(labels: widget.labels),
       ),
     );
     if (!mounted) return;
-
     setState(() => _busy = true);
     try {
       await _loadReadiness();
@@ -369,21 +341,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+  }
 
-    if (!mounted || changed != true || _notificationStepShown) return;
-    final photosMissing = _missing.contains('cover_photo') ||
-        _missing.contains('clear_face_photo');
-    if (photosMissing) return;
-
-    _notificationStepShown = true;
+  Future<void> _reviewAndSubmit() async {
     await Navigator.of(context).push<bool>(
       MaterialPageRoute<bool>(
         builder: (_) => NotificationPermissionScreen(labels: widget.labels),
       ),
     );
-  }
+    if (!mounted) return;
 
-  Future<void> _reviewAndSubmit() async {
     final correction = await Navigator.of(context).push<String>(
       MaterialPageRoute<String>(
         builder: (_) => LegalSubmissionScreen(
@@ -404,10 +371,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     if (_step == 5 && _religionPath.isNotEmpty) {
       setState(() => _religionPath.removeLast());
       _reloadReligionLevel();
-    } else if (_step == 6) {
+    } else if (_step == 6 && _religionPath.isNotEmpty) {
       setState(() {
         _step = 5;
-        if (_religionPath.isNotEmpty) _religionPath.removeLast();
+        _religionPath.removeLast();
       });
       _reloadReligionLevel();
     } else if (_step > 0) {
@@ -495,7 +462,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             controller: _nationality,
           ),
         5 => _ReligionStep(
-            title: widget.labels.text('profile.religion', 'Religion or belief'),
+            labels: widget.labels,
             path: _religionPath,
             options: _religions,
             busy: _busy,
@@ -518,7 +485,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             choices: [
               ('marriage', widget.labels.text('profile.intention_marriage', 'Marriage')),
               ('serious_relationship', widget.labels.text('profile.intention_serious', 'Serious relationship')),
-              ('casual_dating', widget.labels.text('profile.intention_casual', 'Dating')),
+              ('casual_dating', widget.labels.text('profile.intention_casual', 'Casual dating')),
             ],
             selected: _intentions,
             maximum: 3,
@@ -538,7 +505,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             ],
           ),
         9 => _LanguageStep(
-            title: widget.labels.text('profile.languages', 'Languages you speak'),
+            labels: widget.labels,
             languages: _languages,
             selected: _languageCodes,
             onChanged: () => setState(() {}),
@@ -628,6 +595,7 @@ class _LocationStep extends StatelessWidget {
     required this.onUseCurrentLocation,
     this.message,
   });
+
   final BootstrapState labels;
   final TextEditingController city;
   final TextEditingController country;
@@ -641,9 +609,9 @@ class _LocationStep extends StatelessWidget {
           SoulPageTitle(
             labels.text('profile.city', 'Current city'),
             subtitle:
-                'Use your current city for better matches. Exact coordinates are never public.',
+                'Use your current city for matching. Exact coordinates are not shown publicly.',
           ),
-          const SizedBox(height: 22),
+          const SizedBox(height: 20),
           OutlinedButton.icon(
             onPressed: resolving ? null : onUseCurrentLocation,
             icon: resolving
@@ -656,16 +624,17 @@ class _LocationStep extends StatelessWidget {
             label: Text(
               resolving
                   ? labels.text('location.detecting', 'Detecting your location...')
-                  : labels.text('profile.city', 'Current city'),
+                  : 'Use current location',
             ),
           ),
           if (message != null && message!.isNotEmpty) ...[
             const SizedBox(height: 10),
             Text(message!),
           ],
-          const SizedBox(height: 20),
+          const SizedBox(height: 18),
           TextField(
             controller: city,
+            textCapitalization: TextCapitalization.words,
             decoration: InputDecoration(
               labelText: labels.text('profile.city', 'Current city'),
             ),
@@ -721,19 +690,19 @@ class _MultiChoiceStep extends StatelessWidget {
 
 class _LanguageStep extends StatelessWidget {
   const _LanguageStep({
-    required this.title,
+    required this.labels,
     required this.languages,
     required this.selected,
     required this.onChanged,
   });
-  final String title;
+  final BootstrapState labels;
   final List<SpokenLanguageChoice> languages;
   final Set<String> selected;
   final VoidCallback onChanged;
   @override
   Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         SoulPageTitle(
-          title,
+          labels.text('profile.languages', 'Languages you speak'),
           subtitle: 'Select at least one. You can add more later.',
         ),
         const SizedBox(height: 18),
@@ -746,14 +715,14 @@ class _LanguageStep extends StatelessWidget {
 
 class _ReligionStep extends StatelessWidget {
   const _ReligionStep({
-    required this.title,
+    required this.labels,
     required this.path,
     required this.options,
     required this.busy,
     required this.onSelected,
     required this.onRetry,
   });
-  final String title;
+  final BootstrapState labels;
   final List<ReligionChoice> path;
   final List<ReligionChoice> options;
   final bool busy;
@@ -762,7 +731,9 @@ class _ReligionStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         SoulPageTitle(
-          title,
+          path.isEmpty
+              ? labels.text('profile.religion', 'Religion or belief')
+              : _religionTitle(path),
           subtitle: _religionSubtitle(path),
         ),
         if (path.isNotEmpty) ...[
@@ -786,6 +757,17 @@ class _ReligionStep extends StatelessWidget {
       ]);
 }
 
+String _religionTitle(List<ReligionChoice> path) {
+  if (path.isEmpty) return 'What is your religion?';
+  final level = path.last.level?.toLowerCase();
+  if (level == 'religion') return 'Which sect do you follow?';
+  if (level == 'sect') return 'Which sub-sect do you follow?';
+  if (level == 'sub_sect' || level == 'sub-sect' || level == 'subsect') {
+    return 'Select your caste or community';
+  }
+  return 'Tell us a little more';
+}
+
 String _religionSubtitle(List<ReligionChoice> path) {
   if (path.isEmpty) return 'Choose the option that best describes you.';
   return 'Only relevant options are shown. If there is no next level, we’ll continue automatically.';
@@ -799,57 +781,50 @@ class _CompletionStep extends StatelessWidget {
     required this.onAddPhotos,
     required this.onSubmit,
   });
+
   final BootstrapState labels;
   final List<String> missing;
   final VoidCallback onAddDetails;
   final VoidCallback onAddPhotos;
   final VoidCallback onSubmit;
+
   @override
   Widget build(BuildContext context) {
-    final profileMissing = missing.where((item) => item != 'cover_photo' && item != 'clear_face_photo').toList();
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const Icon(Icons.check_circle, color: SoulColors.lime, size: 54),
-      const SizedBox(height: 18),
-      Text(profileMissing.isEmpty ? 'Core profile complete' : 'Almost there', style: Theme.of(context).textTheme.headlineMedium),
-      const SizedBox(height: 12),
-      Text(profileMissing.isEmpty ? 'Your answers and religion path are saved. Add your public cover and clear-face photos next.' : 'These required answers still need attention: ${profileMissing.join(', ')}.'),
-      const SizedBox(height: 24),
-      const Card(child: Padding(padding: EdgeInsets.all(18), child: Row(children: [Icon(Icons.lock_outline), SizedBox(width: 12), Expanded(child: Text('Exact location and detailed religion answers follow your privacy settings and are never used as hard-coded assumptions.'))]))),
-      const SizedBox(height: 18),
-      SizedBox(
-        width: double.infinity,
-        height: 50,
-        child: OutlinedButton.icon(
+    final profileMissing = missing
+        .where((item) => item != 'cover_photo' && item != 'clear_face_photo')
+        .toList();
+    return ListView(
+      children: [
+        const Icon(Icons.check_circle, color: SoulColors.lime, size: 54),
+        const SizedBox(height: 18),
+        Text(
+          profileMissing.isEmpty
+              ? labels.text('onboarding.review', 'Review your profile')
+              : labels.text('onboarding.changes_required', 'Changes are required'),
+          style: Theme.of(context).textTheme.headlineMedium,
+        ),
+        const SizedBox(height: 18),
+        OutlinedButton.icon(
           onPressed: onAddDetails,
           icon: const Icon(Icons.tune_rounded),
-          label: Text(labels.text('common.edit', 'Edit')),
+          label: const Text('Optional profile details'),
         ),
-      ),
-      const SizedBox(height: 12),
-      SizedBox(
-        width: double.infinity,
-        height: 50,
-        child: FilledButton.icon(
+        const SizedBox(height: 12),
+        FilledButton.icon(
           onPressed: onAddPhotos,
           icon: const Icon(Icons.add_a_photo_outlined),
-          label: Text(
-            labels.text('photos.title', 'Add your photos'),
-          ),
+          label: Text(labels.text('photos.title', 'Add your photos')),
         ),
-      ),
-      if (missing.isEmpty) ...[
-        const SizedBox(height: 12),
-        SizedBox(
-          width: double.infinity,
-          height: 50,
-          child: FilledButton.icon(
+        if (missing.isEmpty) ...[
+          const SizedBox(height: 12),
+          FilledButton.icon(
             onPressed: onSubmit,
             icon: const Icon(Icons.fact_check_outlined),
             label: Text(labels.text('onboarding.submit', 'Submit profile')),
           ),
-        ),
+        ],
       ],
-    ]);
+    );
   }
 }
 
@@ -860,10 +835,23 @@ class _ChoiceTile extends StatelessWidget {
   final VoidCallback onTap;
   @override
   Widget build(BuildContext context) {
+    final genderChoice = label == 'Men' || label == 'Women';
     return SoulChoiceTile(
       label: label,
       selected: selected,
       onTap: onTap,
+      leading: genderChoice
+          ? CircleAvatar(
+              radius: 20,
+              backgroundColor: SoulColors.softSurface,
+              child: Icon(
+                label == 'Men'
+                    ? Icons.person_rounded
+                    : Icons.person_2_rounded,
+                color: SoulColors.forest,
+              ),
+            )
+          : null,
     );
   }
 }

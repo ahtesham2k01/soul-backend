@@ -414,14 +414,19 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
                   unawaited(_openSafety());
                 }
               },
-              itemBuilder: (_) => const [
+              itemBuilder: (_) => [
                 PopupMenuItem(
                   value: 'private_photos',
                   child: Row(
                     children: [
-                      Icon(Icons.lock_outline_rounded, size: 20),
-                      SizedBox(width: 10),
-                      Text('Private photos'),
+                      const Icon(Icons.lock_outline_rounded, size: 20),
+                      const SizedBox(width: 10),
+                      Text(
+                        widget.labels.text(
+                          'chat.private_photos',
+                          'Private photos',
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -429,9 +434,17 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
                   value: 'private_photo_access',
                   child: Row(
                     children: [
-                      Icon(Icons.photo_size_select_actual_outlined, size: 20),
-                      SizedBox(width: 10),
-                      Text('Photo access requests'),
+                      const Icon(
+                        Icons.photo_size_select_actual_outlined,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        widget.labels.text(
+                          'chat.photo_access_requests',
+                          'Photo access requests',
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -439,9 +452,11 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
                   value: 'unmatch',
                   child: Row(
                     children: [
-                      Icon(Icons.link_off_rounded, size: 20),
-                      SizedBox(width: 10),
-                      Text('Unmatch'),
+                      const Icon(Icons.link_off_rounded, size: 20),
+                      const SizedBox(width: 10),
+                      Text(
+                        widget.labels.text('matches.unmatch', 'Unmatch'),
+                      ),
                     ],
                   ),
                 ),
@@ -449,9 +464,14 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
                   value: 'safety',
                   child: Row(
                     children: [
-                      Icon(Icons.shield_outlined, size: 20),
-                      SizedBox(width: 10),
-                      Text('Safety options'),
+                      const Icon(Icons.shield_outlined, size: 20),
+                      const SizedBox(width: 10),
+                      Text(
+                        widget.labels.text(
+                          'chat.safety_options',
+                          'Safety options',
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -500,13 +520,16 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
           child: Stack(
             children: [
               _messages.isEmpty
-                  ? const Center(
+                  ? Center(
                       child: Padding(
-                        padding: EdgeInsets.all(28),
+                        padding: const EdgeInsets.all(28),
                         child: Text(
-                          'You matched. Send the first message!',
+                          widget.labels.text(
+                            'chat.first_message',
+                            'You matched. Send the first message!',
+                          ),
                           textAlign: TextAlign.center,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: SoulColors.muted,
                             fontSize: 15,
                           ),
