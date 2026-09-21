@@ -12,8 +12,8 @@ void main() {
     expect(source, contains("'prefer_not_to_say_fields':"));
     expect(source, contains('_withheldFields.remove(field)'));
     expect(source, contains('_withheldFields.add(field)'));
-    expect(source, contains("case 'interests':"));
-    expect(source, contains("case 'personality_traits':"));
+    expect(source, contains("if (field == 'interests')"));
+    expect(source, contains("else if (field == 'personality_traits')"));
     expect(source, contains("common.prefer_not_to_say"));
     expect(source, contains("common.skip"));
   });

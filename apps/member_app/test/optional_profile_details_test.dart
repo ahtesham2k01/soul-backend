@@ -46,7 +46,7 @@ void main() {
       'lib/src/features/onboarding/onboarding_screen.dart',
     ).readAsStringSync();
 
-    expect(source, contains('Add optional profile details'));
+    expect(source, contains('Optional profile details'));
     expect(source, contains('_openOptionalDetails'));
     expect(source, contains('OptionalProfileDetailsScreen('));
   });
