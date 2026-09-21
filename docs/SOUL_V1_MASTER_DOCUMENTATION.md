@@ -1267,8 +1267,8 @@ The update is partial: Flutter may save one screen at a time. Omitted fields kee
   "future_children": "want_children",
   "intentions": ["marriage"],
   "spoken_language_codes": ["en", "ur"],
-  "interests": ["Reading", "Travel"],
-  "personality_traits": ["Kind", "Curious"]
+  "interests": ["reading", "travel"],
+  "personality_traits": ["kind", "curious"]
 }
 ```
 
@@ -1291,8 +1291,9 @@ Use only these stable values:
 
 Optional scalar fields are `bio`, `education`, `height_cm`, `job_title`, `employer`, `grew_up_in`, `ethnic_origin`, `religious_practice`, `prayer`, `diet`, `dress`, `relocation_preference` and `family_involvement_preference`.
 
-- `interests` accepts up to 15 unique, non-empty labels.
-- `personality_traits` accepts up to 5 unique, non-empty labels.
+- `interests` accepts up to 15 unique stable keys from `GET /api/v1/catalogs/profile`.
+- `personality_traits` accepts up to 5 unique stable keys from the same catalog endpoint.
+- Draft/profile-edit responses return catalog keys so Flutter can restore selections reliably; public profile responses render the current localized catalog labels.
 - `detailed_religion_visible` defaults to `true`; set it to `false` to hide answered detailed-religion fields from public profile views.
 
 ### Skip versus prefer not to say
