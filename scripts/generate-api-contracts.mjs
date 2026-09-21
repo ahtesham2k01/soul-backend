@@ -49,6 +49,26 @@ const publicOperations = new Set([
     'api.v1.webhooks.cloudinary.moderation',
 ]);
 
+const queryParameters = {
+    'api.v1.events.index': [
+        {
+            name: 'cursor',
+            type: 'string',
+            example: '',
+            disabled: true,
+            description: 'Opaque cursor returned by the previous page.',
+        },
+        {
+            name: 'joined',
+            type: 'boolean',
+            default: false,
+            example: 'false',
+            description: 'When true, return only upcoming events joined by the authenticated member.',
+            postmanDescription: 'Set true to return only events joined by the authenticated member.',
+        },
+    ],
+};
+
 const requestExamples = {
     'api.v1.auth.register.request-otp': { email: '<user-email>' },
     'api.v1.auth.register.verify-otp': { verification_id: '01H...', code: '123456' },
@@ -104,12 +124,26 @@ const tags = (operationId) => {
 
 const paths = {};
 for (const endpoint of endpoints) {
-    const parameters = [...endpoint.path.matchAll(/\{([^}]+)\}/g)].map((match) => ({
+    const pathParameters = [...endpoint.path.matchAll(/\{([^}]+)\}/g)].map((match) => ({
         name: match[1],
         in: 'path',
         required: true,
         schema: { type: match[1] === 'position' ? 'integer' : 'string' },
     }));
+    const endpointQuery = queryParameters[endpoint.operationId] ?? [];
+    const parameters = [
+        ...pathParameters,
+        ...endpointQuery.map((parameter) => ({
+            name: parameter.name,
+            in: 'query',
+            required: false,
+            schema: {
+                type: parameter.type,
+                ...(parameter.default === undefined ? {} : { default: parameter.default }),
+            },
+            description: parameter.description,
+        })),
+    ];
     const example = requestExamples[endpoint.operationId];
     const operation = {
         operationId: endpoint.operationId,
@@ -195,6 +229,12 @@ for (const endpoint of endpoints) {
     const folder = tags(endpoint.operationId);
     if (!folders.has(folder)) folders.set(folder, []);
     const example = requestExamples[endpoint.operationId];
+    const postmanQuery = [...(queryParameters[endpoint.operationId] ?? [])]
+        .sort((left, right) => Number(Boolean(left.disabled)) - Number(Boolean(right.disabled)));
+    const enabledQuery = postmanQuery.filter((parameter) => !parameter.disabled);
+    const querySuffix = enabledQuery.length
+        ? `?${enabledQuery.map((parameter) => `${parameter.name}=${encodeURIComponent(parameter.example ?? parameter.default ?? '')}`).join('&')}`
+        : '';
     folders.get(folder).push({
         name: endpoint.summary,
         request: {
@@ -203,9 +243,17 @@ for (const endpoint of endpoints) {
             ...(publicOperations.has(endpoint.operationId) || endpoint.operationId.startsWith('api.v1.admin.') ? { auth: { type: 'noauth' } } : {}),
             ...(example ? { body: { mode: 'raw', raw: JSON.stringify(example, null, 2), options: { raw: { language: 'json' } } } } : {}),
             url: {
-                raw: `{{baseUrl}}${endpoint.path}`,
+                raw: `{{baseUrl}}${endpoint.path}${querySuffix}`,
                 host: ['{{baseUrl}}'],
                 path: endpoint.path.split('/').filter(Boolean),
+                ...(postmanQuery.length ? {
+                    query: postmanQuery.map((parameter) => ({
+                        key: parameter.name,
+                        value: String(parameter.example ?? parameter.default ?? ''),
+                        ...(parameter.disabled ? { disabled: true } : {}),
+                        description: parameter.postmanDescription ?? parameter.description,
+                    })),
+                } : {}),
             },
             description: `${endpoint.operationId}: ${endpoint.summary}`,
         },
