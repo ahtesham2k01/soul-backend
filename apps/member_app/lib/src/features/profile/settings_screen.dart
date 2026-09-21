@@ -37,7 +37,7 @@ class SettingsScreen extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(18, 8, 18, 34),
           children: [
             _SettingsSection(
-              title: 'Personal information',
+              title: labels.text('settings.personal_information', 'Personal information'),
               children: [
                 _ReadOnlyRow(
                   label: labels.text('profile.first_name', 'First name'),
@@ -75,7 +75,7 @@ class SettingsScreen extends StatelessWidget {
               ],
             ),
             _SettingsSection(
-              title: 'App settings',
+              title: labels.text('settings.app_settings', 'App settings'),
               children: [
                 _NavRow(
                   icon: Icons.language_rounded,
@@ -93,8 +93,8 @@ class SettingsScreen extends StatelessWidget {
                 ),
                 _NavRow(
                   icon: Icons.workspace_premium_outlined,
-                  title: 'Membership',
-                  subtitle: 'Plus, Premium and store products',
+                  title: labels.text('settings.membership', 'Membership'),
+                  subtitle: labels.text('settings.membership_subtitle', 'Plus, Premium and store products'),
                   onTap: () => Navigator.of(context).push<void>(
                     MaterialPageRoute(
                       builder: (_) => MembershipScreen(
@@ -112,7 +112,7 @@ class SettingsScreen extends StatelessWidget {
                 _NavRow(
                   icon: Icons.visibility_outlined,
                   title: labels.text('settings.privacy', 'Privacy'),
-                  subtitle: 'Visibility, incognito, pause and photo protection',
+                  subtitle: labels.text('settings.privacy_subtitle', 'Visibility, incognito, pause and photo protection'),
                   onTap: () => Navigator.of(context).push<void>(
                     MaterialPageRoute(
                       builder: (_) => PrivacySettingsScreen(
@@ -124,12 +124,13 @@ class SettingsScreen extends StatelessWidget {
                 ),
                 _NavRow(
                   icon: Icons.block_rounded,
-                  title: 'Blocked profiles',
-                  subtitle: 'Review profiles you have blocked',
+                  title: labels.text('settings.blocked_profiles', 'Blocked profiles'),
+                  subtitle: labels.text('settings.blocked_profiles_subtitle', 'Review profiles you have blocked'),
                   onTap: () => Navigator.of(context).push<void>(
                     MaterialPageRoute(
                       builder: (_) => BlockedProfilesScreen(
                         repository: repository,
+                        labels: labels,
                       ),
                     ),
                   ),
@@ -137,7 +138,7 @@ class SettingsScreen extends StatelessWidget {
               ],
             ),
             _SettingsSection(
-              title: 'Security',
+              title: labels.text('settings.security', 'Security'),
               children: [
                 _NavRow(
                   icon: Icons.devices_rounded,
@@ -145,7 +146,7 @@ class SettingsScreen extends StatelessWidget {
                     'settings.devices',
                     'Active devices',
                   ),
-                  subtitle: 'Sign out devices you no longer use',
+                  subtitle: labels.text('settings.devices_subtitle', 'Sign out devices you no longer use'),
                   onTap: () => Navigator.of(context).push<void>(
                     MaterialPageRoute(
                       builder: (_) => DeviceSessionsScreen(
@@ -159,7 +160,7 @@ class SettingsScreen extends StatelessWidget {
               ],
             ),
             _SettingsSection(
-              title: 'Manage account',
+              title: labels.text('settings.manage_account', 'Manage account'),
               children: [
                 _NavRow(
                   icon: Icons.download_outlined,
@@ -167,7 +168,7 @@ class SettingsScreen extends StatelessWidget {
                     'settings.download_data',
                     'Download my data',
                   ),
-                  subtitle: 'Request a private export of your SOUL data',
+                  subtitle: labels.text('settings.export_subtitle', 'Request a private export of your SOUL data'),
                   onTap: () => Navigator.of(context).push<void>(
                     MaterialPageRoute(
                       builder: (_) => DataExportScreen(
@@ -292,7 +293,7 @@ class SettingsScreen extends StatelessWidget {
       await showDialog<void>(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Account deletion scheduled'),
+          title: Text(labels.text('settings.deletion_scheduled', 'Account deletion scheduled')),
           content: Text(
             labels.text(
               'settings.deletion_recovery',
@@ -416,7 +417,7 @@ class _NotificationSettingsScreenState
                       if (_error != null)
                         _InlineError(message: _error!),
                       _ToggleGroup(
-                        title: 'Push notifications',
+                        title: widget.labels.text('settings.push_notifications', 'Push notifications'),
                         children: [
                           _switch(
                             widget.labels.text(
@@ -479,7 +480,7 @@ class _NotificationSettingsScreenState
                         ],
                       ),
                       _ToggleGroup(
-                        title: 'Email',
+                        title: widget.labels.text('settings.email_notifications', 'Email'),
                         children: [
                           _switch(
                             widget.labels.text(
@@ -655,7 +656,7 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
                       if (_error != null)
                         _InlineError(message: _error!),
                       _ToggleGroup(
-                        title: 'Profile visibility',
+                        title: widget.labels.text('settings.profile_visibility', 'Profile visibility'),
                         children: [
                           _privacySwitch(
                             'Discoverable',
@@ -688,7 +689,7 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
                         ],
                       ),
                       _ToggleGroup(
-                        title: 'Contact privacy',
+                        title: widget.labels.text('settings.contact_privacy', 'Contact privacy'),
                         children: [
                           _privacySwitch(
                             'Hide phone contacts',
@@ -700,7 +701,7 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
                         ],
                       ),
                       _ToggleGroup(
-                        title: 'Private photos',
+                        title: widget.labels.text('settings.private_photos', 'Private photos'),
                         children: [
                           _privacySwitch(
                             'Screenshot protection',
@@ -710,12 +711,17 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
                               screenshotProtectionEnabled: value,
                             ),
                           ),
-                          const ListTile(
-                            title: Text('Read receipts'),
-                            subtitle: Text(
+                          ListTile(
+                            title: Text(
+                              widget.labels.text(
+                                'settings.read_receipts',
+                                'Read receipts',
+                              ),
+                            ),
+                            subtitle: const Text(
                               'Read receipts remain enabled for all chats.',
                             ),
-                            trailing: Icon(Icons.lock_outline_rounded),
+                            trailing: const Icon(Icons.lock_outline_rounded),
                           ),
                         ],
                       ),
@@ -746,9 +752,11 @@ class BlockedProfilesScreen extends StatefulWidget {
   const BlockedProfilesScreen({
     super.key,
     required this.repository,
+    required this.labels,
   });
 
   final ProfileRepository repository;
+  final BootstrapState labels;
 
   @override
   State<BlockedProfilesScreen> createState() => _BlockedProfilesScreenState();
@@ -830,7 +838,9 @@ class _BlockedProfilesScreenState extends State<BlockedProfilesScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Blocked profiles')),
+        appBar: AppBar(
+          title: Text(widget.labels.text('settings.blocked_profiles', 'Blocked profiles')),
+        ),
         body: _loading
             ? const Center(child: CircularProgressIndicator())
             : _error != null && _items.isEmpty
@@ -839,15 +849,22 @@ class _BlockedProfilesScreenState extends State<BlockedProfilesScreen> {
                     onRefresh: _load,
                     child: _items.isEmpty
                         ? ListView(
-                            children: const [
-                              SizedBox(height: 180),
-                              Icon(
+                            children: [
+                              const SizedBox(height: 180),
+                              const Icon(
                                 Icons.block_rounded,
                                 size: 54,
                                 color: SoulColors.muted,
                               ),
-                              SizedBox(height: 14),
-                              Center(child: Text('No blocked profiles')),
+                              const SizedBox(height: 14),
+                              Center(
+                                child: Text(
+                                  widget.labels.text(
+                                    'settings.no_blocked_profiles',
+                                    'No blocked profiles',
+                                  ),
+                                ),
+                              ),
                             ],
                           )
                         : NotificationListener<ScrollNotification>(
@@ -894,7 +911,7 @@ class _BlockedProfilesScreenState extends State<BlockedProfilesScreen> {
                                     onPressed: _busy.contains(item.id)
                                         ? null
                                         : () => _unblock(item),
-                                    child: const Text('Unblock'),
+                                    child: Text(widget.labels.text('common.unblock', 'Unblock')),
                                   ),
                                 );
                               },
@@ -1403,7 +1420,7 @@ class _MembershipScreenState extends State<MembershipScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Membership')),
+        appBar: AppBar(title: Text(widget.labels.text('settings.membership', 'Membership'))),
         body: _loading
             ? const Center(child: CircularProgressIndicator())
             : _error != null

@@ -89,14 +89,14 @@ class _VerificationScreenState extends State<VerificationScreen> {
     final statement = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Appeal verification decision'),
+        title: Text(widget.labels.text('verification.appeal_decision', 'Appeal verification decision')),
         content: TextField(
           controller: controller,
           minLines: 4,
           maxLines: 7,
           maxLength: 1500,
-          decoration: const InputDecoration(
-            hintText: 'Explain why this decision should be reviewed.',
+          decoration: InputDecoration(
+            hintText: widget.labels.text('verification.appeal_hint', 'Explain why this decision should be reviewed.'),
           ),
         ),
         actions: [
@@ -109,7 +109,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
               final value = controller.text.trim();
               Navigator.of(context).pop(value.length >= 20 ? value : null);
             },
-            child: const Text('Submit appeal'),
+            child: Text(widget.labels.text('verification.submit_appeal', 'Submit appeal')),
           ),
         ],
       ),
@@ -135,9 +135,10 @@ class _VerificationScreenState extends State<VerificationScreen> {
     }
     if (_summary == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Verification')),
+        appBar: AppBar(title: Text(widget.labels.text('verification.title', 'Verification'))),
         body: _VerificationError(
-          message: _error ?? 'Verification is unavailable.',
+          labels: widget.labels,
+          message: _error ?? widget.labels.text('verification.unavailable', 'Verification is unavailable.'),
           onRetry: _load,
         ),
       );
@@ -145,7 +146,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xfff7f7f4),
-      appBar: AppBar(title: const Text('Verification')),
+      appBar: AppBar(title: Text(widget.labels.text('verification.title', 'Verification'))),
       body: RefreshIndicator(
         onRefresh: _load,
         child: ListView(
@@ -157,30 +158,36 @@ class _VerificationScreenState extends State<VerificationScreen> {
                 color: SoulColors.limeLight,
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  CircleAvatar(
+                  const CircleAvatar(
                     radius: 28,
                     backgroundColor: Colors.black,
                     foregroundColor: SoulColors.limeLight,
                     child: Icon(Icons.verified_user_outlined, size: 28),
                   ),
-                  SizedBox(width: 15),
+                  const SizedBox(width: 15),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Build trust with verification',
-                          style: TextStyle(
+                          widget.labels.text(
+                            'verification.build_trust',
+                            'Build trust with verification',
+                          ),
+                          style: const TextStyle(
                             color: SoulColors.ink,
                             fontSize: 19,
                             fontWeight: FontWeight.w900,
                           ),
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         Text(
-                          'SOUL starts only the verification checks supported by the server.',
+                          widget.labels.text(
+                            'verification.build_trust_subtitle',
+                            'SOUL starts only the verification checks supported by the server.',
+                          ),
                         ),
                       ],
                     ),
@@ -197,17 +204,20 @@ class _VerificationScreenState extends State<VerificationScreen> {
             ],
             const SizedBox(height: 18),
             _VerificationTile(
-              title: 'Email',
+              labels: widget.labels,
+              title: widget.labels.text('verification.email', 'Email'),
               state: _summary!.email,
               action: null,
             ),
             _VerificationTile(
-              title: 'Phone',
+              labels: widget.labels,
+              title: widget.labels.text('verification.phone', 'Phone'),
               state: _summary!.phone,
               action: null,
             ),
             _VerificationTile(
-              title: 'Selfie / photo',
+              labels: widget.labels,
+              title: widget.labels.text('verification.selfie', 'Selfie / photo'),
               state: _summary!.selfie,
               action: () => _start('selfie_review'),
               busy: _busyTypes.contains('selfie_review'),
@@ -217,7 +227,8 @@ class _VerificationScreenState extends State<VerificationScreen> {
                   : null,
             ),
             _VerificationTile(
-              title: 'Identity and age',
+              labels: widget.labels,
+              title: widget.labels.text('verification.identity_age', 'Identity and age'),
               state: _summary!.identityAge,
               action: () => _start('identity'),
               busy: _busyTypes.contains('identity'),
@@ -227,9 +238,9 @@ class _VerificationScreenState extends State<VerificationScreen> {
             ),
             if (_cases.isNotEmpty) ...[
               const SizedBox(height: 22),
-              const Text(
-                'Verification history',
-                style: TextStyle(
+              Text(
+                widget.labels.text('verification.history', 'Verification history'),
+                style: const TextStyle(
                   color: SoulColors.ink,
                   fontSize: 17,
                   fontWeight: FontWeight.w800,
@@ -252,8 +263,8 @@ class _VerificationScreenState extends State<VerificationScreen> {
                     ),
                     title: Text(
                       item.type == 'identity'
-                          ? 'Identity and age'
-                          : 'Selfie / photo',
+                          ? widget.labels.text('verification.identity_age', 'Identity and age')
+                          : widget.labels.text('verification.selfie', 'Selfie / photo'),
                     ),
                     subtitle: Text(
                       [
@@ -274,6 +285,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
 
 class _VerificationTile extends StatelessWidget {
   const _VerificationTile({
+    required this.labels,
     required this.title,
     required this.state,
     required this.action,
@@ -281,6 +293,7 @@ class _VerificationTile extends StatelessWidget {
     this.appeal,
   });
 
+  final BootstrapState labels;
   final String title;
   final VerificationState state;
   final VoidCallback? action;
@@ -328,12 +341,16 @@ class _VerificationTile extends StatelessWidget {
               if (appeal != null)
                 TextButton(
                   onPressed: appeal,
-                  child: const Text('Appeal'),
+                  child: Text(labels.text('verification.appeal', 'Appeal')),
                 )
               else if (action != null && !state.verified)
                 TextButton(
                   onPressed: busy ? null : action,
-                  child: Text(busy ? 'Starting…' : 'Verify'),
+                  child: Text(
+                    busy
+                        ? labels.text('verification.starting', 'Starting…')
+                        : labels.text('verification.verify', 'Verify'),
+                  ),
                 ),
             ],
           ),
@@ -343,10 +360,12 @@ class _VerificationTile extends StatelessWidget {
 
 class _VerificationError extends StatelessWidget {
   const _VerificationError({
+    required this.labels,
     required this.message,
     required this.onRetry,
   });
 
+  final BootstrapState labels;
   final String message;
   final VoidCallback onRetry;
 
@@ -359,7 +378,10 @@ class _VerificationError extends StatelessWidget {
             children: [
               Text(message, textAlign: TextAlign.center),
               const SizedBox(height: 14),
-              FilledButton(onPressed: onRetry, child: const Text('Try again')),
+              FilledButton(
+                onPressed: onRetry,
+                child: Text(labels.text('common.retry', 'Try again')),
+              ),
             ],
           ),
         ),

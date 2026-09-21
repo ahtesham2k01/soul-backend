@@ -91,7 +91,7 @@ class _PrivatePhotoAccessScreenState extends State<PrivatePhotoAccessScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Revoke private photo access?'),
+        title: Text(widget.labels.text('private_photos.revoke_confirm', 'Revoke private photo access?')),
         content: Text(
           '${item.firstName.isEmpty ? widget.profileName : item.firstName} will no longer be able to view your current private photos.',
         ),
@@ -102,7 +102,7 @@ class _PrivatePhotoAccessScreenState extends State<PrivatePhotoAccessScreen> {
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Revoke'),
+            child: Text(widget.labels.text('common.revoke', 'Revoke')),
           ),
         ],
       ),
@@ -144,7 +144,7 @@ class _PrivatePhotoAccessScreenState extends State<PrivatePhotoAccessScreen> {
         backgroundColor: Colors.white,
         appBar: AppBar(
           backgroundColor: Colors.white,
-          title: const Text('Private photo access'),
+          title: Text(widget.labels.text('private_photos.access_title', 'Private photo access')),
         ),
         body: _loading
             ? const Center(child: CircularProgressIndicator())
@@ -163,11 +163,11 @@ class _PrivatePhotoAccessScreenState extends State<PrivatePhotoAccessScreen> {
                       const SizedBox(height: 12),
                     ],
                     if (_items.isEmpty)
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 80),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 80),
                         child: Center(
                           child: Text(
-                            'No private photo requests for this match.',
+                            widget.labels.text('private_photos.no_requests', 'No private photo requests for this match.'),
                             textAlign: TextAlign.center,
                           ),
                         ),
@@ -176,6 +176,7 @@ class _PrivatePhotoAccessScreenState extends State<PrivatePhotoAccessScreen> {
                       for (final item in _items) ...[
                         _RequestCard(
                           item: item,
+                          labels: widget.labels,
                           busy: _busy.contains(item.id),
                           onApprove: item.incoming && item.pending
                               ? () => _decide(item, 'approve')
@@ -198,6 +199,7 @@ class _PrivatePhotoAccessScreenState extends State<PrivatePhotoAccessScreen> {
 class _RequestCard extends StatelessWidget {
   const _RequestCard({
     required this.item,
+    required this.labels,
     required this.busy,
     this.onApprove,
     this.onReject,
@@ -205,6 +207,7 @@ class _RequestCard extends StatelessWidget {
   });
 
   final PrivatePhotoAccessItem item;
+  final BootstrapState labels;
   final bool busy;
   final VoidCallback? onApprove;
   final VoidCallback? onReject;
@@ -246,7 +249,9 @@ class _RequestCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      item.incoming ? 'Incoming request' : 'Your request',
+                      item.incoming
+                          ? labels.text('private_photos.incoming_request', 'Incoming request')
+                          : labels.text('private_photos.your_request', 'Your request'),
                       style: const TextStyle(color: SoulColors.muted),
                     ),
                   ],
@@ -263,7 +268,7 @@ class _RequestCard extends StatelessWidget {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: busy ? null : onReject,
-                      child: const Text('Reject'),
+                      child: Text(labels.text('common.reject', 'Reject')),
                     ),
                   ),
                 if (onReject != null && onApprove != null)
@@ -278,14 +283,14 @@ class _RequestCard extends StatelessWidget {
                               height: 17,
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
-                          : const Text('Approve'),
+                          : Text(labels.text('common.approve', 'Approve')),
                     ),
                   ),
                 if (onRevoke != null)
                   Expanded(
                     child: OutlinedButton(
                       onPressed: busy ? null : onRevoke,
-                      child: const Text('Revoke access'),
+                      child: Text(labels.text('private_photos.revoke_access', 'Revoke access')),
                     ),
                   ),
               ],

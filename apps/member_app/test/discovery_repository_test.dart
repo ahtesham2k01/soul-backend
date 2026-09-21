@@ -160,7 +160,7 @@ void main() {
       'lib/src/features/discovery/discovery_screen.dart',
     ).readAsStringSync();
 
-    expect(repository, contains("profiles/${Uri.encodeComponent(profileId)}/like"));
+    expect(repository, contains(r"profiles/${Uri.encodeComponent(profileId)}/like"));
     expect(repository, contains('Future<void> withdrawLike'));
     expect(screen, contains('repository.withdrawLike(candidate.id)'));
     expect(screen, contains("decision == 'like'"));
