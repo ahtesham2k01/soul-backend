@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Enums\Profile\ReligionNodeType;
 use App\Models\ReligionTaxonomyNode;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class ReligionTaxonomySeeder extends Seeder
 {
@@ -43,6 +44,7 @@ class ReligionTaxonomySeeder extends Seeder
                     'path' => $slug,
                 ],
                 [
+                    'public_id' => (string) Str::ulid(),
                     'type' => ReligionNodeType::from($type),
                     'slug' => $slug,
                     'is_active' => true,
