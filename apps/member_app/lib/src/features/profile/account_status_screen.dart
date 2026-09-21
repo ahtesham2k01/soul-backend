@@ -194,9 +194,11 @@ class _RestrictedAccountScreenState extends State<RestrictedAccountScreen> {
                           minLines: 4,
                           maxLines: 8,
                           maxLength: 2000,
-                          decoration: const InputDecoration(
-                            hintText:
-                                'Explain why you believe the account decision should be reviewed.',
+                          decoration: InputDecoration(
+                            hintText: widget.labels.text(
+                              'verification.appeal_hint',
+                              'Explain why this decision should be reviewed.',
+                            ),
                           ),
                         ),
                         const SizedBox(height: 10),
@@ -208,7 +210,15 @@ class _RestrictedAccountScreenState extends State<RestrictedAccountScreen> {
                             foregroundColor: SoulColors.ink,
                           ),
                           child: Text(
-                            _busy ? 'Submitting…' : 'Submit appeal',
+                            _busy
+                                ? widget.labels.text(
+                                    'common.please_wait',
+                                    'Please wait…',
+                                  )
+                                : widget.labels.text(
+                                    'verification.submit_appeal',
+                                    'Submit appeal',
+                                  ),
                           ),
                         ),
                       ],
@@ -242,12 +252,20 @@ class _RestrictedAccountScreenState extends State<RestrictedAccountScreen> {
       );
 
   String _title() {
-    if (widget.mode == 'deletion') return 'Account deletion scheduled';
+    if (widget.mode == 'deletion') {
+      return widget.labels.text(
+        'settings.deletion_scheduled',
+        'Account deletion scheduled',
+      );
+    }
     if (widget.mode == 'appeal') {
       final status = _appeal?['status']?.toString();
       return status == null ? 'Account review' : 'Appeal $status';
     }
-    return 'Account unavailable';
+    return widget.labels.text(
+      'auth.error.account_unavailable',
+      'Account unavailable',
+    );
   }
 
   String _message() {

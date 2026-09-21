@@ -182,7 +182,7 @@ class _PrivatePhotoViewerScreenState extends State<PrivatePhotoViewerScreen> {
     if (_error != null) {
       return _ViewerState(
         icon: Icons.error_outline_rounded,
-        title: 'Unable to load private photos',
+        title: widget.labels.text('private_photos.unable_to_load', 'Unable to load private photos'),
         message: _error!,
         action: widget.labels.text('common.retry', 'Try again'),
         onAction: _load,
@@ -194,14 +194,20 @@ class _PrivatePhotoViewerScreenState extends State<PrivatePhotoViewerScreen> {
             ? Icons.schedule_rounded
             : Icons.lock_outline_rounded,
         title: _requestPending
-            ? 'Request sent'
-            : 'Private photo access required',
+            ? widget.labels.text('private_photos.request_sent', 'Request sent')
+            : widget.labels.text(
+                'private_photos.access_required',
+                'Private photo access required',
+              ),
         message: _requestPending
             ? 'You can view these photos after ${widget.profileName} approves your request.'
             : 'Ask ${widget.profileName} for permission to view private photos.',
         action: _requestPending
             ? widget.labels.text('common.retry', 'Try again')
-            : 'Request access',
+            : widget.labels.text(
+                'private_photos.request_access',
+                'Request access',
+              ),
         onAction: _requestPending ? _load : _requestAccess,
         loading: _requesting,
       );
@@ -211,7 +217,7 @@ class _PrivatePhotoViewerScreenState extends State<PrivatePhotoViewerScreen> {
     if (album == null || album.photos.isEmpty) {
       return _ViewerState(
         icon: Icons.photo_outlined,
-        title: 'No private photos',
+        title: widget.labels.text('private_photos.no_photos', 'No private photos'),
         message: '${widget.profileName} has no approved private photos to show.',
         action: widget.labels.text('common.done', 'Done'),
         onAction: () => Navigator.of(context).pop(),
@@ -231,24 +237,27 @@ class _PrivatePhotoViewerScreenState extends State<PrivatePhotoViewerScreen> {
           ),
         ),
         if (_recordingCaptured)
-          const ColoredBox(
+          ColoredBox(
             color: Colors.black,
             child: Center(
               child: Padding(
-                padding: EdgeInsets.all(28),
+                padding: const EdgeInsets.all(28),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.shield_rounded,
                       color: SoulColors.limeLight,
                       size: 54,
                     ),
-                    SizedBox(height: 14),
+                    const SizedBox(height: 14),
                     Text(
-                      'Private photos are hidden while screen recording is active.',
+                      widget.labels.text(
+                        'private_photos.recording_hidden',
+                        'Private photos are hidden while screen recording is active.',
+                      ),
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w800,
                         fontSize: 18,
@@ -269,20 +278,26 @@ class _PrivatePhotoViewerScreenState extends State<PrivatePhotoViewerScreen> {
               borderRadius: BorderRadius.circular(14),
               border: Border.all(color: Colors.white24),
             ),
-            child: const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 10,
+              ),
               child: Row(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.shield_outlined,
                     color: SoulColors.limeLight,
                     size: 19,
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Protected photos are shown only inside SOUL and are not saved to your device.',
-                      style: TextStyle(
+                      widget.labels.text(
+                        'private_photos.protected_notice',
+                        'Protected photos are shown only inside SOUL and are not saved to your device.',
+                      ),
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 12,
                       ),

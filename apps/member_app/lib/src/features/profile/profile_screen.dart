@@ -268,7 +268,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   IconButton(
-                    tooltip: 'Notifications',
+                    tooltip: widget.labels.text('notifications.title', 'Notifications'),
                     onPressed: () => Navigator.of(context).push<void>(
                       MaterialPageRoute(
                         builder: (_) => NotificationCenterScreen(
@@ -315,34 +315,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     color: SoulColors.limeLight,
                     borderRadius: BorderRadius.circular(18),
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
-                      CircleAvatar(
+                      const CircleAvatar(
                         backgroundColor: Colors.black,
                         foregroundColor: SoulColors.limeLight,
                         child: Icon(Icons.workspace_premium_rounded),
                       ),
-                      SizedBox(width: 14),
+                      const SizedBox(width: 14),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Make your profile stand out',
-                              style: TextStyle(
+                              widget.labels.text(
+                                'profile.membership_cta',
+                                'Make your profile stand out',
+                              ),
+                              style: const TextStyle(
                                 color: SoulColors.ink,
                                 fontSize: 17,
                                 fontWeight: FontWeight.w900,
                               ),
                             ),
-                            SizedBox(height: 3),
+                            const SizedBox(height: 3),
                             Text(
-                              'View Plus and Premium membership options.',
+                              widget.labels.text(
+                                'profile.membership_cta_subtitle',
+                                'View Plus and Premium membership options.',
+                              ),
                             ),
                           ],
                         ),
                       ),
-                      Icon(Icons.chevron_right_rounded),
+                      const Icon(Icons.chevron_right_rounded),
                     ],
                   ),
                 ),
@@ -353,7 +359,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Expanded(
                     child: _ProfileShortcut(
                       icon: Icons.event_outlined,
-                      label: 'Events',
+                      label: widget.labels.text('profile.events', 'Events'),
                       onTap: () => Navigator.of(context).push<void>(
                         MaterialPageRoute(
                           builder: (_) => EventsScreen(
@@ -368,7 +374,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Expanded(
                     child: _ProfileShortcut(
                       icon: Icons.verified_user_outlined,
-                      label: 'Verification',
+                      label: widget.labels.text('profile.verification', 'Verification'),
                       onTap: () => Navigator.of(context).push<void>(
                         MaterialPageRoute(
                           builder: (_) => VerificationScreen(
@@ -383,7 +389,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Expanded(
                     child: _ProfileShortcut(
                       icon: Icons.settings_outlined,
-                      label: 'Settings',
+                      label: widget.labels.text('settings.title', 'Settings'),
                       onTap: _settings,
                     ),
                   ),
@@ -454,7 +460,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
               _ProfileSection(
-                title: 'Personality and interests',
+                title: widget.labels.text('profile.section_personality', 'Personality and interests'),
                 rows: [
                   _ProfileValue(
                     icon: Icons.interests_outlined,
@@ -483,7 +489,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
               _ProfileSection(
-                title: 'Background and faith',
+                title: widget.labels.text('profile.section_background', 'Background and faith'),
                 rows: [
                   _ProfileValue(
                     icon: Icons.account_tree_outlined,
@@ -521,7 +527,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
               _ProfileSection(
-                title: 'Education and career',
+                title: widget.labels.text('profile.section_career', 'Education and career'),
                 rows: [
                   _ProfileValue(
                     icon: Icons.school_outlined,
@@ -554,7 +560,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
               _ProfileSection(
-                title: 'Lifestyle',
+                title: widget.labels.text('profile.section_lifestyle', 'Lifestyle'),
                 rows: [
                   _ProfileValue(
                     icon: Icons.smoke_free_rounded,
@@ -575,7 +581,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
               _ProfileSection(
-                title: 'Future plans',
+                title: widget.labels.text('profile.section_future', 'Future plans'),
                 rows: [
                   _ProfileValue(
                     icon: Icons.flight_takeoff_outlined,

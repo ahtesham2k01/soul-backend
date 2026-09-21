@@ -569,8 +569,11 @@ class _ReportDialogState extends State<_ReportDialog> {
                 minLines: 3,
                 maxLines: 6,
                 maxLength: 1000,
-                decoration: const InputDecoration(
-                  hintText: 'Optional details',
+                decoration: InputDecoration(
+                  hintText: widget.labels.text(
+                    'common.optional_details',
+                    'Optional details',
+                  ),
                 ),
               ),
               CheckboxListTile(

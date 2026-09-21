@@ -445,7 +445,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   onClose: () => setState(() => _error = null),
                 ),
               _Section(
-                title: 'Basic information',
+                title: widget.labels.text('settings.personal_information', 'Personal information'),
                 children: [
                   _TextFieldRow(
                     label: widget.labels.text(
@@ -626,7 +626,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                 ],
               ),
               _Section(
-                title: 'Profile expression',
+                title: widget.labels.text('profile.section_personality', 'Personality and interests'),
                 children: [
                   _CatalogMultiSelect(
                     label: widget.labels.text(
@@ -673,7 +673,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                 ],
               ),
               _Section(
-                title: 'Background and faith',
+                title: widget.labels.text('profile.section_background', 'Background and faith'),
                 children: [
                   _TextFieldRow(
                     label: widget.labels.text(
@@ -723,7 +723,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                 ],
               ),
               _Section(
-                title: 'Future plans',
+                title: widget.labels.text('profile.section_future', 'Future plans'),
                 children: [
                   _TextFieldRow(
                     label: widget.labels.text(
@@ -783,7 +783,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                 ],
               ),
               _Section(
-                title: 'Lifestyle',
+                title: widget.labels.text('profile.section_lifestyle', 'Lifestyle'),
                 children: [
                   _ChoiceRow(
                     label: widget.labels.text(
