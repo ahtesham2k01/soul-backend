@@ -83,6 +83,7 @@ class _DiscoveryProfileScreenState extends State<DiscoveryProfileScreen> {
     final blocked = await showProfileSafetyActions(
       context: context,
       repository: widget.safetyRepository,
+      labels: widget.labels,
       profileId: profile.id,
       profileName: profile.firstName,
     );

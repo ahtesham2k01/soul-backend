@@ -292,6 +292,7 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
     final blocked = await showProfileSafetyActions(
       context: context,
       repository: widget.safetyRepository,
+      labels: widget.labels,
       profileId: widget.match.profileId,
       profileName: widget.match.firstName,
     );

@@ -58,4 +58,28 @@ void main() {
     expect(account, contains('auth.error.account_unavailable'));
     expect(safety, contains('common.optional_details'));
   });
+  test('profile safety actions receive the member translation catalog', () {
+    final safety = File(
+      'lib/src/features/safety/safety_screen.dart',
+    ).readAsStringSync();
+    final discovery = File(
+      'lib/src/features/discovery/discovery_screen.dart',
+    ).readAsStringSync();
+    final profile = File(
+      'lib/src/features/discovery/discovery_profile_screen.dart',
+    ).readAsStringSync();
+    final chat = File(
+      'lib/src/features/chat/chat_thread_screen.dart',
+    ).readAsStringSync();
+
+    expect(safety, contains('required BootstrapState labels'));
+    expect(safety, contains("'safety.report'"));
+    expect(safety, contains("'safety.block'"));
+    expect(safety, contains("'common.optional_details'"));
+
+    for (final source in [discovery, profile, chat]) {
+      expect(source, contains('labels: widget.labels'));
+    }
+  });
+
 }

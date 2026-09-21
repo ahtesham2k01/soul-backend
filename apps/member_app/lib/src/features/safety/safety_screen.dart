@@ -391,6 +391,7 @@ class _VerificationError extends StatelessWidget {
 Future<bool> showProfileSafetyActions({
   required BuildContext context,
   required SafetyRepository repository,
+  required BootstrapState labels,
   required String profileId,
   required String profileName,
 }) async {
@@ -414,7 +415,9 @@ Future<bool> showProfileSafetyActions({
           ),
           ListTile(
             leading: const Icon(Icons.flag_outlined),
-            title: Text('Report $profileName'),
+            title: Text(
+              '${labels.text('safety.report', 'Report')} $profileName',
+            ),
             onTap: () => Navigator.of(context).pop('report'),
           ),
           ListTile(
@@ -423,7 +426,7 @@ Future<bool> showProfileSafetyActions({
               color: Theme.of(context).colorScheme.error,
             ),
             title: Text(
-              'Block $profileName',
+              '${labels.text('safety.block', 'Block')} $profileName',
               style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
             onTap: () => Navigator.of(context).pop('block'),
@@ -439,18 +442,20 @@ Future<bool> showProfileSafetyActions({
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Block $profileName?'),
+        title: Text(
+          '${labels.text('safety.block', 'Block')} $profileName?',
+        ),
         content: const Text(
           'This closes active interaction and prevents discovery between both profiles.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(labels.text('common.cancel', 'Cancel')),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Block'),
+            child: Text(labels.text('safety.block', 'Block')),
           ),
         ],
       ),
@@ -469,7 +474,10 @@ Future<bool> showProfileSafetyActions({
 
   final report = await showDialog<_ReportDraft>(
     context: context,
-    builder: (context) => _ReportDialog(profileName: profileName),
+    builder: (context) => _ReportDialog(
+      profileName: profileName,
+      labels: labels,
+    ),
   );
   if (report == null) return false;
   try {
@@ -481,7 +489,11 @@ Future<bool> showProfileSafetyActions({
     );
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Report submitted.')),
+        SnackBar(
+          content: Text(
+            labels.text('safety.report_sent', 'Your report has been sent'),
+          ),
+        ),
       );
     }
     return report.block;
@@ -507,9 +519,13 @@ class _ReportDraft {
 }
 
 class _ReportDialog extends StatefulWidget {
-  const _ReportDialog({required this.profileName});
+  const _ReportDialog({
+    required this.profileName,
+    required this.labels,
+  });
 
   final String profileName;
+  final BootstrapState labels;
 
   @override
   State<_ReportDialog> createState() => _ReportDialogState();
@@ -528,7 +544,9 @@ class _ReportDialogState extends State<_ReportDialog> {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-        title: Text('Report ${widget.profileName}'),
+        title: Text(
+          '${widget.labels.text('safety.report', 'Report')} ${widget.profileName}',
+        ),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -589,7 +607,9 @@ class _ReportDialogState extends State<_ReportDialog> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            child: Text(
+              widget.labels.text('common.cancel', 'Cancel'),
+            ),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(
@@ -601,7 +621,9 @@ class _ReportDialogState extends State<_ReportDialog> {
                     : _details.text.trim(),
               ),
             ),
-            child: const Text('Submit report'),
+            child: Text(
+              widget.labels.text('safety.report', 'Report'),
+            ),
           ),
         ],
       );
