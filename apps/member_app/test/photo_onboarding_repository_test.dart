@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:soul_member_app/src/features/onboarding/photo_onboarding_repository.dart';
 
@@ -27,4 +29,14 @@ void main() {
     expect(photo.rejectionReason, 'Face is not clearly visible.');
     expect(photo.faceDetected, isNull);
   });
+  test('photo upload repository exposes provider progress callback', () {
+    const sourcePath =
+        'lib/src/features/onboarding/photo_onboarding_repository.dart';
+    final source = File(sourcePath).readAsStringSync();
+
+    expect(source, contains('void Function(double progress)? onProgress'));
+    expect(source, contains('onSendProgress: (sent, total)'));
+    expect(source, contains('onProgress?.call(progress)'));
+  });
+
 }

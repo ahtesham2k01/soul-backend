@@ -163,6 +163,7 @@ class _SignedInShellState extends ConsumerState<_SignedInShell> {
       ),
       ReceivedLikesScreen(
         repository: discovery,
+        eventRepository: events,
         labels: labels,
         onStartDiscovering: () => setState(() => _index = 0),
       ),

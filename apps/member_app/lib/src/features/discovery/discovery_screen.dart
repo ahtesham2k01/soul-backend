@@ -6,6 +6,7 @@ import '../bootstrap/bootstrap_repository.dart';
 import '../safety/safety_repository.dart';
 import '../safety/safety_screen.dart';
 import 'discovery_filters_screen.dart';
+import 'discovery_profile_screen.dart';
 import 'discovery_repository.dart';
 
 class DiscoveryScreen extends StatefulWidget {
@@ -26,6 +27,7 @@ class DiscoveryScreen extends StatefulWidget {
 
 class _DiscoveryScreenState extends State<DiscoveryScreen> {
   DiscoveryPreferences? _preferences;
+  DiscoveryPrivacyState? _privacy;
   final List<DiscoveryCandidate> _candidates = [];
   String? _nextCursor;
   bool _loading = true;
@@ -45,7 +47,12 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
       _error = null;
     });
     try {
-      final preferences = await widget.repository.preferences();
+      final results = await Future.wait<Object?>([
+        widget.repository.preferences(),
+        widget.repository.privacyState(),
+      ]);
+      final preferences = results[0] as DiscoveryPreferences?;
+      final privacy = results[1] as DiscoveryPrivacyState;
       CandidatePage? page;
       if (preferences != null) {
         page = await widget.repository.candidates();
@@ -53,6 +60,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
       if (!mounted) return;
       setState(() {
         _preferences = preferences;
+        _privacy = privacy;
         _candidates
           ..clear()
           ..addAll(page?.items ?? const []);
@@ -90,16 +98,11 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
   }
 
   Future<void> _editFilters() async {
-    final initial = _preferences ??
-        const DiscoveryPreferences(
-          preferredGender: 'woman',
-          minimumAge: 18,
-          maximumAge: 45,
-          sameCountryOnly: true,
-          religionMode: 'my_religion',
-          locationMode: 'current',
-          intentions: [],
-        );
+    final initial = _preferences;
+    if (initial == null) {
+      await _load();
+      return;
+    }
 
     final updated = await Navigator.of(context).push<DiscoveryPreferences>(
       MaterialPageRoute(
@@ -170,6 +173,31 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
             ],
           ),
         );
+      } else if (decision == 'like' && mounted) {
+        final controller = ScaffoldMessenger.of(context);
+        controller.hideCurrentSnackBar();
+        controller.showSnackBar(
+          SnackBar(
+            content: Text(
+              widget.labels.format(
+                'likes.sent',
+                'Like sent to {name}.',
+                {'name': candidate.firstName},
+              ),
+            ),
+            action: SnackBarAction(
+              label: 'Undo',
+              onPressed: () async {
+                try {
+                  await widget.repository.withdrawLike(candidate.id);
+                } on SoulApiFailure catch (failure) {
+                  if (!mounted) return;
+                  setState(() => _error = failure.message);
+                }
+              },
+            ),
+          ),
+        );
       }
 
       if (_candidates.length < 4) {
@@ -181,6 +209,25 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
         _savingDecision = false;
         _error = failure.message;
       });
+    }
+  }
+
+  Future<void> _openProfile(DiscoveryCandidate candidate) async {
+    final blocked = await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(
+        builder: (_) => DiscoveryProfileScreen(
+          repository: widget.repository,
+          safetyRepository: widget.safetyRepository,
+          profileId: candidate.id,
+          labels: widget.labels,
+        ),
+      ),
+    );
+    if (blocked == true && mounted) {
+      setState(
+        () => _candidates.removeWhere((item) => item.id == candidate.id),
+      );
+      if (_candidates.length < 4) await _loadMore();
     }
   }
 
@@ -198,6 +245,22 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
 
   String _maritalLabel(String value) =>
       widget.labels.text('profile.$value', value.replaceAll('_', ' '));
+
+  String _intentionLabel(String value) => switch (value) {
+        'marriage' => widget.labels.text(
+            'profile.intention_marriage',
+            'Marriage',
+          ),
+        'serious_relationship' => widget.labels.text(
+            'profile.intention_serious',
+            'Serious relationship',
+          ),
+        'casual_dating' => widget.labels.text(
+            'profile.intention_casual',
+            'Casual dating',
+          ),
+        _ => value.replaceAll('_', ' '),
+      };
 
   String? _distanceLabel(String? key) {
     if (key == null || key.isEmpty) return null;
@@ -227,8 +290,8 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
         icon: Icons.tune_rounded,
         title: widget.labels.text('discovery.filters', 'Filters'),
         message: 'Choose who you would like to discover.',
-        actionLabel: widget.labels.text('common.continue', 'Continue'),
-        onAction: _editFilters,
+        actionLabel: widget.labels.text('common.retry', 'Try again'),
+        onAction: _load,
       );
     }
 
@@ -256,8 +319,50 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
           _CandidatePhoto(
             candidate: candidate,
             maritalLabel: _maritalLabel(candidate.maritalStatus),
+            intentionLabels:
+                candidate.intentions.map(_intentionLabel).toList(growable: false),
             distanceLabel: _distanceLabel(candidate.distanceBand),
           ),
+          if (_privacy?.limitedVisibility == true)
+            SafeArea(
+              bottom: false,
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: Container(
+                  margin: const EdgeInsets.fromLTRB(82, 16, 82, 0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 9,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xcc111111),
+                    borderRadius: BorderRadius.circular(99),
+                  ),
+                  child: Text(
+                    _privacy!.profilePaused
+                        ? widget.labels.text(
+                            'discovery.profile_paused',
+                            'Profile paused',
+                          )
+                        : _privacy!.incognito
+                            ? widget.labels.text(
+                                'discovery.incognito_on',
+                                'Incognito is on',
+                              )
+                            : widget.labels.text(
+                                'discovery.visibility_off',
+                                'Discovery visibility is off',
+                              ),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+            ),
           SafeArea(
             bottom: false,
             child: Padding(
@@ -291,11 +396,24 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
               padding: const EdgeInsets.fromLTRB(0, 16, 18, 0),
               child: Align(
                 alignment: Alignment.topRight,
-                child: _CircleAction(
-                  icon: Icons.more_horiz_rounded,
-                  semanticLabel: 'Safety options',
-                  onPressed:
-                      _savingDecision ? null : () => _safety(candidate),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _CircleAction(
+                      icon: Icons.person_outline_rounded,
+                      semanticLabel:
+                          widget.labels.text('nav.profile', 'Profile'),
+                      onPressed:
+                          _savingDecision ? null : () => _openProfile(candidate),
+                    ),
+                    const SizedBox(height: 10),
+                    _CircleAction(
+                      icon: Icons.more_horiz_rounded,
+                      semanticLabel: 'Safety options',
+                      onPressed:
+                          _savingDecision ? null : () => _safety(candidate),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -390,11 +508,13 @@ class _CandidatePhoto extends StatefulWidget {
   const _CandidatePhoto({
     required this.candidate,
     required this.maritalLabel,
+    required this.intentionLabels,
     required this.distanceLabel,
   });
 
   final DiscoveryCandidate candidate;
   final String maritalLabel;
+  final List<String> intentionLabels;
   final String? distanceLabel;
 
   @override
@@ -524,6 +644,8 @@ class _CandidatePhotoState extends State<_CandidatePhoto> {
                 runSpacing: 7,
                 children: [
                   _InfoPill(text: widget.maritalLabel),
+                  for (final intention in widget.intentionLabels)
+                    _InfoPill(text: intention),
                   _InfoPill(text: candidate.country),
                 ],
               ),

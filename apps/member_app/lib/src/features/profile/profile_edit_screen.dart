@@ -52,6 +52,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   late Set<String> _interests;
   late Set<String> _traits;
   late Set<String> _languageCodes;
+  late Set<String> _withheldFields;
   late bool _detailedReligionVisible;
   ProfileCatalog? _catalog;
   bool _catalogLoading = true;
@@ -99,6 +100,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     _intentions = _strings(p['intentions']).toSet();
     _interests = _strings(p['interests']).toSet();
     _traits = _strings(p['personality_traits']).toSet();
+    _withheldFields = _strings(p['prefer_not_to_say_fields']).toSet();
     final spoken = p['spoken_languages'];
     _languageCodes = spoken is List
         ? spoken
@@ -115,21 +117,25 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       _city,
       _country,
       _nationality,
-      _bio,
-      _height,
-      _jobTitle,
-      _employer,
-      _education,
-      _grewUpIn,
-      _ethnicOrigin,
-      _religiousPractice,
-      _prayer,
-      _diet,
-      _dress,
-      _relocation,
-      _familyInvolvement,
     ]) {
       controller.addListener(_markDirty);
+    }
+    for (final entry in <String, TextEditingController>{
+      'bio': _bio,
+      'height_cm': _height,
+      'job_title': _jobTitle,
+      'employer': _employer,
+      'education': _education,
+      'grew_up_in': _grewUpIn,
+      'ethnic_origin': _ethnicOrigin,
+      'religious_practice': _religiousPractice,
+      'prayer': _prayer,
+      'diet': _diet,
+      'dress': _dress,
+      'relocation_preference': _relocation,
+      'family_involvement_preference': _familyInvolvement,
+    }.entries) {
+      entry.value.addListener(() => _optionalChanged(entry.key));
     }
     _loadCatalog();
   }
@@ -156,9 +162,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       _relocation,
       _familyInvolvement,
     ]) {
-      controller
-        ..removeListener(_markDirty)
-        ..dispose();
+      controller.dispose();
     }
     super.dispose();
   }
@@ -189,6 +193,75 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   void _markDirty() {
     if (!_dirty && mounted) setState(() => _dirty = true);
   }
+
+  void _optionalChanged(String field) {
+    final removed = _withheldFields.remove(field);
+    if (mounted && (!_dirty || removed)) {
+      setState(() => _dirty = true);
+    }
+  }
+
+  void _setOptionalCollection(
+    String field,
+    Set<String> value,
+    void Function(Set<String>) assign,
+  ) {
+    _setValue(() {
+      _withheldFields.remove(field);
+      assign(value);
+    });
+  }
+
+  void _setWithheld(String field, bool withheld) {
+    _setValue(() {
+      if (withheld) {
+        final controller = <String, TextEditingController>{
+          'bio': _bio,
+          'education': _education,
+          'height_cm': _height,
+          'job_title': _jobTitle,
+          'employer': _employer,
+          'grew_up_in': _grewUpIn,
+          'ethnic_origin': _ethnicOrigin,
+          'religious_practice': _religiousPractice,
+          'prayer': _prayer,
+          'diet': _diet,
+          'dress': _dress,
+          'relocation_preference': _relocation,
+          'family_involvement_preference': _familyInvolvement,
+        }[field];
+        controller?.clear();
+
+        if (field == 'interests') {
+          _interests.clear();
+        } else if (field == 'personality_traits') {
+          _traits.clear();
+        }
+        _withheldFields.add(field);
+      } else {
+        _withheldFields.remove(field);
+      }
+    });
+  }
+
+  String _optionalFieldLabel(String field) => switch (field) {
+        'bio' => widget.labels.text('profile.bio', 'About you'),
+        'education' => widget.labels.text('profile.education', 'Education'),
+        'height_cm' => widget.labels.text('profile.height', 'Height'),
+        'job_title' => widget.labels.text('profile.job_title', 'Job title'),
+        'employer' => widget.labels.text('profile.employer', 'Employer'),
+        'grew_up_in' => widget.labels.text('profile.grew_up_in', 'Grew up in'),
+        'ethnic_origin' => widget.labels.text('profile.ethnic_origin', 'Ethnic origin'),
+        'religious_practice' => widget.labels.text('profile.religious_practice', 'Religious practice'),
+        'prayer' => widget.labels.text('profile.prayer', 'Prayer'),
+        'diet' => widget.labels.text('profile.diet', 'Diet'),
+        'dress' => widget.labels.text('profile.dress', 'Dress'),
+        'relocation_preference' => widget.labels.text('profile.relocation', 'Relocation preference'),
+        'family_involvement_preference' => widget.labels.text('profile.family_involvement', 'Family involvement'),
+        'interests' => widget.labels.text('profile.interests', 'Interests'),
+        'personality_traits' => widget.labels.text('profile.traits', 'Personality traits'),
+        _ => field,
+      };
 
   void _setValue(VoidCallback change) {
     setState(() {
@@ -296,6 +369,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         'detailed_religion_visible': _detailedReligionVisible,
         'interests': _interests.toList(growable: false),
         'personality_traits': _traits.toList(growable: false),
+        'prefer_not_to_say_fields':
+            _withheldFields.toList(growable: false)..sort(),
         'spoken_language_codes': _languageCodes.toList(growable: false),
       };
 
@@ -562,9 +637,11 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                     selected: _interests,
                     maximum: 15,
                     loading: _catalogLoading,
-                    onChanged: (value) => _setValue(() {
-                      _interests = value;
-                    }),
+                    onChanged: (value) => _setOptionalCollection(
+                      'interests',
+                      value,
+                      (next) => _interests = next,
+                    ),
                   ),
                   _CatalogMultiSelect(
                     label: widget.labels.text(
@@ -575,9 +652,11 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                     selected: _traits,
                     maximum: 5,
                     loading: _catalogLoading,
-                    onChanged: (value) => _setValue(() {
-                      _traits = value;
-                    }),
+                    onChanged: (value) => _setOptionalCollection(
+                      'personality_traits',
+                      value,
+                      (next) => _traits = next,
+                    ),
                   ),
                   _CatalogMultiSelect(
                     label: widget.labels.text(
@@ -660,6 +739,47 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                     ),
                     controller: _familyInvolvement,
                   ),
+                ],
+              ),
+              _Section(
+                title: widget.labels.text(
+                  'common.prefer_not_to_say',
+                  'Prefer not to say',
+                ),
+                children: [
+                  for (final field in const [
+                    'bio',
+                    'education',
+                    'height_cm',
+                    'job_title',
+                    'employer',
+                    'grew_up_in',
+                    'ethnic_origin',
+                    'religious_practice',
+                    'prayer',
+                    'diet',
+                    'dress',
+                    'relocation_preference',
+                    'family_involvement_preference',
+                    'interests',
+                    'personality_traits',
+                  ])
+                    SwitchListTile.adaptive(
+                      title: Text(_optionalFieldLabel(field)),
+                      subtitle: Text(
+                        _withheldFields.contains(field)
+                            ? widget.labels.text(
+                                'common.prefer_not_to_say',
+                                'Prefer not to say',
+                              )
+                            : widget.labels.text(
+                                'common.skip',
+                                'Skip',
+                              ),
+                      ),
+                      value: _withheldFields.contains(field),
+                      onChanged: (value) => _setWithheld(field, value),
+                    ),
                 ],
               ),
               _Section(

@@ -24,6 +24,38 @@ class DiscoveryEndpointTest extends TestCase
         $this->getJson('/api/v1/discovery/candidates')->assertUnauthorized();
     }
 
+
+    public function test_missing_preferences_default_to_opposite_gender_and_my_religion(): void
+    {
+        $man = User::factory()->create(['status' => User::STATUS_ACTIVE]);
+        UserProfile::factory()->for($man)->create([
+            'gender' => 'man',
+            'profile_status' => 'live',
+        ]);
+        Sanctum::actingAs($man);
+
+        $this->getJson('/api/v1/discovery/preferences')
+            ->assertOk()
+            ->assertJsonPath('data.preferences.preferred_gender', 'woman')
+            ->assertJsonPath('data.preferences.minimum_age', 18)
+            ->assertJsonPath('data.preferences.maximum_age', 100)
+            ->assertJsonPath('data.preferences.same_country_only', true)
+            ->assertJsonPath('data.preferences.religion_mode', 'my_religion')
+            ->assertJsonPath('data.preferences.location_mode', 'current');
+
+        $woman = User::factory()->create(['status' => User::STATUS_ACTIVE]);
+        UserProfile::factory()->for($woman)->create([
+            'gender' => 'woman',
+            'profile_status' => 'live',
+        ]);
+        Sanctum::actingAs($woman);
+
+        $this->getJson('/api/v1/discovery/preferences')
+            ->assertOk()
+            ->assertJsonPath('data.preferences.preferred_gender', 'man')
+            ->assertJsonPath('data.preferences.religion_mode', 'my_religion');
+    }
+
     public function test_preferences_are_validated_saved_and_resumed_without_internal_ids(): void
     {
         $user = User::factory()->create(['status' => User::STATUS_ACTIVE]);

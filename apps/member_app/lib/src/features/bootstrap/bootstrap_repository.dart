@@ -25,6 +25,31 @@ class SupportedLanguage {
       );
 }
 
+class BootstrapLocation {
+  const BootstrapLocation({
+    required this.city,
+    required this.countryCode,
+    this.country,
+    this.region,
+    this.isApproximate = true,
+  });
+
+  final String city;
+  final String countryCode;
+  final String? country;
+  final String? region;
+  final bool isApproximate;
+
+  factory BootstrapLocation.fromJson(Map<String, dynamic> json) =>
+      BootstrapLocation(
+        city: json['city']?.toString() ?? '',
+        countryCode: json['country_code']?.toString().toUpperCase() ?? '',
+        country: json['country']?.toString(),
+        region: json['region']?.toString(),
+        isApproximate: json['is_approximate'] != false,
+      );
+}
+
 class BootstrapState {
   const BootstrapState({
     required this.direction,
@@ -33,6 +58,7 @@ class BootstrapState {
     required this.legalVersions,
     required this.commitmentKeys,
     required this.supportedLanguages,
+    this.location,
   });
 
   final String direction;
@@ -41,8 +67,24 @@ class BootstrapState {
   final Map<String, String> legalVersions;
   final List<String> commitmentKeys;
   final List<SupportedLanguage> supportedLanguages;
+  final BootstrapLocation? location;
 
   String text(String key, String fallback) => translations[key] ?? fallback;
+
+  String format(
+    String key,
+    String fallback,
+    Map<String, Object?> values,
+  ) {
+    var value = text(key, fallback);
+    for (final entry in values.entries) {
+      value = value.replaceAll(
+        '{${entry.key}}',
+        entry.value?.toString() ?? '',
+      );
+    }
+    return value;
+  }
 }
 
 class BootstrapRepository {
@@ -64,6 +106,7 @@ class BootstrapRepository {
         : const <String, dynamic>{};
     final versions = legalData['versions'];
     final commitments = legalData['commitment_keys'];
+    final rawLocation = data['location'];
     return BootstrapState(
       direction: localeData['direction']?.toString() ?? 'ltr',
       locale: localeData['resolved']?.toString() ?? 'en',
@@ -76,6 +119,11 @@ class BootstrapRepository {
       commitmentKeys: commitments is List
           ? commitments.map((item) => item.toString()).toList(growable: false)
           : const <String>[],
+      location: rawLocation is Map
+          ? BootstrapLocation.fromJson(
+              Map<String, dynamic>.from(rawLocation),
+            )
+          : null,
       supportedLanguages: data['supported_languages'] is List
           ? (data['supported_languages'] as List)
               .whereType<Map>()

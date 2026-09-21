@@ -45,8 +45,12 @@ class UserProfileDraftResource extends JsonResource
             'detailed_religion_visible' => $this->detailed_religion_visible,
             'relocation_preference' => $this->relocation_preference,
             'family_involvement_preference' => $this->family_involvement_preference,
-            'interests' => $this->interests->pluck('value')->values(),
-            'personality_traits' => $this->personalityTraits->pluck('value')->values(),
+            'interests' => $this->interests
+                ->map(fn ($interest): string => $interest->catalogItem?->key ?? $interest->value)
+                ->values(),
+            'personality_traits' => $this->personalityTraits
+                ->map(fn ($trait): string => $trait->catalogItem?->key ?? $trait->value)
+                ->values(),
             'prefer_not_to_say_fields' => $this->withheldFields
                 ->pluck('field')
                 ->map(fn ($field): string => $field->value)

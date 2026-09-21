@@ -64,6 +64,30 @@ class DocumentationArchitectureTest extends TestCase
         }
     }
 
+    public function test_master_document_tracks_generated_member_contract_count_and_current_profile_fields(): void
+    {
+        $contents = File::get(base_path('docs/SOUL_V1_MASTER_DOCUMENTATION.md'));
+        $manifest = json_decode(
+            File::get(base_path('docs/contracts/flutter-v1.json')),
+            true,
+            flags: JSON_THROW_ON_ERROR,
+        );
+        $endpointCount = $manifest['endpointCount'];
+
+        $this->assertSame($endpointCount, count($manifest['endpoints']));
+        $this->assertStringContainsString(
+            "generated {$endpointCount}-endpoint member catalog",
+            $contents,
+        );
+        $this->assertStringContainsString(
+            "complete {$endpointCount}-endpoint member surface",
+            $contents,
+        );
+        $this->assertStringNotContainsString('spoken_language_ids', $contents);
+        $this->assertStringContainsString('spoken_language_codes', $contents);
+        $this->assertStringContainsString('admin-managed profile catalogs', $contents);
+    }
+
     public function test_machine_readable_contracts_remain_separate_and_importable(): void
     {
         foreach (['docs/contracts/openapi-v1.json', 'docs/contracts/postman-v1.collection.json', 'docs/contracts/flutter-v1.json'] as $path) {

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\Onboarding;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\Onboarding\UpdateProfileDraftRequest;
 use App\Http\Resources\Api\V1\UserProfileDraftResource;
+use App\Models\ProfileCatalogItem;
 use App\Models\SpokenLanguage;
 use App\Models\UserProfile;
 use App\Support\ApiResponse;
@@ -60,19 +61,25 @@ class UpdateProfileDraftController extends Controller
 
             if (array_key_exists('interests', $validated)) {
                 $profile->interests()->delete();
-                $profile->interests()->createMany($this->values($validated['interests']));
+                $profile->interests()->createMany(
+                    $this->catalogValues($validated['interests'], 'interest'),
+                );
             }
 
             if (array_key_exists('personality_traits', $validated)) {
                 $profile->personalityTraits()->delete();
-                $profile->personalityTraits()->createMany($this->values($validated['personality_traits']));
+                $profile->personalityTraits()->createMany(
+                    $this->catalogValues($validated['personality_traits'], 'trait'),
+                );
             }
 
             $this->syncWithheldFields($profile, $validated);
 
             return $profile->load([
-                'intentions', 'spokenLanguages', 'interests',
-                'personalityTraits', 'withheldFields',
+                'intentions', 'spokenLanguages',
+                'interests.catalogItem.translations',
+                'personalityTraits.catalogItem.translations',
+                'withheldFields',
             ]);
         });
 
@@ -85,11 +92,47 @@ class UpdateProfileDraftController extends Controller
         );
     }
 
-    /** @return list<array{value: string}> */
-    private function values(array $values): array
+    /**
+     * Persist stable admin-catalog keys when Flutter sends them while retaining
+     * backwards compatibility for legacy free-text selections.
+     *
+     * @return list<array{value: string, profile_catalog_item_id: int|null}>
+     */
+    private function catalogValues(array $values, string $type): array
     {
-        return collect($values)
-            ->map(fn (string $value): array => ['value' => trim($value)])
+        $trimmed = collect($values)
+            ->map(fn (string $value): string => trim($value))
+            ->values();
+
+        $items = ProfileCatalogItem::query()
+            ->where('type', $type)
+            ->whereIn('key', $trimmed)
+            ->with('translations')
+            ->get()
+            ->keyBy('key');
+
+        return $trimmed
+            ->map(function (string $value) use ($items): array {
+                $item = $items->get($value);
+
+                if ($item === null) {
+                    return [
+                        'value' => $value,
+                        'profile_catalog_item_id' => null,
+                    ];
+                }
+
+                $fallbackLocale = config('soul.translations.fallback_locale', 'en');
+                $fallbackLabel = $item->translations
+                    ->firstWhere('locale', $fallbackLocale)?->label
+                    ?? $item->translations->first()?->label
+                    ?? $item->key;
+
+                return [
+                    'value' => $fallbackLabel,
+                    'profile_catalog_item_id' => $item->id,
+                ];
+            })
             ->all();
     }
 

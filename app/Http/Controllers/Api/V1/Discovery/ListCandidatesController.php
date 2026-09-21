@@ -123,7 +123,7 @@ class ListCandidatesController extends Controller
                 ->where('root_node_id', $rootNodeId));
         }
 
-        $page = $query->with(['user.privacySetting', 'user.religionProfile.rootNode', 'photos' => fn ($query) => $query
+        $page = $query->with(['user.privacySetting', 'user.religionProfile.rootNode', 'intentions', 'photos' => fn ($query) => $query
             ->where('visibility', ProfilePhotoVisibility::Public->value)
             ->where('moderation_status', ProfilePhotoModerationStatus::Approved->value)])
             ->orderByRaw('CASE WHEN last_active_at >= ? THEN 0 ELSE 1 END', [now()->subDays(30)])
@@ -142,6 +142,10 @@ class ListCandidatesController extends Controller
                 'first_name' => $profile->first_name,
                 'age' => $profile->date_of_birth->age,
                 'marital_status' => $profile->marital_status,
+                'intentions' => $profile->intentions
+                    ->pluck('intention')
+                    ->map(fn ($intention): string => $intention->value)
+                    ->values(),
                 'city' => $profile->user->privacySetting?->show_city === false ? null : $profile->city_name,
                 'country' => $profile->country_code,
                 'religion' => $profile->user->religionProfile?->rootNode === null ? null : [

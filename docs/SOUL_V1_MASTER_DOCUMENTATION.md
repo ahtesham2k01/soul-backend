@@ -373,7 +373,7 @@ Supporting modules include filters, full profiles, likes/visitors, matches/chat,
 
 ## Backend scope and implementation status
 
-This document prevents “API exists” from being confused with “the full product requirement is complete.” The confirmed product requirements are authoritative; this matrix records the current implementation boundary and the remaining gap-closure phase.
+This document prevents “API exists” from being confused with “the full product requirement is complete.” The confirmed product requirements are authoritative; this matrix records the current implementation boundary and the remaining external, legal and device-verification gates.
 
 ### Technology and ownership
 
@@ -588,7 +588,7 @@ Fresh-audit completion: **5/5 phases complete (100%)**. Provider code fails clos
 
 ### Final audit closure roadmap
 
-A final implementation audit found a smaller set of correctness and developer-handoff tasks that must be closed before the backend is called launch-ready. Flutter development does not need to wait: the generated 91-endpoint member catalog and this document are stable enough to begin integration while these backend packages are completed in parallel. Localization remains the last engineering package so it cannot delay core app work.
+A final implementation audit found a smaller set of correctness and developer-handoff tasks that must be closed before the backend is called launch-ready. Flutter development does not need to wait: the generated 96-endpoint member catalog and this document are stable enough to begin integration while these backend packages are completed in parallel. Localization remains the last engineering package so it cannot delay core app work.
 
 - [x] Phase 35 — Route-derived contract parity, browser-session-only admin APIs and production session configuration gates
 - [x] Phase 36 — Typed Flutter requests/responses, standard error and cursor models, retry/session-expiry guidance, upload helpers and representative fixtures
@@ -609,19 +609,19 @@ The Flutter member app is maintained in `apps/member_app`. It consumes only the 
 - [x] Mobile M3 — Cloudinary photo onboarding, discovery preferences, Figma-aligned full-photo candidate cards, Like/Pass, incoming Likes grid, cursor pagination, loading/empty/retry states and server-generated CDN delivery URLs for approved public photos
 - [x] Mobile M4 — Matches, cursor-paginated chat, read receipts, presence/typing and protected private-photo viewer
 - [x] Mobile M5 — Profile/edit/settings, safety/report/block/appeal, verification, events, notifications, subscription entry, privacy, account recovery and device-session settings
-- [ ] Mobile M6 — Native Android/iOS runner commit, device permissions, Apple/Google store integration, APNs/FCM, accessibility, RTL and full device E2E QA
+- [ ] Mobile M6 — Physical-device/provider verification: live APNs/FCM, Apple/Google purchases, signing/capabilities, accessibility, RTL, capture protection and full device E2E QA
 
 M1 adds a Linux CI Android debug build. The runner project is generated from the checked-in Flutter package until Flutter is available in the development workspace. iOS signing, APNs, Apple sign-in and store verification require the owner's Apple developer account and a macOS/device verification phase.
 
-The first M2 vertical slice is implemented from the owner-supplied 188-frame Figma/PDF handoff: SOUL's lime/forest visual tokens, reduced-motion launch animation, three-page welcome flow, distinct registration and returning-member email OTP paths and server-confirmed cold-start routing. The resumable required-profile journey now saves name, adult date of birth, gender, real city/country, nationality, marital status, up to three relationship intentions, profession status, one or more server-provided spoken languages, smoking, alcohol, current/future children answers and the complete country-aware religion path. The member profile catalog exposes active spoken languages so Flutter never embeds a stale list. Religion, sect, sub-sect and community/caste are not hard-coded screens: Flutter requests each child level only when Laravel returns `has_children`, skips unavailable levels, saves the selected public leaf ID and then checks server readiness. The visual file remains a presentation reference; sample names, cities, countries, prices, Muslim-only copy and static religion/language lists are never promoted into product rules. Native Apple/Google credential acquisition, real-provider/device verification and the remaining M3 discovery surfaces stay open until their cohesive packages are implemented and tested.
+The first M2 vertical slice is implemented from the owner-supplied 188-frame Figma/PDF handoff: SOUL's lime/forest visual tokens, reduced-motion launch animation, three-page welcome flow, distinct registration and returning-member email OTP paths and server-confirmed cold-start routing. The resumable required-profile journey now saves name, adult date of birth, gender, real city/country, nationality, marital status, up to three relationship intentions, profession status, one or more server-provided spoken languages, smoking, alcohol, current/future children answers and the complete country-aware religion path. Resume uses the saved Laravel draft plus saved religion path and opens the first incomplete required step instead of replaying completed questions. Device location uses the native permission flow and `POST /location/resolve`; failure or denial preserves a manual city/country path and never substitutes an illustrative city. Optional profile details use the documented three-state model—unanswered/Skip, answered value and Prefer not to say—including catalog-backed interests and personality traits. The member profile catalog exposes active spoken languages so Flutter never embeds a stale list. Religion, sect, sub-sect and community/caste are not hard-coded screens: Flutter requests each child level only when Laravel returns `has_children`, skips unavailable levels, saves the selected public leaf ID and then checks server readiness. The visual file remains a presentation reference; sample names, cities, countries, prices, Muslim-only copy and static religion/language lists are never promoted into product rules. Native Apple/Google credential acquisition and the M3 discovery surfaces are now implemented in source. Real-provider credentials, signing and physical-device verification remain external release gates tracked by Phase 34 and Mobile M6.
 
-The completed M3 flow uses the signed three-step media boundary end to end: Flutter selects and compresses a local gallery image, requests a short-lived Laravel upload session, uploads directly to the returned Cloudinary URL without exposing the provider secret, and registers the exact signed result back with Laravel. Slot 1 is always the public cover; slots 2 and 3 let the member choose public or private before upload. The screen restores saved slots, exposes pending/approved/rejected and clear-face states, shows safe rejection guidance, supports replacement and confirmed deletion, and refreshes server readiness after returning to onboarding. It does not reconstruct provider URLs or place provider asset identifiers in member UI/logs. Native platform photo-library permission descriptions, camera capture and real Cloudinary/device verification remain release work. Discovery preferences, full-photo candidate cards, cursor pagination, Like/Pass, reciprocal match feedback and the Explore-style incoming Likes grid with accept/decline are now wired in Flutter. The M3 presentation follows the supplied Soul1111 Discover, Filters and Explore references while limiting controls to backend-supported V1 filters rather than copying deferred Figma-only options.
+The completed M3 flow uses the signed three-step media boundary end to end: Flutter selects and compresses a local gallery image, requests a short-lived Laravel upload session, uploads directly to the returned Cloudinary URL without exposing the provider secret, reports per-slot direct-upload progress, and registers the exact signed result back with Laravel. Slot 1 is always the public cover; slots 2 and 3 let the member choose public or private before upload. The screen restores saved slots, exposes pending/approved/rejected and clear-face states, shows safe rejection guidance, supports replacement and confirmed deletion, and refreshes server readiness after returning to onboarding. Once required photos are satisfied, the onboarding journey presents the existing non-blocking notification permission/category step before legal acceptance; marketing remains separate and off by default. It does not reconstruct provider URLs or place provider asset identifiers in member UI/logs. Native platform photo-library permission descriptions, camera capture and real Cloudinary/device verification remain release work. Discovery preferences, full-photo candidate cards, cursor pagination, Like/Pass, reciprocal match feedback and the Explore-style incoming Likes grid with accept/decline are now wired in Flutter. Discovery also renders the viewer's server-backed pause/incognito/discoverability state without changing Laravel eligibility or ranking. A non-reciprocal outgoing like exposes an immediate withdraw/Undo action through the existing delete-like route; an already-created match cannot be withdrawn as a pending like. The M3 presentation follows the supplied Soul1111 Discover, Filters and Explore references while limiting controls to backend-supported V1 filters rather than copying deferred Figma-only options.
 
 Mobile M4 follows the supplied Soul1111 Chat list and message-thread references while using the authoritative Laravel interaction contract. Flutter now lists matches with approved public cover photos, unread counts and presence, provides searchable cursor-paginated conversations, sends text messages, marks incoming messages read, displays read receipts, publishes typing state and refreshes message/presence state on a bounded polling interval until live broadcast transport is configured. The private-photo viewer requests match-bound access, fetches protected content through Laravel into memory, applies the server-provided viewer watermark and never reconstructs authenticated provider URLs. Native Android secure-window enforcement and iOS capture/recording hooks remain Mobile M6 device work; M4 does not make a stronger screenshot-blocking promise than the platform can enforce. Approved public photos receive server-generated Cloudinary CDN URLs; Flutter never reconstructs provider URLs or receives provider secrets.
 
 Mobile M6 source integration now checks in the Android and iOS runners produced by the CI Flutter stable toolchain. The member app requests platform notification permission only after an authenticated home session, registers FCM/APNs-backed tokens through the existing private device API without persisting the raw provider token, and rotates the public server device registration when Firebase rotates a token. Store products are still server-authoritative: Flutter queries App Store/Google Play product details for display, starts subscription purchases and restores, then sends only the platform transaction proof to Laravel and completes the store transaction after server verification. Protected private photos enable Android FLAG_SECURE and iOS capture monitoring; iOS screen recording masks the photo while active and screenshot/recording signals use the existing best-effort safety endpoint. Native photo/camera permissions, Apple-sign-in/APNs entitlements and remote-notification background mode are version-controlled and idempotently audited by CI. Android and iOS simulator builds are now CI gates. Live FCM/APNs delivery, real App Store/Play purchases, Apple signing and physical-device accessibility/RTL/capture QA remain external release gates, so Mobile M6 stays unchecked until those provider/device checks are completed.
 
-Mobile M5 follows the supplied Soul1111 Profile, Settings, visibility, events, notification and verification references after removing inherited third-party brand copy and illustrative commercial values. Flutter now renders the authenticated member profile with completion guidance, approved public cover delivery, full supported edit fields, server-backed interests/traits/languages, dynamic religion-path editing and persisted photo visibility. Settings expose notification preferences, launch-ready language selection, privacy/incognito/pause/contact controls, blocked-profile review and unblock, active-device revocation, data-export requests, deletion scheduling and recovery, logout controls and a server-authoritative membership/product entry point. Email and phone remain read-only because no verified change-contact contract exists; store purchase/restore remains Mobile M6 native-store work.
+Mobile M5 follows the supplied Soul1111 Profile, Settings, visibility, events, notification and verification references after removing inherited third-party brand copy and illustrative commercial values. Flutter now renders the authenticated member profile with completion guidance, approved public cover delivery, full supported edit fields, server-backed interests/traits/languages, dynamic religion-path editing and persisted photo visibility. Profile editing restores and preserves `prefer_not_to_say_fields`; answering an optional field removes that withheld state, while the privacy controls let the member explicitly switch optional scalar/catalog fields between Skip and Prefer not to say without a full-form save silently clearing prior choices. Settings expose notification preferences, launch-ready language selection, privacy/incognito/pause/contact controls, blocked-profile review and unblock, active-device revocation, data-export requests, deletion scheduling and recovery, logout controls and a server-authoritative membership/product entry point. Email and phone remain read-only because no verified change-contact contract exists; real store purchase/restore verification remains a Mobile M6 external-provider/device gate even though the source integration is present.
 
 Safety surfaces now provide report/block actions from discovery and chat, blocked-account appeal routing, verification summary/cases/appeals and deletion-recovery routing even when active-account middleware denies normal product access. Blocked and deletion-scheduled members may re-authenticate through verified email, Google or Apple only to reach these recovery routes; suspended accounts remain authentication-denied, and the active-account middleware still rejects normal member APIs. Events use only Laravel-provided title, time, location, capacity and registration state; sample Figma prices and locations never become runtime product data. Notification feed/read state is cursor-paginated. Approved public photos respect their Cloudinary delivery type, including authenticated assets, and existing photo public/private changes persist through a dedicated server endpoint without pretending a client-only toggle was saved.
 
@@ -908,7 +908,7 @@ Build the production language picker from `supported_languages` entries where `i
 
 ### Generated typed handoff
 
-`soul_v1_models.dart` is the copy-ready core model layer for the first Flutter implementation journeys: bootstrap, authentication, onboarding, direct photo upload, discovery, matches and chat. `flutter-v1.json` maps each covered operation to its request and response model, while the route catalog remains the complete 91-endpoint member surface. This split lets Flutter start with safe typed core flows without pretending every less-common endpoint already has a generated domain model.
+`soul_v1_models.dart` is the copy-ready core model layer for the first Flutter implementation journeys: bootstrap, authentication, onboarding, direct photo upload, discovery, matches and chat. `flutter-v1.json` maps each covered operation to its request and response model, while the route catalog remains the complete 96-endpoint member surface. This split lets Flutter start with safe typed core flows without pretending every less-common endpoint already has a generated domain model.
 
 - `SoulApiSuccess<T>` and `SoulApiError` parse the standard envelopes and preserve `meta.request_id` for support diagnostics.
 - `SoulCursorPage<T>` preserves the opaque `next_cursor`; Flutter must never decode or construct cursors.
@@ -1266,9 +1266,9 @@ The update is partial: Flutter may save one screen at a time. Omitted fields kee
   "current_children": "no",
   "future_children": "want_children",
   "intentions": ["marriage"],
-  "spoken_language_ids": [1, 2],
-  "interests": ["Reading", "Travel"],
-  "personality_traits": ["Kind", "Curious"]
+  "spoken_language_codes": ["en", "ur"],
+  "interests": ["reading", "travel"],
+  "personality_traits": ["kind", "curious"]
 }
 ```
 
@@ -1291,8 +1291,9 @@ Use only these stable values:
 
 Optional scalar fields are `bio`, `education`, `height_cm`, `job_title`, `employer`, `grew_up_in`, `ethnic_origin`, `religious_practice`, `prayer`, `diet`, `dress`, `relocation_preference` and `family_involvement_preference`.
 
-- `interests` accepts up to 15 unique, non-empty labels.
-- `personality_traits` accepts up to 5 unique, non-empty labels.
+- `interests` accepts up to 15 unique stable keys from `GET /api/v1/catalogs/profile`.
+- `personality_traits` accepts up to 5 unique stable keys from the same catalog endpoint.
+- Draft/profile-edit responses return catalog keys so Flutter can restore selections reliably; public profile responses render the current localized catalog labels.
 - `detailed_religion_visible` defaults to `true`; set it to `false` to hide answered detailed-religion fields from public profile views.
 
 ### Skip versus prefer not to say
@@ -1849,7 +1850,7 @@ For a safe auth-only duplicate, social logins and support tickets move to the re
 
 ## Database design
 
-This document describes the current Laravel schema and the planned V1 domain extensions. Migrations remain the executable source of truth. Numeric keys are internal; public API resources use ULIDs.
+This document describes the current Laravel schema and the remaining decision-gated storage considerations. Migrations remain the executable source of truth. Numeric keys are internal; public API resources use ULIDs.
 
 ### Design rules
 
@@ -1964,15 +1965,9 @@ erDiagram
 
 Application/database checks jointly enforce photo slot range, profile enum values, age eligibility at submission, active-account access, country-aware taxonomy paths and non-enumerating interaction visibility.
 
-### Planned V1 schema extensions
+### Current V1 schema extension status
 
-These are required by the confirmed PRD but are not represented by complete current migrations yet:
-
-| Phase | Planned storage |
-|---|---|
-| Chat presence | Presence/last-seen and ephemeral typing state (cache preferred for typing) |
-
-Each extension must include reversible migrations, foreign keys, production-safe indexes, factories and model/API tests. Pricing and exact plan allocation remain configuration data, not schema constants.
+No confirmed V1 feature currently requires an unimplemented database extension. Durable presence uses the existing profile activity timestamp, while typing state is intentionally ephemeral cache data and real-time channel authorization does not require a dedicated table. Phase 40 retention/legal-hold storage must not be added until its owner/legal decisions are approved. Pricing and exact plan allocation remain configuration data, not schema constants.
 
 ### Data retention and security
 
@@ -1987,7 +1982,7 @@ Each extension must include reversible migrations, foreign keys, production-safe
 - Delivered notification-attempt rows are pruned after `SOUL_DELIVERED_NOTIFICATION_RETENTION_DAYS` (default 90 days); failed attempts are retained for `SOUL_FAILED_NOTIFICATION_RETENTION_DAYS` (default 180 days).
 - The English-only admin operations screen exposes retained-payload counts, so unexpected sensitive-data backlog is visible without revealing payload contents.
 - Contact discovery should store normalized keyed hashes, not a reusable address book.
-- Exact location requires restricted storage, retention and access logging before its discovery phase ships.
+- Exact coordinates are restricted server-side profile data used only for location/radius calculations and are never returned to members. Deployment owners must enforce approved database access and retention controls.
 - Backup/restore, retention and regional compliance are deployment gates, not assumptions encoded in Flutter.
 
 ---
@@ -2135,7 +2130,7 @@ SOUL uses a custom Laravel + React admin. It has no paid admin-panel dependency.
 
 Source JSON files define the allowed translation keys and safe fallback. A super-admin may override an existing key for a configured locale. Unknown keys are rejected so the API, Flutter and React catalogs cannot silently drift. Overrides take effect in bootstrap immediately and keep the base files unchanged for rollback.
 
-Spoken-language options can be renamed, ordered or deactivated. Deactivation hides future selection without deleting existing member data. Interests and personality traits are member-provided bounded values in V1, not global admin taxonomies.
+Spoken-language options can be renamed, ordered or deactivated. Deactivation hides future selection without deleting existing member data. Interests and personality traits use admin-managed profile catalogs with stable keys and localized labels; deactivation hides an option from new selection without deleting existing member selections.
 
 ### Privacy and account operations
 

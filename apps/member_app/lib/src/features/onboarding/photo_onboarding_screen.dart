@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../app_providers.dart';
 import '../../core/api_client.dart';
 import '../../core/soul_theme.dart';
+import '../bootstrap/bootstrap_repository.dart';
 import 'photo_onboarding_repository.dart';
 
 final photoOnboardingRepositoryProvider = Provider<PhotoOnboardingRepository>(
@@ -12,7 +13,12 @@ final photoOnboardingRepositoryProvider = Provider<PhotoOnboardingRepository>(
 );
 
 class PhotoOnboardingScreen extends ConsumerStatefulWidget {
-  const PhotoOnboardingScreen({super.key});
+  const PhotoOnboardingScreen({
+    required this.labels,
+    super.key,
+  });
+
+  final BootstrapState labels;
 
   @override
   ConsumerState<PhotoOnboardingScreen> createState() =>
@@ -25,6 +31,7 @@ class _PhotoOnboardingScreenState
   List<ProfilePhotoState> _photos = const [];
   final Map<int, String> _visibility = {2: 'private', 3: 'private'};
   int? _busyPosition;
+  final Map<int, double> _uploadProgress = {};
   String? _error;
 
   @override
@@ -62,6 +69,7 @@ class _PhotoOnboardingScreenState
     if (file == null || !mounted) return;
     setState(() {
       _busyPosition = position;
+      _uploadProgress[position] = 0;
       _error = null;
     });
     try {
@@ -71,12 +79,21 @@ class _PhotoOnboardingScreenState
                 ? 'public'
                 : (_visibility[position] ?? 'private'),
             file: file,
+            onProgress: (progress) {
+              if (!mounted) return;
+              setState(() => _uploadProgress[position] = progress);
+            },
           );
       await _load();
     } on SoulApiFailure catch (failure) {
       if (mounted) setState(() => _error = failure.message);
     } finally {
-      if (mounted) setState(() => _busyPosition = null);
+      if (mounted) {
+        setState(() {
+          _busyPosition = null;
+          _uploadProgress.remove(position);
+        });
+      }
     }
   }
 
@@ -134,6 +151,7 @@ class _PhotoOnboardingScreenState
     if (confirmed != true || !mounted) return;
     setState(() {
       _busyPosition = position;
+      _uploadProgress[position] = 0;
       _error = null;
     });
     try {
@@ -164,7 +182,9 @@ class _PhotoOnboardingScreenState
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Add your photos')),
+        appBar: AppBar(
+          title: Text(widget.labels.text('photos.title', 'Add your photos')),
+        ),
         body: SafeArea(
           child: RefreshIndicator(
             onRefresh: _load,
@@ -172,19 +192,17 @@ class _PhotoOnboardingScreenState
               padding: const EdgeInsets.fromLTRB(24, 18, 24, 32),
               children: [
                 Text(
-                  'Show the real you',
+                  widget.labels.text('photos.title', 'Add your photos'),
                   style: Theme.of(context).textTheme.headlineMedium,
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Your first photo is public and becomes your cover. At least one approved photo must clearly show your face.',
                 ),
                 const SizedBox(height: 24),
                 for (var position = 1; position <= 3; position++) ...[
                   _PhotoSlot(
+                    labels: widget.labels,
                     position: position,
                     photo: _at(position),
                     busy: _busyPosition == position,
+                    uploadProgress: _uploadProgress[position],
                     visibility: position == 1
                         ? 'public'
                         : (_visibility[position] ?? 'private'),
@@ -204,7 +222,9 @@ class _PhotoOnboardingScreenState
                   OutlinedButton.icon(
                     onPressed: _load,
                     icon: const Icon(Icons.refresh),
-                    label: const Text('Retry'),
+                    label: Text(
+                      widget.labels.text('common.retry', 'Try again'),
+                    ),
                   ),
                 ],
                 const SizedBox(height: 12),
@@ -243,7 +263,9 @@ class _PhotoOnboardingScreenState
                       backgroundColor: SoulColors.lime,
                       foregroundColor: SoulColors.ink,
                     ),
-                    child: const Text('Continue'),
+                    child: Text(
+                      widget.labels.text('common.continue', 'Continue'),
+                    ),
                   ),
                 ),
               ],
@@ -255,18 +277,22 @@ class _PhotoOnboardingScreenState
 
 class _PhotoSlot extends StatelessWidget {
   const _PhotoSlot({
+    required this.labels,
     required this.position,
     required this.photo,
     required this.busy,
+    required this.uploadProgress,
     required this.visibility,
     required this.onVisibilityChanged,
     required this.onUpload,
     required this.onDelete,
   });
 
+  final BootstrapState labels;
   final int position;
   final ProfilePhotoState? photo;
   final bool busy;
+  final double? uploadProgress;
   final String visibility;
   final ValueChanged<String>? onVisibilityChanged;
   final VoidCallback onUpload;
@@ -295,7 +321,9 @@ class _PhotoSlot extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        position == 1 ? 'Cover photo' : 'Photo $position',
+                        position == 1
+                            ? labels.text('photos.cover', 'Cover photo')
+                            : '${labels.text('photos.title', 'Photo')} $position',
                         style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
                       Text(_statusText(photo)),
@@ -309,6 +337,16 @@ class _PhotoSlot extends StatelessWidget {
                 ),
               ],
             ),
+            if (busy && uploadProgress != null) ...[
+              const SizedBox(height: 12),
+              LinearProgressIndicator(
+                value: uploadProgress,
+                minHeight: 6,
+                borderRadius: BorderRadius.circular(99),
+              ),
+              const SizedBox(height: 6),
+              Text('${(uploadProgress! * 100).round()}%'),
+            ],
             if (photo?.url case final url?) ...[
               const SizedBox(height: 12),
               ClipRRect(
@@ -338,9 +376,15 @@ class _PhotoSlot extends StatelessWidget {
             if (position > 1) ...[
               const SizedBox(height: 12),
               SegmentedButton<String>(
-                segments: const [
-                  ButtonSegment(value: 'public', label: Text('Public')),
-                  ButtonSegment(value: 'private', label: Text('Private')),
+                segments: [
+                  ButtonSegment(
+                    value: 'public',
+                    label: Text(labels.text('photos.public', 'Public')),
+                  ),
+                  ButtonSegment(
+                    value: 'private',
+                    label: Text(labels.text('photos.private', 'Private')),
+                  ),
                 ],
                 selected: {visibility},
                 onSelectionChanged: busy
@@ -355,7 +399,11 @@ class _PhotoSlot extends StatelessWidget {
                   child: OutlinedButton.icon(
                     onPressed: busy ? null : onUpload,
                     icon: const Icon(Icons.photo_library_outlined),
-                    label: Text(photo == null ? 'Choose photo' : 'Replace'),
+                    label: Text(
+                      photo == null
+                          ? labels.text('photos.title', 'Add your photos')
+                          : labels.text('photos.replace', 'Replace photo'),
+                    ),
                   ),
                 ),
                 if (onDelete != null) ...[
@@ -373,13 +421,12 @@ class _PhotoSlot extends StatelessWidget {
       );
 
   String _statusText(ProfilePhotoState? value) {
-    if (value == null) return 'Not added';
+    if (value == null) return '';
     return switch (value.moderationStatus) {
-      'approved' => value.faceDetected == true
-          ? 'Approved · clear face detected'
-          : 'Approved',
-      'rejected' => 'Needs replacement',
-      _ => 'Safety review pending',
+      'approved' => labels.text('photos.approved', 'Photo approved'),
+      'rejected' => labels.text('photos.rejected', 'Photo needs to be replaced'),
+      _ => labels.text('photos.pending', 'Photo is being reviewed'),
     };
+
   }
 }

@@ -72,16 +72,24 @@ class _LegalReconsentScreenState extends State<LegalReconsentScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Updated policies')),
+        appBar: AppBar(
+          title: Text(
+            widget.labels.text('legal.outdated', 'Review required'),
+          ),
+        ),
         body: SafeArea(
           child: _busy && _legal == null
               ? const Center(child: CircularProgressIndicator())
               : ListView(
                   padding: const EdgeInsets.all(24),
                   children: [
-                    Text('Review before continuing', style: Theme.of(context).textTheme.headlineMedium),
-                    const SizedBox(height: 10),
-                    const Text('One or more legal documents changed. Your profile remains safe while you review them.'),
+                    Text(
+                      widget.labels.text(
+                        'legal.consent_required',
+                        'Review and accept the current policies to continue.',
+                      ),
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
                     const SizedBox(height: 18),
                     for (final key in (_legal?.commitmentKeys ?? widget.labels.commitmentKeys))
                       ListTile(
@@ -93,14 +101,27 @@ class _LegalReconsentScreenState extends State<LegalReconsentScreen> {
                       contentPadding: EdgeInsets.zero,
                       value: _agreed,
                       onChanged: _busy ? null : (value) => setState(() => _agreed = value == true),
-                      title: const Text('I accept the current Terms, Privacy Policy, Community Guidelines and commitments.'),
+                      title: Text(
+                        widget.labels.text(
+                          'legal.commitment.policies',
+                          'Accept the Terms and Privacy Policy',
+                        ),
+                      ),
                       controlAffinity: ListTileControlAffinity.leading,
                     ),
                     if (_error != null) Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
                     const SizedBox(height: 16),
                     SizedBox(
                       height: 50,
-                      child: FilledButton(onPressed: !_agreed || _busy ? null : _accept, child: Text(_busy ? 'Saving…' : 'Accept and continue')),
+                      child: FilledButton(
+                        onPressed: !_agreed || _busy ? null : _accept,
+                        child: Text(
+                          widget.labels.text(
+                            'legal.accept_current',
+                            'Accept and continue',
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -181,7 +202,9 @@ class _LegalSubmissionScreenState extends State<LegalSubmissionScreen> {
     final screen = _lifecycle?.correctionScreen;
     if (screen == 'onboarding.photos') {
       await Navigator.of(context).push<void>(
-        MaterialPageRoute<void>(builder: (_) => const PhotoOnboardingScreen()),
+        MaterialPageRoute<void>(
+          builder: (_) => PhotoOnboardingScreen(labels: widget.labels),
+        ),
       );
       if (!mounted) return;
       setState(() { _busy = true; _error = null; });
@@ -203,7 +226,11 @@ class _LegalSubmissionScreenState extends State<LegalSubmissionScreen> {
   Widget build(BuildContext context) {
     final lifecycle = _lifecycle;
     return Scaffold(
-      appBar: AppBar(title: const Text('Complete your profile')),
+      appBar: AppBar(
+        title: Text(
+          widget.labels.text('onboarding.review', 'Review your profile'),
+        ),
+      ),
       body: SafeArea(
         child: _busy && _legal == null
             ? const Center(child: CircularProgressIndicator())
@@ -211,11 +238,19 @@ class _LegalSubmissionScreenState extends State<LegalSubmissionScreen> {
                 padding: const EdgeInsets.all(24),
                 children: [
                   if (lifecycle != null && lifecycle.status != 'draft')
-                    _LifecycleCard(lifecycle: lifecycle, onCorrect: _correctAndResubmit),
+                    _LifecycleCard(
+                      labels: widget.labels,
+                      lifecycle: lifecycle,
+                      onCorrect: _correctAndResubmit,
+                    ),
                   if (lifecycle == null || lifecycle.status == 'draft') ...[
-                    Text('Our community commitments', style: Theme.of(context).textTheme.headlineMedium),
-                    const SizedBox(height: 10),
-                    const Text('Please review these promises before your profile is submitted.'),
+                    Text(
+                      widget.labels.text(
+                        'legal.consent_required',
+                        'Review and accept the current policies to continue.',
+                      ),
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
                     const SizedBox(height: 18),
                     for (final key in (_legal?.commitmentKeys.isNotEmpty == true
                         ? _legal!.commitmentKeys
@@ -230,7 +265,12 @@ class _LegalSubmissionScreenState extends State<LegalSubmissionScreen> {
                       contentPadding: EdgeInsets.zero,
                       value: _accepted,
                       onChanged: _busy ? null : (value) => setState(() => _accepted = value == true),
-                      title: const Text('I accept the current Terms, Privacy Policy, Community Guidelines and community commitments.'),
+                      title: Text(
+                        widget.labels.text(
+                          'legal.commitment.policies',
+                          'Accept the Terms and Privacy Policy',
+                        ),
+                      ),
                       controlAffinity: ListTileControlAffinity.leading,
                     ),
                     const SizedBox(height: 16),
@@ -238,14 +278,24 @@ class _LegalSubmissionScreenState extends State<LegalSubmissionScreen> {
                       height: 50,
                       child: FilledButton(
                         onPressed: !_accepted || _busy ? null : _submit,
-                        child: Text(_busy ? 'Submitting…' : 'Submit profile'),
+                        child: Text(
+                          widget.labels.text(
+                            'onboarding.submit',
+                            'Submit profile',
+                          ),
+                        ),
                       ),
                     ),
                   ],
                   if (_error != null) ...[
                     const SizedBox(height: 14),
                     Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
-                    TextButton(onPressed: _load, child: const Text('Retry')),
+                    TextButton(
+                      onPressed: _load,
+                      child: Text(
+                        widget.labels.text('common.retry', 'Try again'),
+                      ),
+                    ),
                   ],
                 ],
               ),
@@ -263,17 +313,34 @@ class _LegalSubmissionScreenState extends State<LegalSubmissionScreen> {
 }
 
 class _LifecycleCard extends StatelessWidget {
-  const _LifecycleCard({required this.lifecycle, required this.onCorrect});
+  const _LifecycleCard({
+    required this.labels,
+    required this.lifecycle,
+    required this.onCorrect,
+  });
+  final BootstrapState labels;
   final ProfileLifecycle lifecycle;
   final VoidCallback onCorrect;
 
   @override
   Widget build(BuildContext context) {
     final (icon, title, body) = switch (lifecycle.status) {
-      'live' => (Icons.verified, 'Your profile is live', 'You can now start discovering compatible people.'),
-      'changes_required' => (Icons.edit_note, 'A correction is needed', lifecycle.reason ?? 'Please update the highlighted information.'),
+      'live' => (
+          Icons.verified,
+          labels.text('onboarding.profile_live', 'Your profile is live'),
+          '',
+        ),
+      'changes_required' => (
+          Icons.edit_note,
+          labels.text('onboarding.changes_required', 'Changes are required'),
+          lifecycle.reason ?? '',
+        ),
       'paused' => (Icons.pause_circle_outline, 'Profile paused', lifecycle.reason ?? 'Your profile is temporarily hidden.'),
-      _ => (Icons.hourglass_top, 'Profile checks in progress', 'Your profile is hidden until automated safety checks finish.'),
+      _ => (
+          Icons.hourglass_top,
+          labels.text('onboarding.checking', 'We are checking your profile'),
+          '',
+        ),
     };
     return Card(
       child: Padding(

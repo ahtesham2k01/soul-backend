@@ -28,9 +28,15 @@ class MaritalStatusVisibilityEndpointTest extends TestCase
         ]);
         Sanctum::actingAs($viewer);
 
-        $this->getJson('/api/v1/discovery/candidates')->assertOk()
+        $response = $this->getJson('/api/v1/discovery/candidates')->assertOk()
             ->assertJsonPath('data.candidates.0.id', $profile->public_id)
-            ->assertJsonPath('data.candidates.0.marital_status', 'married');
+            ->assertJsonPath('data.candidates.0.marital_status', 'married')
+            ->assertJsonCount(3, 'data.candidates.0.intentions');
+
+        $this->assertEqualsCanonicalizing(
+            ['marriage', 'serious_relationship', 'casual_dating'],
+            $response->json('data.candidates.0.intentions'),
+        );
 
         $this->getJson("/api/v1/profiles/{$profile->public_id}")->assertOk()
             ->assertJsonPath('data.profile.marital_status', 'married')

@@ -237,6 +237,64 @@ class PrivatePhotoRequestResult {
   }
 }
 
+
+class PrivatePhotoAccessItem {
+  const PrivatePhotoAccessItem({
+    required this.id,
+    required this.matchId,
+    required this.direction,
+    required this.status,
+    required this.profileId,
+    required this.firstName,
+    required this.createdAt,
+    this.decidedAt,
+    this.revokedAt,
+  });
+
+  final String id;
+  final String matchId;
+  final String direction;
+  final String status;
+  final String profileId;
+  final String firstName;
+  final DateTime createdAt;
+  final DateTime? decidedAt;
+  final DateTime? revokedAt;
+
+  bool get incoming => direction == 'incoming';
+  bool get pending => status == 'pending';
+  bool get approved => status == 'approved';
+
+  factory PrivatePhotoAccessItem.fromJson(Map<String, dynamic> json) {
+    final rawProfile = json['profile'];
+    final profile = rawProfile is Map
+        ? Map<String, dynamic>.from(rawProfile)
+        : const <String, dynamic>{};
+    return PrivatePhotoAccessItem(
+      id: json['id']?.toString() ?? '',
+      matchId: json['match_id']?.toString() ?? '',
+      direction: json['direction']?.toString() ?? '',
+      status: json['status']?.toString() ?? '',
+      profileId: profile['id']?.toString() ?? '',
+      firstName: profile['first_name']?.toString() ?? '',
+      createdAt: DateTime.tryParse(json['created_at']?.toString() ?? '') ??
+          DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
+      decidedAt: DateTime.tryParse(json['decided_at']?.toString() ?? ''),
+      revokedAt: DateTime.tryParse(json['revoked_at']?.toString() ?? ''),
+    );
+  }
+}
+
+class PrivatePhotoAccessPage {
+  const PrivatePhotoAccessPage({
+    required this.items,
+    this.nextCursor,
+  });
+
+  final List<PrivatePhotoAccessItem> items;
+  final String? nextCursor;
+}
+
 class ChatRepository {
   ChatRepository(this._api);
 
@@ -316,6 +374,77 @@ class ChatRepository {
     await _api.put(
       'matches/${Uri.encodeComponent(matchId)}/typing',
       data: {'is_typing': isTyping},
+    );
+  }
+
+
+  Future<PrivatePhotoAccessPage> privatePhotoAccessRequests({
+    String? cursor,
+  }) async {
+    final data = await _api.get(
+      'private-photo-access',
+      query: {if (cursor != null && cursor.isNotEmpty) 'cursor': cursor},
+    );
+    final raw = data['requests'];
+    return PrivatePhotoAccessPage(
+      items: raw is List
+          ? raw
+              .whereType<Map>()
+              .map(
+                (item) => PrivatePhotoAccessItem.fromJson(
+                  Map<String, dynamic>.from(item),
+                ),
+              )
+              .where((item) => item.id.isNotEmpty && item.matchId.isNotEmpty)
+              .toList(growable: false)
+          : const [],
+      nextCursor: data['next_cursor']?.toString(),
+    );
+  }
+
+  Future<PrivatePhotoAccessItem> decidePrivatePhotoAccess(
+    String requestId,
+    String decision,
+  ) async {
+    final data = await _api.put(
+      'private-photo-access/${Uri.encodeComponent(requestId)}',
+      data: {'decision': decision},
+    );
+    final raw = data['request'];
+    if (raw is! Map) {
+      throw const SoulApiFailure(
+        statusCode: null,
+        code: 'INVALID_PRIVATE_PHOTO_REQUEST',
+        message: 'SOUL returned an invalid private photo request.',
+      );
+    }
+    return PrivatePhotoAccessItem.fromJson(
+      Map<String, dynamic>.from(raw),
+    );
+  }
+
+  Future<PrivatePhotoAccessItem> revokePrivatePhotoAccess(
+    String requestId,
+  ) async {
+    final data = await _api.delete(
+      'private-photo-access/${Uri.encodeComponent(requestId)}',
+    );
+    final raw = data['request'];
+    if (raw is! Map) {
+      throw const SoulApiFailure(
+        statusCode: null,
+        code: 'INVALID_PRIVATE_PHOTO_REQUEST',
+        message: 'SOUL returned an invalid private photo request.',
+      );
+    }
+    return PrivatePhotoAccessItem.fromJson(
+      Map<String, dynamic>.from(raw),
+    );
+  }
+
+  Future<void> unmatch(String matchId) async {
+    await _api.delete(
+      'matches/${Uri.encodeComponent(matchId)}',
     );
   }
 

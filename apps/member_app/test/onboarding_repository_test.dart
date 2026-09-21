@@ -66,4 +66,41 @@ void main() {
     expect(state.processing, isFalse);
     expect(state.correctionScreen, 'onboarding.photos');
   });
+  test('saved religion profile preserves the complete public path', () {
+    final profile = ReligionProfileSnapshot.fromJson({
+      'selected_node_id': '01HLEAF',
+      'country': 'PK',
+      'path': [
+        {'id': '01HROOT', 'type': 'religion', 'slug': 'islam'},
+        {'id': '01HSECT', 'type': 'sect', 'slug': 'sunni'},
+        {'id': '01HLEAF', 'type': 'school', 'slug': 'hanafi'},
+      ],
+    });
+
+    expect(profile.selectedNodeId, '01HLEAF');
+    expect(profile.country, 'PK');
+    expect(profile.path.map((item) => item.id), [
+      '01HROOT',
+      '01HSECT',
+      '01HLEAF',
+    ]);
+    expect(profile.path.last.type, 'school');
+  });
+
+  test('profile catalog keeps stable keys and localized labels', () {
+    final catalog = OnboardingProfileCatalog.fromJson({
+      'interests': [
+        {'key': 'reading', 'label': 'Kitabein parhna'},
+      ],
+      'personality_traits': [
+        {'key': 'kind', 'label': 'Meharban'},
+      ],
+    });
+
+    expect(catalog.interests.single.value, 'reading');
+    expect(catalog.interests.single.label, 'Kitabein parhna');
+    expect(catalog.personalityTraits.single.value, 'kind');
+    expect(catalog.personalityTraits.single.label, 'Meharban');
+  });
+
 }

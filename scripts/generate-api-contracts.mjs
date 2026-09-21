@@ -58,7 +58,7 @@ const requestExamples = {
     'api.v1.auth.apple': { identity_token: '<apple-identity-token>', raw_nonce: '<original-apple-sign-in-nonce>', device_name: 'iPhone' },
     'api.v1.auth.preferences.update': { preferred_locale: 'ur' },
     'api.v1.location.resolve': { latitude: 24.8607, longitude: 67.0011, accuracy_meters: 25 },
-    'api.v1.onboarding.profile.update': { first_name: 'Ayesha', marital_status: 'never_married', profession_status: 'employed', smoking: 'no', alcohol: 'no', current_children: 'no', future_children: 'want_children', intentions: ['marriage'], spoken_language_codes: ['ur'], interests: ['Reading'], personality_traits: ['Kind'], prefer_not_to_say_fields: [] },
+    'api.v1.onboarding.profile.update': { first_name: 'Ayesha', marital_status: 'never_married', profession_status: 'employed', smoking: 'no', alcohol: 'no', current_children: 'no', future_children: 'want_children', intentions: ['marriage'], spoken_language_codes: ['ur'], interests: ['reading'], personality_traits: ['kind'], prefer_not_to_say_fields: [] },
     'api.v1.onboarding.photos.register': { upload_token: '01K...', provider_asset_id: 'soul/profile-photos/USER/ASSET', provider_version: 1788220800, provider_format: 'jpg', provider_signature: '<cloudinary-response-signature>', visibility: 'private' },
     'api.v1.onboarding.photos.visibility.update': { visibility: 'private' },
     'api.v1.discovery.preferences.update': { preferred_gender: 'woman', minimum_age: 24, maximum_age: 35, same_country_only: true, religion_mode: 'my_religion', location_mode: 'current', radius_km: 50, selected_locations: [], intentions: ['marriage'] },

@@ -60,6 +60,7 @@ class PhotoOnboardingRepository {
     required int position,
     required String visibility,
     required XFile file,
+    void Function(double progress)? onProgress,
   }) async {
     final sessionData = await _api.post(
       'onboarding/photos/upload-session',
@@ -96,6 +97,11 @@ class PhotoOnboardingRepository {
       final response = await _cloudinary.post<dynamic>(
         upload['url'] as String,
         data: form,
+        onSendProgress: (sent, total) {
+          if (total <= 0) return;
+          final progress = (sent / total).clamp(0.0, 1.0);
+          onProgress?.call(progress);
+        },
       );
       if (response.data is! Map) throw const FormatException();
       providerResult = Map<String, dynamic>.from(response.data as Map);

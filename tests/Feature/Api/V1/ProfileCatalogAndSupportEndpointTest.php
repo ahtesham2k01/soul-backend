@@ -2,7 +2,9 @@
 
 namespace Tests\Feature\Api\V1;
 
+use App\Models\ProfileCatalogItem;
 use App\Models\User;
+use App\Models\UserProfile;
 use Database\Seeders\ProfileAndSupportCatalogSeeder;
 use Database\Seeders\SpokenLanguageSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -32,6 +34,68 @@ class ProfileCatalogAndSupportEndpointTest extends TestCase
 
         $this->getJson('/api/v1/catalogs/profile')->assertOk()
             ->assertJsonStructure(['data' => ['spoken_languages' => [['code', 'name', 'native_name']]]]);
+    }
+
+    public function test_catalog_keys_round_trip_and_persist_catalog_relationships(): void
+    {
+        $member = User::factory()->create(['status' => User::STATUS_ACTIVE]);
+        Sanctum::actingAs($member);
+
+        $this->putJson('/api/v1/onboarding/profile', [
+            'interests' => ['reading', 'travel'],
+            'personality_traits' => ['kind'],
+        ])->assertOk()
+            ->assertJsonPath('data.profile.interests', ['reading', 'travel'])
+            ->assertJsonPath('data.profile.personality_traits', ['kind']);
+
+        $profile = $member->profile()->firstOrFail();
+        $reading = ProfileCatalogItem::query()
+            ->where('type', 'interest')
+            ->where('key', 'reading')
+            ->firstOrFail();
+        $kind = ProfileCatalogItem::query()
+            ->where('type', 'trait')
+            ->where('key', 'kind')
+            ->firstOrFail();
+
+        $this->assertDatabaseHas('user_profile_interests', [
+            'user_profile_id' => $profile->id,
+            'profile_catalog_item_id' => $reading->id,
+            'value' => 'Reading',
+        ]);
+        $this->assertDatabaseHas('user_profile_traits', [
+            'user_profile_id' => $profile->id,
+            'profile_catalog_item_id' => $kind->id,
+            'value' => 'Kind',
+        ]);
+
+        $this->getJson('/api/v1/onboarding/profile')->assertOk()
+            ->assertJsonPath('data.profile.interests', ['reading', 'travel'])
+            ->assertJsonPath('data.profile.personality_traits', ['kind']);
+    }
+
+    public function test_public_profile_localizes_catalog_backed_values(): void
+    {
+        $viewer = User::factory()->create(['status' => User::STATUS_ACTIVE]);
+        $candidate = User::factory()->create(['status' => User::STATUS_ACTIVE]);
+        $profile = UserProfile::factory()->for($candidate)->create([
+            'profile_status' => 'live',
+            'gender' => 'woman',
+            'date_of_birth' => now()->subYears(30),
+        ]);
+
+        Sanctum::actingAs($candidate);
+        $this->putJson('/api/v1/onboarding/profile', [
+            'interests' => ['reading'],
+            'personality_traits' => ['kind'],
+        ])->assertOk();
+
+        Sanctum::actingAs($viewer);
+        $this->withHeader('Accept-Language', 'ur')
+            ->getJson('/api/v1/profiles/'.$profile->public_id)
+            ->assertOk()
+            ->assertJsonPath('data.profile.interests.0', 'Kitabein parhna')
+            ->assertJsonPath('data.profile.personality_traits.0', 'Meharban');
     }
 
     public function test_member_can_open_reply_to_and_privately_read_own_ticket(): void

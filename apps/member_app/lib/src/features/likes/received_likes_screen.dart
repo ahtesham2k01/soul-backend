@@ -4,17 +4,21 @@ import '../../core/api_client.dart';
 import '../../core/soul_theme.dart';
 import '../bootstrap/bootstrap_repository.dart';
 import '../discovery/discovery_repository.dart';
+import '../events/event_repository.dart';
+import '../events/events_screen.dart';
 
 class ReceivedLikesScreen extends StatefulWidget {
   const ReceivedLikesScreen({
     super.key,
     required this.repository,
     required this.labels,
+    required this.eventRepository,
     this.onStartDiscovering,
   });
 
   final DiscoveryRepository repository;
   final BootstrapState labels;
+  final EventRepository eventRepository;
   final VoidCallback? onStartDiscovering;
 
   @override
@@ -103,7 +107,13 @@ class _ReceivedLikesScreenState extends State<ReceivedLikesScreen> {
             title: Text(
               widget.labels.text('matches.new_match', 'It is a match!'),
             ),
-            content: Text('${item.firstName} is now in your matches.'),
+            content: Text(
+              widget.labels.format(
+                'likes.match_added',
+                '{name} is now in your matches.',
+                {'name': item.firstName},
+              ),
+            ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
@@ -120,6 +130,17 @@ class _ReceivedLikesScreenState extends State<ReceivedLikesScreen> {
         _error = failure.message;
       });
     }
+  }
+
+  Future<void> _openEvents() async {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(
+        builder: (_) => EventsScreen(
+          repository: widget.eventRepository,
+          labels: widget.labels,
+        ),
+      ),
+    );
   }
 
   bool _isRecent(IncomingLike item) {
@@ -188,6 +209,12 @@ class _ReceivedLikesScreenState extends State<ReceivedLikesScreen> {
                   _ExploreTab(
                     label: widget.labels.text('likes.received', 'Likes received'),
                     selected: true,
+                  ),
+                  const SizedBox(width: 8),
+                  _ExploreActionTab(
+                    label: 'Events',
+                    icon: Icons.event_outlined,
+                    onTap: _openEvents,
                   ),
                 ],
               ),
@@ -293,6 +320,51 @@ class _ExploreTab extends StatelessWidget {
                 color: SoulColors.ink,
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ),
+      );
+}
+
+class _ExploreActionTab extends StatelessWidget {
+  const _ExploreActionTab({
+    required this.label,
+    required this.icon,
+    required this.onTap,
+  });
+
+  final String label;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Align(
+        child: Material(
+          color: SoulColors.softSurface,
+          borderRadius: BorderRadius.circular(28),
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(28),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 10,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(icon, size: 18, color: SoulColors.ink),
+                  const SizedBox(width: 6),
+                  Text(
+                    label,
+                    style: const TextStyle(
+                      color: SoulColors.ink,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

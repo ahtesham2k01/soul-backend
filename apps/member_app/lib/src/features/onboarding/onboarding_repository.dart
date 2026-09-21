@@ -21,6 +21,107 @@ class ReligionChoice {
       );
 }
 
+class ReligionProfilePathNode {
+  const ReligionProfilePathNode({
+    required this.id,
+    required this.type,
+    required this.slug,
+  });
+
+  final String id;
+  final String type;
+  final String slug;
+
+  factory ReligionProfilePathNode.fromJson(Map<String, dynamic> json) =>
+      ReligionProfilePathNode(
+        id: json['id']?.toString() ?? '',
+        type: json['type']?.toString() ?? '',
+        slug: json['slug']?.toString() ?? '',
+      );
+}
+
+class ReligionProfileSnapshot {
+  const ReligionProfileSnapshot({
+    required this.selectedNodeId,
+    required this.country,
+    required this.path,
+  });
+
+  final String selectedNodeId;
+  final String? country;
+  final List<ReligionProfilePathNode> path;
+
+  factory ReligionProfileSnapshot.fromJson(Map<String, dynamic> json) {
+    final rawPath = json['path'];
+    return ReligionProfileSnapshot(
+      selectedNodeId: json['selected_node_id']?.toString() ?? '',
+      country: json['country']?.toString(),
+      path: rawPath is List
+          ? rawPath
+              .whereType<Map>()
+              .map(
+                (item) => ReligionProfilePathNode.fromJson(
+                  Map<String, dynamic>.from(item),
+                ),
+              )
+              .where((item) => item.id.isNotEmpty)
+              .toList(growable: false)
+          : const [],
+    );
+  }
+}
+
+class OnboardingCatalogChoice {
+  const OnboardingCatalogChoice({
+    required this.value,
+    required this.label,
+  });
+
+  final String value;
+  final String label;
+
+  factory OnboardingCatalogChoice.fromJson(Map<String, dynamic> json) {
+    final value =
+        json['key']?.toString() ?? json['code']?.toString() ?? '';
+    final label = json['label']?.toString() ??
+        json['native_name']?.toString() ??
+        json['name']?.toString() ??
+        value;
+    return OnboardingCatalogChoice(value: value, label: label);
+  }
+}
+
+class OnboardingProfileCatalog {
+  const OnboardingProfileCatalog({
+    required this.interests,
+    required this.personalityTraits,
+  });
+
+  final List<OnboardingCatalogChoice> interests;
+  final List<OnboardingCatalogChoice> personalityTraits;
+
+  factory OnboardingProfileCatalog.fromJson(Map<String, dynamic> json) {
+    List<OnboardingCatalogChoice> items(String key) {
+      final raw = json[key];
+      if (raw is! List) return const [];
+      return raw
+          .whereType<Map>()
+          .map(
+            (item) => OnboardingCatalogChoice.fromJson(
+              Map<String, dynamic>.from(item),
+            ),
+          )
+          .where((item) => item.value.isNotEmpty && item.label.isNotEmpty)
+          .toList(growable: false);
+    }
+
+    return OnboardingProfileCatalog(
+      interests: items('interests'),
+      personalityTraits: items('personality_traits'),
+    );
+  }
+}
+
 class SpokenLanguageChoice {
   const SpokenLanguageChoice({required this.code, required this.label});
 
@@ -52,6 +153,20 @@ class OnboardingRepository {
 
   Future<Map<String, dynamic>> readiness() =>
       _api.get('onboarding/readiness');
+
+  Future<ReligionProfileSnapshot?> religionProfile() async {
+    final data = await _api.get('onboarding/religion-profile');
+    final raw = data['religion_profile'];
+    if (raw is! Map) return null;
+    return ReligionProfileSnapshot.fromJson(
+      Map<String, dynamic>.from(raw),
+    );
+  }
+
+  Future<OnboardingProfileCatalog> profileCatalog() async {
+    final data = await _api.get('catalogs/profile');
+    return OnboardingProfileCatalog.fromJson(data);
+  }
 
   Future<List<SpokenLanguageChoice>> spokenLanguages() async {
     final data = await _api.get('catalogs/profile');

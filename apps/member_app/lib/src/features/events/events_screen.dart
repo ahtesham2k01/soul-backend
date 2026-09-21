@@ -98,7 +98,7 @@ class _EventsScreenState extends State<EventsScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
         backgroundColor: const Color(0xfff7f7f4),
-        appBar: AppBar(title: const Text('Events')),
+        appBar: AppBar(title: Text(widget.labels.text('events.title', 'Events'))),
         body: _loading
             ? const Center(child: CircularProgressIndicator())
             : Column(
@@ -107,14 +107,14 @@ class _EventsScreenState extends State<EventsScreen> {
                     padding: const EdgeInsets.fromLTRB(18, 10, 18, 10),
                     child: SegmentedButton<bool>(
                       showSelectedIcon: false,
-                      segments: const [
+                      segments: [
                         ButtonSegment(
                           value: false,
-                          label: Text('Upcoming'),
+                          label: Text(widget.labels.text('events.upcoming', 'Upcoming')),
                         ),
                         ButtonSegment(
                           value: true,
-                          label: Text('My events'),
+                          label: Text(widget.labels.text('events.my_events', 'My events')),
                         ),
                       ],
                       selected: {_myEvents},
@@ -148,8 +148,8 @@ class _EventsScreenState extends State<EventsScreen> {
                                 Center(
                                   child: Text(
                                     _myEvents
-                                        ? 'You have not joined any upcoming events.'
-                                        : 'No upcoming events right now.',
+                                        ? widget.labels.text('events.no_joined', 'You have not joined any upcoming events.')
+                                        : widget.labels.text('events.no_upcoming', 'No upcoming events right now.'),
                                   ),
                                 ),
                               ],
@@ -183,6 +183,7 @@ class _EventsScreenState extends State<EventsScreen> {
                                   }
                                   return _EventCard(
                                     event: items[index],
+                                    labels: widget.labels,
                                     onTap: () => _open(items[index]),
                                   );
                                 },
@@ -273,21 +274,21 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Report event'),
+          title: Text(widget.labels.text('events.report', 'Report event')),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 DropdownButtonFormField<String>(
                   initialValue: category,
-                  items: const [
+                  items: [
                     DropdownMenuItem(
                       value: 'misleading',
-                      child: Text('Misleading'),
+                      child: Text(widget.labels.text('events.misleading', 'Misleading')),
                     ),
-                    DropdownMenuItem(value: 'unsafe', child: Text('Unsafe')),
-                    DropdownMenuItem(value: 'spam', child: Text('Spam')),
-                    DropdownMenuItem(value: 'other', child: Text('Other')),
+                    DropdownMenuItem(value: 'unsafe', child: Text(widget.labels.text('events.unsafe', 'Unsafe'))),
+                    DropdownMenuItem(value: 'spam', child: Text(widget.labels.text('events.spam', 'Spam'))),
+                    DropdownMenuItem(value: 'other', child: Text(widget.labels.text('common.other', 'Other'))),
                   ],
                   onChanged: (value) {
                     if (value != null) {
@@ -303,8 +304,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                   maxLength: 1000,
                   decoration: InputDecoration(
                     hintText: category == 'other'
-                        ? 'Details are required for Other.'
-                        : 'Optional details',
+                        ? '${widget.labels.text('common.other', 'Other')}: ${widget.labels.text('common.optional_details', 'Optional details')}'
+                        : widget.labels.text('common.optional_details', 'Optional details'),
                   ),
                 ),
               ],
@@ -323,7 +324,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                   (category, text.isEmpty ? null : text),
                 );
               },
-              child: const Text('Report'),
+              child: Text(widget.labels.text('common.report', 'Report')),
             ),
           ],
         ),
@@ -339,7 +340,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Event report submitted.')),
+        SnackBar(content: Text(widget.labels.text('events.report_submitted', 'Event report submitted.'))),
       );
     } on SoulApiFailure catch (failure) {
       if (!mounted) return;
@@ -351,10 +352,10 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   Widget build(BuildContext context) => Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
-          title: const Text('Event details'),
+          title: Text(widget.labels.text('events.details', 'Event details')),
           actions: [
             IconButton(
-              tooltip: 'Report event',
+              tooltip: widget.labels.text('events.report', 'Report event'),
               onPressed: _event == null ? null : _report,
               icon: const Icon(Icons.flag_outlined),
             ),
@@ -407,12 +408,12 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                       if (_event!.spacesRemaining != null)
                         _DetailLine(
                           icon: Icons.people_outline_rounded,
-                          text: '${_event!.spacesRemaining} spaces remaining',
+                          text: widget.labels.format('events.spaces_remaining', '{count} spaces remaining', {'count': _event!.spacesRemaining}),
                         ),
                       const SizedBox(height: 18),
                       Text(
                         _event!.description.isEmpty
-                            ? 'Event details will be shared by the organizer.'
+                            ? widget.labels.text('events.description_pending', 'Event details will be shared by the organizer.')
                             : _event!.description,
                         style: const TextStyle(
                           color: SoulColors.ink,
@@ -423,7 +424,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                           _event!.isJoined) ...[
                         const SizedBox(height: 18),
                         SelectableText(
-                          'Online event link: ${_event!.onlineUrl}',
+                          widget.labels.format('events.online_link', 'Online event link: {url}', {'url': _event!.onlineUrl}),
                           style: const TextStyle(
                             color: SoulColors.forest,
                             fontWeight: FontWeight.w700,
@@ -451,10 +452,10 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                         ),
                         child: Text(
                           _busy
-                              ? 'Please wait…'
+                              ? widget.labels.text('common.please_wait', 'Please wait…')
                               : _event!.isJoined
-                                  ? 'Leave event'
-                                  : 'Join event',
+                                  ? widget.labels.text('events.leave', 'Leave event')
+                                  : widget.labels.text('events.join', 'Join event'),
                         ),
                       ),
                     ],
@@ -470,8 +471,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   String _locationText(SoulEvent event) {
     if (event.type == 'online') {
       return event.isJoined && event.onlineUrl != null
-          ? 'Online · link available below'
-          : 'Online event';
+          ? widget.labels.text('events.online_link_available', 'Online · link available below')
+          : widget.labels.text('events.online_event', 'Online event');
     }
     return [
       if (event.city != null && event.city!.isNotEmpty) event.city!,
@@ -482,9 +483,10 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
 }
 
 class _EventCard extends StatelessWidget {
-  const _EventCard({required this.event, required this.onTap});
+  const _EventCard({required this.event, required this.labels, required this.onTap});
 
   final SoulEvent event;
+  final BootstrapState labels;
   final VoidCallback onTap;
 
   @override
@@ -519,7 +521,7 @@ class _EventCard extends StatelessWidget {
                       if (event.spacesRemaining != null &&
                           event.spacesRemaining! <= 10)
                         Text(
-                          '${event.spacesRemaining} spaces left',
+                          labels.format('events.spaces_left', '{count} spaces left', {'count': event.spacesRemaining}),
                           style: const TextStyle(
                             color: SoulColors.forest,
                             fontSize: 11,
@@ -544,7 +546,7 @@ class _EventCard extends StatelessWidget {
                       const SizedBox(height: 3),
                       Text(
                         event.type == 'online'
-                            ? 'Online'
+                            ? labels.text('events.online', 'Online')
                             : [
                                 if (event.city != null) event.city!,
                                 if (event.countryCode != null)
@@ -556,9 +558,9 @@ class _EventCard extends StatelessWidget {
                       ),
                       if (event.isJoined) ...[
                         const SizedBox(height: 5),
-                        const Text(
-                          'Joined',
-                          style: TextStyle(
+                        Text(
+                          labels.text('events.joined', 'Joined'),
+                          style: const TextStyle(
                             color: SoulColors.forest,
                             fontWeight: FontWeight.w800,
                           ),
