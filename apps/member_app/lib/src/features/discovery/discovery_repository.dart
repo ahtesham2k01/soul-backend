@@ -1,3 +1,5 @@
+import '../../core/api_client.dart';
+
 class DiscoveryPrivacyState {
   const DiscoveryPrivacyState({
     required this.discoverable,
@@ -18,8 +20,6 @@ class DiscoveryPrivacyState {
         profilePaused: json['profile_paused'] == true,
       );
 }
-
-import '../../core/api_client.dart';
 
 class DiscoveryPhoto {
   const DiscoveryPhoto({

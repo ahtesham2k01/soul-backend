@@ -97,7 +97,7 @@ void main() {
     expect(repository, contains("'private-photo-access'"));
     expect(repository, contains("'decision': decision"));
     expect(repository, contains('revokePrivatePhotoAccess'));
-    expect(repository, contains("'matches/${Uri.encodeComponent(matchId)}'"));
+    expect(repository, contains("'matches/\${Uri.encodeComponent(matchId)}'"));
     expect(thread, contains('PrivatePhotoAccessScreen('));
     expect(thread, contains("value: 'unmatch'"));
     expect(thread, contains('widget.repository.unmatch(widget.match.id)'));

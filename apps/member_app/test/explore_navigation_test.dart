@@ -21,7 +21,7 @@ void main() {
     ).readAsStringSync();
 
     expect(repository, contains("'likes/received'"));
-    expect(repository, contains("'profiles/${Uri.encodeComponent(profileId)}/like'"));
+    expect(repository, contains("'profiles/\${Uri.encodeComponent(profileId)}/like'"));
     expect(repository, isNot(contains("'likes/sent'")));
     expect(repository, isNot(contains("'likes/outgoing'")));
   });
