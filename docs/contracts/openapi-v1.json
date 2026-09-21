@@ -2534,25 +2534,6 @@
         "tags": [
           "Events"
         ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "responses": {
-          "401": {
-            "$ref": "#/components/responses/Error"
-          },
-          "422": {
-            "$ref": "#/components/responses/Error"
-          },
-          "429": {
-            "$ref": "#/components/responses/Error"
-          },
-          "2XX": {
-            "$ref": "#/components/responses/Success"
-          }
-        },
         "parameters": [
           {
             "name": "cursor",
@@ -2573,7 +2554,26 @@
             },
             "description": "When true, return only upcoming events joined by the authenticated member."
           }
-        ]
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "2XX": {
+            "$ref": "#/components/responses/Success"
+          }
+        }
       }
     },
     "/events/{event}": {

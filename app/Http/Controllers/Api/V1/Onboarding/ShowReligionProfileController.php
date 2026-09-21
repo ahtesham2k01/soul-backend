@@ -6,20 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\ReligionTaxonomyNode;
 use App\Models\UserReligionProfile;
 use App\Support\ApiResponse;
-use App\Support\Localization\LocaleResolver;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ShowReligionProfileController extends Controller
 {
-    public function __invoke(
-        Request $request,
-        LocaleResolver $localeResolver,
-    ): JsonResponse {
-        $resolvedLocale = $localeResolver->resolve(
-            requestedLocale: null,
-            acceptLanguage: $request->header('Accept-Language'),
-        );
+    public function __invoke(Request $request): JsonResponse
+    {
+        $resolvedLocale = app()->getLocale();
         $fallbackLocale = config(
             'soul.translations.fallback_locale',
             'en',
