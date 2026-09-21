@@ -132,7 +132,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     try {
       final email = _email.text.trim();
       if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email)) {
-        throw const SoulApiFailure(
+        throw SoulApiFailure(
           statusCode: 422,
           code: 'INVALID_EMAIL',
           message: widget.labels.text('auth.validation_email', 'Enter a valid email address.'),

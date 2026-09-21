@@ -399,9 +399,14 @@ class _OptionalProfileDetailsScreenState
             ),
           )
         else if (choices.isEmpty)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 10),
-            child: Text(widget.labels.text('common.options_unavailable', 'Options are unavailable right now.')),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: Text(
+              widget.labels.text(
+                'common.options_unavailable',
+                'Options are unavailable right now.',
+              ),
+            ),
           )
         else
           Wrap(

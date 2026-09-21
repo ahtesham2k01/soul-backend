@@ -283,7 +283,11 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
     }
 
     if (_error != null && _preferences == null) {
-      return _RetryState(message: _error!, onRetry: _load);
+      return _RetryState(
+        labels: widget.labels,
+        message: _error!,
+        onRetry: _load,
+      );
     }
 
     if (_preferences == null) {
@@ -741,8 +745,13 @@ class _CircleAction extends StatelessWidget {
 }
 
 class _RetryState extends StatelessWidget {
-  const _RetryState({required this.message, required this.onRetry});
+  const _RetryState({
+    required this.labels,
+    required this.message,
+    required this.onRetry,
+  });
 
+  final BootstrapState labels;
   final String message;
   final VoidCallback onRetry;
 
@@ -759,7 +768,7 @@ class _RetryState extends StatelessWidget {
                 const SizedBox(height: 16),
                 FilledButton(
                   onPressed: onRetry,
-                  child: Text(widget.labels.text('common.retry', 'Try again')),
+                  child: Text(labels.text('common.retry', 'Try again')),
                 ),
               ],
             ),
