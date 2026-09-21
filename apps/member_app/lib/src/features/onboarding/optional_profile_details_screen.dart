@@ -169,11 +169,11 @@ class _OptionalProfileDetailsScreenState
     if (rawHeight.isNotEmpty && !_withheld.contains('height_cm')) {
       final height = int.tryParse(rawHeight);
       if (height == null || height < 50 || height > 300) {
-        return 'Height must be between 50 and 300 cm.';
+        return widget.labels.text('profile.validation_height', 'Height must be between 50 and 300 cm.');
       }
     }
-    if (_interests.length > 15) return 'Choose up to 15 interests.';
-    if (_traits.length > 5) return 'Choose up to 5 personality traits.';
+    if (_interests.length > 15) return widget.labels.format('common.choose_up_to', 'Choose up to {count}.', {'count': '15'});
+    if (_traits.length > 5) return widget.labels.format('common.choose_up_to', 'Choose up to {count}.', {'count': '5'});
     return null;
   }
 
@@ -401,7 +401,7 @@ class _OptionalProfileDetailsScreenState
         else if (choices.isEmpty)
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 10),
-            child: Text('Options are unavailable right now.'),
+            child: Text(widget.labels.text('common.options_unavailable', 'Options are unavailable right now.')),
           )
         else
           Wrap(

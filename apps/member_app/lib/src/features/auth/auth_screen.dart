@@ -84,10 +84,10 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
 
   String? _registrationValidation() {
     if (_registrationStep == 0 && _name.text.trim().length < 2) {
-      return 'Enter your full name.';
+      return widget.labels.text('auth.validation_name', 'Enter your full name.');
     }
     if (_registrationStep == 1 && _normalizedDob(_dob.text.trim()) == null) {
-      return 'Enter a valid date of birth. You must be 18 or older.';
+      return widget.labels.text('auth.validation_dob', 'Enter a valid date of birth. You must be 18 or older.');
     }
     return null;
   }
@@ -135,7 +135,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         throw const SoulApiFailure(
           statusCode: 422,
           code: 'INVALID_EMAIL',
-          message: 'Enter a valid email address.',
+          message: widget.labels.text('auth.validation_email', 'Enter a valid email address.'),
         );
       }
       final repository = ref.read(authRepositoryProvider);
@@ -210,9 +210,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
 
   String _subtitle() {
     if (_challenge != null) {
-      return 'Enter the Code that we have sent to\n${_email.text.trim()}';
+      return widget.labels.format('auth.otp_sent_to', 'Enter the code we sent to {email}.', {'email': _email.text.trim()});
     }
-    return 'We’ll email you a code to verify your identity';
+    return widget.labels.text('auth.email_code_help', 'We’ll email you a code to verify your identity.');
   }
 
   Widget _fields() {
@@ -222,7 +222,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         keyboardType: TextInputType.number,
         autofillHints: const [AutofillHints.oneTimeCode],
         maxLength: 6,
-        decoration: const InputDecoration(hintText: '6-digit code'),
+        decoration: InputDecoration(hintText: widget.labels.text('auth.otp_hint', '6-digit code')),
       );
     }
 
@@ -261,7 +261,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
             controller: _name,
             textCapitalization: TextCapitalization.words,
             autofillHints: const [AutofillHints.name],
-            decoration: const InputDecoration(hintText: 'Your name'),
+            decoration: InputDecoration(hintText: widget.labels.text('auth.name_hint', 'Your name')),
           ),
         ],
       );

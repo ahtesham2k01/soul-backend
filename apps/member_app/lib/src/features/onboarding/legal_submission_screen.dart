@@ -370,7 +370,7 @@ class _LifecycleCard extends StatelessWidget {
           Text(body, textAlign: TextAlign.center),
           if (lifecycle.correctable) ...[
             const SizedBox(height: 18),
-            FilledButton(onPressed: onCorrect, child: const Text('Fix now')),
+            FilledButton(onPressed: onCorrect, child: Text(labels.text('common.fix_now', 'Fix now'))),
           ],
         ]),
       ),

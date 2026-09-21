@@ -164,7 +164,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
             title: Text(
               widget.labels.text('matches.new_match', 'It is a match!'),
             ),
-            content: Text('${candidate.firstName} and you liked each other.'),
+            content: Text(widget.labels.format('matches.mutual_like', '{name} and you liked each other.', {'name': candidate.firstName})),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
@@ -290,7 +290,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
       return _EmptyState(
         icon: Icons.tune_rounded,
         title: widget.labels.text('discovery.filters', 'Filters'),
-        message: 'Choose who you would like to discover.',
+        message: widget.labels.text('discovery.choose_gender', 'Choose who you would like to discover.'),
         actionLabel: widget.labels.text('common.retry', 'Try again'),
         onAction: _load,
       );
@@ -304,7 +304,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
           'discovery.no_profiles',
           'No more profiles right now',
         ),
-        message: 'Try adjusting your filters or check back later.',
+        message: widget.labels.text('discovery.adjust_filters', 'Try adjusting your filters or check back later.'),
         actionLabel: widget.labels.text('common.retry', 'Try again'),
         onAction: _load,
         secondaryLabel: widget.labels.text('discovery.filters', 'Filters'),
@@ -759,7 +759,7 @@ class _RetryState extends StatelessWidget {
                 const SizedBox(height: 16),
                 FilledButton(
                   onPressed: onRetry,
-                  child: const Text('Try again'),
+                  child: Text(widget.labels.text('common.retry', 'Try again')),
                 ),
               ],
             ),

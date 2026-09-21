@@ -403,7 +403,7 @@ class _DiscoveryFiltersScreenState extends State<DiscoveryFiltersScreen> {
                           'Country of residence',
                         ),
                       ),
-                      subtitle: const Text('Limit results to your country'),
+                      subtitle: Text(widget.labels.text('discovery.same_country_only', 'Limit results to your country')),
                       value: _sameCountry,
                       onChanged: (value) =>
                           update(() => _sameCountry = value),
@@ -435,7 +435,7 @@ class _DiscoveryFiltersScreenState extends State<DiscoveryFiltersScreen> {
                             in const [10, 25, 40, 50, 100, 250, 500])
                           DropdownMenuItem<int?>(
                             value: distance,
-                            child: Text('Up to $distance km away'),
+                            child: Text(widget.labels.format('discovery.distance_up_to', 'Up to {distance} km away', {'distance': distance.toString()})),
                           ),
                       ],
                       onChanged: (value) => update(() => _radiusKm = value),

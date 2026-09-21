@@ -132,18 +132,16 @@ class _PhotoOnboardingScreenState
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Remove photo?'),
-        content: const Text(
-          'This removes the photo from your profile. You can upload a replacement.',
-        ),
+        title: Text(widget.labels.text('photos.remove_confirm', 'Remove photo?')),
+        content: Text(widget.labels.text('photos.remove_explainer', 'This removes the photo from your profile. You can upload a replacement.')),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(widget.labels.text('common.cancel', 'Cancel')),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Remove'),
+            child: Text(widget.labels.text('common.remove', 'Remove')),
           ),
         ],
       ),
@@ -244,8 +242,8 @@ class _PhotoOnboardingScreenState
                         Expanded(
                           child: Text(
                             _requirementsMet
-                                ? 'Photo requirements approved.'
-                                : 'Uploaded photos may remain pending while automated safety checks finish.',
+                                ? widget.labels.text('photos.requirements_approved', 'Photo requirements approved.')
+                                : widget.labels.text('photos.requirements_pending', 'Uploaded photos may remain pending while automated safety checks finish.'),
                           ),
                         ),
                       ],
@@ -411,7 +409,7 @@ class _PhotoSlot extends StatelessWidget {
                   IconButton(
                     onPressed: busy ? null : onDelete,
                     icon: const Icon(Icons.delete_outline),
-                    tooltip: 'Remove photo',
+                    tooltip: labels.text('photos.remove', 'Remove photo'),
                   ),
                 ],
               ],

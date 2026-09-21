@@ -231,16 +231,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       };
 
   String? _validation() {
-    if (_step == 0 && _name.text.trim().length < 2) return 'Enter your first name.';
-    if (_step == 1 && !_isAdultDate(_dob.text.trim())) return 'Enter a valid date in YYYY-MM-DD format. You must be 18 or older.';
-    if (_step == 2 && _answers['gender'] == null) return 'Select your gender.';
-    if (_step == 3 && (_city.text.trim().isEmpty || !_countryCode(_country))) return 'Enter your real city and a two-letter country code.';
-    if (_step == 4 && !_countryCode(_nationality)) return 'Enter your two-letter nationality country code.';
-    if (_step == 6 && _answers['marital_status'] == null) return 'Select your marital status.';
-    if (_step == 7 && _intentions.isEmpty) return 'Select at least one intention.';
-    if (_step == 8 && _answers['profession_status'] == null) return 'Select your profession status.';
-    if (_step == 9 && _languageCodes.isEmpty) return 'Select at least one language.';
-    if (_step >= 10 && _step <= 13 && _answers[_fieldForStep(_step)] == null) return 'Select an answer to continue.';
+    if (_step == 0 && _name.text.trim().length < 2) return widget.labels.text('onboarding.validation_first_name', 'Enter your first name.');
+    if (_step == 1 && !_isAdultDate(_dob.text.trim())) return widget.labels.text('onboarding.validation_dob', 'Enter a valid date in YYYY-MM-DD format. You must be 18 or older.');
+    if (_step == 2 && _answers['gender'] == null) return widget.labels.text('onboarding.validation_gender', 'Select your gender.');
+    if (_step == 3 && (_city.text.trim().isEmpty || !_countryCode(_country))) return widget.labels.text('onboarding.validation_city_country', 'Enter your real city and a two-letter country code.');
+    if (_step == 4 && !_countryCode(_nationality)) return widget.labels.text('onboarding.validation_nationality', 'Enter your two-letter nationality country code.');
+    if (_step == 6 && _answers['marital_status'] == null) return widget.labels.text('onboarding.validation_marital', 'Select your marital status.');
+    if (_step == 7 && _intentions.isEmpty) return widget.labels.text('onboarding.validation_intention', 'Select at least one intention.');
+    if (_step == 8 && _answers['profession_status'] == null) return widget.labels.text('onboarding.validation_profession', 'Select your profession status.');
+    if (_step == 9 && _languageCodes.isEmpty) return widget.labels.text('onboarding.validation_language', 'Select at least one language.');
+    if (_step >= 10 && _step <= 13 && _answers[_fieldForStep(_step)] == null) return widget.labels.text('onboarding.validation_answer', 'Select an answer to continue.');
     return null;
   }
 
@@ -695,7 +695,7 @@ class _MultiChoiceStep extends StatelessWidget {
   final VoidCallback onChanged;
   @override
   Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        SoulPageTitle(title, subtitle: 'Choose up to $maximum.'),
+        SoulPageTitle(title, subtitle: labels.format('common.choose_up_to', 'Choose up to {count}.', {'count': maximum.toString()})),
         const SizedBox(height: 20),
         for (final choice in choices) Padding(padding: const EdgeInsets.only(bottom: 10), child: _ChoiceTile(label: choice.$2, selected: selected.contains(choice.$1), onTap: () {
           if (selected.contains(choice.$1)) { selected.remove(choice.$1); } else if (selected.length < maximum) { selected.add(choice.$1); }
@@ -719,10 +719,10 @@ class _LanguageStep extends StatelessWidget {
   Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         SoulPageTitle(
           labels.text('profile.languages', 'Languages you speak'),
-          subtitle: 'Select at least one. You can add more later.',
+          subtitle: labels.text('onboarding.language_helper', 'Select at least one. You can add more later.'),
         ),
         const SizedBox(height: 18),
-        Expanded(child: languages.isEmpty ? const Center(child: Text('Languages are unavailable. Try again shortly.')) : ListView.separated(itemCount: languages.length, separatorBuilder: (_, __) => const SizedBox(height: 9), itemBuilder: (_, index) {
+        Expanded(child: languages.isEmpty ? Center(child: Text(labels.text('onboarding.languages_unavailable', 'Languages are unavailable. Try again shortly.'))) : ListView.separated(itemCount: languages.length, separatorBuilder: (_, __) => const SizedBox(height: 9), itemBuilder: (_, index) {
           final language = languages[index];
           return _ChoiceTile(label: language.label, selected: selected.contains(language.code), onTap: () { selected.contains(language.code) ? selected.remove(language.code) : selected.add(language.code); onChanged(); });
         })),
@@ -819,7 +819,7 @@ class _CompletionStep extends StatelessWidget {
         OutlinedButton.icon(
           onPressed: onAddDetails,
           icon: const Icon(Icons.tune_rounded),
-          label: const Text('Optional profile details'),
+          label: Text(labels.text('onboarding.optional_profile_details', 'Optional profile details')),
         ),
         const SizedBox(height: 12),
         FilledButton.icon(
