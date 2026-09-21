@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app_providers.dart';
 import '../../core/api_client.dart';
+import '../../core/soul_design.dart';
 import '../../core/soul_theme.dart';
 import '../bootstrap/bootstrap_repository.dart';
 import '../onboarding/onboarding_repository.dart';
@@ -279,90 +280,50 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     final labels = widget.labels;
-    return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 560),
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      IconButton(
-                        onPressed: _busy ? null : _back,
-                        icon: const Icon(Icons.arrow_back),
-                      ),
-                      const Icon(Icons.info_outline),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: ListView(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    children: [
-                      Text(
-                        _title(),
-                        style: Theme.of(context).textTheme.headlineMedium,
-                      ),
-                      const SizedBox(height: 5),
-                      Text(
-                        _subtitle(),
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                      const SizedBox(height: 30),
-                      _fields(),
-                      if (_error != null) ...[
-                        const SizedBox(height: 12),
-                        Text(
-                          _error!,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.error,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 22),
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        width: double.infinity,
-                        height: 50,
-                        child: ElevatedButton(
-                          onPressed: _busy ? null : _continue,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: SoulColors.lime,
-                            foregroundColor: SoulColors.ink,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          child: Text(
-                            _busy
-                                ? 'Please wait…'
-                                : (_challenge == null ? labels.text('common.continue', 'Continue') : 'Verify Code'),
-                            style: const TextStyle(fontWeight: FontWeight.w800),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 22),
-                      const Text(
-                        'By continuing you agree to our Terms and\nPrivacy Policy',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 12, color: SoulColors.ink, height: 1.45),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+    final progress = _challenge != null
+        ? 1.0
+        : widget.registration
+            ? (_registrationStep + 1) / 3
+            : .5;
+
+    return SoulStepScaffold(
+      progress: progress,
+      onBack: _back,
+      child: ListView(
+        children: [
+          SoulPageTitle(
+            _title(),
+            subtitle: _subtitle(),
+          ),
+          const SizedBox(height: 30),
+          _fields(),
+          if (_error != null) ...[
+            const SizedBox(height: 12),
+            Text(
+              _error!,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.error,
+              ),
+            ),
+          ],
+          const SizedBox(height: 18),
+          const Text(
+            'By continuing you agree to our Terms and Privacy Policy',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 12,
+              color: SoulColors.muted,
+              height: 1.45,
             ),
           ),
-        ),
+        ],
+      ),
+      footer: SoulPrimaryButton(
+        label: _challenge == null
+            ? labels.text('common.continue', 'Continue')
+            : 'Verify Code',
+        onPressed: _busy ? null : _continue,
+        busy: _busy,
       ),
     );
   }

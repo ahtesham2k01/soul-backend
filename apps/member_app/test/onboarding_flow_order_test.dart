@@ -1,0 +1,34 @@
+import 'dart:io';
+
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  test('onboarding keeps religion immediately after nationality', () {
+    final source = File(
+      'lib/src/features/onboarding/onboarding_screen.dart',
+    ).readAsStringSync();
+
+    final nationality = source.indexOf(
+      "4 => _TextStep(title: 'What is your nationality?'",
+    );
+    final religion = source.indexOf('5 => _ReligionStep(');
+    final maritalStatus = source.indexOf(
+      "6 => _singleChoice('What is your marital status?'",
+    );
+
+    expect(nationality, greaterThanOrEqualTo(0));
+    expect(religion, greaterThan(nationality));
+    expect(maritalStatus, greaterThan(religion));
+  });
+
+  test('religion hierarchy stays backend-driven and skips absent levels', () {
+    final source = File(
+      'lib/src/features/onboarding/onboarding_screen.dart',
+    ).readAsStringSync();
+
+    expect(source, contains('choice.hasChildren'));
+    expect(source, contains('religionOptions(parentId: choice.id'));
+    expect(source, contains('saveReligion(selectedNodeId: choice.id'));
+    expect(source, contains("setState(() => _step = 6);"));
+  });
+}

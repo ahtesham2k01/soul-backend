@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app_providers.dart';
 import '../../core/api_client.dart';
+import '../../core/soul_design.dart';
 import '../../core/soul_theme.dart';
 import '../bootstrap/bootstrap_repository.dart';
 import 'onboarding_repository.dart';
@@ -108,8 +109,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     try {
       if (payload.isNotEmpty) await ref.read(onboardingRepositoryProvider).saveProfile(payload);
       if (!mounted) return;
-      if (_step == 12) {
+      if (_step == 4) {
         await _loadReligion();
+      } else if (_step == 13) {
+        setState(() => _step = 6);
       } else {
         setState(() => _step++);
       }
@@ -126,14 +129,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         2 => {'gender': _answers['gender']},
         3 => {'city_name': _city.text.trim(), 'country_code': _country.text.trim().toUpperCase()},
         4 => {'nationality_country_code': _nationality.text.trim().toUpperCase()},
-        5 => {'marital_status': _answers['marital_status']},
-        6 => {'intentions': _intentions.toList()},
-        7 => {'profession_status': _answers['profession_status']},
-        8 => {'spoken_language_codes': _languageCodes.toList()},
-        9 => {'smoking': _answers['smoking']},
-        10 => {'alcohol': _answers['alcohol']},
-        11 => {'current_children': _answers['current_children']},
-        12 => {'future_children': _answers['future_children']},
+        6 => {'marital_status': _answers['marital_status']},
+        7 => {'intentions': _intentions.toList()},
+        8 => {'profession_status': _answers['profession_status']},
+        9 => {'spoken_language_codes': _languageCodes.toList()},
+        10 => {'smoking': _answers['smoking']},
+        11 => {'alcohol': _answers['alcohol']},
+        12 => {'current_children': _answers['current_children']},
+        13 => {'future_children': _answers['future_children']},
         _ => const {},
       };
 
@@ -143,11 +146,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     if (_step == 2 && _answers['gender'] == null) return 'Select your gender.';
     if (_step == 3 && (_city.text.trim().isEmpty || !_countryCode(_country))) return 'Enter your real city and a two-letter country code.';
     if (_step == 4 && !_countryCode(_nationality)) return 'Enter your two-letter nationality country code.';
-    if (_step == 5 && _answers['marital_status'] == null) return 'Select your marital status.';
-    if (_step == 6 && _intentions.isEmpty) return 'Select at least one intention.';
-    if (_step == 7 && _answers['profession_status'] == null) return 'Select your profession status.';
-    if (_step == 8 && _languageCodes.isEmpty) return 'Select at least one language.';
-    if (_step >= 9 && _step <= 12 && _answers[_fieldForStep(_step)] == null) return 'Select an answer to continue.';
+    if (_step == 6 && _answers['marital_status'] == null) return 'Select your marital status.';
+    if (_step == 7 && _intentions.isEmpty) return 'Select at least one intention.';
+    if (_step == 8 && _answers['profession_status'] == null) return 'Select your profession status.';
+    if (_step == 9 && _languageCodes.isEmpty) return 'Select at least one language.';
+    if (_step >= 10 && _step <= 13 && _answers[_fieldForStep(_step)] == null) return 'Select an answer to continue.';
     return null;
   }
 
@@ -162,11 +165,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     return age >= 18 && age <= 120;
   }
 
-  String _fieldForStep(int step) => const {9: 'smoking', 10: 'alcohol', 11: 'current_children', 12: 'future_children'}[step]!;
+  String _fieldForStep(int step) => const {
+        10: 'smoking',
+        11: 'alcohol',
+        12: 'current_children',
+        13: 'future_children',
+      }[step]!;
 
   Future<void> _loadReligion() async {
     final options = await ref.read(onboardingRepositoryProvider).religionOptions(country: _country.text.trim().toUpperCase());
-    if (mounted) setState(() { _step = 13; _religions = options; });
+    if (mounted) setState(() { _step = 5; _religions = options; });
   }
 
   Future<void> _chooseReligion(ReligionChoice choice) async {
@@ -233,8 +241,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   void _back() {
-    if (_step == 13 && _religionPath.isNotEmpty) {
+    if (_step == 5 && _religionPath.isNotEmpty) {
       setState(() => _religionPath.removeLast());
+      _reloadReligionLevel();
+    } else if (_step == 6 && _religionPath.isNotEmpty) {
+      setState(() {
+        _step = 5;
+        _religionPath.removeLast();
+      });
       _reloadReligionLevel();
     } else if (_step > 0) {
       setState(() => _step--);
@@ -257,32 +271,34 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 12, 24, 22),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Row(children: [IconButton(onPressed: _busy ? null : _back, icon: const Icon(Icons.arrow_back)), const Spacer(), const Icon(Icons.info_outline)]),
-              const SizedBox(height: 14),
-              LinearProgressIndicator(
-                value: (_step + 1) / _totalSteps,
-                minHeight: 5,
-                borderRadius: BorderRadius.circular(99),
-                color: SoulColors.lime,
-                backgroundColor: SoulColors.line,
+  Widget build(BuildContext context) => SoulStepScaffold(
+        progress: (_step + 1) / _totalSteps,
+        onBack: _busy ? () {} : _back,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: _busy && _step == 0
+                  ? const Center(child: CircularProgressIndicator())
+                  : _content(),
+            ),
+            if (_error != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: Text(
+                  _error!,
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
               ),
-              const SizedBox(height: 30),
-              Expanded(child: _busy && _step == 0 ? const Center(child: CircularProgressIndicator()) : _content()),
-              if (_error != null) Padding(padding: const EdgeInsets.only(bottom: 12), child: Text(_error!, style: const TextStyle(color: Colors.red))),
-              if (_step < 13)
-                SizedBox(width: double.infinity, height: 50, child: ElevatedButton(
-                  onPressed: _busy ? null : _continue,
-                  style: ElevatedButton.styleFrom(backgroundColor: SoulColors.lime, foregroundColor: SoulColors.ink),
-                  child: Text(_busy ? 'Please wait…' : widget.labels.text('common.continue', 'Continue'), style: const TextStyle(fontWeight: FontWeight.w800)),
-                )),
-            ]),
-          ),
+          ],
         ),
+        footer: _step < 14 && _step != 5
+            ? SoulPrimaryButton(
+                label: widget.labels.text('common.continue', 'Continue'),
+                onPressed: _busy ? null : _continue,
+                busy: _busy,
+              )
+            : null,
       );
 
   Widget _content() => switch (_step) {
@@ -291,15 +307,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         2 => _singleChoice('Select your gender.', 'gender', const [('man', 'Men'), ('woman', 'Women')]),
         3 => _LocationStep(city: _city, country: _country),
         4 => _TextStep(title: 'What is your nationality?', hint: 'Two-letter country code, e.g. PK', controller: _nationality),
-        5 => _singleChoice('What is your marital status?', 'marital_status', const [('never_married', 'Never married'), ('married', 'Married'), ('separated', 'Separated'), ('divorced', 'Divorced'), ('widowed', 'Widowed')]),
-        6 => _MultiChoiceStep(title: 'What are you looking for?', choices: const [('marriage', 'Marriage'), ('serious_relationship', 'Serious relationship'), ('casual_dating', 'Dating')], selected: _intentions, maximum: 3, onChanged: () => setState(() {})),
-        7 => _singleChoice('What best describes your work?', 'profession_status', const [('employed', 'Employed'), ('self_employed', 'Self-employed'), ('student', 'Student'), ('homemaker', 'Homemaker'), ('unemployed', 'Not currently working'), ('retired', 'Retired'), ('other', 'Other')]),
-        8 => _LanguageStep(languages: _languages, selected: _languageCodes, onChanged: () => setState(() {})),
-        9 => _singleChoice('Do you smoke?', 'smoking', _lifestyleChoices),
-        10 => _singleChoice('Do you drink alcohol?', 'alcohol', _lifestyleChoices),
-        11 => _singleChoice('Do you have children?', 'current_children', const [('no', 'No'), ('yes_living_with_me', 'Yes, living with me'), ('yes_not_living_with_me', 'Yes, not living with me'), ('prefer_not_to_say', 'Prefer not to say')]),
-        12 => _singleChoice('How do you feel about children in future?', 'future_children', const [('want_children', 'Want children'), ('do_not_want_children', 'Do not want children'), ('open_to_children', 'Open to children'), ('not_sure', 'Not sure'), ('prefer_not_to_say', 'Prefer not to say')]),
-        13 => _ReligionStep(path: _religionPath, options: _religions, busy: _busy, onSelected: _chooseReligion, onRetry: _reloadReligionLevel),
+        5 => _ReligionStep(path: _religionPath, options: _religions, busy: _busy, onSelected: _chooseReligion, onRetry: _reloadReligionLevel),
+        6 => _singleChoice('What is your marital status?', 'marital_status', const [('never_married', 'Never married'), ('married', 'Married'), ('separated', 'Separated'), ('divorced', 'Divorced'), ('widowed', 'Widowed')]),
+        7 => _MultiChoiceStep(title: 'What are you looking for?', choices: const [('marriage', 'Marriage'), ('serious_relationship', 'Serious relationship'), ('casual_dating', 'Dating')], selected: _intentions, maximum: 3, onChanged: () => setState(() {})),
+        8 => _singleChoice('What best describes your work?', 'profession_status', const [('employed', 'Employed'), ('self_employed', 'Self-employed'), ('student', 'Student'), ('homemaker', 'Homemaker'), ('unemployed', 'Not currently working'), ('retired', 'Retired'), ('other', 'Other')]),
+        9 => _LanguageStep(languages: _languages, selected: _languageCodes, onChanged: () => setState(() {})),
+        10 => _singleChoice('Do you smoke?', 'smoking', _lifestyleChoices),
+        11 => _singleChoice('Do you drink alcohol?', 'alcohol', _lifestyleChoices),
+        12 => _singleChoice('Do you have children?', 'current_children', const [('no', 'No'), ('yes_living_with_me', 'Yes, living with me'), ('yes_not_living_with_me', 'Yes, not living with me'), ('prefer_not_to_say', 'Prefer not to say')]),
+        13 => _singleChoice('How do you feel about children in future?', 'future_children', const [('want_children', 'Want children'), ('do_not_want_children', 'Do not want children'), ('open_to_children', 'Open to children'), ('not_sure', 'Not sure'), ('prefer_not_to_say', 'Prefer not to say')]),
         _ => _CompletionStep(missing: _missing, onAddPhotos: _openPhotos, onSubmit: _reviewAndSubmit),
       };
 
@@ -320,12 +336,18 @@ class _TextStep extends StatelessWidget {
   final TextEditingController controller;
   final TextInputType keyboardType;
   @override
-  Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(title, style: Theme.of(context).textTheme.headlineMedium),
-        const SizedBox(height: 8),
-        const SizedBox(height: 28),
-        TextField(controller: controller, keyboardType: keyboardType, decoration: InputDecoration(hintText: hint)),
-      ]);
+  Widget build(BuildContext context) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SoulPageTitle(title),
+          const SizedBox(height: 28),
+          TextField(
+            controller: controller,
+            keyboardType: keyboardType,
+            decoration: InputDecoration(hintText: hint),
+          ),
+        ],
+      );
 }
 
 class _LocationStep extends StatelessWidget {
@@ -333,15 +355,28 @@ class _LocationStep extends StatelessWidget {
   final TextEditingController city;
   final TextEditingController country;
   @override
-  Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text('Where do you live?', style: Theme.of(context).textTheme.headlineMedium),
-        const SizedBox(height: 8),
-        const Text('Use your real current city. Precise coordinates are never shown publicly.'),
-        const SizedBox(height: 24),
-        TextField(controller: city, decoration: const InputDecoration(hintText: 'City')),
-        const SizedBox(height: 14),
-        TextField(controller: country, textCapitalization: TextCapitalization.characters, maxLength: 2, decoration: const InputDecoration(hintText: 'Country code, e.g. PK')),
-      ]);
+  Widget build(BuildContext context) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SoulPageTitle(
+            'Where do you live?',
+            subtitle:
+                'Use your real current city. Precise coordinates are never shown publicly.',
+          ),
+          const SizedBox(height: 24),
+          TextField(
+            controller: city,
+            decoration: const InputDecoration(hintText: 'City'),
+          ),
+          const SizedBox(height: 14),
+          TextField(
+            controller: country,
+            textCapitalization: TextCapitalization.characters,
+            maxLength: 2,
+            decoration: const InputDecoration(hintText: 'Country code, e.g. PK'),
+          ),
+        ],
+      );
 }
 
 class _SingleChoiceStep extends StatelessWidget {
@@ -352,7 +387,7 @@ class _SingleChoiceStep extends StatelessWidget {
   final ValueChanged<String> onSelected;
   @override
   Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(title, style: Theme.of(context).textTheme.headlineMedium),
+        SoulPageTitle(title),
         const SizedBox(height: 22),
         Expanded(child: ListView.separated(itemCount: choices.length, separatorBuilder: (_, __) => const SizedBox(height: 10), itemBuilder: (_, index) {
           final choice = choices[index];
@@ -370,9 +405,7 @@ class _MultiChoiceStep extends StatelessWidget {
   final VoidCallback onChanged;
   @override
   Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(title, style: Theme.of(context).textTheme.headlineMedium),
-        const SizedBox(height: 8),
-        Text('Choose up to $maximum.', style: Theme.of(context).textTheme.bodyMedium),
+        SoulPageTitle(title, subtitle: 'Choose up to $maximum.'),
         const SizedBox(height: 20),
         for (final choice in choices) Padding(padding: const EdgeInsets.only(bottom: 10), child: _ChoiceTile(label: choice.$2, selected: selected.contains(choice.$1), onTap: () {
           if (selected.contains(choice.$1)) { selected.remove(choice.$1); } else if (selected.length < maximum) { selected.add(choice.$1); }
@@ -388,9 +421,10 @@ class _LanguageStep extends StatelessWidget {
   final VoidCallback onChanged;
   @override
   Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text('Which languages do you speak?', style: Theme.of(context).textTheme.headlineMedium),
-        const SizedBox(height: 8),
-        const Text('Select at least one. You can add more later.'),
+        const SoulPageTitle(
+          'Which languages do you speak?',
+          subtitle: 'Select at least one. You can add more later.',
+        ),
         const SizedBox(height: 18),
         Expanded(child: languages.isEmpty ? const Center(child: Text('Languages are unavailable. Try again shortly.')) : ListView.separated(itemCount: languages.length, separatorBuilder: (_, __) => const SizedBox(height: 9), itemBuilder: (_, index) {
           final language = languages[index];
@@ -408,15 +442,45 @@ class _ReligionStep extends StatelessWidget {
   final VoidCallback onRetry;
   @override
   Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(path.isEmpty ? 'Select your religion or belief.' : 'Select the next relevant detail.', style: Theme.of(context).textTheme.headlineMedium),
-        const SizedBox(height: 8),
-        if (path.isNotEmpty) Text(path.map((item) => item.label).join(' / ')),
+        SoulPageTitle(
+          _religionTitle(path),
+          subtitle: _religionSubtitle(path),
+        ),
+        if (path.isNotEmpty) ...[
+          const SizedBox(height: 14),
+          Wrap(
+            spacing: 7,
+            runSpacing: 7,
+            children: path
+                .map((item) => Chip(
+                      label: Text(item.label),
+                      visualDensity: VisualDensity.compact,
+                    ))
+                .toList(growable: false),
+          ),
+        ],
         const SizedBox(height: 20),
         if (busy) const Expanded(child: Center(child: CircularProgressIndicator())) else if (options.isEmpty) Expanded(child: Center(child: OutlinedButton.icon(onPressed: onRetry, icon: const Icon(Icons.refresh), label: const Text('Retry options')))) else Expanded(child: ListView.separated(itemCount: options.length, separatorBuilder: (_, __) => const SizedBox(height: 10), itemBuilder: (_, index) {
           final item = options[index];
           return _ChoiceTile(label: item.label, selected: false, onTap: () => onSelected(item));
         })),
       ]);
+}
+
+String _religionTitle(List<ReligionChoice> path) {
+  if (path.isEmpty) return 'What is your religion?';
+  final level = path.last.level?.toLowerCase();
+  if (level == 'religion') return 'Which sect do you follow?';
+  if (level == 'sect') return 'Which sub-sect do you follow?';
+  if (level == 'sub_sect' || level == 'sub-sect' || level == 'subsect') {
+    return 'Select your caste or community';
+  }
+  return 'Tell us a little more';
+}
+
+String _religionSubtitle(List<ReligionChoice> path) {
+  if (path.isEmpty) return 'Choose the option that best describes you.';
+  return 'Only relevant options are shown. If there is no next level, we’ll continue automatically.';
 }
 
 class _CompletionStep extends StatelessWidget {
@@ -473,70 +537,22 @@ class _ChoiceTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final genderChoice = label == 'Men' || label == 'Women';
-    return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(11),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(11),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 17),
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: selected ? SoulColors.lime : SoulColors.line,
-              width: selected ? 1.5 : 1,
-            ),
-            borderRadius: BorderRadius.circular(11),
-          ),
-          child: Row(
-            children: [
-              if (genderChoice) ...[
-                CircleAvatar(
-                  radius: 23,
-                  backgroundColor: SoulColors.softSurface,
-                  child: Icon(
-                    label == 'Men' ? Icons.person_rounded : Icons.person_2_rounded,
-                    color: SoulColors.forest,
-                  ),
-                ),
-                const SizedBox(width: 16),
-              ],
-              Expanded(
-                child: Text(
-                  label,
-                  style: const TextStyle(
-                    color: SoulColors.ink,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                  ),
-                ),
+    return SoulChoiceTile(
+      label: label,
+      selected: selected,
+      onTap: onTap,
+      leading: genderChoice
+          ? CircleAvatar(
+              radius: 20,
+              backgroundColor: SoulColors.softSurface,
+              child: Icon(
+                label == 'Men'
+                    ? Icons.person_rounded
+                    : Icons.person_2_rounded,
+                color: SoulColors.forest,
               ),
-              Container(
-                width: 25,
-                height: 25,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: selected ? SoulColors.lime : SoulColors.line,
-                    width: selected ? 2 : 1.5,
-                  ),
-                ),
-                child: selected
-                    ? Container(
-                        width: 13,
-                        height: 13,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: SoulColors.lime,
-                        ),
-                      )
-                    : null,
-              ),
-            ],
-          ),
-        ),
-      ),
+            )
+          : null,
     );
   }
 }
