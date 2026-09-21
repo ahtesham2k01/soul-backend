@@ -36,11 +36,13 @@ class _SoulAppState extends ConsumerState<SoulApp> {
         title: 'SOUL',
         debugShowCheckedModeBanner: false,
         theme: soulTheme(),
-        home: Directionality(
+        builder: (context, child) => Directionality(
           textDirection: state.direction == 'rtl'
               ? TextDirection.rtl
               : TextDirection.ltr,
-          child: sessionRoute.when(
+          child: child ?? const SizedBox.shrink(),
+        ),
+        home: sessionRoute.when(
             data: (route) {
               if (!_launchFinished) {
                 return LaunchScreen(
@@ -73,7 +75,6 @@ class _SoulAppState extends ConsumerState<SoulApp> {
             error: (_, __) => const _BootstrapErrorScreen(),
             loading: () => const _LaunchScreen(),
           ),
-        ),
       ),
       error: (_, __) => const MaterialApp(
         debugShowCheckedModeBanner: false,

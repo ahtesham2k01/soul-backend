@@ -9,6 +9,11 @@ void main() {
     expect(source, contains("state.direction == 'rtl'"));
     expect(source, contains('TextDirection.rtl'));
     expect(source, contains('TextDirection.ltr'));
+    expect(
+      source,
+      contains('builder: (context, child) => Directionality('),
+    );
+    expect(source, isNot(contains('home: Directionality(')));
   });
 
   test('shared selectable cards expose explicit accessibility semantics', () {
