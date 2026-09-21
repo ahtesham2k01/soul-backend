@@ -411,6 +411,7 @@ class _NotificationSettingsScreenState
             ? const Center(child: CircularProgressIndicator())
             : _settings == null
                 ? _Retry(
+                    labels: widget.labels,
                     message: _error ?? 'Notifications are unavailable.',
                     onRetry: _load,
                   )
@@ -473,17 +474,17 @@ class _NotificationSettingsScreenState
                               pushMarketing: value,
                             ),
                           ),
-                          const ListTile(
+                          ListTile(
                             title: Text(
-                          widget.labels.text(
+                              widget.labels.text(
                             'notifications.safety',
                             'Safety updates',
-                          ),
-                        ),
-                            subtitle: Text(
+                              ),
+                            ),
+                            subtitle: const Text(
                               'Always on for important safety notices.',
                             ),
-                            trailing: Icon(Icons.lock_outline_rounded),
+                            trailing: const Icon(Icons.lock_outline_rounded),
                           ),
                         ],
                       ),
@@ -541,17 +542,17 @@ class _NotificationSettingsScreenState
                               emailMarketing: value,
                             ),
                           ),
-                          const ListTile(
+                          ListTile(
                             title: Text(
-                          widget.labels.text(
+                              widget.labels.text(
                             'notifications.safety',
                             'Safety updates',
-                          ),
-                        ),
-                            subtitle: Text(
+                              ),
+                            ),
+                            subtitle: const Text(
                               'Always on for important safety notices.',
                             ),
-                            trailing: Icon(Icons.lock_outline_rounded),
+                            trailing: const Icon(Icons.lock_outline_rounded),
                           ),
                         ],
                       ),
@@ -660,6 +661,7 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
             ? const Center(child: CircularProgressIndicator())
             : _settings == null
                 ? _Retry(
+                    labels: widget.labels,
                     message: _error ?? 'Privacy settings are unavailable.',
                     onRetry: _load,
                   )
@@ -857,7 +859,11 @@ class _BlockedProfilesScreenState extends State<BlockedProfilesScreen> {
         body: _loading
             ? const Center(child: CircularProgressIndicator())
             : _error != null && _items.isEmpty
-                ? _Retry(message: _error!, onRetry: _load)
+                ? _Retry(
+                    labels: widget.labels,
+                    message: _error!,
+                    onRetry: _load,
+                  )
                 : RefreshIndicator(
                     onRefresh: _load,
                     child: _items.isEmpty
@@ -1013,7 +1019,11 @@ class _DeviceSessionsScreenState extends State<DeviceSessionsScreen> {
         body: _loading
             ? const Center(child: CircularProgressIndicator())
             : _error != null && _sessions.isEmpty
-                ? _Retry(message: _error!, onRetry: _load)
+                ? _Retry(
+                    labels: widget.labels,
+                    message: _error!,
+                    onRetry: _load,
+                  )
                 : ListView.separated(
                     padding: const EdgeInsets.fromLTRB(18, 8, 18, 30),
                     itemCount: _sessions.length,
@@ -1437,7 +1447,11 @@ class _MembershipScreenState extends State<MembershipScreen> {
         body: _loading
             ? const Center(child: CircularProgressIndicator())
             : _error != null
-                ? _Retry(message: _error!, onRetry: _load)
+                ? _Retry(
+                    labels: widget.labels,
+                    message: _error!,
+                    onRetry: _load,
+                  )
                 : ListView(
                     padding: const EdgeInsets.fromLTRB(18, 12, 18, 30),
                     children: [
@@ -1705,10 +1719,12 @@ class _InlineError extends StatelessWidget {
 
 class _Retry extends StatelessWidget {
   const _Retry({
+    required this.labels,
     required this.message,
     required this.onRetry,
   });
 
+  final BootstrapState labels;
   final String message;
   final VoidCallback onRetry;
 
@@ -1723,7 +1739,7 @@ class _Retry extends StatelessWidget {
               const SizedBox(height: 14),
               FilledButton(
                 onPressed: onRetry,
-                child: Text(widget.labels.text('common.retry', 'Try again')),
+                child: Text(labels.text('common.retry', 'Try again')),
               ),
             ],
           ),

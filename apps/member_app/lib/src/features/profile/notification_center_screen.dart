@@ -2,15 +2,18 @@ import 'package:flutter/material.dart';
 
 import '../../core/api_client.dart';
 import '../../core/soul_theme.dart';
+import '../bootstrap/bootstrap_repository.dart';
 import 'profile_repository.dart';
 
 class NotificationCenterScreen extends StatefulWidget {
   const NotificationCenterScreen({
     super.key,
     required this.repository,
+    required this.labels,
   });
 
   final ProfileRepository repository;
+  final BootstrapState labels;
 
   @override
   State<NotificationCenterScreen> createState() =>
@@ -116,14 +119,19 @@ class _NotificationCenterScreenState
       final value = item.data[key]?.toString();
       if (value != null && value.trim().isNotEmpty) return value.trim();
     }
-    return 'Open SOUL to view this update.';
+    return widget.labels.text(
+      'notifications.open_update',
+      'Open SOUL to view this update.',
+    );
   }
 
   String _time(DateTime value) {
     final local = value.toLocal();
     final now = DateTime.now();
     final difference = now.difference(local);
-    if (difference.inMinutes < 1) return 'Now';
+    if (difference.inMinutes < 1) {
+      return widget.labels.text('notifications.now', 'Now');
+    }
     if (difference.inHours < 1) return '${difference.inMinutes}m';
     if (difference.inDays < 1) return '${difference.inHours}h';
     if (difference.inDays < 7) return '${difference.inDays}d';
@@ -139,14 +147,18 @@ class _NotificationCenterScreenState
         body: _loading
             ? const Center(child: CircularProgressIndicator())
             : _error != null && _items.isEmpty
-                ? _NotificationError(message: _error!, onRetry: _load)
+                ? _NotificationError(
+                    labels: widget.labels,
+                    message: _error!,
+                    onRetry: _load,
+                  )
                 : RefreshIndicator(
                     onRefresh: _load,
                     child: _items.isEmpty
                         ? ListView(
-                            children: const [
-                              SizedBox(height: 160),
-                              Icon(
+                            children: [
+                              const SizedBox(height: 160),
+                              const Icon(
                                 Icons.notifications_none_rounded,
                                 size: 58,
                                 color: SoulColors.muted,
@@ -269,10 +281,12 @@ class _NotificationCenterScreenState
 
 class _NotificationError extends StatelessWidget {
   const _NotificationError({
+    required this.labels,
     required this.message,
     required this.onRetry,
   });
 
+  final BootstrapState labels;
   final String message;
   final VoidCallback onRetry;
 

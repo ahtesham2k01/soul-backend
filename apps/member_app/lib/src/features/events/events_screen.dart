@@ -369,6 +369,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
             ? const Center(child: CircularProgressIndicator())
             : _event == null
                 ? _EventError(
+                    labels: widget.labels,
                     message: _error ?? 'Event unavailable.',
                     onRetry: _load,
                   )
@@ -612,8 +613,13 @@ class _DetailLine extends StatelessWidget {
 }
 
 class _EventError extends StatelessWidget {
-  const _EventError({required this.message, required this.onRetry});
+  const _EventError({
+    required this.labels,
+    required this.message,
+    required this.onRetry,
+  });
 
+  final BootstrapState labels;
   final String message;
   final VoidCallback onRetry;
 

@@ -234,6 +234,7 @@ class _PrivatePhotoViewerScreenState extends State<PrivatePhotoViewerScreen> {
             photo: album.photos[index],
             repository: widget.repository,
             protection: album.protection,
+            labels: widget.labels,
           ),
         ),
         if (_recordingCaptured)
@@ -318,11 +319,13 @@ class _ProtectedPhotoPage extends StatefulWidget {
     required this.photo,
     required this.repository,
     required this.protection,
+    required this.labels,
   });
 
   final PrivateChatPhoto photo;
   final ChatRepository repository;
   final PrivatePhotoProtection protection;
+  final BootstrapState labels;
 
   @override
   State<_ProtectedPhotoPage> createState() => _ProtectedPhotoPageState();

@@ -553,7 +553,7 @@ class _ReportDialogState extends State<_ReportDialog> {
             children: [
               DropdownButtonFormField<String>(
                 initialValue: _category,
-                items: const [
+                items: [
                   DropdownMenuItem(
                     value: 'fake_profile',
                     child: Text(widget.labels.text('safety.reason.fake_profile', 'Fake profile')),

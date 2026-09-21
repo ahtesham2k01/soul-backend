@@ -486,6 +486,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                     keyboardType: TextInputType.datetime,
                   ),
                   _ChoiceRow(
+                    selectLabel: widget.labels.text('common.select', 'Select'),
                     label: widget.labels.text('profile.gender', 'Gender'),
                     value: _gender,
                     choices: const {
@@ -519,6 +520,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                     capitalization: TextCapitalization.characters,
                   ),
                   _ChoiceRow(
+                    selectLabel: widget.labels.text('common.select', 'Select'),
                     label: widget.labels.text(
                       'profile.marital_status',
                       'Marital status',
@@ -628,6 +630,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                     controller: _employer,
                   ),
                   _ChoiceRow(
+                    selectLabel: widget.labels.text('common.select', 'Select'),
                     label: widget.labels.text(
                       'profile.profession',
                       'Profession or status',
@@ -808,6 +811,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                 title: widget.labels.text('profile.section_lifestyle', 'Lifestyle'),
                 children: [
                   _ChoiceRow(
+                    selectLabel: widget.labels.text('common.select', 'Select'),
                     label: widget.labels.text(
                       'profile.smoking',
                       'Do you smoke?',
@@ -823,6 +827,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                         _setValue(() => _smoking = value),
                   ),
                   _ChoiceRow(
+                    selectLabel: widget.labels.text('common.select', 'Select'),
                     label: widget.labels.text(
                       'profile.alcohol',
                       'Do you drink alcohol?',
@@ -838,6 +843,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                         _setValue(() => _alcohol = value),
                   ),
                   _ChoiceRow(
+                    selectLabel: widget.labels.text('common.select', 'Select'),
                     label: widget.labels.text(
                       'profile.children_now',
                       'Do you have children?',
@@ -853,6 +859,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                         _setValue(() => _currentChildren = value),
                   ),
                   _ChoiceRow(
+                    selectLabel: widget.labels.text('common.select', 'Select'),
                     label: widget.labels.text(
                       'profile.children_future',
                       'Do you want children?',
@@ -1224,12 +1231,14 @@ class _TextFieldRow extends StatelessWidget {
 
 class _ChoiceRow extends StatelessWidget {
   const _ChoiceRow({
+    required this.selectLabel,
     required this.label,
     required this.value,
     required this.choices,
     required this.onChanged,
   });
 
+  final String selectLabel;
   final String label;
   final String? value;
   final Map<String, String> choices;
@@ -1252,7 +1261,7 @@ class _ChoiceRow extends StatelessWidget {
             const SizedBox(width: 12),
             DropdownButton<String>(
               value: value != null && choices.containsKey(value) ? value : null,
-              hint: Text(widget.labels.text('common.select', 'Select')),
+              hint: Text(selectLabel),
               underline: const SizedBox.shrink(),
               items: choices.entries
                   .map(

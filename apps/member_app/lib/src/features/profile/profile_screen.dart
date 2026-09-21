@@ -292,6 +292,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       MaterialPageRoute(
                         builder: (_) => NotificationCenterScreen(
                           repository: widget.repository,
+                          labels: widget.labels,
                         ),
                       ),
                     ),

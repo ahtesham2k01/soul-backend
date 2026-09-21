@@ -25,6 +25,7 @@ const runAudit = (root) => spawnSync(
     [auditScript, '--format=json'],
     {
         encoding: 'utf8',
+        maxBuffer: 16 * 1024 * 1024,
         env: { ...process.env, SOUL_LOCALIZATION_ROOT: root },
     },
 );
@@ -33,7 +34,7 @@ test('JSON audit is machine-readable and launch-ready catalogs have no unresolve
     const output = execFileSync(
         process.execPath,
         ['scripts/audit-localization.mjs', '--format=json'],
-        { encoding: 'utf8' },
+        { encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 },
     );
     const report = JSON.parse(output);
 
@@ -86,7 +87,7 @@ test('JSON report exposes fallback keys but never catalog values', () => {
     const output = execFileSync(
         process.execPath,
         [auditScript, '--format=json'],
-        { encoding: 'utf8' },
+        { encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 },
     );
 
     assert.ok(output.includes('fallbackKeys'));
@@ -192,7 +193,7 @@ test('unsupported output formats fail without running the audit', () => {
     const result = spawnSync(
         process.execPath,
         ['scripts/audit-localization.mjs', '--format=xml'],
-        { encoding: 'utf8' },
+        { encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 },
     );
 
     assert.equal(result.status, 2);
