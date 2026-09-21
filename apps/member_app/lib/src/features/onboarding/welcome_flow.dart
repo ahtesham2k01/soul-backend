@@ -40,6 +40,40 @@ class _WelcomeFlowState extends ConsumerState<WelcomeFlow> {
     );
   }
 
+  Future<void> _selectLanguage() async {
+    final languages = widget.labels.supportedLanguages
+        .where((language) => language.isLaunchReady)
+        .toList(growable: false);
+    if (languages.isEmpty) return;
+
+    final selected = await showModalBottomSheet<String>(
+      context: context,
+      useSafeArea: true,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) => _LanguageSheet(
+        currentLocale: widget.labels.locale,
+        languages: languages,
+      ),
+    );
+    if (selected == null || selected == widget.labels.locale || !mounted) return;
+    await ref.read(sessionStoreProvider).saveLocale(selected);
+    if (!mounted) return;
+    ref.invalidate(bootstrapProvider);
+  }
+
+  String get _languageLabel {
+    for (final language in widget.labels.supportedLanguages) {
+      if (language.code == widget.labels.locale) {
+        return language.nativeName.isNotEmpty ? language.nativeName : language.name;
+      }
+    }
+    return widget.labels.locale.toUpperCase();
+  }
+
   Future<void> _socialSignIn({required bool apple}) async {
     setState(() { _socialBusy = true; _socialError = null; });
     try {
@@ -96,7 +130,8 @@ class _WelcomeFlowState extends ConsumerState<WelcomeFlow> {
                   children: [
                     _TopAction(
                       icon: Icons.language_outlined,
-                      label: widget.labels.locale.toUpperCase(),
+                      label: _languageLabel,
+                      onTap: _selectLanguage,
                     ),
                     const _TopAction(icon: Icons.info_outline),
                   ],
@@ -131,45 +166,19 @@ class _WelcomeFlowState extends ConsumerState<WelcomeFlow> {
                       Text(_socialError!, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white)),
                       const SizedBox(height: 10),
                     ],
-                    Row(children: [
-                      Expanded(child: OutlinedButton.icon(
-                        onPressed: _socialBusy ? null : () => _socialSignIn(apple: false),
-                        icon: const Icon(Icons.g_mobiledata, size: 27),
-                        label: Text(widget.labels.text('auth.continue_with_google', 'Continue with Google')),
-                        style: OutlinedButton.styleFrom(foregroundColor: Colors.white, side: const BorderSide(color: Colors.white54)),
-                      )),
-                    ]),
-                    const SizedBox(height: 8),
-                    Row(children: [
-                      Expanded(child: OutlinedButton.icon(
-                        onPressed: _socialBusy ? null : () => _socialSignIn(apple: true),
-                        icon: const Icon(Icons.apple),
-                        label: Text(widget.labels.text('auth.continue_with_apple', 'Continue with Apple')),
-                        style: OutlinedButton.styleFrom(foregroundColor: Colors.white, side: const BorderSide(color: Colors.white54)),
-                      )),
-                    ]),
-                    const SizedBox(height: 8),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 49,
-                      child: ElevatedButton(
-                        onPressed: () => _openEmail(registration: true),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: SoulColors.limeLight,
-                          foregroundColor: SoulColors.ink,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(25),
-                          ),
-                        ),
-                        child: Text(
-                          widget.labels.text('auth.create_account', 'Create Account'),
-                          style: const TextStyle(fontWeight: FontWeight.w700),
-                        ),
+                    _AccountActions(
+                      busy: _socialBusy,
+                      createAccountLabel: widget.labels.text(
+                        'auth.create_account',
+                        'Create Account',
                       ),
+                      onCreateAccount: () => _openEmail(registration: true),
+                      onGoogle: () => _socialSignIn(apple: false),
+                      onApple: () => _socialSignIn(apple: true),
                     ),
                     const SizedBox(height: 8),
                     TextButton(
-                      onPressed: () => _openEmail(registration: false),
+                      onPressed: _socialBusy ? null : () => _openEmail(registration: false),
                       style: TextButton.styleFrom(foregroundColor: Colors.white),
                       child: const Text(
                         'Already have an account? Log in',
@@ -196,75 +205,356 @@ class _OnboardingSlide extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topRight,
             end: Alignment.bottomLeft,
-            colors: [Color(0xff567d19), SoulColors.forestDeep],
+            colors: [Color(0xff719f24), Color(0xff183707), SoulColors.forestDeep],
+            stops: [0, .45, 1],
           ),
         ),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(30, 96, 30, 170),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Center(
-                  child: Container(
-                    height: 220,
-                    width: 220,
+        child: Stack(
+          children: [
+            const Positioned(
+              top: 125,
+              left: -85,
+              child: _GradientHeart(size: 230, angle: -.18),
+            ),
+            const Positioned(
+              top: 115,
+              right: -112,
+              child: _GradientHeart(size: 390, angle: .18),
+            ),
+            Positioned(
+              top: 355,
+              left: 12,
+              child: Icon(
+                Icons.favorite_border_rounded,
+                size: 118,
+                color: Colors.white.withValues(alpha: .08),
+              ),
+            ),
+            Positioned(
+              top: 430,
+              left: 170,
+              child: Icon(
+                Icons.favorite_rounded,
+                size: 46,
+                color: Colors.white.withValues(alpha: .15),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(30, 90, 30, 185),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Spacer(flex: 7),
+                  const Row(
+                    children: [
+                      Icon(Icons.spa_rounded, color: SoulColors.limeLight, size: 25),
+                      SizedBox(width: 7),
+                      Text(
+                        'SOUL',
+                        style: TextStyle(
+                          color: SoulColors.limeLight,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 25,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  DecoratedBox(
                     decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: SoulColors.lime.withValues(alpha: .10),
-                      border: Border.all(
-                        color: SoulColors.lime.withValues(alpha: .45),
-                        width: 2,
+                      color: SoulColors.limeLight,
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(3, 1, 5, 2),
+                      child: Text(
+                        slide.accent,
+                        style: const TextStyle(
+                          color: SoulColors.ink,
+                          fontSize: 29,
+                          height: 1.05,
+                          fontWeight: FontWeight.w900,
+                        ),
                       ),
                     ),
-                    child: Icon(slide.icon, size: 94, color: SoulColors.lime),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    slide.title,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 30,
+                      fontWeight: FontWeight.w900,
+                      height: 1.08,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    slide.description,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      height: 1.45,
+                    ),
+                  ),
+                  const Spacer(flex: 2),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+}
+
+class _GradientHeart extends StatelessWidget {
+  const _GradientHeart({required this.size, required this.angle});
+
+  final double size;
+  final double angle;
+
+  @override
+  Widget build(BuildContext context) => Transform.rotate(
+        angle: angle,
+        child: ShaderMask(
+          shaderCallback: (bounds) => const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [SoulColors.limeLight, Color(0xff527d14)],
+          ).createShader(bounds),
+          child: Icon(
+            Icons.favorite_rounded,
+            color: Colors.white,
+            size: size,
+          ),
+        ),
+      );
+}
+
+class _AccountActions extends StatelessWidget {
+  const _AccountActions({
+    required this.busy,
+    required this.createAccountLabel,
+    required this.onCreateAccount,
+    required this.onGoogle,
+    required this.onApple,
+  });
+
+  final bool busy;
+  final String createAccountLabel;
+  final VoidCallback onCreateAccount;
+  final VoidCallback onGoogle;
+  final VoidCallback onApple;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        height: 64,
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: .16),
+          border: Border.all(color: Colors.white24),
+          borderRadius: BorderRadius.circular(35),
+        ),
+        child: Row(
+          children: [
+            _ProviderCircle(
+              onPressed: busy ? null : onGoogle,
+              child: const Text(
+                'G',
+                style: TextStyle(
+                  color: Color(0xff4285f4),
+                  fontSize: 23,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ),
+            const SizedBox(width: 6),
+            _ProviderCircle(
+              onPressed: busy ? null : onApple,
+              child: const Icon(Icons.apple, color: Colors.black, size: 27),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: SizedBox(
+                height: double.infinity,
+                child: ElevatedButton(
+                  onPressed: busy ? null : onCreateAccount,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: SoulColors.limeLight,
+                    foregroundColor: SoulColors.ink,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(29),
+                    ),
+                  ),
+                  child: Text(
+                    busy ? 'Please wait…' : createAccountLabel,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 15,
+                    ),
                   ),
                 ),
               ),
-              const Text(
-                'SOUL',
-                style: TextStyle(
-                  color: SoulColors.lime,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 20,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                '${slide.accent}\n${slide.title}',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 30,
-                  fontWeight: FontWeight.w800,
-                  height: 1.13,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                slide.description,
-                style: const TextStyle(color: Colors.white, fontSize: 14, height: 1.35),
-              ),
-            ],
+            ),
+          ],
+        ),
+      );
+}
+
+class _ProviderCircle extends StatelessWidget {
+  const _ProviderCircle({required this.onPressed, required this.child});
+
+  final VoidCallback? onPressed;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+        width: 52,
+        height: 52,
+        child: Material(
+          color: Colors.white,
+          shape: const CircleBorder(),
+          child: InkWell(
+            onTap: onPressed,
+            customBorder: const CircleBorder(),
+            child: Center(child: child),
           ),
         ),
       );
 }
 
 class _TopAction extends StatelessWidget {
-  const _TopAction({required this.icon, this.label});
+  const _TopAction({required this.icon, this.label, this.onTap});
 
   final IconData icon;
   final String? label;
+  final VoidCallback? onTap;
 
   @override
-  Widget build(BuildContext context) => Row(
-        children: [
-          Icon(icon, color: Colors.white, size: 23),
-          if (label != null) ...[
-            const SizedBox(width: 8),
-            Text(label!, style: const TextStyle(color: Colors.white, fontSize: 16)),
-          ],
-        ],
+  Widget build(BuildContext context) => InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(24),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 7),
+          child: Row(
+            children: [
+              Icon(icon, color: Colors.white, size: 25),
+              if (label != null) ...[
+                const SizedBox(width: 9),
+                Text(
+                  label!,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      );
+}
+
+class _LanguageSheet extends StatelessWidget {
+  const _LanguageSheet({
+    required this.currentLocale,
+    required this.languages,
+  });
+
+  final String currentLocale;
+  final List<SupportedLanguage> languages;
+
+  @override
+  Widget build(BuildContext context) => ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.sizeOf(context).height * .82,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(26, 18, 26, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  IconButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: const Icon(Icons.close_rounded, size: 28),
+                  ),
+                  const Expanded(
+                    child: Text(
+                      'Select language',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: SoulColors.ink,
+                        fontSize: 19,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 48),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Flexible(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: languages.length,
+                  itemBuilder: (context, index) {
+                    final language = languages[index];
+                    final selected = language.code == currentLocale;
+                    final nativeName = language.nativeName.isNotEmpty
+                        ? language.nativeName
+                        : language.name;
+                    return ListTile(
+                      contentPadding: const EdgeInsets.symmetric(vertical: 5),
+                      onTap: () => Navigator.of(context).pop(language.code),
+                      title: Text(
+                        nativeName,
+                        style: const TextStyle(
+                          color: SoulColors.ink,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      subtitle: language.name.isNotEmpty
+                          ? Text(
+                              language.name,
+                              style: const TextStyle(
+                                color: SoulColors.muted,
+                                fontSize: 14,
+                              ),
+                            )
+                          : null,
+                      trailing: Container(
+                        width: 25,
+                        height: 25,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: selected ? SoulColors.lime : SoulColors.line,
+                            width: selected ? 2 : 1.5,
+                          ),
+                        ),
+                        child: selected
+                            ? Container(
+                                width: 13,
+                                height: 13,
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: SoulColors.lime,
+                                ),
+                              )
+                            : null,
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
       );
 }
 
