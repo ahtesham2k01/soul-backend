@@ -45,4 +45,20 @@ void main() {
     expect(source, contains('await _loadReadiness();'));
   });
 
+  test('live profile exits legal submission and refreshes the session route', () {
+    final onboarding = File(
+      'lib/src/features/onboarding/onboarding_screen.dart',
+    ).readAsStringSync();
+    final legal = File(
+      'lib/src/features/onboarding/legal_submission_screen.dart',
+    ).readAsStringSync();
+
+    expect(legal, contains('if (lifecycle.live)'));
+    expect(legal, contains("Navigator.of(context).pop('home')"));
+    expect(legal, contains('_handleLifecycle(lifecycle)'));
+    expect(onboarding, contains("if (outcome == 'home')"));
+    expect(onboarding, contains('ref.invalidate(sessionRouteProvider)'));
+  });
+
+
 }

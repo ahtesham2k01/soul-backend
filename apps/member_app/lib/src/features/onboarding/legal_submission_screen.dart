@@ -156,12 +156,13 @@ class _LegalSubmissionScreenState extends State<LegalSubmissionScreen> {
         widget.repository.status(),
       ]);
       if (!mounted) return;
+      final lifecycle = results[1] as ProfileLifecycle;
       setState(() {
         _legal = results[0] as LegalConsentState;
-        _lifecycle = results[1] as ProfileLifecycle;
+        _lifecycle = lifecycle;
         _busy = false;
       });
-      if (_lifecycle!.processing) _startPolling();
+      _handleLifecycle(lifecycle);
     } on SoulApiFailure catch (failure) {
       if (mounted) setState(() { _error = failure.message; _busy = false; });
     }
@@ -173,10 +174,13 @@ class _LegalSubmissionScreenState extends State<LegalSubmissionScreen> {
     setState(() { _busy = true; _error = null; });
     try {
       await widget.repository.submit(legal.submissionPayload());
-      _lifecycle = await widget.repository.status();
+      final lifecycle = await widget.repository.status();
       if (!mounted) return;
-      setState(() => _busy = false);
-      _startPolling();
+      setState(() {
+        _lifecycle = lifecycle;
+        _busy = false;
+      });
+      _handleLifecycle(lifecycle);
     } on SoulApiFailure catch (failure) {
       if (mounted) setState(() { _error = failure.message; _busy = false; });
     }
@@ -192,9 +196,23 @@ class _LegalSubmissionScreenState extends State<LegalSubmissionScreen> {
       final status = await widget.repository.status();
       if (!mounted) return;
       setState(() => _lifecycle = status);
-      if (!status.processing) _poller?.cancel();
+      _handleLifecycle(status);
     } on SoulApiFailure catch (failure) {
       if (mounted) setState(() => _error = failure.message);
+    }
+  }
+
+  void _handleLifecycle(ProfileLifecycle lifecycle) {
+    if (!mounted) return;
+    if (lifecycle.live) {
+      _poller?.cancel();
+      Navigator.of(context).pop('home');
+      return;
+    }
+    if (lifecycle.processing) {
+      _startPolling();
+    } else {
+      _poller?.cancel();
     }
   }
 

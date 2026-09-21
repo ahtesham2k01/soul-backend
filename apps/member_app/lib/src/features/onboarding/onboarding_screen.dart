@@ -351,7 +351,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     );
     if (!mounted) return;
 
-    final correction = await Navigator.of(context).push<String>(
+    final outcome = await Navigator.of(context).push<String>(
       MaterialPageRoute<String>(
         builder: (_) => LegalSubmissionScreen(
           repository: ref.read(onboardingRepositoryProvider),
@@ -359,8 +359,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         ),
       ),
     );
-    if (!mounted || correction == null) return;
-    if (correction == 'onboarding.photos') {
+    if (!mounted || outcome == null) return;
+    if (outcome == 'home') {
+      ref.invalidate(sessionRouteProvider);
+      return;
+    }
+    if (outcome == 'onboarding.photos') {
       await _openPhotos();
     } else {
       setState(() => _step = 0);
