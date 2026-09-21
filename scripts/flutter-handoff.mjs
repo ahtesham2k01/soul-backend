@@ -46,7 +46,7 @@ export const flutterFixtures = [
     },
     {
         file: 'onboarding-profile.success.json', operationId: 'api.v1.onboarding.profile.show', kind: 'success',
-        payload: { success: true, message: 'Profile draft loaded successfully.', data: { profile: { id: id('02'), profile_status: 'draft', first_name: 'Ayesha', date_of_birth: '1998-04-12', gender: 'woman', city_name: 'Karachi', country_code: 'PK', marital_status: 'never_married', interests: ['Reading'], personality_traits: ['Kind'], intentions: ['marriage'], spoken_languages: [{ code: 'ur', name: 'Urdu', native_name: 'Urdu' }] } }, meta: { request_id: id('92') } },
+        payload: { success: true, message: 'Profile draft loaded successfully.', data: { profile: { id: id('02'), profile_status: 'draft', first_name: 'Ayesha', date_of_birth: '1998-04-12', gender: 'woman', city_name: 'Karachi', country_code: 'PK', marital_status: 'never_married', interests: ['reading'], personality_traits: ['kind'], intentions: ['marriage'], spoken_languages: [{ code: 'ur', name: 'Urdu', native_name: 'Urdu' }] } }, meta: { request_id: id('92') } },
     },
     {
         file: 'onboarding-readiness.success.json', operationId: 'api.v1.onboarding.readiness.show', kind: 'success',
