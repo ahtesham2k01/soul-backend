@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             SpokenLanguageSeeder::class,
             ProfileAndSupportCatalogSeeder::class,
+            ReligionTaxonomySeeder::class,
         ]);
     }
 }

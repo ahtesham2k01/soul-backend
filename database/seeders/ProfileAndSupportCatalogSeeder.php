@@ -29,12 +29,21 @@ class ProfileAndSupportCatalogSeeder extends Seeder
 
         foreach ($catalogs as $type => $items) {
             foreach ($items as $order => $labels) {
-                $item = ProfileCatalogItem::updateOrCreate(
+                $item = ProfileCatalogItem::firstOrCreate(
                     ['type' => $type, 'key' => $order],
-                    ['is_active' => true, 'sort_order' => array_search($order, array_keys($items), true)],
+                    [
+                        'is_active' => true,
+                        'sort_order' => array_search($order, array_keys($items), true),
+                    ],
                 );
-                $item->translations()->updateOrCreate(['locale' => 'en'], ['label' => $labels[0]]);
-                $item->translations()->updateOrCreate(['locale' => 'ur'], ['label' => $labels[1]]);
+                $item->translations()->firstOrCreate(
+                    ['locale' => 'en'],
+                    ['label' => $labels[0]],
+                );
+                $item->translations()->firstOrCreate(
+                    ['locale' => 'ur'],
+                    ['label' => $labels[1]],
+                );
             }
         }
 
@@ -47,12 +56,21 @@ class ProfileAndSupportCatalogSeeder extends Seeder
             'technical' => ['Technical problem', 'Technical masla'],
         ];
         foreach ($help as $order => $labels) {
-            $category = HelpCategory::updateOrCreate(
+            $category = HelpCategory::firstOrCreate(
                 ['key' => $order],
-                ['is_active' => true, 'sort_order' => array_search($order, array_keys($help), true)],
+                [
+                    'is_active' => true,
+                    'sort_order' => array_search($order, array_keys($help), true),
+                ],
             );
-            $category->translations()->updateOrCreate(['locale' => 'en'], ['name' => $labels[0]]);
-            $category->translations()->updateOrCreate(['locale' => 'ur'], ['name' => $labels[1]]);
+            $category->translations()->firstOrCreate(
+                ['locale' => 'en'],
+                ['name' => $labels[0]],
+            );
+            $category->translations()->firstOrCreate(
+                ['locale' => 'ur'],
+                ['name' => $labels[1]],
+            );
         }
     }
 }
