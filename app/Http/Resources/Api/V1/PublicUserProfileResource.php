@@ -43,8 +43,16 @@ class PublicUserProfileResource extends JsonResource
             'relocation_preference' => $optional('relocation_preference'),
             'family_involvement_preference' => $optional('family_involvement_preference'),
             'intentions' => $this->intentions->pluck('intention')->map->value->values(),
-            'interests' => in_array('interests', $withheld, true) ? null : $this->interests->pluck('value')->values(),
-            'personality_traits' => in_array('personality_traits', $withheld, true) ? null : $this->personalityTraits->pluck('value')->values(),
+            'interests' => in_array('interests', $withheld, true)
+                ? null
+                : $this->interests
+                    ->map(fn ($interest): string => $this->catalogLabel($interest, app()->getLocale()))
+                    ->values(),
+            'personality_traits' => in_array('personality_traits', $withheld, true)
+                ? null
+                : $this->personalityTraits
+                    ->map(fn ($trait): string => $this->catalogLabel($trait, app()->getLocale()))
+                    ->values(),
             'spoken_languages' => $this->spokenLanguages->map(fn ($language): array => [
                 'code' => $language->code,
                 'name' => $language->name,
@@ -75,5 +83,21 @@ class PublicUserProfileResource extends JsonResource
                 'identity_age' => $verification['identity_age']['verified'],
             ],
         ];
+    }
+
+    private function catalogLabel(object $selection, string $locale): string
+    {
+        $item = $selection->catalogItem;
+
+        if ($item === null) {
+            return $selection->value;
+        }
+
+        $fallbackLocale = config('soul.translations.fallback_locale', 'en');
+
+        return $item->translations->firstWhere('locale', $locale)?->label
+            ?? $item->translations->firstWhere('locale', $fallbackLocale)?->label
+            ?? $item->translations->first()?->label
+            ?? $selection->value;
     }
 }
