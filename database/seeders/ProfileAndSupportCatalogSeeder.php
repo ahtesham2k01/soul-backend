@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\HelpCategory;
 use App\Models\ProfileCatalogItem;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class ProfileAndSupportCatalogSeeder extends Seeder
 {
@@ -32,6 +33,7 @@ class ProfileAndSupportCatalogSeeder extends Seeder
                 $item = ProfileCatalogItem::firstOrCreate(
                     ['type' => $type, 'key' => $order],
                     [
+                        'public_id' => (string) Str::ulid(),
                         'is_active' => true,
                         'sort_order' => array_search($order, array_keys($items), true),
                     ],
@@ -59,6 +61,7 @@ class ProfileAndSupportCatalogSeeder extends Seeder
             $category = HelpCategory::firstOrCreate(
                 ['key' => $order],
                 [
+                    'public_id' => (string) Str::ulid(),
                     'is_active' => true,
                     'sort_order' => array_search($order, array_keys($help), true),
                 ],
