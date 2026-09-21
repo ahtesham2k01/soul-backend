@@ -48,13 +48,7 @@ import UIKit
     )
     methodChannel.setMethodCallHandler { [weak self] call, result in
       guard let self else {
-        result(
-          FlutterError(
-            code: "SECURITY_UNAVAILABLE",
-            message: nil,
-            details: nil
-          )
-        )
+        result(FlutterError(code: "SECURITY_UNAVAILABLE", message: nil, details: nil))
         return
       }
       if call.method != "setProtected" {

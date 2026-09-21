@@ -34,11 +34,7 @@ class MainActivity : FlutterActivity() {
             flutterEngine.dartExecutor.binaryMessenger,
             "com.soul/member_security_events",
         ).setStreamHandler(object : EventChannel.StreamHandler {
-            override fun onListen(
-                arguments: Any?,
-                events: EventChannel.EventSink?,
-            ) = Unit
-
+            override fun onListen(arguments: Any?, events: EventChannel.EventSink?) = Unit
             override fun onCancel(arguments: Any?) = Unit
         })
     }
