@@ -88,18 +88,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   int get _completionPercent {
+    final spokenLanguages = _profile['spoken_languages'];
+    final religionPath = _religion['path'];
+    final approvedCover = _cover?.moderationStatus == 'approved' &&
+        _cover?.visibility == 'public';
+    final approvedClearFace = _photos.any(
+      (photo) =>
+          photo.moderationStatus == 'approved' &&
+          photo.faceDetected == true,
+    );
+
     final required = <bool>[
       _filled(_profile['first_name']),
       _filled(_profile['date_of_birth']),
       _filled(_profile['gender']),
       _filled(_profile['city_name']),
       _filled(_profile['country_code']),
+      _filled(_profile['nationality_country_code']),
+      religionPath is List && religionPath.isNotEmpty,
       _filled(_profile['marital_status']),
       _profile['intentions'] is List &&
           (_profile['intentions'] as List).isNotEmpty,
       _filled(_profile['profession_status']),
-      _filled(_profile['bio']),
-      _cover != null,
+      spokenLanguages is List && spokenLanguages.isNotEmpty,
+      _filled(_profile['smoking']),
+      _filled(_profile['alcohol']),
+      _filled(_profile['current_children']),
+      _filled(_profile['future_children']),
+      approvedCover,
+      approvedClearFace,
     ];
     final done = required.where((value) => value).length;
     return ((done / required.length) * 100).round();
@@ -727,11 +744,11 @@ class _ProfileHero extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-            const Align(
+            Align(
               alignment: AlignmentDirectional.centerStart,
               child: Text(
-                'Complete profile',
-                style: TextStyle(
+                labels.text('profile.complete_profile', 'Complete profile'),
+                style: const TextStyle(
                   color: SoulColors.muted,
                   fontSize: 12,
                 ),
