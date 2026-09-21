@@ -44,7 +44,8 @@ class ShowProfileController extends Controller
             })
             ->with([
                 'user.privacySetting', 'user.religionProfile.rootNode', 'user.religionProfile.selectedNode', 'user.verificationCases',
-                'intentions', 'interests', 'personalityTraits', 'spokenLanguages', 'withheldFields',
+                'intentions', 'interests.catalogItem.translations',
+                'personalityTraits.catalogItem.translations', 'spokenLanguages', 'withheldFields',
                 'photos' => fn ($query) => $query->where('visibility', ProfilePhotoVisibility::Public->value)
                     ->where('moderation_status', ProfilePhotoModerationStatus::Approved->value),
             ])->first();
