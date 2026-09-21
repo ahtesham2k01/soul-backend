@@ -229,7 +229,6 @@ class _LegalSubmissionScreenState extends State<LegalSubmissionScreen> {
       try {
         await widget.repository.resubmit();
         await _refreshStatus();
-        _startPolling();
       } on SoulApiFailure catch (failure) {
         if (mounted) setState(() => _error = failure.message);
       } finally {

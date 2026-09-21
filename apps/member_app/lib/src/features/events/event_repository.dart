@@ -65,10 +65,16 @@ class EventRepository {
 
   final SoulApiClient _api;
 
-  Future<EventPage> events({String? cursor}) async {
+  Future<EventPage> events({
+    String? cursor,
+    bool joinedOnly = false,
+  }) async {
     final data = await _api.get(
       'events',
-      query: {if (cursor != null && cursor.isNotEmpty) 'cursor': cursor},
+      query: {
+        if (cursor != null && cursor.isNotEmpty) 'cursor': cursor,
+        if (joinedOnly) 'joined': 'true',
+      },
     );
     final raw = data['events'];
     return EventPage(

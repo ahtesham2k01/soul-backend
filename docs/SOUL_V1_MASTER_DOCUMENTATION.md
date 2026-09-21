@@ -269,6 +269,7 @@ Events are included in Version 1:
 - Online and physical events
 - Admin-approved event publishing initially
 - Event details, date, city, capacity and join/leave registration
+- Server-paginated “My events” view for the authenticated member
 - Attendee privacy and event reporting
 - Public user-created events are deferred until moderation controls are mature
 

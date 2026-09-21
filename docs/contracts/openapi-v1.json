@@ -2552,7 +2552,28 @@
           "2XX": {
             "$ref": "#/components/responses/Success"
           }
-        }
+        },
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Opaque cursor returned by the previous page."
+          },
+          {
+            "name": "joined",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "description": "When true, return only upcoming events joined by the authenticated member."
+          }
+        ]
       }
     },
     "/events/{event}": {

@@ -15,10 +15,37 @@ class EventController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $page = Event::query()->with(['translations', 'registrations' => fn ($query) => $query->where('user_id', $request->user()->id)])
-            ->where('status', 'published')->where('starts_at', '>', now())->orderBy('starts_at')->cursorPaginate(30);
+        $userId = $request->user()->id;
+        $joinedOnly = $request->boolean('joined');
 
-        return ApiResponse::success(['events' => collect($page->items())->map(fn (Event $event) => $this->serializeEvent($event, app()->getLocale(), $request->user()->id))->values(), 'next_cursor' => $page->nextCursor()?->encode()]);
+        $query = Event::query()
+            ->with([
+                'translations',
+                'registrations' => fn ($query) => $query->where('user_id', $userId),
+            ])
+            ->where('status', 'published')
+            ->where('starts_at', '>', now())
+            ->when(
+                $joinedOnly,
+                fn ($query) => $query->whereHas(
+                    'registrations',
+                    fn ($registrations) => $registrations->where('user_id', $userId),
+                ),
+            )
+            ->orderBy('starts_at');
+
+        $page = $query->cursorPaginate(30);
+
+        return ApiResponse::success([
+            'events' => collect($page->items())
+                ->map(fn (Event $event) => $this->serializeEvent(
+                    $event,
+                    app()->getLocale(),
+                    $userId,
+                ))
+                ->values(),
+            'next_cursor' => $page->nextCursor()?->encode(),
+        ]);
     }
 
     public function show(Request $request, string $event): JsonResponse

@@ -23,6 +23,30 @@ class EventEndpointTest extends TestCase
             ->assertJsonPath('data.events.0.title', 'Community Meetup')->assertJsonMissingPath('data.events.0.online_url');
     }
 
+
+    public function test_joined_filter_returns_only_current_members_upcoming_events(): void
+    {
+        $user = User::factory()->create(['status' => User::STATUS_ACTIVE]);
+        $joined = $this->event([
+            'status' => 'published',
+            'starts_at' => now()->addDays(2),
+        ]);
+        $this->event([
+            'status' => 'published',
+            'starts_at' => now()->addDay(),
+        ]);
+
+        Sanctum::actingAs($user);
+        $this->postJson("/api/v1/events/{$joined->public_id}/registration")
+            ->assertCreated();
+
+        $this->getJson('/api/v1/events?joined=true')
+            ->assertOk()
+            ->assertJsonCount(1, 'data.events')
+            ->assertJsonPath('data.events.0.id', $joined->public_id)
+            ->assertJsonPath('data.events.0.is_joined', true);
+    }
+
     public function test_join_is_idempotent_capacity_safe_and_online_url_is_member_only(): void
     {
         $first = User::factory()->create(['status' => User::STATUS_ACTIVE]);

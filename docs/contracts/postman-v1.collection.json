@@ -2047,12 +2047,25 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/events",
+              "raw": "{{baseUrl}}/events?joined=false",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "events"
+              ],
+              "query": [
+                {
+                  "key": "joined",
+                  "value": "false",
+                  "description": "Set true to return only events joined by the authenticated member."
+                },
+                {
+                  "key": "cursor",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Opaque cursor returned by the previous page."
+                }
               ]
             },
             "description": "api.v1.events.index: Upcoming published events"

@@ -39,7 +39,7 @@ class _EventsScreenState extends State<EventsScreen> {
       _error = null;
     });
     try {
-      final page = await widget.repository.events();
+      final page = await widget.repository.events(joinedOnly: _myEvents);
       if (!mounted) return;
       setState(() {
         _events
@@ -62,7 +62,10 @@ class _EventsScreenState extends State<EventsScreen> {
     if (_loadingMore || cursor == null || cursor.isEmpty) return;
     setState(() => _loadingMore = true);
     try {
-      final page = await widget.repository.events(cursor: cursor);
+      final page = await widget.repository.events(
+        cursor: cursor,
+        joinedOnly: _myEvents,
+      );
       if (!mounted) return;
       setState(() {
         _events.addAll(page.items);
@@ -78,9 +81,7 @@ class _EventsScreenState extends State<EventsScreen> {
     }
   }
 
-  List<SoulEvent> get _visible => _myEvents
-      ? _events.where((event) => event.isJoined).toList(growable: false)
-      : _events;
+  List<SoulEvent> get _visible => _events;
 
   Future<void> _open(SoulEvent event) async {
     await Navigator.of(context).push<void>(
@@ -118,8 +119,12 @@ class _EventsScreenState extends State<EventsScreen> {
                         ),
                       ],
                       selected: {_myEvents},
-                      onSelectionChanged: (value) =>
-                          setState(() => _myEvents = value.first),
+                      onSelectionChanged: (value) async {
+                        final next = value.first;
+                        if (next == _myEvents) return;
+                        setState(() => _myEvents = next);
+                        await _load();
+                      },
                     ),
                   ),
                   if (_error != null)
@@ -156,8 +161,7 @@ class _EventsScreenState extends State<EventsScreen> {
                             )
                           : NotificationListener<ScrollNotification>(
                               onNotification: (notification) {
-                                if (!_myEvents &&
-                                    notification.metrics.extentAfter < 400) {
+                                if (notification.metrics.extentAfter < 400) {
                                   _loadMore();
                                 }
                                 return false;
@@ -166,7 +170,7 @@ class _EventsScreenState extends State<EventsScreen> {
                                 padding:
                                     const EdgeInsets.fromLTRB(18, 4, 18, 32),
                                 itemCount: _visible.length +
-                                    (_loadingMore && !_myEvents ? 1 : 0),
+                                    (_loadingMore ? 1 : 0),
                                 separatorBuilder: (_, __) =>
                                     const SizedBox(height: 12),
                                 itemBuilder: (_, index) {
