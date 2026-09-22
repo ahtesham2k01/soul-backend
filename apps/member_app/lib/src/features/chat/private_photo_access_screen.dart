@@ -224,7 +224,7 @@ class _RequestCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final name = item.firstName.isEmpty
-        ? widget.labels.text('matches.match', 'Match')
+        ? labels.text('matches.match', 'Match')
         : item.firstName;
     return Container(
       padding: const EdgeInsets.all(16),

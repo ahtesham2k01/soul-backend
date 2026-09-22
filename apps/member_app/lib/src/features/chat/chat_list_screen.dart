@@ -194,6 +194,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
               child: _matches.isEmpty
                   ? _ChatEmpty(
                       title: widget.labels.text('matches.title', 'Matches'),
+                      labels: widget.labels,
                     )
                   : visible.isEmpty
                       ? Center(
@@ -413,9 +414,13 @@ class _Avatar extends StatelessWidget {
 }
 
 class _ChatEmpty extends StatelessWidget {
-  const _ChatEmpty({required this.title});
+  const _ChatEmpty({
+    required this.title,
+    required this.labels,
+  });
 
   final String title;
+  final BootstrapState labels;
 
   @override
   Widget build(BuildContext context) => Center(
@@ -448,7 +453,7 @@ class _ChatEmpty extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                widget.labels.text(
+                labels.text(
                   'chat.no_matches',
                   'No matches yet. Like profiles in Home to start a conversation.',
                 ),

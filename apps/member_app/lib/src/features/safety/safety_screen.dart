@@ -446,7 +446,7 @@ Future<bool> showProfileSafetyActions({
           '${labels.text('safety.block', 'Block')} $profileName?',
         ),
         content: Text(
-          widget.labels.text(
+          labels.text(
             'safety.block_explainer',
             'This closes active interaction and prevents discovery between both profiles.',
           ),
