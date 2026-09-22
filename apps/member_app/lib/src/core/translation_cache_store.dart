@@ -111,7 +111,7 @@ class TranslationCacheStore {
 
     try {
       final file = await _resolvedFile();
-      temporary = File(file.path + '.tmp');
+      temporary = File('${file.path}.tmp');
 
       await file.parent.create(recursive: true);
       await temporary.writeAsString(

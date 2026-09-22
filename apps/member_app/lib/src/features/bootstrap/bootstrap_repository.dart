@@ -105,7 +105,7 @@ class BootstrapState {
     var value = text(key, fallback);
     for (final entry in values.entries) {
       value = value.replaceAll(
-        '{' + entry.key + '}',
+        '{${entry.key}}',
         entry.value?.toString() ?? '',
       );
     }
