@@ -56,7 +56,7 @@ void main() {
 
       final avatarBefore = tester.widget<Opacity>(
         find
-            .ancestor(
+            .descendant(
               of: find.byKey(const ValueKey('launch-avatar-0')),
               matching: find.byType(Opacity),
             )

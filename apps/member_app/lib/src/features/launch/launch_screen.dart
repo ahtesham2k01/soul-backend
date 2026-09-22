@@ -211,7 +211,7 @@ class _GlobeIntro extends StatelessWidget {
           backgroundColor: SoulColors.forestDeep,
           body: Semantics(
             button: true,
-            label: 'Skip intro animation',
+            label: labels.text('common.skip', 'Skip'),
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: onSkip,

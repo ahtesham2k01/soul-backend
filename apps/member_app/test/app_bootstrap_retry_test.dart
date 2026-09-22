@@ -110,5 +110,9 @@ void main() {
     await tester.pump();
 
     expect(sessionAttempts, 2);
+
+    // Let the newly-created launch sequence finish so the test does not leave
+    // a deliberate startup delay pending in the fake clock.
+    await tester.pump(const Duration(seconds: 5));
   });
 }
