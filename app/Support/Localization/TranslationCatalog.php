@@ -2,16 +2,75 @@
 
 namespace App\Support\Localization;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
 use RuntimeException;
+use Throwable;
 use UnexpectedValueException;
 
 final class TranslationCatalog
 {
     public function load(string $requestedLocale): array
     {
+        $version = (string) config(
+            'soul.translations.catalog_version',
+            '1',
+        );
+
+        $cacheKey = $this->cacheKey(
+            $requestedLocale,
+            $version,
+        );
+
+        try {
+            $cached = Cache::get($cacheKey);
+
+            if ($this->isValidCachedCatalog($cached)) {
+                return $cached;
+            }
+        } catch (Throwable) {
+            // Translation cache is an optimization, never a bootstrap dependency.
+        }
+
+        $catalog = $this->build(
+            requestedLocale: $requestedLocale,
+            version: $version,
+        );
+
+        try {
+            Cache::forever(
+                $cacheKey,
+                $catalog,
+            );
+        } catch (Throwable) {
+            // Serve the freshly built catalog even when the cache is unavailable.
+        }
+
+        return $catalog;
+    }
+
+    public function forget(string $locale): void
+    {
+        $version = (string) config(
+            'soul.translations.catalog_version',
+            '1',
+        );
+
+        try {
+            Cache::forget(
+                $this->cacheKey($locale, $version),
+            );
+        } catch (Throwable) {
+            // Admin edits remain valid even when cache invalidation is unavailable.
+        }
+    }
+
+    private function build(
+        string $requestedLocale,
+        string $version,
+    ): array {
         $fallbackLocale = config(
             'soul.translations.fallback_locale',
             'en',
@@ -39,17 +98,19 @@ final class TranslationCatalog
         );
 
         if (Schema::hasTable('translation_overrides')) {
-            $overrides = DB::table('translation_overrides')->where('locale', $servedLocale)
-                ->where('is_active', true)->pluck('value', 'key')->all();
-            $translations = array_replace($translations, $overrides);
+            $overrides = DB::table('translation_overrides')
+                ->where('locale', $servedLocale)
+                ->where('is_active', true)
+                ->pluck('value', 'key')
+                ->all();
+
+            $translations = array_replace(
+                $translations,
+                $overrides,
+            );
         }
 
         ksort($translations);
-
-        $version = (string) config(
-            'soul.translations.catalog_version',
-            '1',
-        );
 
         $hash = hash(
             'sha256',
@@ -77,6 +138,30 @@ final class TranslationCatalog
             'hash' => $hash,
             'values' => $translations,
         ];
+    }
+
+    private function cacheKey(
+        string $locale,
+        string $version,
+    ): string {
+        return 'soul:translation-catalog:'.$version.':'.$locale;
+    }
+
+    private function isValidCachedCatalog(mixed $catalog): bool
+    {
+        return is_array($catalog)
+            && isset(
+                $catalog['requested_locale'],
+                $catalog['locale'],
+                $catalog['fallback_locale'],
+                $catalog['direction'],
+                $catalog['version'],
+                $catalog['hash'],
+                $catalog['values'],
+            )
+            && is_array($catalog['values'])
+            && is_string($catalog['hash'])
+            && strlen($catalog['hash']) === 64;
     }
 
     private function read(

@@ -29,7 +29,10 @@ class CatalogController extends Controller
         ]);
     }
 
-    public function updateTranslation(Request $request): JsonResponse
+    public function updateTranslation(
+        Request $request,
+        TranslationCatalog $catalog,
+    ): JsonResponse
     {
         $locales = array_keys(config('soul.translations.locales', []));
         $base = json_decode(File::get(lang_path(config('soul.translations.fallback_locale').'.json')), true, flags: JSON_THROW_ON_ERROR);
@@ -37,6 +40,7 @@ class CatalogController extends Controller
         $record = TranslationOverride::firstOrNew(['locale' => $validated['locale'], 'key' => $validated['key']]);
         $before = $record->exists ? $record->only(['value', 'is_active']) : null;
         $record->fill(['value' => $validated['value'], 'is_active' => true, 'updated_by_admin_id' => $request->user()->id])->save();
+        $catalog->forget($validated['locale']);
         $this->audit($request, $record, 'translation.updated', $before, $record->only(['locale', 'key', 'value', 'is_active']), $validated['reason']);
 
         return ApiResponse::success(['translation' => $record->only(['locale', 'key', 'value', 'is_active'])]);
