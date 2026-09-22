@@ -66,6 +66,7 @@ class _SoulAppState extends ConsumerState<SoulApp> {
         data: (route) {
           if (!_launchFinished) {
             return LaunchScreen(
+              labels: state,
               onFinished: () => setState(() => _launchFinished = true),
             );
           }

@@ -905,7 +905,8 @@ Profile forms load localized, admin-managed interests and traits. Settings → H
 ```mermaid
 flowchart TD
     A[Splash: SOUL] --> B[Bootstrap locale and real location]
-    B --> C[Welcome]
+    B --> B2[Animated globe intro: settle, member markers, actual city, tagline]
+    B2 --> C[Welcome]
     C --> D[Apple]
     C --> E[Google]
     C --> F[Continue with Email]

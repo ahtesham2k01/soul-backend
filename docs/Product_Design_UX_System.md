@@ -27,6 +27,24 @@ The current approved first visual frame is the simple SOUL brand splash supplied
 
 This splash is presentation only. It does not change bootstrap, authentication, onboarding or location product rules.
 
+## Approved globe intro after splash
+
+Immediately after the SOUL splash and before the existing Welcome/Auth/Onboarding route, the app uses a short premium globe intro:
+
+- the globe begins with a visibly fast rotation and decelerates smoothly into its final settled orientation;
+- the globe must fully settle, followed by a short deliberate pause, before member markers begin to appear;
+- member/avatar markers reveal one-by-one with restrained staggered scale/fade motion rather than all at once;
+- the location pill reveals after the member markers and uses the actual bootstrap-resolved city/country only; fake distance text and hard-coded cities are prohibited;
+- the localized `Swipe to Your` / `Happily Ever After` copy fades/slides in after the globe has settled;
+- tapping the globe intro may skip the remaining animation and continue to the authoritative route;
+- system reduced-motion settings skip the rotation and use a short static/fade presentation;
+- the globe is painted once and rotated by compositor transform, while static visual layers stay bounded so low-end phones are not forced to repaint a heavy 3D scene every frame;
+- the intro is visual only: it must not alter authentication, onboarding resume, legal, safety or signed-in routing.
+
+The intended visible sequence is:
+
+`SOUL splash → globe fast spin → smooth deceleration/settle → staggered member markers → actual location pill → tagline reveal → existing Welcome/Auth/Onboarding route`.
+
 ## Design tokens
 
 Maintain centralized tokens for:
