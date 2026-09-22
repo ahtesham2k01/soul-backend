@@ -158,6 +158,28 @@ class AuthSessionEndpointTest extends TestCase
             ->assertJsonPath('error.code', 'ACCOUNT_UNAVAILABLE');
     }
 
+    public function test_restricted_account_can_revoke_its_current_session(): void
+    {
+        $user = User::factory()->create([
+            'status' => User::STATUS_BLOCKED,
+        ]);
+
+        $token = $user->createToken(
+            'Blocked device',
+            ['mobile'],
+            now()->addDays(90),
+        );
+
+        $this->withToken($token->plainTextToken)
+            ->postJson('/api/v1/auth/logout')
+            ->assertOk()
+            ->assertJsonPath('message', 'Logged out successfully.');
+
+        $this->assertDatabaseMissing('personal_access_tokens', [
+            'id' => $token->accessToken->id,
+        ]);
+    }
+
     public function test_logout_revokes_only_current_device_token(): void
     {
         $user = User::factory()->create([

@@ -114,7 +114,13 @@ class _RestrictedAccountScreenState extends State<RestrictedAccountScreen> {
   }
 
   Future<void> _signOut() async {
-    await widget.repository.clearLocalSession();
+    try {
+      await widget.repository.logout();
+    } on SoulApiFailure catch (failure) {
+      if (!mounted) return;
+      setState(() => _error = failure.message);
+      return;
+    }
     widget.onSignedOut();
   }
 

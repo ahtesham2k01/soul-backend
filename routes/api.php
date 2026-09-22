@@ -237,6 +237,17 @@ Route::prefix('v1')->group(function (): void {
         Route::get('/support/attachments/{attachment}', [SupportAttachmentController::class, 'show'])->name('api.v1.support.attachments.show');
     });
     Route::middleware(['auth:sanctum'])->group(function (): void {
+        Route::post('/auth/logout', LogoutController::class)
+            ->name('api.v1.auth.logout');
+        Route::post('/auth/logout-all', LogoutAllDevicesController::class)
+            ->name('api.v1.auth.logout-all');
+        Route::get('/auth/devices', [DeviceSessionController::class, 'index'])
+            ->middleware('throttle:60,1')
+            ->name('api.v1.auth.devices.index');
+        Route::delete('/auth/devices/{session}', [DeviceSessionController::class, 'destroy'])
+            ->middleware('throttle:20,1')
+            ->name('api.v1.auth.devices.destroy');
+
         Route::get('/auth/status', [CurrentUserController::class, 'status'])
             ->name('api.v1.auth.status.show');
         Route::get('/privacy/deletion', [PrivacyController::class, 'deletionStatus'])->name('api.v1.privacy.deletion.show');
@@ -323,23 +334,6 @@ Route::prefix('v1')->group(function (): void {
                 [CurrentUserController::class, 'updatePreferences'],
             )->name('api.v1.auth.preferences.update');
 
-            Route::post(
-                '/logout',
-                LogoutController::class,
-            )->name('api.v1.auth.logout');
-
-            Route::post(
-                '/logout-all',
-                LogoutAllDevicesController::class,
-            )->name('api.v1.auth.logout-all');
-
-            Route::get('/devices', [DeviceSessionController::class, 'index'])
-                ->middleware('throttle:60,1')
-                ->name('api.v1.auth.devices.index');
-
-            Route::delete('/devices/{session}', [DeviceSessionController::class, 'destroy'])
-                ->middleware('throttle:20,1')
-                ->name('api.v1.auth.devices.destroy');
         });
 
     Route::post(
