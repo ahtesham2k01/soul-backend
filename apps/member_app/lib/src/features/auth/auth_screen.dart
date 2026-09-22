@@ -157,15 +157,20 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       _busy = true;
       _error = null;
     });
+
+    var authenticationCompleted = false;
+
     try {
       final repository = ref.read(authRepositoryProvider);
       if (widget.registration) {
         await repository.verifyRegistrationOtp(
-              challenge: challenge,
-              code: _code.text.trim(),
-              deviceName: 'SOUL mobile app',
-              locale: widget.labels.locale,
-            );
+          challenge: challenge,
+          code: _code.text.trim(),
+          deviceName: 'SOUL mobile app',
+          locale: widget.labels.locale,
+        );
+        authenticationCompleted = true;
+
         final dob = _normalizedDob(_dob.text.trim());
         if (dob != null) {
           await OnboardingRepository(ref.read(apiClientProvider)).saveProfile({
@@ -175,20 +180,34 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         }
       } else {
         await repository.verifyLoginOtp(
-              challenge: challenge,
-              code: _code.text.trim(),
-              deviceName: 'SOUL mobile app',
-              locale: widget.labels.locale,
-            );
+          challenge: challenge,
+          code: _code.text.trim(),
+          deviceName: 'SOUL mobile app',
+          locale: widget.labels.locale,
+        );
+        authenticationCompleted = true;
       }
-      if (!mounted) return;
-      ref.invalidate(sessionRouteProvider);
-      Navigator.of(context).popUntil((route) => route.isFirst);
+
+      _routeAfterAuthentication();
     } on SoulApiFailure catch (failure) {
+      if (authenticationCompleted) {
+        // The OTP has already been consumed and the session was issued.
+        // Re-resolve the saved session instead of trapping the member on an
+        // OTP screen that can no longer be submitted successfully.
+        _routeAfterAuthentication();
+        return;
+      }
+
       if (mounted) setState(() => _error = failure.message);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+  }
+
+  void _routeAfterAuthentication() {
+    if (!mounted) return;
+    ref.invalidate(sessionRouteProvider);
+    Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
 

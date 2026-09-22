@@ -32,4 +32,19 @@ void main() {
       expect(source, contains('SoulPageTitle('));
     }
   });
+  test('registration exits consumed OTP state after post-auth profile failure', () {
+    final source = File(
+      'lib/src/features/auth/auth_screen.dart',
+    ).readAsStringSync();
+
+    expect(source, contains('var authenticationCompleted = false;'));
+    expect(source, contains('authenticationCompleted = true;'));
+    expect(source, contains('if (authenticationCompleted) {'));
+    expect(source, contains('_routeAfterAuthentication();'));
+    expect(
+      source,
+      contains('The OTP has already been consumed and the session was issued.'),
+    );
+  });
+
 }
