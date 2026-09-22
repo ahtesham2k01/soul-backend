@@ -107,6 +107,38 @@ class AppBootstrapEndpointTest extends TestCase
         );
     }
 
+    public function test_bootstrap_omits_translation_values_when_client_hash_matches(): void
+    {
+        $initial = $this->getJson('/api/v1/bootstrap?locale=en')
+            ->assertOk();
+
+        $hash = $initial->json('data.translations.hash');
+
+        $response = $this->getJson(
+            '/api/v1/bootstrap?locale=en&translations_hash='.$hash,
+        );
+
+        $response
+            ->assertOk()
+            ->assertJsonPath('data.translations.hash', $hash)
+            ->assertJsonPath('data.translations.not_modified', true)
+            ->assertJsonPath('data.translations.values', null);
+    }
+
+    public function test_bootstrap_returns_translation_values_when_hash_is_stale(): void
+    {
+        $response = $this->getJson(
+            '/api/v1/bootstrap?locale=en&translations_hash='.str_repeat('0', 64),
+        );
+
+        $response
+            ->assertOk()
+            ->assertJsonPath('data.translations.not_modified', false)
+            ->assertJsonFragment([
+                'auth.create_account' => 'Create Account',
+            ]);
+    }
+
     public function test_bootstrap_identifies_product_target_and_draft_locales(): void
     {
         $languages = collect(

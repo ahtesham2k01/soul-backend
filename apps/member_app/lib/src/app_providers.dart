@@ -22,7 +22,10 @@ final apiClientProvider = Provider<SoulApiClient>(
 );
 
 final bootstrapProvider = FutureProvider<BootstrapState>(
-  (ref) => BootstrapRepository(ref.watch(apiClientProvider)).load(),
+  (ref) => BootstrapRepository(
+    ref.watch(apiClientProvider),
+    ref.watch(sessionStoreProvider),
+  ).load(),
 );
 
 final authRepositoryProvider = Provider<AuthRepository>(

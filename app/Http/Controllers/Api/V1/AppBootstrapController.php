@@ -40,6 +40,11 @@ class AppBootstrapController extends Controller
             $matchedLocale,
         );
 
+        $clientTranslationHash = $request->query('translations_hash');
+        $translationsNotModified = is_string($clientTranslationHash)
+            && strlen($clientTranslationHash) === 64
+            && hash_equals($catalog['hash'], $clientTranslationHash);
+
         /*
          * Production Cloudflare driver approximate
          * IP location return karega.
@@ -70,7 +75,10 @@ class AppBootstrapController extends Controller
                 'translations' => [
                     'version' => $catalog['version'],
                     'hash' => $catalog['hash'],
-                    'values' => $catalog['values'],
+                    'not_modified' => $translationsNotModified,
+                    'values' => $translationsNotModified
+                        ? null
+                        : $catalog['values'],
                 ],
 
                 'supported_languages' => $this->availableLanguages(),

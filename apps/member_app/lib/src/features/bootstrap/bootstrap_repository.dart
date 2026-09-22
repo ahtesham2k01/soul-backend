@@ -1,4 +1,5 @@
 import '../../core/api_client.dart';
+import '../../core/session_store.dart';
 
 class SupportedLanguage {
   const SupportedLanguage({
@@ -54,6 +55,8 @@ class BootstrapState {
   const BootstrapState({
     required this.direction,
     required this.locale,
+    this.translationVersion = '',
+    this.translationHash = '',
     required this.translations,
     required this.legalVersions,
     required this.commitmentKeys,
@@ -63,6 +66,8 @@ class BootstrapState {
 
   final String direction;
   final String locale;
+  final String translationVersion;
+  final String translationHash;
   final Map<String, String> translations;
   final Map<String, String> legalVersions;
   final List<String> commitmentKeys;
@@ -88,19 +93,61 @@ class BootstrapState {
 }
 
 class BootstrapRepository {
-  BootstrapRepository(this._api);
+  BootstrapRepository(this._api, this._sessions);
 
   final SoulApiClient _api;
+  final SessionStore _sessions;
 
   Future<BootstrapState> load() async {
-    final data = await _api.get('bootstrap');
+    final cached = await _sessions.readTranslations();
+    final data = await _api.get(
+      'bootstrap',
+      query: {
+        if (cached != null) 'translations_hash': cached.hash,
+      },
+    );
     final localeData = data['locale'] is Map<String, dynamic>
         ? data['locale'] as Map<String, dynamic>
         : const <String, dynamic>{};
     final translationData = data['translations'] is Map<String, dynamic>
         ? data['translations'] as Map<String, dynamic>
         : const <String, dynamic>{};
-    final values = translationData['values'];
+    final locale = localeData['resolved']?.toString() ?? 'en';
+    final version = translationData['version']?.toString() ?? '';
+    final hash = translationData['hash']?.toString() ?? '';
+    final notModified = translationData['not_modified'] == true;
+    final rawValues = translationData['values'];
+
+    Map<String, String> translations;
+    if (notModified &&
+        cached != null &&
+        cached.locale == locale &&
+        cached.hash == hash &&
+        cached.version == version) {
+      translations = cached.values;
+    } else if (rawValues is Map) {
+      translations = rawValues.map(
+        (key, value) => MapEntry(key.toString(), value.toString()),
+      );
+
+      if (hash.length == 64 && version.isNotEmpty) {
+        await _sessions.saveTranslations(
+          CachedTranslations(
+            locale: locale,
+            version: version,
+            hash: hash,
+            values: translations,
+          ),
+        );
+      }
+    } else {
+      throw const SoulApiFailure(
+        statusCode: null,
+        code: 'INVALID_BOOTSTRAP_TRANSLATIONS',
+        message: 'SOUL could not load the language catalog.',
+      );
+    }
+
     final legalData = data['legal'] is Map
         ? Map<String, dynamic>.from(data['legal'] as Map)
         : const <String, dynamic>{};
@@ -109,10 +156,10 @@ class BootstrapRepository {
     final rawLocation = data['location'];
     return BootstrapState(
       direction: localeData['direction']?.toString() ?? 'ltr',
-      locale: localeData['resolved']?.toString() ?? 'en',
-      translations: values is Map
-          ? values.map((key, value) => MapEntry(key.toString(), value.toString()))
-          : const <String, String>{},
+      locale: locale,
+      translationVersion: version,
+      translationHash: hash,
+      translations: translations,
       legalVersions: versions is Map
           ? versions.map((key, value) => MapEntry(key.toString(), value.toString()))
           : const <String, String>{},
