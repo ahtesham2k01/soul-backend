@@ -61,6 +61,8 @@ class BootstrapState {
     required this.legalVersions,
     required this.commitmentKeys,
     required this.supportedLanguages,
+    this.locationStatus = 'unavailable',
+    this.capabilities,
     this.location,
   });
 
@@ -72,6 +74,8 @@ class BootstrapState {
   final Map<String, String> legalVersions;
   final List<String> commitmentKeys;
   final List<SupportedLanguage> supportedLanguages;
+  final String locationStatus;
+  final Map<String, dynamic>? capabilities;
   final BootstrapLocation? location;
 
   String text(String key, String fallback) => translations[key] ?? fallback;
@@ -154,6 +158,7 @@ class BootstrapRepository {
     final versions = legalData['versions'];
     final commitments = legalData['commitment_keys'];
     final rawLocation = data['location'];
+    final rawCapabilities = data['capabilities'];
     return BootstrapState(
       direction: localeData['direction']?.toString() ?? 'ltr',
       locale: locale,
@@ -166,6 +171,11 @@ class BootstrapRepository {
       commitmentKeys: commitments is List
           ? commitments.map((item) => item.toString()).toList(growable: false)
           : const <String>[],
+      locationStatus: data['location_status']?.toString() ??
+          (rawLocation == null ? 'unavailable' : 'resolved'),
+      capabilities: rawCapabilities is Map
+          ? Map<String, dynamic>.from(rawCapabilities)
+          : null,
       location: rawLocation is Map
           ? BootstrapLocation.fromJson(
               Map<String, dynamic>.from(rawLocation),

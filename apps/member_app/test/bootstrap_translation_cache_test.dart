@@ -87,7 +87,17 @@ void main() {
         'commitment_keys': <String>[],
       },
       'supported_languages': <Map<String, dynamic>>[],
-      'location': null,
+      'location_status': 'resolved',
+      'location': {
+        'city': 'Karachi',
+        'country_code': 'PK',
+        'is_approximate': true,
+      },
+      'capabilities': {
+        'features': {
+          'incognito': true,
+        },
+      },
     });
 
     final state = await BootstrapRepository(api, cache).load();
@@ -95,6 +105,9 @@ void main() {
     expect(api.lastQuery?['translations_hash'], hash);
     expect(state.translationHash, hash);
     expect(state.translations['auth.create_account'], 'Create Account');
+    expect(state.locationStatus, 'resolved');
+    expect(state.location?.city, 'Karachi');
+    expect(state.capabilities?['features'], {'incognito': true});
   });
 
   test('bootstrap stores fresh translations when server hash changes', () async {
