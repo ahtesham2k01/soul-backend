@@ -49,6 +49,11 @@ Artisan::command('soul:cleanup', function (): void {
         ->where('created_at', '<', now()->subDays(2))
         ->delete();
 
+    $expiredSessions = DB::table('personal_access_tokens')
+        ->whereNotNull('expires_at')
+        ->where('expires_at', '<=', now())
+        ->delete();
+
     $discardedWebhooks = StoreWebhookEvent::query()
         ->where('status', 'failed')
         ->where('attempts', '>=', 6)
@@ -60,7 +65,7 @@ Artisan::command('soul:cleanup', function (): void {
             ->orWhere(fn ($q) => $q->where('status', 'failed')->where('updated_at', '<=', now()->subDays(config('soul.privacy.retention.failed_notification_days', 180)))))
         ->delete();
 
-    $this->info("Expired {$expiredExports} data exports, removed {$expiredOtpCodes} stale OTP records, discarded {$discardedWebhooks} exhausted webhooks, and pruned {$prunedDeliveries} delivery records.");
+    $this->info("Expired {$expiredExports} data exports, removed {$expiredOtpCodes} stale OTP records and {$expiredSessions} expired sessions, discarded {$discardedWebhooks} exhausted webhooks, and pruned {$prunedDeliveries} delivery records.");
 })->purpose('Remove expired private exports and stale OTP records');
 
 Artisan::command('soul:recover-provider-work', function (): void {
