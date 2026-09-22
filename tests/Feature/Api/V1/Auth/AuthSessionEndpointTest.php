@@ -339,6 +339,57 @@ class AuthSessionEndpointTest extends TestCase
         $this->assertDatabaseHas('personal_access_tokens', ['id' => $foreign->accessToken->id]);
     }
 
+    public function test_remote_session_revoke_removes_its_linked_push_device(): void
+    {
+        $user = User::factory()->create([
+            'status' => User::STATUS_ACTIVE,
+        ]);
+
+        $current = $user->createToken(
+            'Current Android',
+            ['mobile'],
+            now()->addDays(90),
+        );
+        $remote = $user->createToken(
+            'Remote iPhone',
+            ['mobile'],
+            now()->addDays(90),
+        );
+
+        $pushToken = 'remote-session-push-token';
+
+        $this->withToken($remote->plainTextToken)
+            ->postJson('/api/v1/devices', [
+                'platform' => 'ios',
+                'push_token' => $pushToken,
+                'device_name' => 'Remote iPhone',
+            ])
+            ->assertCreated();
+
+        $this->assertDatabaseHas('user_devices', [
+            'user_id' => $user->id,
+            'personal_access_token_id' => $remote->accessToken->id,
+            'token_hash' => hash('sha256', $pushToken),
+        ]);
+
+        $this->app['auth']->forgetGuards();
+
+        $this->withToken($current->plainTextToken)
+            ->deleteJson('/api/v1/auth/devices/'.$remote->accessToken->public_id)
+            ->assertOk()
+            ->assertJsonPath('data.was_current', false);
+
+        $this->assertDatabaseMissing('personal_access_tokens', [
+            'id' => $remote->accessToken->id,
+        ]);
+        $this->assertDatabaseMissing('user_devices', [
+            'token_hash' => hash('sha256', $pushToken),
+        ]);
+        $this->assertDatabaseHas('personal_access_tokens', [
+            'id' => $current->accessToken->id,
+        ]);
+    }
+
     public function test_deleting_current_device_session_immediately_invalidates_its_token(): void
     {
         $user = User::factory()->create(['status' => User::STATUS_ACTIVE]);
