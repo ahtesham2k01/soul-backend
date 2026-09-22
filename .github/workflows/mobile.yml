@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - codex/design-apk-preview
   pull_request:
     branches:
       - main
@@ -56,6 +57,14 @@ jobs:
 
       - name: Build Android debug artifact
         run: flutter build apk --debug --dart-define=SOUL_API_ORIGIN=https://api.invalid
+
+      - name: Upload design preview APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: soul-design-preview-apk
+          path: apps/member_app/build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
+          retention-days: 1
 
   ios:
     runs-on: macos-latest
