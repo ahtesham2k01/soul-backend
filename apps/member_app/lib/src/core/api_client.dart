@@ -23,16 +23,21 @@ class SoulApiFailure implements Exception {
 }
 
 class SoulApiClient {
-  SoulApiClient(this._sessions)
-      : _dio = Dio(
-          BaseOptions(
-            baseUrl: SoulEnvironment.apiBaseUri.toString(),
-            contentType: Headers.jsonContentType,
-            responseType: ResponseType.json,
-            connectTimeout: const Duration(seconds: 15),
-            receiveTimeout: const Duration(seconds: 20),
-          ),
-        ) {
+  SoulApiClient(
+    this._sessions, {
+    Dio? dio,
+    void Function()? onUnauthorized,
+  })  : _onUnauthorized = onUnauthorized,
+        _dio = dio ??
+            Dio(
+              BaseOptions(
+                baseUrl: SoulEnvironment.apiBaseUri.toString(),
+                contentType: Headers.jsonContentType,
+                responseType: ResponseType.json,
+                connectTimeout: const Duration(seconds: 15),
+                receiveTimeout: const Duration(seconds: 20),
+              ),
+            ) {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
@@ -50,6 +55,7 @@ class SoulApiClient {
   }
 
   final SessionStore _sessions;
+  final void Function()? _onUnauthorized;
   final Dio _dio;
 
   Future<Map<String, dynamic>> get(String path, {Map<String, dynamic>? query}) =>
@@ -84,7 +90,7 @@ class SoulApiClient {
       return Uint8List.fromList(bytes);
     } on DioException catch (error) {
       if (error.response?.statusCode == 401) {
-        await _sessions.clear();
+        await _handleUnauthorized();
       }
       throw SoulApiFailure(
         statusCode: error.response?.statusCode,
@@ -127,7 +133,7 @@ class SoulApiClient {
             )
           : const <String, List<String>>{};
       if (error.response?.statusCode == 401) {
-        await _sessions.clear();
+        await _handleUnauthorized();
       }
       throw SoulApiFailure(
         statusCode: error.response?.statusCode,
@@ -140,6 +146,15 @@ class SoulApiClient {
         requestId: _requestId(envelope),
         fieldErrors: fields,
       );
+    }
+  }
+
+  Future<void> _handleUnauthorized() async {
+    await _sessions.clear();
+    try {
+      _onUnauthorized?.call();
+    } catch (_) {
+      // Session invalidation must never mask the original 401 response.
     }
   }
 

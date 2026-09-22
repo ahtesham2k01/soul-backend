@@ -64,24 +64,34 @@ class TranslationCacheStore {
   }
 
   Future<void> write(CachedTranslations cache) async {
-    await _file.parent.create(recursive: true);
-
     final temporary = File('${_file.path}.tmp');
-    await temporary.writeAsString(
-      jsonEncode({
-        'locale': cache.locale,
-        'version': cache.version,
-        'hash': cache.hash,
-        'values': cache.values,
-      }),
-      flush: true,
-    );
 
-    if (await _file.exists()) {
-      await _file.delete();
+    try {
+      await _file.parent.create(recursive: true);
+      await temporary.writeAsString(
+        jsonEncode({
+          'locale': cache.locale,
+          'version': cache.version,
+          'hash': cache.hash,
+          'values': cache.values,
+        }),
+        flush: true,
+      );
+
+      if (await _file.exists()) {
+        await _file.delete();
+      }
+
+      await temporary.rename(_file.path);
+    } on FileSystemException {
+      try {
+        if (await temporary.exists()) {
+          await temporary.delete();
+        }
+      } on FileSystemException {
+        // Translation caching is an optimization, never a startup dependency.
+      }
     }
-
-    await temporary.rename(_file.path);
   }
 
   Future<void> clear() async {

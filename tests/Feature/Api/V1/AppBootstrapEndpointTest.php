@@ -4,10 +4,14 @@ namespace Tests\Feature\Api\V1;
 
 use App\Contracts\Location\GeolocationProvider;
 use App\Data\LocationData;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class AppBootstrapEndpointTest extends TestCase
 {
+    use RefreshDatabase;
     public function test_bootstrap_returns_flutter_friendly_contract(): void
     {
         $response = $this->getJson(
@@ -105,6 +109,33 @@ class AppBootstrapEndpointTest extends TestCase
             ),
             $supportedLanguages,
         );
+    }
+
+    public function test_authenticated_bootstrap_includes_current_legal_versions(): void
+    {
+        $user = User::factory()->create();
+        Sanctum::actingAs($user, ['mobile']);
+
+        $response = $this->getJson('/api/v1/bootstrap?locale=en');
+
+        $response
+            ->assertOk()
+            ->assertJsonPath(
+                'data.legal.versions.terms',
+                (string) config('soul.legal.terms_version'),
+            )
+            ->assertJsonPath(
+                'data.legal.versions.privacy',
+                (string) config('soul.legal.privacy_version'),
+            )
+            ->assertJsonPath(
+                'data.legal.versions.community_guidelines',
+                (string) config('soul.legal.community_guidelines_version'),
+            )
+            ->assertJsonPath(
+                'data.legal.versions.community_commitment',
+                (string) config('soul.legal.commitment_version'),
+            );
     }
 
     public function test_bootstrap_omits_translation_values_when_client_hash_matches(): void

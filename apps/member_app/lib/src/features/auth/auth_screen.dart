@@ -7,6 +7,7 @@ import '../../core/soul_design.dart';
 import '../../core/soul_theme.dart';
 import '../bootstrap/bootstrap_repository.dart';
 import '../onboarding/onboarding_repository.dart';
+import 'auth_input_validation.dart';
 import 'auth_repository.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
@@ -84,7 +85,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
 
   String? _registrationValidation() {
     if (_registrationStep == 0 && _name.text.trim().length < 2) {
-      return widget.labels.text('auth.validation_name', 'Enter your full name.');
+      return widget.labels.text('auth.validation_name', 'Enter your first name.');
     }
     if (_registrationStep == 1 && _normalizedDob(_dob.text.trim()) == null) {
       return widget.labels.text('auth.validation_dob', 'Enter a valid date of birth. You must be 18 or older.');
@@ -92,37 +93,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     return null;
   }
 
-  String? _normalizedDob(String input) {
-    DateTime? value;
-    if (RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(input)) {
-      value = DateTime.tryParse(input);
-    } else {
-      final match =
-          RegExp(r'^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$').firstMatch(input);
-      if (match != null) {
-        final day = int.tryParse(match.group(1)!);
-        final month = int.tryParse(match.group(2)!);
-        final year = int.tryParse(match.group(3)!);
-        if (day != null && month != null && year != null) {
-          final candidate = DateTime(year, month, day);
-          if (candidate.year == year &&
-              candidate.month == month &&
-              candidate.day == day) {
-            value = candidate;
-          }
-        }
-      }
-    }
-    if (value == null) return null;
-    final today = DateTime.now();
-    var age = today.year - value.year;
-    if (today.month < value.month ||
-        (today.month == value.month && today.day < value.day)) {
-      age--;
-    }
-    if (age < 18 || age > 120) return null;
-    return '${value.year.toString().padLeft(4, '0')}-${value.month.toString().padLeft(2, '0')}-${value.day.toString().padLeft(2, '0')}';
-  }
+  String? _normalizedDob(String input) => normalizeAdultDateOfBirth(input);
+
 
   Future<void> _requestCode() async {
     setState(() {

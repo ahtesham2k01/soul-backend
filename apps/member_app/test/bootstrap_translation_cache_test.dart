@@ -31,7 +31,9 @@ class _FakeApiClient extends SoulApiClient {
 void main() {
   test('translation cache round-trips outside secure storage', () async {
     final directory = await Directory.systemTemp.createTemp('soul-cache-test-');
-    addTearDown(() async {\n      await directory.delete(recursive: true);\n    });
+    addTearDown(() async {
+      await directory.delete(recursive: true);
+    });
 
     final store = TranslationCacheStore(
       file: File('${directory.path}/translations.json'),
@@ -55,7 +57,9 @@ void main() {
 
   test('bootstrap reuses cached values when server hash is unchanged', () async {
     final directory = await Directory.systemTemp.createTemp('soul-bootstrap-');
-    addTearDown(() async {\n      await directory.delete(recursive: true);\n    });
+    addTearDown(() async {
+      await directory.delete(recursive: true);
+    });
 
     final cache = TranslationCacheStore(
       file: File('${directory.path}/translations.json'),
@@ -110,9 +114,49 @@ void main() {
     expect(state.capabilities?['features'], {'incognito': true});
   });
 
+
+  test('cache write failure never blocks fresh bootstrap data', () async {
+    final directory = await Directory.systemTemp.createTemp('soul-cache-fail-');
+    addTearDown(() async {
+      await directory.delete(recursive: true);
+    });
+
+    final blocker = File('${directory.path}/not-a-directory');
+    await blocker.writeAsString('blocked');
+    final cache = TranslationCacheStore(
+      file: File('${blocker.path}/translations.json'),
+    );
+    final hash = List.filled(64, 'd').join();
+    final api = _FakeApiClient(_TestSessionStore(), {
+      'locale': {'resolved': 'en', 'direction': 'ltr'},
+      'translations': {
+        'version': '20',
+        'hash': hash,
+        'not_modified': false,
+        'values': {'common.continue': 'Continue'},
+      },
+      'legal': {
+        'versions': <String, String>{},
+        'commitment_keys': <String>[],
+      },
+      'supported_languages': <Map<String, dynamic>>[],
+      'location_status': 'unavailable',
+      'location': null,
+      'capabilities': null,
+    });
+
+    final state = await BootstrapRepository(api, cache).load();
+
+    expect(state.translationVersion, '20');
+    expect(state.translations['common.continue'], 'Continue');
+  });
+
+
   test('bootstrap stores fresh translations when server hash changes', () async {
     final directory = await Directory.systemTemp.createTemp('soul-bootstrap-');
-    addTearDown(() async {\n      await directory.delete(recursive: true);\n    });
+    addTearDown(() async {
+      await directory.delete(recursive: true);
+    });
 
     final cache = TranslationCacheStore(
       file: File('${directory.path}/translations.json'),

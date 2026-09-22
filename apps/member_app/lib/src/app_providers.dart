@@ -18,8 +18,18 @@ final sessionStoreProvider = Provider<SessionStore>(
   (ref) => SessionStore(const FlutterSecureStorage()),
 );
 
+final sessionRevisionProvider = StateProvider<int>((_) => 0);
+
 final apiClientProvider = Provider<SoulApiClient>(
-  (ref) => SoulApiClient(ref.watch(sessionStoreProvider)),
+  (ref) {
+    final revision = ref.read(sessionRevisionProvider.notifier);
+    return SoulApiClient(
+      ref.watch(sessionStoreProvider),
+      onUnauthorized: () {
+        revision.state = revision.state + 1;
+      },
+    );
+  },
 );
 
 final translationCacheStoreProvider = Provider<TranslationCacheStore>(
@@ -60,6 +70,7 @@ final pushRegistrationServiceProvider = Provider<PushRegistrationService>(
 /// A token is never trusted locally. The API confirms it and supplies the
 /// account state on every cold launch, so onboarding cannot be bypassed.
 final sessionRouteProvider = FutureProvider<String>((ref) async {
+  ref.watch(sessionRevisionProvider);
   final sessions = ref.watch(sessionStoreProvider);
   if (await sessions.readToken() == null) return 'auth';
   try {

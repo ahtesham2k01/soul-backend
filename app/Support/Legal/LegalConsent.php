@@ -34,7 +34,12 @@ class LegalConsent
             return ['type' => $type, 'current_version' => $version, 'accepted' => $record !== null, 'accepted_at' => $record?->accepted_at?->toIso8601String()];
         })->values()->all();
 
-        return ['requires_acceptance' => collect($documents)->contains('accepted', false), 'documents' => $documents, 'commitment_keys' => self::COMMITMENT_KEYS];
+        return [
+            'requires_acceptance' => collect($documents)->contains('accepted', false),
+            'versions' => $this->versions(),
+            'documents' => $documents,
+            'commitment_keys' => self::COMMITMENT_KEYS,
+        ];
     }
 
     public function record(User $user, Request $request, array $versions, string $via): void
