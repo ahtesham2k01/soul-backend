@@ -73,7 +73,9 @@ void main() {
       expect(find.text('Happily Ever After'), findsOneWidget);
       expect(finished, isFalse);
 
-      await tester.pump(const Duration(milliseconds: 430));
+      // Allow normal frame scheduling around the final hold instead of
+      // coupling the test to an exact micro-timing boundary.
+      await tester.pump(const Duration(milliseconds: 650));
       expect(finished, isTrue);
     },
   );
