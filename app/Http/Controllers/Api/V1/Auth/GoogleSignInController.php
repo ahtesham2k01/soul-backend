@@ -9,6 +9,7 @@ use App\Http\Requests\Api\V1\Auth\GoogleSignInRequest;
 use App\Http\Resources\Api\V1\UserResource;
 use App\Models\SocialAccount;
 use App\Models\User;
+use App\Services\Auth\EmailOtpService;
 use App\Services\Auth\MobileTokenIssuer;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
@@ -19,6 +20,7 @@ class GoogleSignInController extends Controller
     public function __invoke(
         GoogleSignInRequest $request,
         GoogleTokenVerifier $googleTokenVerifier,
+        EmailOtpService $emailOtpService,
         MobileTokenIssuer $tokenIssuer,
     ): JsonResponse {
         $identity = $googleTokenVerifier->verify(
@@ -44,6 +46,10 @@ class GoogleSignInController extends Controller
             );
         }
 
+        $normalizedEmail = $emailOtpService->normalizeEmail(
+            $identity->email,
+        );
+
         $deviceName = $request
             ->string('device_name')
             ->toString();
@@ -55,6 +61,7 @@ class GoogleSignInController extends Controller
         return DB::transaction(
             function () use (
                 $identity,
+                $normalizedEmail,
                 $deviceName,
                 $requestedLocale,
                 $request,
@@ -81,14 +88,14 @@ class GoogleSignInController extends Controller
                         ->firstOrFail();
 
                     $socialAccount->forceFill([
-                        'provider_email' => $identity->email,
+                        'provider_email' => $normalizedEmail,
                         'provider_email_verified' => true,
                     ])->save();
                 } else {
                     $user = User::query()
                         ->where(
                             'email',
-                            $identity->email,
+                            $normalizedEmail,
                         )
                         ->lockForUpdate()
                         ->first();
@@ -100,7 +107,7 @@ class GoogleSignInController extends Controller
                             'name' => $this->limitedName(
                                 $identity->name,
                             ),
-                            'email' => $identity->email,
+                            'email' => $normalizedEmail,
                             'email_verified_at' => now(),
                             'preferred_locale' => is_string(
                                 $requestedLocale,
@@ -148,7 +155,7 @@ class GoogleSignInController extends Controller
                     $user->socialAccounts()->create([
                         'provider' => SocialProvider::Google,
                         'provider_user_id' => $identity->subject,
-                        'provider_email' => $identity->email,
+                        'provider_email' => $normalizedEmail,
                         'provider_email_verified' => true,
                     ]);
                 }

@@ -9,6 +9,7 @@ use App\Http\Requests\Api\V1\Auth\AppleSignInRequest;
 use App\Http\Resources\Api\V1\UserResource;
 use App\Models\SocialAccount;
 use App\Models\User;
+use App\Services\Auth\EmailOtpService;
 use App\Services\Auth\MobileTokenIssuer;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
@@ -19,6 +20,7 @@ class AppleSignInController extends Controller
     public function __invoke(
         AppleSignInRequest $request,
         AppleTokenVerifier $appleTokenVerifier,
+        EmailOtpService $emailOtpService,
         MobileTokenIssuer $tokenIssuer,
     ): JsonResponse {
         $identity = $appleTokenVerifier->verify(
@@ -38,6 +40,10 @@ class AppleSignInController extends Controller
             );
         }
 
+        $normalizedEmail = $identity->email === null
+            ? null
+            : $emailOtpService->normalizeEmail($identity->email);
+
         $deviceName = $request
             ->string('device_name')
             ->toString();
@@ -54,6 +60,7 @@ class AppleSignInController extends Controller
         return DB::transaction(
             function () use (
                 $identity,
+                $normalizedEmail,
                 $deviceName,
                 $requestedLocale,
                 $displayName,
@@ -85,9 +92,9 @@ class AppleSignInController extends Controller
                             $identity->emailVerified,
                     ];
 
-                    if ($identity->email !== null) {
+                    if ($normalizedEmail !== null) {
                         $socialAttributes['provider_email'] =
-                            $identity->email;
+                            $normalizedEmail;
                     }
 
                     $socialAccount->forceFill(
@@ -95,7 +102,8 @@ class AppleSignInController extends Controller
                     )->save();
                 } else {
                     if (
-                        $identity->email === null
+                        $normalizedEmail === null
+                        || $normalizedEmail === ''
                         || ! $identity->emailVerified
                     ) {
                         return ApiResponse::error(
@@ -112,7 +120,7 @@ class AppleSignInController extends Controller
                     $user = User::query()
                         ->where(
                             'email',
-                            $identity->email,
+                            $normalizedEmail,
                         )
                         ->lockForUpdate()
                         ->first();
@@ -122,7 +130,7 @@ class AppleSignInController extends Controller
 
                         $user->forceFill([
                             'name' => $displayName,
-                            'email' => $identity->email,
+                            'email' => $normalizedEmail,
                             'email_verified_at' => now(),
                             'preferred_locale' => is_string(
                                 $requestedLocale,
@@ -170,7 +178,7 @@ class AppleSignInController extends Controller
                     $user->socialAccounts()->create([
                         'provider' => SocialProvider::Apple,
                         'provider_user_id' => $identity->subject,
-                        'provider_email' => $identity->email,
+                        'provider_email' => $normalizedEmail,
                         'provider_email_verified' => true,
                     ]);
                 }

@@ -209,6 +209,41 @@ class GoogleSignInEndpointTest extends TestCase
         );
     }
 
+
+    public function test_google_email_is_normalized_before_existing_account_linking(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'mixed.case@gmail.com',
+            'email_verified_at' => now(),
+        ]);
+
+        $this->bindGoogleIdentity(
+            new VerifiedGoogleIdentity(
+                subject: 'mixed-case-google-link',
+                email: '  MIXED.CASE@GMAIL.COM  ',
+                emailVerified: true,
+                name: 'Mixed Case',
+                avatarUrl: null,
+            ),
+        );
+
+        $this->postJson('/api/v1/auth/google', [
+            'id_token' => 'mixed-case-google-token',
+            'device_name' => 'Pixel',
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.user.email', 'mixed.case@gmail.com')
+            ->assertJsonPath('data.is_new_user', false);
+
+        $this->assertDatabaseCount('users', 1);
+        $this->assertDatabaseHas('social_accounts', [
+            'user_id' => $user->getKey(),
+            'provider' => SocialProvider::Google->value,
+            'provider_user_id' => 'mixed-case-google-link',
+            'provider_email' => 'mixed.case@gmail.com',
+        ]);
+    }
+
     public function test_invalid_google_token_is_rejected(): void
     {
         $this->bindGoogleIdentity(

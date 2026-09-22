@@ -263,6 +263,41 @@ class AppleSignInEndpointTest extends TestCase
         );
     }
 
+
+    public function test_apple_email_is_normalized_before_existing_account_linking(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'mixed.case@example.com',
+            'email_verified_at' => now(),
+        ]);
+
+        $this->bindAppleIdentity(
+            new VerifiedAppleIdentity(
+                subject: 'mixed-case-apple-link',
+                email: '  MIXED.CASE@EXAMPLE.COM  ',
+                emailVerified: true,
+                isPrivateEmail: false,
+            ),
+        );
+
+        $this->postJson('/api/v1/auth/apple', [
+            'identity_token' => 'mixed-case-apple-token',
+            'raw_nonce' => self::RAW_NONCE,
+            'device_name' => 'iPhone',
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.user.email', 'mixed.case@example.com')
+            ->assertJsonPath('data.is_new_user', false);
+
+        $this->assertDatabaseCount('users', 1);
+        $this->assertDatabaseHas('social_accounts', [
+            'user_id' => $user->getKey(),
+            'provider' => SocialProvider::Apple->value,
+            'provider_user_id' => 'mixed-case-apple-link',
+            'provider_email' => 'mixed.case@example.com',
+        ]);
+    }
+
     public function test_invalid_apple_token_is_rejected(): void
     {
         $this->bindAppleIdentity(

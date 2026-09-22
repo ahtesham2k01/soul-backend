@@ -72,7 +72,7 @@ class _SoulAppState extends ConsumerState<SoulApp> {
               }
               return _SignedInShell(labels: state);
             },
-            error: (_, __) => const _BootstrapErrorScreen(),
+            error: (_, __) => _BootstrapErrorScreen(labels: state),
             loading: () => const _LaunchScreen(),
           ),
       ),
@@ -103,7 +103,9 @@ class _LaunchScreen extends StatelessWidget {
 }
 
 class _BootstrapErrorScreen extends ConsumerWidget {
-  const _BootstrapErrorScreen();
+  const _BootstrapErrorScreen({this.labels});
+
+  final BootstrapState? labels;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
@@ -115,11 +117,23 @@ class _BootstrapErrorScreen extends ConsumerWidget {
               children: [
                 const Text('SOUL', style: TextStyle(fontSize: 36)),
                 const SizedBox(height: 16),
-                const Text('Unable to load SOUL right now.'),
+                Text(
+                  labels?.text(
+                        'error.bootstrap_unavailable',
+                        'Unable to load SOUL right now.',
+                      ) ??
+                      'Unable to load SOUL right now.',
+                  textAlign: TextAlign.center,
+                ),
                 const SizedBox(height: 16),
                 FilledButton(
-                  onPressed: () => ref.invalidate(bootstrapProvider),
-                  child: const Text('Retry'),
+                  onPressed: () {
+                    ref.invalidate(bootstrapProvider);
+                    ref.invalidate(sessionRouteProvider);
+                  },
+                  child: Text(
+                    labels?.text('common.retry', 'Retry') ?? 'Retry',
+                  ),
                 ),
               ],
             ),
