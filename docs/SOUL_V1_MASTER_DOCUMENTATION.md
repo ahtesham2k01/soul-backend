@@ -4,14 +4,23 @@ This is the single human-readable source for SOUL Version 1. It explains the pro
 
 ## How to use this document
 
-| Reader | Start with | Continue with |
+| Reader | Role-specific guide | Master sections to continue with |
 |---|---|---|
-| Product owner or stakeholder | Executive summary and Product requirements | Delivery progress and Complete member app flow |
-| Investor or business partner | Executive summary | Product requirements, Backend scope and Release closure |
-| Flutter developer | Complete member app flow | Flutter developer guide, Flutter API reference and feature contracts |
-| Backend developer | Backend scope | Flutter API reference, Database design and feature contracts |
-| Admin/operator | React admin operations | Safety, subscriptions, events and Production readiness |
-| QA/release engineer | Product requirements | PRD traceability, Release-candidate audit and Release closure |
+| Product owner or stakeholder | [Product_Requirements.md](Product_Requirements.md) | Product requirements, Delivery progress and Complete member app flow |
+| Investor or business partner | [Product_Business_Investor_Overview.md](Product_Business_Investor_Overview.md) | Executive summary, Backend scope and Release closure |
+| Flutter developer | [Product_Flutter_Developer_Guide.md](Product_Flutter_Developer_Guide.md) | Complete member app flow, Flutter API reference and feature contracts |
+| Backend developer | [Product_Backend_Engineering_Guide.md](Product_Backend_Engineering_Guide.md) | Backend scope, Flutter API reference, Database design and feature contracts |
+| Admin/operator/moderator | [Product_Admin_Operations_Guide.md](Product_Admin_Operations_Guide.md) | React admin operations, Safety, subscriptions, events and Production readiness |
+| QA/release engineer | [Product_QA_Release_Guide.md](Product_QA_Release_Guide.md) | PRD traceability, Release-candidate audit and Release closure |
+| Product/UX designer | [Product_Design_UX_System.md](Product_Design_UX_System.md) | Premium product experience standard and Complete member app flow |
+| Architect/data engineer | [Product_Architecture_And_Data_Design.md](Product_Architecture_And_Data_Design.md) | Database design, Backend scope and Production readiness |
+| Security/privacy/safety owner | [Product_Security_Privacy_And_Safety.md](Product_Security_Privacy_And_Safety.md) | Safety, privacy/account lifecycle and security sections |
+| DevOps/operations engineer | [Product_Operations_DevOps_Runbook.md](Product_Operations_DevOps_Runbook.md) | Production readiness, operations and release closure |
+| Localization/content/analytics owner | [Product_Localization_Content_Analytics.md](Product_Localization_Content_Analytics.md) | Localization, notifications, product copy and telemetry sections |
+
+### Documentation authority and synchronization
+
+The master document remains authoritative. The `Product_*.md` files are maintained role-specific views, not independent specifications. Any product change must update the master first and synchronize each affected role guide in the same feature/documentation package. Machine-generated API/model artifacts remain separate and must not be manually duplicated into role guides.
 
 Machine-readable companions remain separate because development tools import them directly:
 
