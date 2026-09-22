@@ -21,7 +21,7 @@ return [
 
     'translations' => [
         'fallback_locale' => 'en',
-        'catalog_version' => '20',
+        'catalog_version' => '21',
 
         /*
          * Product-approved global target. This includes useful member

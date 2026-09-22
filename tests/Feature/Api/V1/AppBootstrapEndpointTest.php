@@ -56,7 +56,7 @@ class AppBootstrapEndpointTest extends TestCase
             )
             ->assertJsonPath(
                 'data.translations.version',
-                '20',
+                '21',
             )
             ->assertJsonFragment([
                 'auth.create_account' => 'Create Account',
@@ -403,7 +403,7 @@ class AppBootstrapEndpointTest extends TestCase
             )
             ->assertJsonPath(
                 'data.translations.version',
-                '20',
+                '21',
             )
             ->assertJsonFragment([
                 'auth.create_account' => 'Account banayein',
@@ -445,7 +445,7 @@ class AppBootstrapEndpointTest extends TestCase
             )
             ->assertJsonPath(
                 'data.translations.version',
-                '20',
+                '21',
             )
             ->assertJsonFragment([
                 'auth.create_account' => 'Crear una cuenta',
