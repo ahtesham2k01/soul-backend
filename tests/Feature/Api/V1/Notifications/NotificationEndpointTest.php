@@ -24,9 +24,37 @@ class NotificationEndpointTest extends TestCase
         $u = User::factory()->create(['status' => User::STATUS_ACTIVE]);
         Sanctum::actingAs($u);
         $id = $this->postJson('/api/v1/devices', ['platform' => 'android', 'push_token' => 'secret-provider-token', 'device_name' => 'Pixel'])->assertCreated()->assertJsonMissingPath('data.device.push_token')->json('data.device.id');
-        $this->assertDatabaseHas('user_devices', ['user_id' => $u->id, 'token_hash' => hash('sha256', 'secret-provider-token')]);
+        $this->assertDatabaseHas('user_devices', [
+            'user_id' => $u->id,
+            'token_hash' => hash('sha256', 'secret-provider-token'),
+            'personal_access_token_id' => null,
+        ]);
         $this->deleteJson("/api/v1/devices/$id")->assertOk();
         $this->assertNotNull($u->devices()->first()->revoked_at);
+    }
+
+    public function test_device_registration_links_real_mobile_session_token(): void
+    {
+        $user = User::factory()->create(['status' => User::STATUS_ACTIVE]);
+        $token = $user->createToken(
+            'Android',
+            ['mobile'],
+            now()->addDays(90),
+        );
+
+        $this->withToken($token->plainTextToken)
+            ->postJson('/api/v1/devices', [
+                'platform' => 'android',
+                'push_token' => 'real-session-provider-token',
+                'device_name' => 'Pixel',
+            ])
+            ->assertCreated();
+
+        $this->assertDatabaseHas('user_devices', [
+            'user_id' => $user->id,
+            'token_hash' => hash('sha256', 'real-session-provider-token'),
+            'personal_access_token_id' => $token->accessToken->id,
+        ]);
     }
 
     public function test_preferences_have_safe_defaults_and_support_partial_updates(): void

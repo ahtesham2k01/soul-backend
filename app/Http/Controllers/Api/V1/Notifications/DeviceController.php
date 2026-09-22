@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers\Api\V1\Notifications;
 use App\Http\Controllers\Controller;
+use App\Models\PersonalAccessToken;
 use App\Models\UserDevice;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
@@ -11,10 +12,14 @@ class DeviceController extends Controller {
   $hash=hash('sha256',$v['push_token']);
   $device=UserDevice::query()->where('token_hash',$hash)->first();
   if($device&&$device->user_id!==$r->user()->id) $device->delete();
+  $accessToken=$r->user()->currentAccessToken();
+  $personalAccessTokenId=$accessToken instanceof PersonalAccessToken
+   ? $accessToken->getKey()
+   : null;
   $device=$r->user()->devices()->updateOrCreate(
    ['token_hash'=>$hash],
    [
-    'personal_access_token_id'=>$r->user()->currentAccessToken()?->getKey(),
+    'personal_access_token_id'=>$personalAccessTokenId,
     'platform'=>$v['platform'],
     'push_token'=>$v['push_token'],
     'device_name'=>$v['device_name']??null,
