@@ -8,6 +8,7 @@ class CachedTranslations {
     this.brandName = 'SOUL',
     this.brandTranslate = false,
     required this.locale,
+    this.fallbackLocale = 'en',
     required this.version,
     required this.hash,
     required this.values,
@@ -18,6 +19,7 @@ class CachedTranslations {
   final String brandName;
   final bool brandTranslate;
   final String locale;
+  final String fallbackLocale;
   final String version;
   final String hash;
   final Map<String, String> values;
@@ -57,24 +59,27 @@ class TranslationCacheStore {
       final map = Map<String, dynamic>.from(decoded);
       final brandName = map['brand_name']?.toString().trim() ?? 'SOUL';
       final brandTranslate = map['brand_translate'] == true;
-      final locale = map['locale']?.toString() ?? '';
-      final version = map['version']?.toString() ?? '';
+      final locale = map['locale']?.toString().trim() ?? '';
+      final fallbackLocale =
+          map['fallback_locale']?.toString().trim() ?? 'en';
+      final version = map['version']?.toString().trim() ?? '';
       final hash = map['hash']?.toString().toLowerCase() ?? '';
       final values = map['values'];
       final direction = map['direction']?.toString() ?? 'ltr';
       final rawLanguages = map['supported_languages'];
 
-      final validValues = values is Map &&
-          values.entries.every(
-            (entry) => entry.key is String && entry.value is String,
-          );
-
       if (brandName != 'SOUL' ||
           brandTranslate ||
           locale.isEmpty ||
+          fallbackLocale.isEmpty ||
           version.isEmpty ||
+          (direction != 'ltr' && direction != 'rtl') ||
           !RegExp(r'^[a-f0-9]{64}$').hasMatch(hash) ||
-          !validValues) {
+          values is! Map ||
+          values.isEmpty ||
+          values.entries.any(
+            (entry) => entry.key is! String || entry.value is! String,
+          )) {
         await clear();
         return null;
       }
@@ -83,10 +88,11 @@ class TranslationCacheStore {
         brandName: brandName,
         brandTranslate: brandTranslate,
         locale: locale,
+        fallbackLocale: fallbackLocale,
         version: version,
         hash: hash,
-        values: Map<String, String>.from(values as Map),
-        direction: direction == 'rtl' ? 'rtl' : 'ltr',
+        values: Map<String, String>.from(values),
+        direction: direction,
         supportedLanguages: rawLanguages is List
             ? rawLanguages
                 .whereType<Map>()
@@ -94,9 +100,6 @@ class TranslationCacheStore {
                 .toList(growable: false)
             : const <Map<String, dynamic>>[],
       );
-    } on FormatException {
-      await clear();
-      return null;
     } catch (_) {
       await clear();
       return null;
@@ -108,7 +111,7 @@ class TranslationCacheStore {
 
     try {
       final file = await _resolvedFile();
-      temporary = File('${file.path}.tmp');
+      temporary = File(file.path + '.tmp');
 
       await file.parent.create(recursive: true);
       await temporary.writeAsString(
@@ -116,6 +119,7 @@ class TranslationCacheStore {
           'brand_name': cache.brandName,
           'brand_translate': cache.brandTranslate,
           'locale': cache.locale,
+          'fallback_locale': cache.fallbackLocale,
           'version': cache.version,
           'hash': cache.hash,
           'values': cache.values,

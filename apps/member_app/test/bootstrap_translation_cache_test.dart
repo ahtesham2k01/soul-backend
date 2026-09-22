@@ -59,7 +59,10 @@ Map<String, dynamic> _bootstrapPayload({
         'translate': false,
       },
       'locale': {
+        'requested': locale,
+        'matched': locale,
         'resolved': locale,
+        'fallback': 'en',
         'direction': direction,
       },
       'translations': {
@@ -125,6 +128,7 @@ void main() {
     expect(loaded!.brandName, 'SOUL');
     expect(loaded.brandTranslate, isFalse);
     expect(loaded.locale, 'ur');
+    expect(loaded.fallbackLocale, 'en');
     expect(loaded.version, '20');
     expect(loaded.hash, expected.hash);
     expect(loaded.values, expected.values);

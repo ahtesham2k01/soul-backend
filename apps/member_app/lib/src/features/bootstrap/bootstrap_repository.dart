@@ -20,12 +20,12 @@ class SupportedLanguage {
 
   factory SupportedLanguage.fromJson(Map<String, dynamic> json) =>
       SupportedLanguage(
-        code: json['code']?.toString() ?? '',
-        name: json['name']?.toString() ?? '',
-        nativeName: json['native_name']?.toString() ?? '',
+        code: json['code']?.toString().trim() ?? '',
+        name: json['name']?.toString().trim() ?? '',
+        nativeName: json['native_name']?.toString().trim() ?? '',
         direction: json['direction']?.toString() == 'rtl' ? 'rtl' : 'ltr',
-        // Older cache files predate this flag; every configured locale was a
-        // launch target then, so a missing flag remains backward compatible.
+        // Older cache files predate this flag. A missing value is therefore
+        // treated as targeted, while an explicit false remains authoritative.
         isLaunchTarget: json['is_launch_target'] != false,
         isLaunchReady: json['is_launch_ready'] == true,
       );
@@ -48,8 +48,8 @@ class BootstrapLocation {
 
   factory BootstrapLocation.fromJson(Map<String, dynamic> json) =>
       BootstrapLocation(
-        city: json['city']?.toString() ?? '',
-        countryCode: json['country_code']?.toString().toUpperCase() ?? '',
+        city: json['city']?.toString().trim() ?? '',
+        countryCode: json['country_code']?.toString().trim().toUpperCase() ?? '',
         country: json['country']?.toString(),
         region: json['region']?.toString(),
         isApproximate: json['is_approximate'] != false,
@@ -60,6 +60,9 @@ class BootstrapState {
   const BootstrapState({
     this.brandName = 'SOUL',
     this.brandTranslate = false,
+    this.requestedLocale,
+    this.matchedLocale = '',
+    this.fallbackLocale = 'en',
     required this.direction,
     required this.locale,
     this.translationVersion = '',
@@ -68,6 +71,7 @@ class BootstrapState {
     required this.legalVersions,
     required this.commitmentKeys,
     required this.supportedLanguages,
+    this.legal = const <String, dynamic>{},
     this.locationStatus = 'unavailable',
     this.capabilities,
     this.location,
@@ -75,6 +79,9 @@ class BootstrapState {
 
   final String brandName;
   final bool brandTranslate;
+  final String? requestedLocale;
+  final String matchedLocale;
+  final String fallbackLocale;
   final String direction;
   final String locale;
   final String translationVersion;
@@ -83,6 +90,7 @@ class BootstrapState {
   final Map<String, String> legalVersions;
   final List<String> commitmentKeys;
   final List<SupportedLanguage> supportedLanguages;
+  final Map<String, dynamic> legal;
   final String locationStatus;
   final Map<String, dynamic>? capabilities;
   final BootstrapLocation? location;
@@ -97,7 +105,7 @@ class BootstrapState {
     var value = text(key, fallback);
     for (final entry in values.entries) {
       value = value.replaceAll(
-        '{${entry.key}}',
+        '{' + entry.key + '}',
         entry.value?.toString() ?? '',
       );
     }
@@ -161,24 +169,47 @@ class BootstrapRepository {
     final localeData = data['locale'] is Map
         ? Map<String, dynamic>.from(data['locale'] as Map)
         : const <String, dynamic>{};
+    final requestedRaw = localeData['requested'];
+    final requestedLocale = requestedRaw == null
+        ? null
+        : requestedRaw is String
+            ? requestedRaw
+            : null;
+    final matchedLocale = localeData['matched']?.toString().trim() ?? '';
+    final locale = localeData['resolved']?.toString().trim() ?? '';
+    final fallbackLocale = localeData['fallback']?.toString().trim() ?? '';
+    final rawDirection = localeData['direction']?.toString();
+    final direction = rawDirection == 'rtl' ? 'rtl' : 'ltr';
+
     final translationData = data['translations'] is Map
         ? Map<String, dynamic>.from(data['translations'] as Map)
         : const <String, dynamic>{};
-    final locale = localeData['resolved']?.toString().trim() ?? '';
     final version = translationData['version']?.toString().trim() ?? '';
     final hash = translationData['hash']?.toString().toLowerCase() ?? '';
     final notModified = translationData['not_modified'] == true;
     final rawValues = translationData['values'];
-    final direction = localeData['direction']?.toString() == 'rtl'
-        ? 'rtl'
-        : 'ltr';
+
     final supportedLanguages = _decodeSupportedLanguages(
       data['supported_languages'],
     );
+    final languageCodes =
+        supportedLanguages.map((language) => language.code).toList();
 
-    if (locale.isEmpty ||
+    if ((requestedRaw != null && requestedRaw is! String) ||
+        matchedLocale.isEmpty ||
+        locale.isEmpty ||
+        fallbackLocale.isEmpty ||
+        (rawDirection != 'ltr' && rawDirection != 'rtl') ||
         version.isEmpty ||
-        !RegExp(r'^[a-f0-9]{64}
+        !RegExp(r'^[a-f0-9]{64}$').hasMatch(hash) ||
+        supportedLanguages.isEmpty ||
+        languageCodes.toSet().length != languageCodes.length ||
+        supportedLanguages.any(
+          (language) =>
+              language.name.isEmpty ||
+              language.nativeName.isEmpty,
+        ) ||
+        !languageCodes.contains(locale)) {
       throw const SoulApiFailure(
         statusCode: null,
         code: 'INVALID_BOOTSTRAP_CONTRACT',
@@ -192,8 +223,16 @@ class BootstrapRepository {
         cached.locale == locale &&
         cached.hash == hash &&
         cached.version == version) {
+      if (rawValues != null) {
+        throw const SoulApiFailure(
+          statusCode: null,
+          code: 'INVALID_BOOTSTRAP_TRANSLATIONS',
+          message: 'SOUL returned an inconsistent language catalog.',
+        );
+      }
       translations = cached.values;
-    } else if (rawValues is Map &&
+    } else if (!notModified &&
+        rawValues is Map &&
         rawValues.entries.every(
           (entry) => entry.key is String && entry.value is String,
         )) {
@@ -206,14 +245,19 @@ class BootstrapRepository {
       );
     }
 
+    if (translations.isEmpty) {
+      throw const SoulApiFailure(
+        statusCode: null,
+        code: 'INVALID_BOOTSTRAP_TRANSLATIONS',
+        message: 'SOUL returned an empty language catalog.',
+      );
+    }
+
     final legalData = data['legal'] is Map
         ? Map<String, dynamic>.from(data['legal'] as Map)
         : const <String, dynamic>{};
     final versions = legalData['versions'];
     final commitments = legalData['commitment_keys'];
-    final rawLocation = data['location'];
-    final rawCapabilities = data['capabilities'];
-    final locationStatus = data['location_status']?.toString();
 
     if (versions is! Map ||
         versions.entries.any(
@@ -227,6 +271,13 @@ class BootstrapRepository {
         message: 'SOUL returned invalid legal startup configuration.',
       );
     }
+
+    final legalVersions = Map<String, String>.from(versions);
+    final commitmentKeys =
+        List<String>.unmodifiable(commitments.cast<String>());
+
+    final rawLocation = data['location'];
+    final locationStatus = data['location_status']?.toString();
 
     if ((locationStatus == 'resolved') != (rawLocation is Map) ||
         (locationStatus != 'resolved' && locationStatus != 'unavailable')) {
@@ -244,11 +295,33 @@ class BootstrapRepository {
         : null;
 
     if (location != null &&
-        (location.city.trim().isEmpty ||
-            !RegExp(r'^[A-Z]{2}
+        (location.city.isEmpty ||
+            !RegExp(r'^[A-Z]{2}$').hasMatch(location.countryCode))) {
+      throw const SoulApiFailure(
+        statusCode: null,
+        code: 'INVALID_BOOTSTRAP_LOCATION',
+        message: 'SOUL returned incomplete startup location data.',
+      );
+    }
+
+    final rawCapabilities = data['capabilities'];
+    if (rawCapabilities != null && rawCapabilities is! Map) {
+      throw const SoulApiFailure(
+        statusCode: null,
+        code: 'INVALID_BOOTSTRAP_CAPABILITIES',
+        message: 'SOUL returned invalid capability configuration.',
+      );
+    }
+    final capabilities = rawCapabilities is Map
+        ? Map<String, dynamic>.from(rawCapabilities)
+        : null;
+
+    await _cache.write(
+      CachedTranslations(
         brandName: brandName,
         brandTranslate: brandTranslate,
         locale: locale,
+        fallbackLocale: fallbackLocale,
         version: version,
         hash: hash,
         values: translations,
@@ -271,23 +344,19 @@ class BootstrapRepository {
     return BootstrapState(
       brandName: brandName,
       brandTranslate: brandTranslate,
+      requestedLocale: requestedLocale,
+      matchedLocale: matchedLocale,
+      fallbackLocale: fallbackLocale,
       direction: direction,
       locale: locale,
       translationVersion: version,
       translationHash: hash,
       translations: translations,
-      legalVersions: versions is Map
-          ? versions.map(
-              (key, value) => MapEntry(key.toString(), value.toString()),
-            )
-          : const <String, String>{},
-      commitmentKeys: commitments is List
-          ? commitments.map((item) => item.toString()).toList(growable: false)
-          : const <String>[],
+      legalVersions: legalVersions,
+      commitmentKeys: commitmentKeys,
+      legal: legalData,
       locationStatus: locationStatus!,
-      capabilities: rawCapabilities is Map
-          ? Map<String, dynamic>.from(rawCapabilities)
-          : null,
+      capabilities: capabilities,
       location: location,
       supportedLanguages: supportedLanguages,
     );
@@ -296,362 +365,8 @@ class BootstrapRepository {
   BootstrapState _offlineState(CachedTranslations cached) => BootstrapState(
         brandName: cached.brandName,
         brandTranslate: cached.brandTranslate,
-        direction: cached.direction,
-        locale: cached.locale,
-        translationVersion: cached.version,
-        translationHash: cached.hash,
-        translations: cached.values,
-        legalVersions: const {},
-        commitmentKeys: const [],
-        supportedLanguages: _decodeSupportedLanguages(
-          cached.supportedLanguages,
-        ),
-        locationStatus: 'unavailable',
-        capabilities: null,
-        location: null,
-      );
-
-  List<SupportedLanguage> _decodeSupportedLanguages(Object? raw) =>
-      raw is List
-          ? raw
-              .whereType<Map>()
-              .map(
-                (item) => SupportedLanguage.fromJson(
-                  Map<String, dynamic>.from(item),
-                ),
-              )
-              .where((item) => item.code.isNotEmpty)
-              .toList(growable: false)
-          : const <SupportedLanguage>[];
-}
-).hasMatch(hash) ||
-        supportedLanguages.isEmpty ||
-        !supportedLanguages.any((language) => language.code == locale)) {
-      throw const SoulApiFailure(
-        statusCode: null,
-        code: 'INVALID_BOOTSTRAP_CONTRACT',
-        message: 'SOUL returned invalid startup configuration.',
-      );
-    }
-
-    Map<String, String> translations;
-    if (notModified &&
-        cached != null &&
-        cached.locale == locale &&
-        cached.hash == hash &&
-        cached.version == version) {
-      translations = cached.values;
-    } else if (rawValues is Map &&
-        rawValues.entries.every(
-          (entry) => entry.key is String && entry.value is String,
-        )) {
-      translations = Map<String, String>.from(rawValues);
-    } else {
-      throw const SoulApiFailure(
-        statusCode: null,
-        code: 'INVALID_BOOTSTRAP_TRANSLATIONS',
-        message: 'SOUL could not load the language catalog.',
-      );
-    }
-
-    final legalData = data['legal'] is Map
-        ? Map<String, dynamic>.from(data['legal'] as Map)
-        : const <String, dynamic>{};
-    final versions = legalData['versions'];
-    final commitments = legalData['commitment_keys'];
-    final rawLocation = data['location'];
-    final rawCapabilities = data['capabilities'];
-    final locationStatus = data['location_status']?.toString();
-
-    if ((locationStatus == 'resolved') != (rawLocation is Map) ||
-        (locationStatus != 'resolved' && locationStatus != 'unavailable')) {
-      throw const SoulApiFailure(
-        statusCode: null,
-        code: 'INVALID_BOOTSTRAP_LOCATION',
-        message: 'SOUL returned invalid startup location state.',
-      );
-    }
-
-    await _cache.write(
-      CachedTranslations(
-        brandName: brandName,
-        brandTranslate: brandTranslate,
-        locale: locale,
-        version: version,
-        hash: hash,
-        values: translations,
-        direction: direction,
-        supportedLanguages: supportedLanguages
-            .map(
-              (language) => <String, dynamic>{
-                'code': language.code,
-                'name': language.name,
-                'native_name': language.nativeName,
-                'direction': language.direction,
-                'is_launch_target': language.isLaunchTarget,
-                'is_launch_ready': language.isLaunchReady,
-              },
-            )
-            .toList(growable: false),
-      ),
-    );
-
-    return BootstrapState(
-      brandName: brandName,
-      brandTranslate: brandTranslate,
-      direction: direction,
-      locale: locale,
-      translationVersion: version,
-      translationHash: hash,
-      translations: translations,
-      legalVersions: versions is Map
-          ? versions.map(
-              (key, value) => MapEntry(key.toString(), value.toString()),
-            )
-          : const <String, String>{},
-      commitmentKeys: commitments is List
-          ? commitments.map((item) => item.toString()).toList(growable: false)
-          : const <String>[],
-      locationStatus: locationStatus!,
-      capabilities: rawCapabilities is Map
-          ? Map<String, dynamic>.from(rawCapabilities)
-          : null,
-      location: rawLocation is Map
-          ? BootstrapLocation.fromJson(
-              Map<String, dynamic>.from(rawLocation),
-            )
-          : null,
-      supportedLanguages: supportedLanguages,
-    );
-  }
-
-  BootstrapState _offlineState(CachedTranslations cached) => BootstrapState(
-        brandName: cached.brandName,
-        brandTranslate: cached.brandTranslate,
-        direction: cached.direction,
-        locale: cached.locale,
-        translationVersion: cached.version,
-        translationHash: cached.hash,
-        translations: cached.values,
-        legalVersions: const {},
-        commitmentKeys: const [],
-        supportedLanguages: _decodeSupportedLanguages(
-          cached.supportedLanguages,
-        ),
-        locationStatus: 'unavailable',
-        capabilities: null,
-        location: null,
-      );
-
-  List<SupportedLanguage> _decodeSupportedLanguages(Object? raw) =>
-      raw is List
-          ? raw
-              .whereType<Map>()
-              .map(
-                (item) => SupportedLanguage.fromJson(
-                  Map<String, dynamic>.from(item),
-                ),
-              )
-              .where((item) => item.code.isNotEmpty)
-              .toList(growable: false)
-          : const <SupportedLanguage>[];
-}
-).hasMatch(location.countryCode))) {
-      throw const SoulApiFailure(
-        statusCode: null,
-        code: 'INVALID_BOOTSTRAP_LOCATION',
-        message: 'SOUL returned incomplete startup location data.',
-      );
-    }
-
-    await _cache.write(
-      CachedTranslations(
-        brandName: brandName,
-        brandTranslate: brandTranslate,
-        locale: locale,
-        version: version,
-        hash: hash,
-        values: translations,
-        direction: direction,
-        supportedLanguages: supportedLanguages
-            .map(
-              (language) => <String, dynamic>{
-                'code': language.code,
-                'name': language.name,
-                'native_name': language.nativeName,
-                'direction': language.direction,
-                'is_launch_target': language.isLaunchTarget,
-                'is_launch_ready': language.isLaunchReady,
-              },
-            )
-            .toList(growable: false),
-      ),
-    );
-
-    return BootstrapState(
-      brandName: brandName,
-      brandTranslate: brandTranslate,
-      direction: direction,
-      locale: locale,
-      translationVersion: version,
-      translationHash: hash,
-      translations: translations,
-      legalVersions: versions is Map
-          ? versions.map(
-              (key, value) => MapEntry(key.toString(), value.toString()),
-            )
-          : const <String, String>{},
-      commitmentKeys: commitments is List
-          ? commitments.map((item) => item.toString()).toList(growable: false)
-          : const <String>[],
-      locationStatus: locationStatus!,
-      capabilities: rawCapabilities is Map
-          ? Map<String, dynamic>.from(rawCapabilities)
-          : null,
-      location: rawLocation is Map
-          ? BootstrapLocation.fromJson(
-              Map<String, dynamic>.from(rawLocation),
-            )
-          : null,
-      supportedLanguages: supportedLanguages,
-    );
-  }
-
-  BootstrapState _offlineState(CachedTranslations cached) => BootstrapState(
-        brandName: cached.brandName,
-        brandTranslate: cached.brandTranslate,
-        direction: cached.direction,
-        locale: cached.locale,
-        translationVersion: cached.version,
-        translationHash: cached.hash,
-        translations: cached.values,
-        legalVersions: const {},
-        commitmentKeys: const [],
-        supportedLanguages: _decodeSupportedLanguages(
-          cached.supportedLanguages,
-        ),
-        locationStatus: 'unavailable',
-        capabilities: null,
-        location: null,
-      );
-
-  List<SupportedLanguage> _decodeSupportedLanguages(Object? raw) =>
-      raw is List
-          ? raw
-              .whereType<Map>()
-              .map(
-                (item) => SupportedLanguage.fromJson(
-                  Map<String, dynamic>.from(item),
-                ),
-              )
-              .where((item) => item.code.isNotEmpty)
-              .toList(growable: false)
-          : const <SupportedLanguage>[];
-}
-).hasMatch(hash) ||
-        supportedLanguages.isEmpty ||
-        !supportedLanguages.any((language) => language.code == locale)) {
-      throw const SoulApiFailure(
-        statusCode: null,
-        code: 'INVALID_BOOTSTRAP_CONTRACT',
-        message: 'SOUL returned invalid startup configuration.',
-      );
-    }
-
-    Map<String, String> translations;
-    if (notModified &&
-        cached != null &&
-        cached.locale == locale &&
-        cached.hash == hash &&
-        cached.version == version) {
-      translations = cached.values;
-    } else if (rawValues is Map &&
-        rawValues.entries.every(
-          (entry) => entry.key is String && entry.value is String,
-        )) {
-      translations = Map<String, String>.from(rawValues);
-    } else {
-      throw const SoulApiFailure(
-        statusCode: null,
-        code: 'INVALID_BOOTSTRAP_TRANSLATIONS',
-        message: 'SOUL could not load the language catalog.',
-      );
-    }
-
-    final legalData = data['legal'] is Map
-        ? Map<String, dynamic>.from(data['legal'] as Map)
-        : const <String, dynamic>{};
-    final versions = legalData['versions'];
-    final commitments = legalData['commitment_keys'];
-    final rawLocation = data['location'];
-    final rawCapabilities = data['capabilities'];
-    final locationStatus = data['location_status']?.toString();
-
-    if ((locationStatus == 'resolved') != (rawLocation is Map) ||
-        (locationStatus != 'resolved' && locationStatus != 'unavailable')) {
-      throw const SoulApiFailure(
-        statusCode: null,
-        code: 'INVALID_BOOTSTRAP_LOCATION',
-        message: 'SOUL returned invalid startup location state.',
-      );
-    }
-
-    await _cache.write(
-      CachedTranslations(
-        brandName: brandName,
-        brandTranslate: brandTranslate,
-        locale: locale,
-        version: version,
-        hash: hash,
-        values: translations,
-        direction: direction,
-        supportedLanguages: supportedLanguages
-            .map(
-              (language) => <String, dynamic>{
-                'code': language.code,
-                'name': language.name,
-                'native_name': language.nativeName,
-                'direction': language.direction,
-                'is_launch_target': language.isLaunchTarget,
-                'is_launch_ready': language.isLaunchReady,
-              },
-            )
-            .toList(growable: false),
-      ),
-    );
-
-    return BootstrapState(
-      brandName: brandName,
-      brandTranslate: brandTranslate,
-      direction: direction,
-      locale: locale,
-      translationVersion: version,
-      translationHash: hash,
-      translations: translations,
-      legalVersions: versions is Map
-          ? versions.map(
-              (key, value) => MapEntry(key.toString(), value.toString()),
-            )
-          : const <String, String>{},
-      commitmentKeys: commitments is List
-          ? commitments.map((item) => item.toString()).toList(growable: false)
-          : const <String>[],
-      locationStatus: locationStatus!,
-      capabilities: rawCapabilities is Map
-          ? Map<String, dynamic>.from(rawCapabilities)
-          : null,
-      location: rawLocation is Map
-          ? BootstrapLocation.fromJson(
-              Map<String, dynamic>.from(rawLocation),
-            )
-          : null,
-      supportedLanguages: supportedLanguages,
-    );
-  }
-
-  BootstrapState _offlineState(CachedTranslations cached) => BootstrapState(
-        brandName: cached.brandName,
-        brandTranslate: cached.brandTranslate,
+        matchedLocale: cached.locale,
+        fallbackLocale: cached.fallbackLocale,
         direction: cached.direction,
         locale: cached.locale,
         translationVersion: cached.version,
