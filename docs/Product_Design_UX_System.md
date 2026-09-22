@@ -14,6 +14,19 @@ The master product flow and contracts define what the product does. Figma define
 
 If a required state is absent from Figma, design it rather than omitting it.
 
+## Approved opening splash
+
+The current approved first visual frame is the simple SOUL brand splash supplied by the product owner:
+
+- full-screen lime background sampled as `#B3D63B`;
+- centered black `SOUL` wordmark;
+- subtle decorative heart outlines concentrated in the upper-right;
+- dark system status/navigation icons where the platform allows;
+- no spinner, location label, tagline, buttons or extra copy on this first frame;
+- Android/iOS native launch surfaces should use the same background/brand treatment so startup does not flash white or an unrelated theme.
+
+This splash is presentation only. It does not change bootstrap, authentication, onboarding or location product rules.
+
 ## Design tokens
 
 Maintain centralized tokens for:

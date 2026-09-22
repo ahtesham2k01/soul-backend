@@ -48,7 +48,7 @@ class _SoulAppState extends ConsumerState<SoulApp> {
 
       return MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: failed ? const _BootstrapErrorScreen() : const _LaunchScreen(),
+        home: failed ? const _BootstrapErrorScreen() : const SoulBrandSplash(),
       );
     }
 
@@ -66,7 +66,6 @@ class _SoulAppState extends ConsumerState<SoulApp> {
         data: (route) {
           if (!_launchFinished) {
             return LaunchScreen(
-              labels: state,
               onFinished: () => setState(() => _launchFinished = true),
             );
           }
@@ -94,24 +93,10 @@ class _SoulAppState extends ConsumerState<SoulApp> {
           return _SignedInShell(labels: state);
         },
         error: (_, __) => _BootstrapErrorScreen(labels: state),
-        loading: () => const _LaunchScreen(),
+        loading: () => const SoulBrandSplash(),
       ),
     );
   }
-}
-
-class _LaunchScreen extends StatelessWidget {
-  const _LaunchScreen();
-
-  @override
-  Widget build(BuildContext context) => const Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [Text('SOUL', style: TextStyle(fontSize: 36)), SizedBox(height: 20), CircularProgressIndicator()],
-          ),
-        ),
-      );
 }
 
 class _BootstrapErrorScreen extends ConsumerWidget {
