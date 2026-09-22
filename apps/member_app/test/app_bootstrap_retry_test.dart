@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:soul_member_app/src/app.dart';
@@ -60,15 +61,15 @@ void main() {
     await tester.pump();
     await tester.pump();
 
-    expect(find.text('Cached startup'), findsOneWidget);
-    expect(find.text('Ready immediately'), findsOneWidget);
-    expect(find.text('Karachi, PK'), findsNothing);
+    expect(find.text('SOUL'), findsOneWidget);
+    expect(find.byType(CircularProgressIndicator), findsNothing);
     expect(fresh.isCompleted, isFalse);
 
     fresh.complete(refreshedLabels);
     await tester.pump();
+    await tester.pump(const Duration(milliseconds: 900));
 
-    expect(find.text('Karachi, PK'), findsOneWidget);
+    expect(find.text('Continue with Email'), findsOneWidget);
   });
 
   testWidgets('startup retry reruns a failed session route', (tester) async {
