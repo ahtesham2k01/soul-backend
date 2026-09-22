@@ -72,6 +72,7 @@ The minimum age is 18 worldwide. Exact date of birth remains private; calculated
 
 - Language is detected on first launch and can be changed by the user.
 - UI translations are delivered by Laravel rather than bundled as the source of truth in Flutter.
+- Bootstrap translation catalogs are cached by locale/version/hash. Flutter sends the cached SHA-256 hash on later startups; when it still matches, Laravel omits the duplicate translation values and the app reuses its disposable local cache.
 - SOUL brand name/logo is never translated.
 - RTL/LTR direction is returned by the bootstrap API.
 - Location shown in onboarding must come from the real resolved location; no hard-coded default city/country.

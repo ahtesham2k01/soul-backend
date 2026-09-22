@@ -104,6 +104,14 @@
               ],
               "path": [
                 "bootstrap"
+              ],
+              "query": [
+                {
+                  "key": "translations_hash",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Optional cached translation hash. Leave disabled to always receive translation values."
+                }
               ]
             },
             "description": "api.v1.bootstrap: Brand, locale, translations and approximate location"

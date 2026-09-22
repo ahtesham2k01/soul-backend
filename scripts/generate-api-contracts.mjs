@@ -50,6 +50,16 @@ const publicOperations = new Set([
 ]);
 
 const queryParameters = {
+    'api.v1.bootstrap': [
+        {
+            name: 'translations_hash',
+            type: 'string',
+            example: '',
+            disabled: true,
+            description: 'SHA-256 hash of the cached translation catalog. Matching hashes return translations.not_modified=true with translations.values=null.',
+            postmanDescription: 'Optional cached translation hash. Leave disabled to always receive translation values.',
+        },
+    ],
     'api.v1.events.index': [
         {
             name: 'cursor',

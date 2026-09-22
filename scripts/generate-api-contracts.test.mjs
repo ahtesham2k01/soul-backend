@@ -159,3 +159,12 @@ test('manifest carries stable enums and transport keys without secrets', () => {
     }
     assert.doesNotMatch(JSON.stringify(manifest), /password|secret|provider-token|<token>/i);
 });
+
+test('bootstrap contract documents translation cache hash query', () => {
+    const parameters = openapi.paths['/bootstrap'].get.parameters ?? [];
+    const translationHash = parameters.find((parameter) => parameter.name === 'translations_hash');
+    assert.ok(translationHash);
+    assert.equal(translationHash.in, 'query');
+    assert.equal(translationHash.required, false);
+    assert.equal(translationHash.schema.type, 'string');
+});
