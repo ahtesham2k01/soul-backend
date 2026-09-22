@@ -43,19 +43,30 @@ final class LocaleResolver
         $locales = [];
 
         foreach (explode(',', $header) as $position => $item) {
-            [$locale, $quality] = array_pad(
-                explode(';q=', trim($item), 2),
-                2,
-                '1',
-            );
+            $item = trim($item);
+            $locale = trim(explode(';', $item, 2)[0]);
 
             if ($locale === '*' || $locale === '') {
                 continue;
             }
 
+            $quality = 1.0;
+
+            if (preg_match(
+                '/(?:^|;)\\s*q\\s*=\\s*([0-9.]+)/i',
+                $item,
+                $matches,
+            ) === 1) {
+                $quality = (float) $matches[1];
+            }
+
+            if ($quality <= 0.0 || $quality > 1.0) {
+                continue;
+            }
+
             $locales[] = [
                 'locale' => $locale,
-                'quality' => (float) $quality,
+                'quality' => $quality,
                 'position' => $position,
             ];
         }

@@ -57,6 +57,27 @@ class LocaleResolverTest extends TestCase
         $this->assertSame('ur', $locale);
     }
 
+
+    public function test_accept_language_zero_quality_is_not_selected(): void
+    {
+        $locale = $this->resolver->resolve(
+            requestedLocale: null,
+            acceptLanguage: 'fr-FR;q=0',
+        );
+
+        $this->assertSame('en', $locale);
+    }
+
+    public function test_accept_language_allows_whitespace_around_quality_parameter(): void
+    {
+        $locale = $this->resolver->resolve(
+            requestedLocale: null,
+            acceptLanguage: 'fr-FR; q=0.4, ur-PK; q=0.8',
+        );
+
+        $this->assertSame('ur', $locale);
+    }
+
     public function test_unsupported_locale_uses_english_fallback(): void
     {
         $locale = $this->resolver->resolve('xx-ZZ');
