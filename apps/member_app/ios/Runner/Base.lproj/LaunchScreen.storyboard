@@ -1,50 +1,34 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23094" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
-    <device id="retina6_12" orientation="portrait" appearance="light"/>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12121" systemVersion="16G29" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23084"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12089"/>
     </dependencies>
     <scenes>
         <scene sceneID="EHf-IW-A2E">
             <objects>
                 <viewController id="01J-lp-oVM" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="Ydg-fD-yQy"/>
+                        <viewControllerLayoutGuide type="bottom" id="xbc-2k-c8Z"/>
+                    </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">
-                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="SOUL" textAlignment="center" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="soul-brand">
-                                <fontDescription key="fontDescription" type="system" weight="black" pointSize="38"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="38"/>
                                 <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" alpha="0.58" contentMode="left" text="♡" textAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="heart-small">
-                                <fontDescription key="fontDescription" type="system" pointSize="47"/>
-                                <color key="textColor" red="0.745" green="0.863" blue="0.345" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                            </label>
-                            <label opaque="NO" userInteractionEnabled="NO" alpha="0.42" contentMode="left" text="♡" textAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="heart-large">
-                                <fontDescription key="fontDescription" type="system" pointSize="106"/>
-                                <color key="textColor" red="0.745" green="0.863" blue="0.345" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                            </label>
-                            <label opaque="NO" userInteractionEnabled="NO" alpha="0.56" contentMode="left" text="♡" textAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="heart-edge">
-                                <fontDescription key="fontDescription" type="system" pointSize="48"/>
-                                <color key="textColor" red="0.745" green="0.863" blue="0.345" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                            </label>
                         </subviews>
-                        <color key="backgroundColor" red="0.702" green="0.839" blue="0.231" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="backgroundColor" red="0.7019607843" green="0.8392156863" blue="0.2313725490" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="soul-brand" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="brand-x"/>
                             <constraint firstItem="soul-brand" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="brand-y"/>
-                            <constraint firstItem="heart-small" firstAttribute="trailing" secondItem="Ze5-6b-2t3" secondAttribute="trailing" constant="-42" id="small-r"/>
-                            <constraint firstItem="heart-small" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="top" constant="82" id="small-t"/>
-                            <constraint firstItem="heart-large" firstAttribute="trailing" secondItem="Ze5-6b-2t3" secondAttribute="trailing" constant="-26" id="large-r"/>
-                            <constraint firstItem="heart-large" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="top" constant="143" id="large-t"/>
-                            <constraint firstItem="heart-edge" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="trailing" constant="-12" id="edge-l"/>
-                            <constraint firstItem="heart-edge" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="top" constant="160" id="edge-t"/>
                         </constraints>
                     </view>
                 </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="FirstResponder"/>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="53" y="375"/>
         </scene>
