@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:path_provider/path_provider.dart';
+
 class CachedTranslations {
   const CachedTranslations({
     required this.locale,
@@ -20,22 +22,29 @@ class CachedTranslations {
 }
 
 class TranslationCacheStore {
-  TranslationCacheStore({File? file})
-      : _file = file ??
-            File(
-              [
-                Directory.systemTemp.path,
-                'soul_member_translation_cache.json',
-              ].join(Platform.pathSeparator),
-            );
+  TranslationCacheStore({File? file}) : _file = file;
 
-  final File _file;
+  final File? _file;
+
+  Future<File> _resolvedFile() async {
+    final injected = _file;
+    if (injected != null) return injected;
+
+    final directory = await getApplicationSupportDirectory();
+    return File(
+      [
+        directory.path,
+        'soul_member_translation_cache.json',
+      ].join(Platform.pathSeparator),
+    );
+  }
 
   Future<CachedTranslations?> read() async {
-    if (!await _file.exists()) return null;
-
     try {
-      final decoded = jsonDecode(await _file.readAsString());
+      final file = await _resolvedFile();
+      if (!await file.exists()) return null;
+
+      final decoded = jsonDecode(await file.readAsString());
       if (decoded is! Map) return null;
 
       final map = Map<String, dynamic>.from(decoded);
@@ -71,16 +80,19 @@ class TranslationCacheStore {
     } on FormatException {
       await clear();
       return null;
-    } on FileSystemException {
+    } catch (_) {
       return null;
     }
   }
 
   Future<void> write(CachedTranslations cache) async {
-    final temporary = File('${_file.path}.tmp');
+    File? temporary;
 
     try {
-      await _file.parent.create(recursive: true);
+      final file = await _resolvedFile();
+      temporary = File('${file.path}.tmp');
+
+      await file.parent.create(recursive: true);
       await temporary.writeAsString(
         jsonEncode({
           'locale': cache.locale,
@@ -93,17 +105,17 @@ class TranslationCacheStore {
         flush: true,
       );
 
-      if (await _file.exists()) {
-        await _file.delete();
+      if (await file.exists()) {
+        await file.delete();
       }
 
-      await temporary.rename(_file.path);
-    } on FileSystemException {
+      await temporary.rename(file.path);
+    } catch (_) {
       try {
-        if (await temporary.exists()) {
+        if (temporary != null && await temporary.exists()) {
           await temporary.delete();
         }
-      } on FileSystemException {
+      } catch (_) {
         // Translation caching is an optimization, never a startup dependency.
       }
     }
@@ -111,10 +123,11 @@ class TranslationCacheStore {
 
   Future<void> clear() async {
     try {
-      if (await _file.exists()) {
-        await _file.delete();
+      final file = await _resolvedFile();
+      if (await file.exists()) {
+        await file.delete();
       }
-    } on FileSystemException {
+    } catch (_) {
       // Cache cleanup is best effort.
     }
   }
