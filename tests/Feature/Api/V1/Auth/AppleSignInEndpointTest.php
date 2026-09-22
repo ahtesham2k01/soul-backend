@@ -165,10 +165,57 @@ class AppleSignInEndpointTest extends TestCase
             1,
         );
 
+        $this->assertDatabaseHas('social_accounts', [
+            'user_id' => $user->id,
+            'provider' => SocialProvider::Apple->value,
+            'provider_user_id' => 'returning-apple-user',
+            'provider_email' => 'apple@example.com',
+            'provider_email_verified' => true,
+        ]);
+
         $this->assertDatabaseCount(
             'personal_access_tokens',
             1,
         );
+    }
+
+    public function test_returning_apple_identity_does_not_verify_a_different_primary_email(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'primary@example.com',
+            'email_verified_at' => null,
+        ]);
+
+        $user->socialAccounts()->create([
+            'provider' => SocialProvider::Apple,
+            'provider_user_id' => 'stable-apple-subject',
+            'provider_email' => 'old-relay@privaterelay.appleid.com',
+            'provider_email_verified' => true,
+        ]);
+
+        $this->bindAppleIdentity(
+            new VerifiedAppleIdentity(
+                subject: 'stable-apple-subject',
+                email: 'new-relay@privaterelay.appleid.com',
+                emailVerified: true,
+                isPrivateEmail: true,
+            ),
+        );
+
+        $this->postJson('/api/v1/auth/apple', [
+            'identity_token' => 'provider-email-changed-token',
+            'raw_nonce' => self::RAW_NONCE,
+            'device_name' => 'iPhone',
+        ])->assertOk();
+
+        $this->assertNull($user->refresh()->email_verified_at);
+        $this->assertDatabaseHas('social_accounts', [
+            'user_id' => $user->id,
+            'provider' => SocialProvider::Apple->value,
+            'provider_user_id' => 'stable-apple-subject',
+            'provider_email' => 'new-relay@privaterelay.appleid.com',
+            'provider_email_verified' => true,
+        ]);
     }
 
     public function test_verified_apple_email_links_to_existing_user(): void

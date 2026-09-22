@@ -90,7 +90,8 @@ class AppleSignInController extends Controller
 
                     $socialAttributes = [
                         'provider_email_verified' =>
-                            $identity->emailVerified,
+                            $socialAccount->provider_email_verified
+                            || $identity->emailVerified,
                     ];
 
                     if ($normalizedEmail !== null) {
@@ -227,6 +228,9 @@ class AppleSignInController extends Controller
                 if (
                     $user->email_verified_at === null
                     && $identity->emailVerified
+                    && $normalizedEmail !== null
+                    && is_string($user->email)
+                    && strcasecmp($user->email, $normalizedEmail) === 0
                 ) {
                     $attributes['email_verified_at'] = now();
                 }

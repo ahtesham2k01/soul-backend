@@ -157,6 +157,45 @@ class GoogleSignInEndpointTest extends TestCase
         );
     }
 
+    public function test_returning_google_identity_does_not_verify_a_different_primary_email(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'primary@example.com',
+            'email_verified_at' => null,
+        ]);
+
+        $user->socialAccounts()->create([
+            'provider' => SocialProvider::Google,
+            'provider_user_id' => 'stable-google-subject',
+            'provider_email' => 'old-provider@gmail.com',
+            'provider_email_verified' => true,
+        ]);
+
+        $this->bindGoogleIdentity(
+            new VerifiedGoogleIdentity(
+                subject: 'stable-google-subject',
+                email: 'new-provider@gmail.com',
+                emailVerified: true,
+                name: 'Returning User',
+                avatarUrl: null,
+            ),
+        );
+
+        $this->postJson('/api/v1/auth/google', [
+            'id_token' => 'provider-email-changed-token',
+            'device_name' => 'Pixel',
+        ])->assertOk();
+
+        $this->assertNull($user->refresh()->email_verified_at);
+        $this->assertDatabaseHas('social_accounts', [
+            'user_id' => $user->id,
+            'provider' => SocialProvider::Google->value,
+            'provider_user_id' => 'stable-google-subject',
+            'provider_email' => 'new-provider@gmail.com',
+            'provider_email_verified' => true,
+        ]);
+    }
+
     public function test_verified_google_email_links_to_existing_user(): void
     {
         $user = User::factory()->create([

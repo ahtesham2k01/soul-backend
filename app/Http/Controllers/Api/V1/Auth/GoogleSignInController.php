@@ -198,10 +198,16 @@ class GoogleSignInController extends Controller
                 }
 
                 $attributes = [
-                    'email_verified_at' => $user->email_verified_at
-                        ?? now(),
                     'last_login_at' => now(),
                 ];
+
+                if (
+                    $user->email_verified_at === null
+                    && is_string($user->email)
+                    && strcasecmp($user->email, $normalizedEmail) === 0
+                ) {
+                    $attributes['email_verified_at'] = now();
+                }
 
                 if (
                     $user->name === null
