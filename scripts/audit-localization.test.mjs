@@ -107,7 +107,7 @@ test('localized coverage cannot fall below its committed baseline', (context) =>
     const report = JSON.parse(result.stdout);
 
     assert.equal(result.status, 1);
-    assert.ok(report.failures.includes('es: localized coverage regressed from 179 to 178'));
+    assert.ok(report.failures.includes('es: localized coverage regressed from 180 to 179'));
 });
 
 test('baseline locale drift and invalid counts are rejected', (context) => {
