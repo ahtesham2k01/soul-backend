@@ -74,6 +74,17 @@ V1 supports text/emoji, read receipts, presence/last seen and typing state. Pres
 
 Chat photos, voice notes and audio/video calls are intentionally deferred.
 
+## Trust and scam-safety UX
+
+Flutter must render server-authoritative risk/correction states without inventing its own bans or hidden eligibility rules.
+
+- Show concise, non-accusatory, non-blocking safety nudges when Laravel indicates an early-conversation scam/off-platform/payment/credential-risk pattern.
+- A safety nudge should explain a safer action and allow normal conversation unless the backend has separately restricted the account/action.
+- Do not duplicate the same nudge repeatedly in one conversation.
+- Risk/correction screens must provide the authoritative verification, support or appeal route.
+- Do not display internal risk scores, device/network evidence or exact reasons that would help attackers bypass detection.
+- Selfie verification stays optional/risk-required until bootstrap/account state explicitly says otherwise after an approved product decision.
+
 ## Subscription
 
 Do not hard-code plan names, prices, entitlement limits or country availability. Use effective capabilities from Laravel and localized product details from the stores. Paywalls must not trap the user or obscure free safety/privacy actions.
@@ -114,6 +125,7 @@ At minimum cover:
 - upload registration and recovery;
 - discovery pagination and decisions;
 - chat send/read/retry;
+- trust/safety nudge deduplication and risk/correction routing;
 - blocked/restricted/deletion recovery states;
 - paywall capability rendering;
 - RTL/text-scaling representative widgets;

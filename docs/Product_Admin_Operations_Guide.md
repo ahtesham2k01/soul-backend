@@ -52,9 +52,22 @@ Use the documented categories and case state. Underage suspicion follows the age
 
 Do not invent fixed public report thresholds or disclose risk-scoring implementation to members.
 
+## Abuse/risk review
+
+The admin/moderation surface may show privacy-minimized risk reason codes and supporting evidence needed for review, including suspicious velocity, repeated-account patterns or approved media-similarity evidence.
+
+- Internal risk is not a public reputation score.
+- A single heuristic should not automatically justify irreversible enforcement when human review is practical.
+- Do not expose raw provider secrets, exact location history or unnecessary chat content.
+- Moderator actions must preserve reason/audit evidence.
+- False-positive correction and appeal/recovery paths must remain available.
+- Do not tell members detailed bypass-sensitive detection logic.
+
 ## Verification
 
 Treat email, phone, selfie and ID/age verification as separate states. Review only the evidence needed by the active case. Optional verification requests should not be converted into universal mandatory requirements.
+
+Selfie verification remains optional/risk-required until the product owner explicitly approves a different launch rule.
 
 ## Taxonomy
 

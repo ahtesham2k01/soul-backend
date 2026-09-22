@@ -264,6 +264,21 @@ Rules:
 - Nudity and sexual content are prohibited in public and private profile photos.
 - Screenshot/profile capture warnings are best-effort and platform-dependent.
 
+### 15A. Launch-critical trust and abuse hardening
+
+SOUL must treat fake accounts, scams, ban evasion and high-velocity abusive behavior as launch-critical product risks rather than relying only on member reports after harm occurs.
+
+- Laravel may combine privacy-minimized account, session/device, coarse network, verification, moderation-history and behavioral signals to calculate internal risk. These signals are for abuse prevention and must not become public reputation scores.
+- Detect suspicious velocity/patterns such as unusually rapid account creation, mass Likes, repeated unsolicited messaging, repeated report-linked behavior, implausible session/location changes and attempts to recreate accounts after enforcement.
+- Repeated/reused media should support safe provider metadata checks and privacy-preserving media fingerprint/perceptual-hash comparison where technically and legally appropriate. A single similarity signal must not by itself prove impersonation.
+- Selfie/face and ID/age verification remain separate. **This documentation does not silently make selfie verification mandatory.** Before public launch, the product owner must explicitly decide whether selfie verification stays optional, becomes required for a defined capability, or becomes required for all live profiles. Until that decision, the existing optional/risk-required behavior remains authoritative.
+- High-risk signals may temporarily pause/hide a profile or restrict risky actions pending review, but irreversible enforcement should not depend on one opaque heuristic when human review is practical.
+- Moderator/admin risk views should show only the minimum safe evidence needed to review the case and must not expose raw secrets, exact location history or unnecessary private content.
+- Early conversations should support non-blocking safety nudges when patterns suggest rapid off-platform movement, requests for money/payment, credential/OTP sharing or similar common scam-risk behavior. A nudge is guidance, not proof of wrongdoing.
+- Safety classification must not copy raw message text into general analytics, crash logs or marketing systems. Any message-content safety processing must be narrowly scoped to abuse prevention, access-controlled and documented.
+- False positives must have a recovery path. Risk automation should be observable, auditable and testable so it does not silently discriminate against a language, country or member group.
+- Block, Report, Report & Block, verification/correction and appeal paths remain available according to the existing safety contract.
+
 ### 16. Notifications
 
 - Near the end of onboarding, explain push notifications and offer Allow / Not now.
@@ -360,7 +375,7 @@ Bottom navigation:
 3. Chat
 4. Profile
 
-Supporting modules include filters, full profiles, likes/visitors, matches/chat, block/report, editing, verification, subscription/boosts, events, settings/privacy and help/support.
+Supporting modules include filters, full profiles, Likes/activity, matches/chat, block/report, editing, verification, subscription entry, events, settings/privacy and help/support. Visitor/profile-view tracking and boost mechanics are not part of the current V1 contracts and must not be exposed as if implemented.
 
 ### 22. Explicitly deferred decisions
 
@@ -369,6 +384,7 @@ Supporting modules include filters, full profiles, likes/visitors, matches/chat,
 - Deep sect/sub-sect/caste matching and filters
 - Chaperone/guardian system (not planned for Version 1)
 - Public user-created events
+- Visitor/profile-view tracking and boost mechanics unless separately designed, implemented and contracted
 - Country-specific expansion details requiring legal review
 
 ### 23. Implementation principles
@@ -563,6 +579,20 @@ For every useful competitor capability encountered, record one of:
 
 Version 1 intentionally keeps chat photos, voice notes, audio/video calls and chaperone/guardian functionality deferred. Their absence alone does not fail the Version 1 premium-experience audit.
 
+### 25. Next-priority product backlog after launch-critical closure
+
+The following ideas are valuable but are **not launch blockers for Version 1** unless the product owner explicitly promotes them. They must not delay trust/safety, provider/device QA or premium-quality closure.
+
+1. **Richer compatibility preferences and soft ranking.** Use already-collected profile information such as spoken language, marital status, smoking/alcohol, children preferences, relocation, education/height and similar fields carefully. Prefer soft ranking or optional filters over creating so many hard filters that early-market liquidity collapses.
+2. **Profile prompts / icebreakers.** Add a small curated prompt system to improve profile depth and first-conversation quality without turning onboarding into a questionnaire.
+3. **Referral/invite growth loop.** Support controlled invite links/codes and rewards only after genuine qualified activation; protect against self-referral and farmed installs.
+4. **Optional success/offboarding feedback.** When a member pauses or leaves, optionally learn whether they met someone, are taking a break, lacked relevant matches or had another reason. Feedback must never block pause/deletion.
+5. **Safety Center and optional date-sharing tools.** Centralize practical safety guidance and consider an opt-in way to share basic date details with a trusted person. This is distinct from the deferred guardian/chaperone product model.
+6. **Privacy-blur/reveal concept.** Consider only after an explicit product decision because it may conflict with the current required public-cover rule.
+7. **Notification quiet hours/digests and conversation-quality nudges.** Useful retention/polish work, but secondary to launch correctness and trust.
+
+These items belong in measured post-launch iteration. They should be promoted into V1 only through an explicit product decision and synchronized contract/design work.
+
 ---
 
 ## Backend scope and implementation status
@@ -592,8 +622,8 @@ Laravel owns every protected decision. Flutter owns presentation, platform permi
 | Photos | Three slots, authenticated secondary uploads, moderation, private access request/approval/revocation, protected no-store delivery, screenshot controls/signals | Provider staging verification and mobile-native protected-view implementation |
 | Discovery | Gender/age/religion/intention/location/radius filters, activity ranking, 90-day hiding, safe distance bands, pass resurfacing and likes exclusion | Entitlement-dependent filter limits remain dynamic subscription work |
 | Likes/matches/chat | Like/pass, incoming requests, accept/decline/withdraw, matches, summaries, unmatch, text messages, mandatory read receipts, online/last-seen, expiring typing signals and authorized private broadcast channels | Live broadcast transport configuration and staging verification |
-| Verification | Separate email, phone, selfie and ID/age states; optional/required semantics; safe public badges; cases, review and one appeal | Underage escalation and broader risk automation (Phase 21) |
-| Safety | Atomic Report/Report & Block, underage pause, risk cases, moderator decisions, blocked-account appeal and immutable audit | Provider-assisted risk signals can be added without changing the case contract |
+| Verification | Separate email, phone, selfie and ID/age states; optional/required semantics; safe public badges; cases, review and one appeal | Public-launch decision on whether selfie verification remains optional or becomes required for a defined capability/all live profiles; no silent flow change before owner approval |
+| Safety | Atomic Report/Report & Block, underage pause, risk cases, moderator decisions, blocked-account appeal and immutable audit | Phase 42 adds launch-critical privacy-minimized risk signals, suspicious-velocity/ban-evasion checks, repeated-media evidence and chat safety nudges without changing the member report categories |
 | Notifications | Devices, separate push/email preferences, mandatory safety alerts, in-app feed, idempotent event creation, moderation/verification/account events and admin broadcasts | APNs/FCM and email provider credentials plus staging delivery verification |
 | Events | Admin-created online/physical events, localization, publishing, capacity-safe registration, attendee privacy and report moderation | Provider-specific streaming/venue integrations are outside the V1 contract |
 | Subscriptions | Dynamic features, plans, limits/counters, country/platform/user overrides, rollouts, trials/promotions and store-product catalog | Apple/Google credentials and server receipt-notification validation are staging/release gates; exact prices and allocations remain launch decisions |
@@ -793,6 +823,7 @@ A final implementation audit found a smaller set of correctness and developer-ha
 - [x] Phase 39 — Full MySQL/Redis CI, full migration reset/reapply verification, Composer audit and release-candidate regression closure
 - [ ] Phase 40 — Decision-gated deletion, anonymization, legal-hold and safety-evidence retention after owner/legal approval
 - [ ] Phase 41 — Native-language review plus Android/iOS RTL, typography, truncation and device QA; all 34 draft catalogs, server-driven RTL routing and shared selectable-control accessibility semantics are complete in source
+- [ ] Phase 42 — Launch trust/abuse hardening: privacy-minimized risk signals, suspicious-velocity and ban-evasion detection, repeated-media checks, chat safety nudges, moderator evidence boundaries, false-positive recovery and regression tests
 
 Phases 35–39 are unambiguous engineering work. Phase 40 must not be implemented until the retention duration and legal-hold rules are approved. All Phase 41 draft catalogs are complete; server-provided RTL direction and shared selectable-control semantics are regression-guarded in Flutter. Native-language review, typography/truncation review and real-device accessibility/RTL QA remain external. Staging/provider gates remain tracked separately and cannot be completed from source code alone.
 
@@ -808,6 +839,7 @@ The Flutter member app is maintained in `apps/member_app`. It consumes only the 
 - [ ] Mobile M6 — Physical-device/provider verification: live APNs/FCM, Apple/Google purchases, signing/capabilities, accessibility, RTL, capture protection and full device E2E QA
 - [ ] Mobile M7 — Premium UX polish closure: design-token consistency, motion/haptics, perceived performance, loading/empty/offline recovery, keyboard/safe-area behavior, accessibility, localization visual QA, subscription restraint and member-journey visual review
 - [ ] Mobile M8 — Pre-launch product-quality parity audit: compare expected modern matchmaking quality across all V1 journeys, close unexplained gaps and document intentional differences/deferred capabilities without copying competitor design
+- [ ] Mobile M9 — Trust & safety UX hardening: member-facing scam/off-platform safety nudges, risk/correction states, false-positive recovery paths and physical-device validation of safety messaging without adding deferred media/calling/guardian features
 
 M1 adds a Linux CI Android debug build. Android and iOS runners are checked in and must not be regenerated over the app directory during normal setup because CI audits their reviewed native permissions and entitlements. iOS signing, APNs, Apple sign-in and store verification require the owner's Apple developer account and a macOS/device verification phase.
 

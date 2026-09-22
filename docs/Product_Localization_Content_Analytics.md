@@ -60,6 +60,18 @@ Transactional/safety and marketing communication are different. Marketing starts
 
 Do not repeatedly manufacture “someone is waiting” urgency to force opens.
 
+## Safety-nudge content
+
+Scam/off-platform/payment/credential safety messages must be localized like any other member-facing copy.
+
+- Keep wording calm and non-accusatory.
+- Explain the safer action without claiming wrongdoing has been proven.
+- Avoid technical detection language that would reveal bypass-sensitive rules.
+- Ensure Report/Block/help actions remain clear in every launch language.
+- Test truncation/RTL/large-text behavior for high-priority safety messages.
+
+Raw message text or internal risk evidence must not be sent to product analytics merely to measure nudge performance; use privacy-safe event/reason identifiers.
+
 ## Subscription content
 
 Use clear benefit/limit/trial/renewal wording. Price and billing period should come from store/server truth, not Figma examples.

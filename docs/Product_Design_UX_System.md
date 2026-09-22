@@ -91,6 +91,17 @@ Verification, report/block, private photos, incognito, location privacy, deletio
 
 Do not visually subordinate safety/privacy controls to premium upsells.
 
+## Scam-safety nudges and risk states
+
+Safety nudges should feel protective, not accusatory or frightening.
+
+- Explain the risky pattern in simple terms such as moving off-platform too quickly, requests for money or requests for credentials/OTPs.
+- Keep the warning non-blocking unless the server has separately restricted the action/account.
+- Never expose an internal risk score or technical detection evidence.
+- Provide a clear Report/Block or safety-help path where relevant.
+- Avoid repeated banners that train users to ignore warnings.
+- Correction/verification states must explain exactly what the member can do next.
+
 ## Subscription UX
 
 Show paywalls at meaningful entitlement boundaries. Do not use fake scarcity, misleading countdowns, preselected expensive plans, hidden close affordances or punishment loops.
@@ -119,4 +130,4 @@ A high-visibility feature is not complete until product/Flutter/design review:
 
 ## V1 boundary
 
-Do not design production flows implying chat photos, voice notes, audio/video calls or chaperone/guardian functionality are available in V1.
+Do not design production flows implying chat photos, voice notes, audio/video calls, visitor/profile-view tracking, boost mechanics or chaperone/guardian functionality are available in V1.

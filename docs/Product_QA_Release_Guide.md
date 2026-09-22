@@ -45,7 +45,9 @@ Always validate:
 17. profile/settings/privacy;
 18. export/deletion/recovery;
 19. device sessions/logout;
-20. restricted/blocked/suspended states.
+20. restricted/blocked/suspended states;
+21. suspicious high-velocity/ban-evasion/repeated-media risk paths;
+22. chat safety nudges and false-positive recovery.
 
 ## Premium-state matrix
 
@@ -91,6 +93,23 @@ Roman Urdu is LTR.
 ## Security/privacy QA
 
 Verify that tokens, OTPs, exact coordinates, private-media identifiers and message bodies do not leak into logs, analytics or crash reports. Confirm auth/authorization negative cases and deep-link guards.
+
+## Fraud/abuse QA
+
+Before launch, test the trust-hardening layer with both positive and negative cases:
+
+- normal active users must not be flagged merely for high engagement;
+- repeated banned-account recreation signals;
+- mass-Like/message velocity;
+- repeated/reused media evidence;
+- temporary restriction → moderator decision → recovery/appeal;
+- chat scam-risk nudge deduplication and localization;
+- no raw message text in generic analytics/logs;
+- no exact location/raw device secrets in moderator evidence;
+- risk behavior across app restart/session changes;
+- regression tests for protected groups/languages where a heuristic could create obvious false positives.
+
+Mandatory selfie verification must not be assumed in QA unless the owner explicitly changes the launch rule.
 
 ## Provider/device release gates
 

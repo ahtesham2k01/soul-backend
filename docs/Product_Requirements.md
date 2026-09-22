@@ -63,13 +63,41 @@ Core safety actions are never paywalled. Reporting supports the authoritative ca
 
 Email, phone, selfie/face and ID/age verification remain separate states. Optional badges must not be treated as universally mandatory unless a risk/safety case explicitly requires verification.
 
-## Subscriptions
+## Launch-critical trust hardening
+
+Before public launch, SOUL must add proactive abuse defenses beyond ordinary reporting:
+
+- privacy-minimized suspicious account/session/device and behavioral risk signals;
+- high-velocity mass-Like/message and repeated-account/ban-evasion detection;
+- repeated/reused media checks where technically and legally appropriate;
+- non-blocking scam-safety nudges for early off-platform/payment/credential-risk patterns;
+- temporary risk restriction/queueing with human review for serious or disputed cases;
+- safe moderator evidence, auditability and false-positive recovery.
+
+These controls must not create a public member reputation score or leak exact location/private evidence.
+
+Selfie verification remains **optional/risk-required under the current flow** until the product owner separately approves a mandatory rule. A pre-launch decision on that question is required; this guide does not change it implicitly.
+
+## Subscription
 
 Plans, prices and entitlement allocation are dynamic. Flutter must not hard-code product pricing or paywall decisions. Laravel authorizes the action; the app renders effective capabilities and store-provided pricing.
 
 ## Premium experience requirement
 
 Functional correctness alone is not acceptance. Every member-facing feature must satisfy the Premium Product Experience Standard in the master: design consistency, complete states, motion/reduced motion, sensible haptics, perceived performance, accessibility, localization/RTL, keyboard/safe-area behavior, retry/recovery, privacy and product-owner visual review.
+
+## Post-launch priorities — not V1 launch blockers
+
+After launch-critical safety/provider/premium closure, prioritize:
+
+- richer compatibility preferences/soft ranking using existing profile answers;
+- profile prompts/icebreakers;
+- controlled referral/invite growth;
+- optional success/offboarding feedback;
+- a Safety Center and optional trusted-person date sharing;
+- later notification quiet-hours/digest and conversation-quality nudges.
+
+Privacy-blur/reveal requires a separate product decision because it conflicts with the current public-cover requirement.
 
 ## Explicit V1 deferrals
 
@@ -82,6 +110,7 @@ The following are intentionally outside Version 1 and must not be reintroduced a
 - chaperone/guardian functionality;
 - deep sect/sub-sect/caste matching and must-have filters;
 - public user-created events;
+- visitor/profile-view tracking and boost mechanics until separately contracted;
 - jurisdiction-specific expansion rules that require legal approval.
 
 ## Definition of done

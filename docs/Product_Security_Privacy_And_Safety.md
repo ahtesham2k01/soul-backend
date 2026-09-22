@@ -44,6 +44,21 @@ Android/iOS screenshot/capture protection is best-effort and platform-dependent.
 
 Keep Email, Phone, Selfie/Face and ID/Age separate. Optional badge verification does not automatically block a profile. Risk-required verification may pause access as documented.
 
+Selfie verification remains optional/risk-required until the product owner explicitly approves a different launch rule.
+
+## Proactive abuse and scam prevention
+
+Launch security must include proactive risk controls in addition to member reporting.
+
+- Use privacy-minimized signals from account/session/device history, coarse network context, verification state, enforcement history and behavior patterns.
+- Detect suspicious velocity such as rapid account recreation, mass Likes/messages and repeated enforcement-linked behavior.
+- Support repeated/reused media similarity checks where appropriate; one media similarity signal is evidence, not automatic proof.
+- Use temporary restrictions/review queues for high risk rather than irreversible action from a single heuristic.
+- Do not create a public reputation score from internal risk.
+- Keep risk evidence access-controlled and auditable; do not expose exact location history or raw secrets to moderators.
+- Add non-blocking chat safety nudges for likely money/payment, OTP/credential or rapid off-platform scam-risk patterns. Do not send raw chat content to general analytics.
+- Measure false positives and provide correction/appeal/recovery paths.
+
 ## Reporting and blocking
 
 Supported reporting categories come from the product contract. Report & Block is available. Blocking stops discovery/interaction. Safety actions are never paywalled.
@@ -74,7 +89,7 @@ Analytics should collect product behavior, not unnecessary private content. Reda
 
 ## Security testing
 
-Include dependency audits, auth negative cases, replay tests, webhook authentication, privacy redaction, headers, rate limits, session expiry and deep-link guard tests.
+Include dependency audits, auth negative cases, replay tests, webhook authentication, privacy redaction, headers, rate limits, session expiry, deep-link guard tests and trust/abuse false-positive tests.
 
 ## Incident response
 

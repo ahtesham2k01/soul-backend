@@ -29,6 +29,7 @@ Primary domains include:
 - likes/matches/chat;
 - verification;
 - safety/moderation/appeals;
+- trust/abuse risk;
 - notifications;
 - events;
 - subscriptions/entitlements;
@@ -58,6 +59,22 @@ Private media access is server-authorized by match/access state and must be revo
 Candidate eligibility, activity handling, religion mode, filtering, prior decisions, blocks and distance rules belong on the server. Index queries that sit on hot discovery paths.
 
 Do not implement deferred sect/sub-sect/caste ranking as an accidental side effect.
+
+## Abuse/risk hardening
+
+Add a dedicated risk layer without turning individual heuristics into final truth:
+
+- privacy-minimized account/session/device/coarse-network features;
+- velocity/rate-pattern detection for account recreation, Likes and unsolicited messaging;
+- enforcement-linked repeat-account signals;
+- safe media fingerprint/perceptual-similarity evidence where approved;
+- explainable internal reason codes for moderator review;
+- temporary action/profile restrictions with bounded expiry/review;
+- false-positive recovery and immutable decision audit.
+
+Any message-content safety classification must be narrowly scoped to abuse prevention. Raw messages must not flow into generic analytics/logging. Chat safety nudges should be idempotent/rate-limited so one conversation does not spam the member.
+
+Do not silently enforce universal selfie verification; expose any future requirement through an explicit server capability/state after the product decision is approved.
 
 ## Messaging
 
@@ -96,7 +113,8 @@ Changes should include appropriate feature/unit/contract tests for:
 - privacy redaction;
 - migrations/indexes;
 - provider webhook admission;
-- localization/config contract drift.
+- localization/config contract drift;
+- abuse-risk false positives and recovery.
 
 ## Documentation contract
 
@@ -104,4 +122,4 @@ When a backend behavior changes, update the master and generated contracts in th
 
 ## Explicit non-goals for V1
 
-Do not add chat photos, voice notes, audio/video calls, chaperone/guardian features or deep sect/caste matchmaking unless the product owner explicitly changes V1 scope.
+Do not add chat photos, voice notes, audio/video calls, chaperone/guardian features, visitor/profile-view tracking, boost mechanics or deep sect/caste matchmaking unless the product owner explicitly changes V1 scope.

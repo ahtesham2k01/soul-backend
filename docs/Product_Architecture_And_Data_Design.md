@@ -70,9 +70,26 @@ Three photo slots are supported in V1. Cover/public/private rules and clear-face
 
 Direct upload uses a signed provider session; private delivery is re-authorized through Laravel. Provider asset internals are not member API identifiers.
 
+## Abuse-risk model
+
+The safety architecture should support privacy-minimized risk evidence such as:
+
+- account/session/device associations needed for ban-evasion prevention;
+- coarse network/context signals;
+- behavioral velocity counters/windows;
+- enforcement/report history;
+- approved media fingerprint/similarity evidence;
+- message-safety reason codes for member nudges.
+
+Store normalized reason codes/evidence references rather than copying unnecessary private content into generic risk tables. Risk signals may feed temporary restrictions/cases; final irreversible decisions should retain human-review/audit boundaries where practical.
+
+Do not expose the internal risk graph to member APIs.
+
 ## Safety/verification model
 
 Verification types are independent. Safety includes reports, risk cases, moderator decisions and appeals with immutable/audited transitions where required.
+
+Selfie verification remains optional/risk-required until an explicit owner-approved launch decision changes that contract.
 
 ## Subscription model
 
@@ -105,8 +122,8 @@ Use the generated artifacts under `docs/contracts/` for endpoint/model truth. Do
 
 ## Performance-sensitive areas
 
-Discovery candidate lookup, decisions/blocks, both match directions, notifications, messages, admin member lists, queues and active sessions require index/regression coverage.
+Discovery candidate lookup, decisions/blocks, matches, notifications, messages, admin member lists, queues and active sessions require index/regression coverage.
 
 ## Deferred architecture
 
-V1 intentionally avoids additional real-time/media complexity for chat photos, voice notes and audio/video calling, and does not include a guardian/chaperone domain.
+V1 intentionally avoids additional real-time/media complexity for chat photos, voice notes and audio/video calling, and does not include visitor/profile-view tracking, boost mechanics or a guardian/chaperone domain.

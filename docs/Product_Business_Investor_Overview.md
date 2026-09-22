@@ -31,6 +31,12 @@ The software can be globally capable while go-to-market remains geographically c
 
 Expansion should be driven by marketplace metrics, not only by calendar dates.
 
+## Launch trust requirement
+
+For a matchmaking marketplace, trust is a growth requirement, not only a compliance feature. Before scaling paid acquisition, SOUL should have proactive fake/scam and ban-evasion defenses, repeated-media risk checks, member-facing scam nudges, auditable moderation and false-positive recovery in addition to ordinary reporting.
+
+The current product flow does not silently require universal selfie verification; that remains an explicit pre-launch owner decision.
+
 ## Revenue model
 
 Primary monetization is subscription/entitlement based. Exact tiers, prices and allocation remain launch decisions and are intentionally dynamic in the backend. Trials, promotions, platform/country availability and user-level overrides are supported.
@@ -71,6 +77,10 @@ Leadership should track more than downloads:
 ## Product quality thesis
 
 A technically complete app that feels cheap will damage conversion and retention. Premium UX, trust, responsiveness, clean copy, safe defaults and reliable state consistency are treated as product requirements, not decoration.
+
+## Near-term growth/product layer
+
+After launch-critical trust and quality work, the most useful next investments are richer compatibility ranking, profile prompts, controlled referrals/invites, optional success/offboarding feedback and a centralized Safety Center. These should be measured against marketplace liquidity and retention rather than added as feature-count goals.
 
 ## Principal risks
 
