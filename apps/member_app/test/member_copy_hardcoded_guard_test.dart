@@ -247,25 +247,11 @@ bool _looksLikeMemberCopy(String raw) {
   if (exactAllowlist.contains(value)) return false;
 
   if (value.startsWith('SOUL ·')) return false;
-  if (value.startsWith('^') && value.endsWith(r'
-  if (value.startsWith('package:') ||
-      value.startsWith('assets/') ||
-      value.startsWith('http://') ||
-      value.startsWith('https://')) {
+  if (value.startsWith('^') &&
+      value.isNotEmpty &&
+      value.codeUnitAt(value.length - 1) == 36) {
     return false;
   }
-
-  if (RegExp(r'^[a-z0-9_./:?=&{}-]+$').hasMatch(value)) return false;
-  if (RegExp(r'^[A-Z0-9_./:-]{2,}$').hasMatch(value)) return false;
-  if (RegExp(r'^[-–—·,:%+()\d\s]+$').hasMatch(value)) return false;
-  if (RegExp(r'^[a-z]{1,3}$').hasMatch(value)) return false;
-
-  final words = RegExp(r'[A-Za-z]+').allMatches(value).length;
-  if (words >= 2) return true;
-
-  return RegExp(r'^[A-Z][a-z]{2,}$').hasMatch(value);
-}
-)) return false;
   if (value.startsWith('package:') ||
       value.startsWith('assets/') ||
       value.startsWith('http://') ||
