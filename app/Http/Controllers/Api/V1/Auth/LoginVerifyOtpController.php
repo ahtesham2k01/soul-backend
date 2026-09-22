@@ -107,8 +107,6 @@ class LoginVerifyOtpController extends Controller
                     $attributes,
                 )->save();
 
-                $tokenExpiresAt = now()->addDays(90);
-
                 $token = $tokenIssuer->issue($user, $deviceName);
 
                 return ApiResponse::success(
@@ -127,8 +125,8 @@ class LoginVerifyOtpController extends Controller
                         'authentication' => [
                             'token_type' => 'Bearer',
                             'access_token' => $token->plainTextToken,
-                            'expires_at' => $tokenExpiresAt
-                                ->toISOString(),
+                            'expires_at' => $token->accessToken
+                                ->expires_at?->toISOString(),
                         ],
                     ],
                     message: 'Signed in successfully.',
