@@ -1,8 +1,87 @@
-# SOUL Flow Execution & Real-Device QA Plan
+# SOUL V1 Complete-App Flow Execution & Real-Device QA Plan
 
 > **Purpose:** Build and verify SOUL in the actual member journey order, one practical vertical slice at a time. Each slice must keep Flutter, Laravel, contracts/tests and documentation synchronized so the owner can pull the latest `main` on a laptop, run the app on a connected real device, verify the slice, and then move to the next one.
 >
 > **Authority:** Product behavior comes from `docs/SOUL_V1_MASTER_DOCUMENTATION.md` and generated contracts. `Soul1111.fig.fig` / `Soul1111.fig.pdf` are presentation references only. Figma sample names, cities, prices, religions, wording, or old flow must never override the master product rules.
+>
+> **Complete-app boundary:** This tracker is not only a member-screen checklist. SOUL V1 is considered fully covered only when **Track A — Member App**, **Track B — React Admin**, and **Track C — Backend / Operations / Providers** are all complete and the FINAL-GATE passes.
+
+---
+
+## 0. V2 coverage lock — what this tracker must cover
+
+This V2 tracker was audited against the master product requirements, QA guide, admin operations guide, security/privacy/safety guide, DevOps runbook and the 188-frame supplied design PDF.
+
+### Three-track completion model
+
+- **Track A — Member App:** every member journey, screen, sheet/dialog, important state, Flutter behavior, member API behavior and real-device check.
+- **Track B — React Admin:** every operator/moderator/super-admin workflow that is genuinely part of V1 operations.
+- **Track C — Backend / Operations / Providers:** contracts, queues, jobs, security, telemetry, performance, readiness, staging/provider verification, backup/restore and release operations.
+- **FINAL-GATE:** may pass only after all applicable A/B/C packets pass. A green mobile build alone is not complete-app completion.
+
+### Member-state rule
+
+Every member packet must explicitly audit all applicable states instead of assuming them:
+
+- loading / skeleton;
+- populated success;
+- empty / exhausted;
+- offline;
+- timeout / provider failure;
+- validation failure;
+- retry;
+- permission denied;
+- restricted / blocked / suspended / deletion-scheduled account;
+- session expiry / re-authentication;
+- rapid taps / duplicate callback safety;
+- background / resume;
+- small screen / safe area / keyboard;
+- large text / accessibility;
+- LTR / RTL;
+- reduced motion;
+- slow network.
+
+### Figma/PDF visual-reference map
+
+The supplied 188-frame PDF is a **presentation reference**, not product authority. Known useful reference pages include:
+
+| Area | Known PDF references | Notes |
+|---|---|---|
+| Splash / launch | p1 | SOUL splash/logo reference |
+| Welcome / language | p3–6 | Welcome, language-selection presentation |
+| Registration / email / OTP | p7–10 | Name, DOB, email and OTP visual references |
+| Basic onboarding | p12–19 | Gender, religion hierarchy, profession, ethnicity, education |
+| Notification prompt | p20 | Permission-explanation reference |
+| Photos / photo verification | p21–25 | Photo intro/upload/face/verification presentation |
+| Remaining onboarding | p27–45 | Intentions, nationality, grew-up-in, height, marital/religious/lifestyle/interests/personality/bio/legal |
+| Location permission | p47 | Location-permission presentation |
+| Discovery / filters | p48–55 | Candidate and filter presentation references |
+| Explore / activity | p93 | Activity/Explore visual reference; ignore deferred visitor/favourite/compliment concepts |
+| Chat / chat options | p99–114 | Chat list/thread/options/report/unmatch presentation; ignore deferred audio/video/share/export behavior unless separately contracted |
+| Profile hub | p115 | Profile landing reference |
+| Full public profile | p117 | Long-form public profile reference; remove non-V1/deferred concepts |
+| Membership / profile-edit cluster | p145–150 | Gold/subscription/profile/settings references; prices/features are illustrative only |
+| Settings | p148 | Settings presentation; chaperone/passcode/legacy reset concepts do not override V1 |
+
+The exact relevant frame(s) must be re-opened when each FLOW packet is executed. A frame may contain third-party names, Muzz/Faithly wording, fake cities/prices, Muslim-only logic, boosts, favourites, chat-slot limits, calls, voice, chaperone or other non-V1 concepts. Those are **not** silently copied.
+
+### Explicit member coverage that must never remain merely implied
+
+The member flow must explicitly verify:
+
+- current-device logout, logout-all and targeted active-device revocation;
+- outgoing Like withdraw / Undo before match;
+- Pass resurfacing after the documented cooling period;
+- 30-day inactivity ranking reduction and 90-day discovery hiding;
+- blocked-profile list plus unblock;
+- uploaded-contact hiding plus update/remove behavior;
+- notification deep-link route guards;
+- session expiry and protected-screen clearing;
+- account states: active, blocked, suspended, deletion-scheduled and recovery;
+- dynamic capabilities/usage limits/country-platform availability without hard-coded paywall logic;
+- analytics/crash/performance telemetry redaction;
+- correction/re-consent routes;
+- provider and physical-device behavior that source tests cannot prove.
 
 ---
 
@@ -603,6 +682,8 @@ Use at least:
 - Pagination/prefetch.
 - Loading/empty/exhausted.
 - Pause/incognito guidance.
+- Passed profiles may resurface only after the documented 30-day cooling period.
+- Ranking reduction after 30 inactive days and discovery hiding after 90 inactive days must remain server-authoritative and reflected correctly in client empty/unavailable states.
 
 **Ready-to-send prompt**
 
@@ -656,7 +737,7 @@ Use at least:
 
 ## Milestone E — Activity, likes and matching
 
-### FLOW-23 — Explore / incoming likes and requests
+### FLOW-23 — Explore / incoming likes, requests and outgoing-like recovery
 
 **Scope**
 - Incoming likes grid/list.
@@ -664,6 +745,9 @@ Use at least:
 - Accept.
 - Decline.
 - Sender withdrawal reflected.
+- Outgoing pending Like visibility where exposed by the current contract.
+- Withdraw / Undo a non-reciprocal outgoing Like before a Match exists.
+- A created Match must not be treated as a withdrawable pending Like.
 - Cursor pagination.
 - Empty/loading/retry.
 
@@ -812,6 +896,11 @@ Use at least:
 - Help/support entry.
 - Membership entry.
 - Security/device sessions.
+- Current-device logout.
+- Logout all devices.
+- Targeted remote session revoke with current-device handling.
+- Blocked-profile list and unblock.
+- Contact import/hiding status, update and removal/unhide behavior where contracted.
 
 **Ready-to-send prompt**
 
@@ -875,7 +964,8 @@ Use at least:
 - Read state.
 - Categories/preferences linkage.
 - Empty/error/retry.
-- Push deep-link routing where safe.
+- Push deep-link routing with the same lifecycle/auth/restriction guards as normal navigation.
+- Push/email preference consistency and mandatory safety-channel behavior.
 
 **Ready-to-send prompt**
 
@@ -935,6 +1025,7 @@ Use at least:
 - Restore.
 - Server verification.
 - Refresh entitlements.
+- Dynamic feature/capability flags, usage limits, country/region/platform availability, promotions, trials, percentage rollouts and individual overrides.
 - No hard-coded price/plan allocation.
 - No dark patterns.
 
@@ -1036,6 +1127,8 @@ Use at least:
 - Crash-safe routing.
 - Session expiry.
 - No stale client-only truth.
+- Analytics, crash and performance telemetry must redact tokens, OTPs, exact coordinates, message bodies and private-media values.
+- Error funnels and repeated API failures should remain observable without sensitive-content logging.
 
 **Ready-to-send prompt**
 
@@ -1122,10 +1215,403 @@ This packet is a checklist/runbook, not a claim that source code alone can prove
 
 ---
 
+# TRACK B — REACT ADMIN EXECUTION
+
+The member app can be device-approved while the product is still incomplete. These packets close the English-only Laravel + React operations surface. No arbitrary database editor is permitted.
+
+### ADMIN-01 — Admin authentication, session security and role shell
+
+**Scope**
+- Same-origin admin login/session behavior.
+- CSRF/session security.
+- Moderator vs super-admin authorization.
+- Unauthorized/expired-session routing.
+- Responsive navigation shell.
+- No member bearer-token auth in admin.
+
+**Ready-to-send prompt**
+
+> **Run ADMIN-01 only. Audit and complete the React admin authentication/session/role shell using the master and Admin Operations Guide. Cover moderator vs super-admin authorization, CSRF/session expiry, unauthorized routing, responsive navigation and negative tests. Do not start operational modules yet. Update tracker and stop.**
+
+**Status:** ⬜ NOT STARTED  
+**Checkpoint:** —
+
+---
+
+### ADMIN-02 — Dashboard, health and operational incidents
+
+**Scope**
+- Dashboard summary.
+- Safe provider/readiness indicators.
+- Warning/critical incidents.
+- Acknowledge/resolve with reason.
+- No secret values in UI/logs.
+
+**Status:** ⬜ NOT STARTED  
+**Checkpoint:** —
+
+---
+
+### ADMIN-03 — Members, account detail and lifecycle actions
+
+**Scope**
+- Search/filter user directory.
+- Account/profile/photo/safety summary.
+- Suspend/block/restore where authorized.
+- Immediate token revocation/discovery pause.
+- Deletion/recovery/export support operations exposed by contract.
+- Immutable audit reasons.
+
+**Status:** ⬜ NOT STARTED  
+**Checkpoint:** —
+
+---
+
+### ADMIN-04 — Reports, safety cases and abuse-risk review
+
+**Scope**
+- Report queues.
+- Risk/safety case detail.
+- Privacy-minimized evidence.
+- Underage escalation.
+- Moderator decisions with written reasons.
+- No reporter disclosure, raw secrets, exact-location history or unnecessary chat content.
+- False-positive recovery path.
+
+**Status:** ⬜ NOT STARTED  
+**Checkpoint:** —
+
+---
+
+### ADMIN-05 — Verification review
+
+**Scope**
+- Email/phone/selfie/ID-age separation.
+- Review queues/cases.
+- Optional vs risk-required semantics.
+- Approve/reject/request-correction.
+- Minimum necessary evidence.
+- Audit trail.
+
+**Status:** ⬜ NOT STARTED  
+**Checkpoint:** —
+
+---
+
+### ADMIN-06 — Appeals
+
+**Scope**
+- Eligible blocked/banned account appeal queue.
+- One proper appeal lifecycle.
+- Super-admin decision where required.
+- Written reason and immutable audit.
+- Member recovery/status synchronization.
+
+**Status:** ⬜ NOT STARTED  
+**Checkpoint:** —
+
+---
+
+### ADMIN-07 — Religion taxonomy + profile catalogs
+
+**Scope**
+- Religion → sect/tradition → sub-sect/school/movement → community/caste.
+- Country/rule relationships.
+- Translations.
+- Activation/deactivation.
+- Interests/traits.
+- Spoken-language catalogs.
+- Validation that taxonomy changes do not create broken onboarding paths.
+
+**Status:** ⬜ NOT STARTED  
+**Checkpoint:** —
+
+---
+
+### ADMIN-08 — Localization management
+
+**Scope**
+- Member translation catalog editing/review.
+- Admin remains English-only.
+- Locale direction/status.
+- Draft vs launch-ready state.
+- Version/hash invalidation behavior.
+- Prevent marking languages launch-ready without required review process.
+
+**Status:** ⬜ NOT STARTED  
+**Checkpoint:** —
+
+---
+
+### ADMIN-09 — Broadcasts and notification operations
+
+**Scope**
+- Broadcast creation.
+- Transactional/safety vs marketing distinction.
+- Consent/category enforcement.
+- Delivery summary/failure visibility.
+- No provider secrets.
+- Audit.
+
+**Status:** ⬜ NOT STARTED  
+**Checkpoint:** —
+
+---
+
+### ADMIN-10 — Events management
+
+**Scope**
+- Create/edit/publish/unpublish.
+- Online/physical metadata.
+- Date/time/location/capacity.
+- Localized content.
+- Attendee privacy.
+- Reports/moderation.
+- No public member-created event workflow in V1.
+
+**Status:** ⬜ NOT STARTED  
+**Checkpoint:** —
+
+---
+
+### ADMIN-11 — Subscription, features and entitlement operations
+
+**Scope**
+- Plans.
+- Features/capabilities.
+- Limits/counters policy.
+- Store-product mappings.
+- Country/platform overrides.
+- User overrides.
+- Promotions/trials.
+- Rollouts.
+- Scheduled activation.
+- Protected safety/privacy/account capabilities can never be paywalled.
+- No fake store products/prices.
+
+**Status:** ⬜ NOT STARTED  
+**Checkpoint:** —
+
+---
+
+### ADMIN-12 — Admin users/roles, privacy operations and audit browser
+
+**Scope**
+- Admin account management.
+- Role assignment.
+- Least privilege.
+- Privacy/account operational actions.
+- Immutable filtered audit browser.
+- Sensitive action reasons.
+- No provider-secret/raw-message/arbitrary-database-edit exposure.
+
+**Status:** ⬜ NOT STARTED  
+**Checkpoint:** —
+
+---
+
+### GATE-ADMIN — Complete React admin milestone
+
+**Run**
+- React production build/tests.
+- Laravel admin authorization/feature tests.
+- Responsive operator workflow audit.
+- Negative permission tests.
+- Audit-log verification.
+- Product-owner/operator review.
+
+**Status:** ⬜ NOT STARTED  
+**Checkpoint:** —
+
+---
+
+# TRACK C — BACKEND / OPERATIONS / PROVIDERS
+
+These packets close non-screen work required for a real production product. They must not be skipped because the app UI looks complete.
+
+### OPS-01 — API/contract/version compatibility
+
+**Scope**
+- Laravel routes vs OpenAPI/Postman parity.
+- Generated Flutter contracts.
+- Stable enums/errors/cursors.
+- Public IDs only.
+- Backward-compatible additive response policy.
+- Admin browser-session schemes remain separate from mobile bearer auth.
+
+**Status:** ⬜ NOT STARTED  
+**Checkpoint:** —
+
+---
+
+### OPS-02 — Database, migrations, indexes and data integrity
+
+**Scope**
+- MySQL production-like migration reset/reapply.
+- Foreign keys/indexes/cursors.
+- Rollback methods.
+- Duplicate identity/account merge integrity.
+- No unapproved retention/legal-hold schema assumptions.
+
+**Status:** ⬜ NOT STARTED  
+**Checkpoint:** —
+
+---
+
+### OPS-03 — Cache, queues, scheduler and cleanup jobs
+
+**Scope**
+- Redis cache/queue connectivity.
+- Worker restart/runbook.
+- Scheduler.
+- Expired sessions/OTPs.
+- Export jobs.
+- Broadcast jobs.
+- Scheduled deletion/recovery jobs.
+- Failed-job visibility.
+
+**Status:** ⬜ NOT STARTED  
+**Checkpoint:** —
+
+---
+
+### OPS-04 — Security hardening
+
+**Scope**
+- Rate limits.
+- Auth negative cases.
+- Replay resistance.
+- Provider webhook authentication.
+- Security headers.
+- CSRF/session rules.
+- Secret/content redaction.
+- Deep-link/navigation guards.
+- Dependency audits.
+
+**Status:** ⬜ NOT STARTED  
+**Checkpoint:** —
+
+---
+
+### OPS-05 — Privacy, deletion, retention and legal-hold policy gate
+
+**Scope**
+- Export completeness.
+- 30-day deletion recovery.
+- Permanent deletion/anonymization implementation only after approved policy.
+- Safety/legal evidence retention boundary.
+- Legal-hold decision explicitly recorded.
+- No invented retention duration.
+
+**Status:** ⬜ NOT STARTED  
+**Checkpoint:** —
+
+---
+
+### OPS-06 — Notifications, email and realtime transport
+
+**Scope**
+- FCM/APNs workers.
+- Email provider.
+- Device token lifecycle.
+- Delivery retries/idempotency.
+- Authorized private realtime chat channels.
+- Reconnect recovery.
+- Provider health/failure monitoring.
+
+**Status:** ⬜ NOT STARTED  
+**Checkpoint:** —
+
+---
+
+### OPS-07 — Media, geolocation and store providers
+
+**Scope**
+- Cloudinary signing/upload/moderation/delivery.
+- Precise GPS reverse geocoder.
+- Cloudflare approximate location.
+- Apple/Google identity credentials.
+- App Store / Play billing, receipt verification and callbacks.
+- Provider secrets never exposed.
+
+**Status:** ⬜ NOT STARTED  
+**Checkpoint:** —
+
+---
+
+### OPS-08 — Performance, load and observability
+
+**Scope**
+- Synthetic performance baselines.
+- Approved staging load tests.
+- API latency/slow-query monitoring.
+- Queue depth/failures.
+- Crash/ANR/performance telemetry.
+- Provider/webhook health.
+- Request correlation with sensitive-value redaction.
+
+**Status:** ⬜ NOT STARTED  
+**Checkpoint:** —
+
+---
+
+### OPS-09 — Backup, restore, incident and rollback readiness
+
+**Scope**
+- Backup policy/recency.
+- Isolated restore test evidence.
+- Incident acknowledgment/resolution.
+- Previous-artifact rollback path.
+- Database-safe rollback planning.
+- No blind destructive rollback.
+
+**Status:** ⬜ NOT STARTED  
+**Checkpoint:** —
+
+---
+
+### OPS-10 — Staging smoke + provider readiness
+
+**Scope**
+- Production config validator.
+- Health/readiness.
+- Auth/onboarding/discovery/chat/safety/privacy smoke.
+- Apple/Google sign-in.
+- APNs/FCM/email.
+- Cloudinary.
+- GPS resolver.
+- App Store/Play purchase/restore/webhooks.
+- Realtime broadcast.
+- Signing/capabilities.
+- Physical-device evidence linked to FLOW-42.
+
+**Status:** ⬜ NOT STARTED  
+**Checkpoint:** —
+
+---
+
+### GATE-OPS — Production operations milestone
+
+**Run**
+- Production config check.
+- MySQL/Redis suite.
+- Dependency/security audits.
+- Contract parity.
+- Queue/scheduler/readiness checks.
+- Staging smoke evidence.
+- Backup/restore/rollback evidence where owner infrastructure allows.
+- No unresolved critical incident.
+
+**Status:** ⬜ NOT STARTED  
+**Checkpoint:** —
+
+---
+
 ### FINAL-GATE — Release candidate 100% audit
 
 **Scope**
-- Re-read every packet.
+- Re-read every Track A FLOW/GATE packet, every Track B ADMIN packet and every Track C OPS packet.
+- GATE-A/B/C/D, GATE-ADMIN and GATE-OPS must be satisfied where applicable.
 - No unchecked applicable gap.
 - Full automated suite.
 - Android build.
@@ -1139,7 +1625,7 @@ This packet is a checklist/runbook, not a claim that source code alone can prove
 
 **Ready-to-send prompt**
 
-> **Run FINAL-GATE only. Treat this as the strict SOUL V1 release-candidate audit. Read every FLOW packet and current main. Fix only clear remaining implementation regressions; do not invent owner/legal decisions. Run full Laravel tests, MySQL/Redis checks, contract audits, Flutter analyze/tests, Android build and iOS simulator build, production config validation and final documentation sync. Produce the final debug/release-candidate artifact available in this environment. Report every remaining external/owner action explicitly. Mark 100% only if every applicable strict completion gate is actually passed.**
+> **Run FINAL-GATE only. Treat this as the strict SOUL V1 release-candidate audit. Read every FLOW packet and current main. Fix only clear remaining implementation regressions; do not invent owner/legal decisions. Run full Laravel tests, MySQL/Redis checks, contract audits, Flutter analyze/tests, Android build and iOS simulator build, production config validation and final documentation sync. Produce the final debug/release-candidate artifact available in this environment. Report every remaining external/owner action explicitly. A complete mobile UI with incomplete Admin/Ops/Provider work is **not** complete-app 100%. Mark 100% only if every applicable Track A + Track B + Track C strict completion gate is actually passed.**
 
 **Status:** ⬜ NOT STARTED  
 **Checkpoint:** —
@@ -1198,15 +1684,47 @@ Update this table after every completed packet.
 | FLOW-40 | Premium visual polish | ⬜ | ⬜ | — | — |
 | FLOW-41 | Trust/abuse hardening | ⬜ | ⬜ | — | — |
 | FLOW-42 | External provider/device QA | ⬜ | ⬜ | — | — |
-| FINAL-GATE | Strict V1 release audit | ⬜ | ⬜ | — | — |
+| ADMIN-01 | Admin auth/roles | ⬜ | ⬜ | — | — |
+| ADMIN-02 | Dashboard/incidents | ⬜ | ⬜ | — | — |
+| ADMIN-03 | Members/lifecycle | ⬜ | ⬜ | — | — |
+| ADMIN-04 | Reports/safety risk | ⬜ | ⬜ | — | — |
+| ADMIN-05 | Verification review | ⬜ | ⬜ | — | — |
+| ADMIN-06 | Appeals | ⬜ | ⬜ | — | — |
+| ADMIN-07 | Taxonomy/catalogs | ⬜ | ⬜ | — | — |
+| ADMIN-08 | Localization admin | ⬜ | ⬜ | — | — |
+| ADMIN-09 | Broadcasts | ⬜ | ⬜ | — | — |
+| ADMIN-10 | Events admin | ⬜ | ⬜ | — | — |
+| ADMIN-11 | Subscription operations | ⬜ | ⬜ | — | — |
+| ADMIN-12 | Admin roles/privacy/audit | ⬜ | ⬜ | — | — |
+| GATE-ADMIN | Admin milestone | ⬜ | ⬜ | — | — |
+| OPS-01 | Contracts/versioning | ⬜ | ⬜ | — | — |
+| OPS-02 | Database/integrity | ⬜ | ⬜ | — | — |
+| OPS-03 | Cache/queues/scheduler | ⬜ | ⬜ | — | — |
+| OPS-04 | Security hardening | ⬜ | ⬜ | — | — |
+| OPS-05 | Privacy/retention policy | ⬜ | ⬜ | — | — |
+| OPS-06 | Notifications/email/realtime | ⬜ | ⬜ | — | — |
+| OPS-07 | Media/location/store providers | ⬜ | ⬜ | — | — |
+| OPS-08 | Performance/observability | ⬜ | ⬜ | — | — |
+| OPS-09 | Backup/restore/rollback | ⬜ | ⬜ | — | — |
+| OPS-10 | Staging/provider readiness | ⬜ | ⬜ | — | — |
+| GATE-OPS | Operations milestone | ⬜ | ⬜ | — | — |
+| FINAL-GATE | Strict complete-app V1 release audit | ⬜ | ⬜ | — | — |
 
 ---
 
 # 5. Owner command shortcuts
 
-Normal next step:
+Normal next step (Track A starts first):
 
 > **Run FLOW-01.**
+
+Admin packet example:
+
+> **Run ADMIN-01.**
+
+Operations packet example:
+
+> **Run OPS-01.**
 
 Continue after timeout:
 
@@ -1232,7 +1750,7 @@ Ask for current status:
 
 # 6. Why this plan is the source of execution truth
 
-The master documentation remains the **product truth**. This file is the **execution truth** for the order in which we implement and verify the member experience.
+The master documentation remains the **product truth**. This file is the **execution truth** for the order in which we implement and verify the **complete V1 product: member app, admin operations and production/backend operations**.
 
 If a future product decision changes the master flow, update the master first, then update the affected FLOW packets before continuing work.
 
