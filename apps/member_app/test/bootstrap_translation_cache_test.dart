@@ -28,6 +28,21 @@ class _FakeApiClient extends SoulApiClient {
   }
 }
 
+
+class _FailingApiClient extends SoulApiClient {
+  _FailingApiClient(super.sessions, this.failure);
+
+  final SoulApiFailure failure;
+
+  @override
+  Future<Map<String, dynamic>> get(
+    String path, {
+    Map<String, dynamic>? query,
+  }) async {
+    throw failure;
+  }
+}
+
 void main() {
   test('translation cache round-trips outside secure storage', () async {
     final directory = await Directory.systemTemp.createTemp('soul-cache-test-');
@@ -43,6 +58,16 @@ void main() {
       version: '18',
       hash: List.filled(64, 'a').join(),
       values: const {'auth.create_account': 'Account banayein'},
+      direction: 'ltr',
+      supportedLanguages: const [
+        {
+          'code': 'ur',
+          'name': 'Roman Urdu',
+          'native_name': 'Roman Urdu',
+          'direction': 'ltr',
+          'is_launch_ready': true,
+        },
+      ],
     );
 
     await store.write(expected);
@@ -53,6 +78,8 @@ void main() {
     expect(loaded.version, '18');
     expect(loaded.hash, expected.hash);
     expect(loaded.values, expected.values);
+    expect(loaded.direction, 'ltr');
+    expect(loaded.supportedLanguages.single['code'], 'ur');
   });
 
   test('bootstrap reuses cached values when server hash is unchanged', () async {
@@ -151,6 +178,99 @@ void main() {
     expect(state.translations['common.continue'], 'Continue');
   });
 
+
+
+  test('network bootstrap failure uses the last valid catalog safely', () async {
+    final directory = await Directory.systemTemp.createTemp('soul-offline-');
+    addTearDown(() async {
+      await directory.delete(recursive: true);
+    });
+
+    final cache = TranslationCacheStore(
+      file: File('${directory.path}/translations.json'),
+    );
+    final hash = List.filled(64, 'e').join();
+    await cache.write(
+      CachedTranslations(
+        locale: 'ar',
+        version: '21',
+        hash: hash,
+        values: const {
+          'error.bootstrap_unavailable': 'تعذر تحميل SOUL الآن.',
+          'common.retry': 'إعادة المحاولة',
+        },
+        direction: 'rtl',
+        supportedLanguages: const [
+          {
+            'code': 'ar',
+            'name': 'Arabic',
+            'native_name': 'العربية',
+            'direction': 'rtl',
+            'is_launch_ready': true,
+          },
+        ],
+      ),
+    );
+
+    final api = _FailingApiClient(
+      _TestSessionStore(),
+      const SoulApiFailure(
+        statusCode: null,
+        code: 'NETWORK_ERROR',
+        message: 'Offline',
+      ),
+    );
+
+    final state = await BootstrapRepository(api, cache).load();
+
+    expect(state.locale, 'ar');
+    expect(state.direction, 'rtl');
+    expect(state.translationHash, hash);
+    expect(state.supportedLanguages.single.code, 'ar');
+    expect(state.locationStatus, 'unavailable');
+    expect(state.location, isNull);
+    expect(state.capabilities, isNull);
+    expect(state.legalVersions, isEmpty);
+  });
+
+  test('non-retryable bootstrap failure is not hidden by cached data', () async {
+    final directory = await Directory.systemTemp.createTemp('soul-offline-');
+    addTearDown(() async {
+      await directory.delete(recursive: true);
+    });
+
+    final cache = TranslationCacheStore(
+      file: File('${directory.path}/translations.json'),
+    );
+    await cache.write(
+      CachedTranslations(
+        locale: 'en',
+        version: '18',
+        hash: List.filled(64, 'f').join(),
+        values: const {'common.retry': 'Retry'},
+      ),
+    );
+
+    final api = _FailingApiClient(
+      _TestSessionStore(),
+      const SoulApiFailure(
+        statusCode: 422,
+        code: 'INVALID_BOOTSTRAP',
+        message: 'Invalid bootstrap request.',
+      ),
+    );
+
+    await expectLater(
+      BootstrapRepository(api, cache).load(),
+      throwsA(
+        isA<SoulApiFailure>().having(
+          (failure) => failure.statusCode,
+          'statusCode',
+          422,
+        ),
+      ),
+    );
+  });
 
   test('bootstrap stores fresh translations when server hash changes', () async {
     final directory = await Directory.systemTemp.createTemp('soul-bootstrap-');

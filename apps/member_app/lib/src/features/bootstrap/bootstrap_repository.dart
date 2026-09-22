@@ -104,12 +104,25 @@ class BootstrapRepository {
 
   Future<BootstrapState> load() async {
     final cached = await _cache.read();
-    final data = await _api.get(
-      'bootstrap',
-      query: {
-        if (cached != null) 'translations_hash': cached.hash,
-      },
-    );
+    late final Map<String, dynamic> data;
+
+    try {
+      data = await _api.get(
+        'bootstrap',
+        query: {
+          if (cached != null) 'translations_hash': cached.hash,
+        },
+      );
+    } on SoulApiFailure catch (failure) {
+      final retryable = failure.statusCode == null ||
+          (failure.statusCode != null && failure.statusCode! >= 500);
+
+      if (cached != null && retryable) {
+        return _offlineState(cached);
+      }
+
+      rethrow;
+    }
     final localeData = data['locale'] is Map<String, dynamic>
         ? data['locale'] as Map<String, dynamic>
         : const <String, dynamic>{};
@@ -121,6 +134,12 @@ class BootstrapRepository {
     final hash = translationData['hash']?.toString() ?? '';
     final notModified = translationData['not_modified'] == true;
     final rawValues = translationData['values'];
+    final direction = localeData['direction']?.toString() == 'rtl'
+        ? 'rtl'
+        : 'ltr';
+    final supportedLanguages = _decodeSupportedLanguages(
+      data['supported_languages'],
+    );
 
     Map<String, String> translations;
     if (notModified &&
@@ -134,16 +153,6 @@ class BootstrapRepository {
         (key, value) => MapEntry(key.toString(), value.toString()),
       );
 
-      if (hash.length == 64 && version.isNotEmpty) {
-        await _cache.write(
-          CachedTranslations(
-            locale: locale,
-            version: version,
-            hash: hash,
-            values: translations,
-          ),
-        );
-      }
     } else {
       throw const SoulApiFailure(
         statusCode: null,
@@ -159,8 +168,32 @@ class BootstrapRepository {
     final commitments = legalData['commitment_keys'];
     final rawLocation = data['location'];
     final rawCapabilities = data['capabilities'];
+
+    if (hash.length == 64 && version.isNotEmpty) {
+      await _cache.write(
+        CachedTranslations(
+          locale: locale,
+          version: version,
+          hash: hash,
+          values: translations,
+          direction: direction,
+          supportedLanguages: supportedLanguages
+              .map(
+                (language) => <String, dynamic>{
+                  'code': language.code,
+                  'name': language.name,
+                  'native_name': language.nativeName,
+                  'direction': language.direction,
+                  'is_launch_ready': language.isLaunchReady,
+                },
+              )
+              .toList(growable: false),
+        ),
+      );
+    }
+
     return BootstrapState(
-      direction: localeData['direction']?.toString() ?? 'ltr',
+      direction: direction,
       locale: locale,
       translationVersion: version,
       translationHash: hash,
@@ -181,15 +214,36 @@ class BootstrapRepository {
               Map<String, dynamic>.from(rawLocation),
             )
           : null,
-      supportedLanguages: data['supported_languages'] is List
-          ? (data['supported_languages'] as List)
-              .whereType<Map>()
-              .map((item) => SupportedLanguage.fromJson(
-                    Map<String, dynamic>.from(item),
-                  ))
-              .where((item) => item.code.isNotEmpty)
-              .toList(growable: false)
-          : const <SupportedLanguage>[],
+      supportedLanguages: supportedLanguages,
     );
   }
+
+  BootstrapState _offlineState(CachedTranslations cached) => BootstrapState(
+        direction: cached.direction,
+        locale: cached.locale,
+        translationVersion: cached.version,
+        translationHash: cached.hash,
+        translations: cached.values,
+        legalVersions: const {},
+        commitmentKeys: const [],
+        supportedLanguages: _decodeSupportedLanguages(
+          cached.supportedLanguages,
+        ),
+        locationStatus: 'unavailable',
+        capabilities: null,
+        location: null,
+      );
+
+  List<SupportedLanguage> _decodeSupportedLanguages(Object? raw) =>
+      raw is List
+          ? raw
+              .whereType<Map>()
+              .map(
+                (item) => SupportedLanguage.fromJson(
+                  Map<String, dynamic>.from(item),
+                ),
+              )
+              .where((item) => item.code.isNotEmpty)
+              .toList(growable: false)
+          : const <SupportedLanguage>[];
 }

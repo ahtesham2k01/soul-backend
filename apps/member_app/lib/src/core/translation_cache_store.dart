@@ -7,12 +7,16 @@ class CachedTranslations {
     required this.version,
     required this.hash,
     required this.values,
+    this.direction = 'ltr',
+    this.supportedLanguages = const [],
   });
 
   final String locale;
   final String version;
   final String hash;
   final Map<String, String> values;
+  final String direction;
+  final List<Map<String, dynamic>> supportedLanguages;
 }
 
 class TranslationCacheStore {
@@ -39,6 +43,8 @@ class TranslationCacheStore {
       final version = map['version']?.toString() ?? '';
       final hash = map['hash']?.toString() ?? '';
       final values = map['values'];
+      final direction = map['direction']?.toString() ?? 'ltr';
+      final rawLanguages = map['supported_languages'];
 
       if (locale.isEmpty ||
           version.isEmpty ||
@@ -54,6 +60,13 @@ class TranslationCacheStore {
         values: values.map(
           (key, value) => MapEntry(key.toString(), value.toString()),
         ),
+        direction: direction == 'rtl' ? 'rtl' : 'ltr',
+        supportedLanguages: rawLanguages is List
+            ? rawLanguages
+                .whereType<Map>()
+                .map((item) => Map<String, dynamic>.from(item))
+                .toList(growable: false)
+            : const <Map<String, dynamic>>[],
       );
     } on FormatException {
       await clear();
@@ -74,6 +87,8 @@ class TranslationCacheStore {
           'version': cache.version,
           'hash': cache.hash,
           'values': cache.values,
+          'direction': cache.direction,
+          'supported_languages': cache.supportedLanguages,
         }),
         flush: true,
       );
