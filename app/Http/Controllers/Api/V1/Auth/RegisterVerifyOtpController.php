@@ -80,7 +80,11 @@ class RegisterVerifyOtpController extends Controller
 
                 $user->refresh();
 
-                if ($user->status !== User::STATUS_ACTIVE) {
+                if (! in_array($user->status, [
+                    User::STATUS_ACTIVE,
+                    User::STATUS_BLOCKED,
+                    User::STATUS_DELETION_SCHEDULED,
+                ], true)) {
                     return ApiResponse::error(
                         code: 'ACCOUNT_UNAVAILABLE',
                         message: 'This account is currently unavailable.',
@@ -103,10 +107,13 @@ class RegisterVerifyOtpController extends Controller
                             new UserResource($user->refresh())
                         )->resolve($request),
                         'is_new_user' => $isNewUser,
-                        'next_step' => $user->onboarding_completed_at
-                            === null
+                        'next_step' => match ($user->status) {
+                            User::STATUS_BLOCKED => 'account_appeal',
+                            User::STATUS_DELETION_SCHEDULED => 'deletion_recovery',
+                            default => $user->onboarding_completed_at === null
                                 ? 'onboarding'
                                 : 'home',
+                        },
                         'authentication' => [
                             'token_type' => 'Bearer',
                             'access_token' => $token->plainTextToken,

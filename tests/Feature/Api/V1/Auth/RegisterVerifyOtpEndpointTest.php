@@ -315,6 +315,66 @@ class RegisterVerifyOtpEndpointTest extends TestCase
         );
     }
 
+    public function test_blocked_existing_account_can_enter_appeal_recovery_from_registration_flow(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'blocked-register@example.com',
+            'email_verified_at' => now(),
+            'status' => User::STATUS_BLOCKED,
+            'onboarding_completed_at' => now(),
+        ]);
+
+        $issued = $this->issueRegistrationOtp(
+            'blocked-register@example.com',
+        );
+
+        $this->postJson(
+            '/api/v1/auth/register/verify-otp',
+            $this->verificationPayload(
+                issued: $issued,
+                email: 'blocked-register@example.com',
+            ),
+        )
+            ->assertOk()
+            ->assertJsonPath('data.is_new_user', false)
+            ->assertJsonPath('data.user.id', $user->public_id)
+            ->assertJsonPath('data.next_step', 'account_appeal');
+
+        $this->assertDatabaseHas('personal_access_tokens', [
+            'tokenable_id' => $user->id,
+        ]);
+    }
+
+    public function test_deletion_scheduled_existing_account_can_enter_recovery_from_registration_flow(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'delete-register@example.com',
+            'email_verified_at' => now(),
+            'status' => User::STATUS_DELETION_SCHEDULED,
+            'onboarding_completed_at' => now(),
+        ]);
+
+        $issued = $this->issueRegistrationOtp(
+            'delete-register@example.com',
+        );
+
+        $this->postJson(
+            '/api/v1/auth/register/verify-otp',
+            $this->verificationPayload(
+                issued: $issued,
+                email: 'delete-register@example.com',
+            ),
+        )
+            ->assertOk()
+            ->assertJsonPath('data.is_new_user', false)
+            ->assertJsonPath('data.user.id', $user->public_id)
+            ->assertJsonPath('data.next_step', 'deletion_recovery');
+
+        $this->assertDatabaseHas('personal_access_tokens', [
+            'tokenable_id' => $user->id,
+        ]);
+    }
+
     public function test_suspended_account_does_not_receive_token(): void
     {
         $user = User::factory()->create([
