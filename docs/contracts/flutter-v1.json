@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "apiVersion": "v1",
   "basePath": "/api/v1",
   "generatedFrom": "docs/SOUL_V1_MASTER_DOCUMENTATION.md",

@@ -3,10 +3,16 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../core/soul_theme.dart';
+import '../bootstrap/bootstrap_repository.dart';
 
 class LaunchScreen extends StatefulWidget {
-  const LaunchScreen({required this.onFinished, super.key});
+  const LaunchScreen({
+    required this.labels,
+    required this.onFinished,
+    super.key,
+  });
 
+  final BootstrapState labels;
   final VoidCallback onFinished;
 
   @override
@@ -67,19 +73,16 @@ class _LaunchScreenState extends State<LaunchScreen>
                   child: Column(
                     children: [
                       const Spacer(),
-                      Transform.rotate(
-                        angle: (1 - spin) * math.pi * 3,
-                        child: Transform.scale(
-                          scale: .84 + (.16 * spin),
-                          child: const _Globe(),
-                        ),
+                      _LaunchGlobe(
+                        labels: widget.labels,
+                        spin: spin,
                       ),
                       const Spacer(),
                       Opacity(
                         opacity: reveal,
                         child: Transform.translate(
                           offset: Offset(0, (1 - reveal) * 18),
-                          child: const _LaunchCopy(),
+                          child: _LaunchCopy(labels: widget.labels),
                         ),
                       ),
                       const SizedBox(height: 72),
@@ -107,6 +110,80 @@ class _ForestBackground extends StatelessWidget {
         ),
         child: SizedBox.expand(),
       );
+}
+
+class _LaunchGlobe extends StatelessWidget {
+  const _LaunchGlobe({
+    required this.labels,
+    required this.spin,
+  });
+
+  final BootstrapState labels;
+  final double spin;
+
+  String? get _locationLabel {
+    final location = labels.location;
+    if (location == null || location.city.trim().isEmpty) return null;
+    final country = location.countryCode.trim();
+    return country.isEmpty ? location.city : '${location.city}, $country';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final locationLabel = _locationLabel;
+
+    return SizedBox(
+      width: 270,
+      height: 270,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Transform.rotate(
+            angle: (1 - spin) * math.pi * 3,
+            child: Transform.scale(
+              scale: .84 + (.16 * spin),
+              child: const _Globe(),
+            ),
+          ),
+          if (locationLabel != null)
+            Positioned(
+              bottom: 18,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: SoulColors.limeLight,
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 11,
+                    vertical: 6,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.location_on_rounded,
+                        size: 14,
+                        color: SoulColors.ink,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        locationLabel,
+                        style: const TextStyle(
+                          color: SoulColors.ink,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
 }
 
 class _Globe extends StatelessWidget {
@@ -171,21 +248,26 @@ class _GlobePainter extends CustomPainter {
 }
 
 class _LaunchCopy extends StatelessWidget {
-  const _LaunchCopy();
+  const _LaunchCopy({required this.labels});
+
+  final BootstrapState labels;
 
   @override
-  Widget build(BuildContext context) => const Column(
+  Widget build(BuildContext context) => Column(
         children: [
           DecoratedBox(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: SoulColors.lime,
               borderRadius: BorderRadius.all(Radius.circular(6)),
             ),
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               child: Text(
-                'Swipe to Your',
-                style: TextStyle(
+                labels.text(
+                  'onboarding.headline_highlight',
+                  'Swipe to Your',
+                ),
+                style: const TextStyle(
                   color: SoulColors.ink,
                   fontSize: 22,
                   fontWeight: FontWeight.w800,
@@ -193,10 +275,13 @@ class _LaunchCopy extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(height: 5),
+          const SizedBox(height: 5),
           Text(
-            'Happily Ever After',
-            style: TextStyle(
+            labels.text(
+              'onboarding.headline_rest',
+              'Happily Ever After',
+            ),
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 21,
               fontWeight: FontWeight.w800,

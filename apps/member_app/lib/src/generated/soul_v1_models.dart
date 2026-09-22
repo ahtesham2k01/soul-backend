@@ -296,10 +296,43 @@ class SoulProfilePhoto {
   factory SoulProfilePhoto.fromJson(SoulJson json) => SoulProfilePhoto(id: soulString(json, 'id'), position: soulInt(json, 'position'), visibility: soulString(json, 'visibility'), moderationStatus: soulString(json, 'moderation_status'), screenshotProtectionEnabled: soulBool(json, 'screenshot_protection_enabled'), rejectionReason: soulNullableString(json, 'rejection_reason'));
 }
 
+class SoulBootstrapBrand {
+  const SoulBootstrapBrand({required this.name, required this.translate});
+  final String name; final bool translate;
+  factory SoulBootstrapBrand.fromJson(SoulJson json) => SoulBootstrapBrand(name: soulString(json, 'name'), translate: soulBool(json, 'translate'));
+}
+
+class SoulBootstrapLocale {
+  const SoulBootstrapLocale({required this.matched, required this.resolved, required this.fallback, required this.direction, this.requested});
+  final String? requested; final String matched; final String resolved; final String fallback; final String direction;
+  factory SoulBootstrapLocale.fromJson(SoulJson json) => SoulBootstrapLocale(requested: soulNullableString(json, 'requested'), matched: soulString(json, 'matched'), resolved: soulString(json, 'resolved'), fallback: soulString(json, 'fallback'), direction: soulString(json, 'direction'));
+}
+
+class SoulBootstrapTranslations {
+  const SoulBootstrapTranslations({required this.version, required this.hash, required this.notModified, this.values});
+  final String version; final String hash; final bool notModified; final SoulJson? values;
+  factory SoulBootstrapTranslations.fromJson(SoulJson json) => SoulBootstrapTranslations(version: soulString(json, 'version'), hash: soulString(json, 'hash'), notModified: soulBool(json, 'not_modified'), values: json['values'] == null ? null : soulJson(json['values'], 'values'));
+}
+
+class SoulBootstrapLanguage {
+  const SoulBootstrapLanguage({required this.code, required this.name, required this.nativeName, required this.direction, required this.isLaunchTarget, required this.isLaunchReady});
+  final String code; final String name; final String nativeName; final String direction; final bool isLaunchTarget; final bool isLaunchReady;
+  factory SoulBootstrapLanguage.fromJson(SoulJson json) => SoulBootstrapLanguage(code: soulString(json, 'code'), name: soulString(json, 'name'), nativeName: soulString(json, 'native_name'), direction: soulString(json, 'direction'), isLaunchTarget: soulBool(json, 'is_launch_target'), isLaunchReady: soulBool(json, 'is_launch_ready'));
+}
+
 class SoulBootstrap {
-  const SoulBootstrap({required this.brand, required this.locale, required this.translations, required this.supportedLanguages, required this.locationStatus});
-  final SoulJson brand; final SoulJson locale; final SoulJson translations; final List<SoulJson> supportedLanguages; final String locationStatus;
-  factory SoulBootstrap.fromJson(SoulJson json) => SoulBootstrap(brand: soulJson(json['brand'], 'brand'), locale: soulJson(json['locale'], 'locale'), translations: soulJson(json['translations'], 'translations'), supportedLanguages: soulObjectList(json, 'supported_languages'), locationStatus: soulString(json, 'location_status'));
+  const SoulBootstrap({required this.brand, required this.locale, required this.translations, required this.supportedLanguages, required this.locationStatus, required this.legal, this.location, this.capabilities});
+  final SoulBootstrapBrand brand; final SoulBootstrapLocale locale; final SoulBootstrapTranslations translations; final List<SoulBootstrapLanguage> supportedLanguages; final String locationStatus; final SoulJson legal; final SoulLocation? location; final SoulJson? capabilities;
+  factory SoulBootstrap.fromJson(SoulJson json) => SoulBootstrap(
+    brand: SoulBootstrapBrand.fromJson(soulJson(json['brand'], 'brand')),
+    locale: SoulBootstrapLocale.fromJson(soulJson(json['locale'], 'locale')),
+    translations: SoulBootstrapTranslations.fromJson(soulJson(json['translations'], 'translations')),
+    supportedLanguages: soulObjectList(json, 'supported_languages').map(SoulBootstrapLanguage.fromJson).toList(growable: false),
+    locationStatus: soulString(json, 'location_status'),
+    legal: soulJson(json['legal'], 'legal'),
+    location: json['location'] == null ? null : SoulLocation.fromJson(soulJson(json['location'], 'location')),
+    capabilities: json['capabilities'] == null ? null : soulJson(json['capabilities'], 'capabilities'),
+  );
 }
 
 abstract final class SoulV1Decoders {

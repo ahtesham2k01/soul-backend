@@ -12,12 +12,19 @@ final class LocaleResolver
             config('soul.translations.locales', [])
         );
 
-        $candidates = array_filter([
-            $requestedLocale,
-            ...$this->parseAcceptLanguage($acceptLanguage),
-        ]);
+        $fallbackLocale = config(
+            'soul.translations.fallback_locale',
+            'en',
+        );
 
-        foreach ($candidates as $candidate) {
+        if ($requestedLocale !== null && trim($requestedLocale) !== '') {
+            return $this->matchSupportedLocale(
+                locale: $requestedLocale,
+                supportedLocales: $supportedLocales,
+            ) ?? $fallbackLocale;
+        }
+
+        foreach ($this->parseAcceptLanguage($acceptLanguage) as $candidate) {
             $resolved = $this->matchSupportedLocale(
                 locale: $candidate,
                 supportedLocales: $supportedLocales,
@@ -28,10 +35,7 @@ final class LocaleResolver
             }
         }
 
-        return config(
-            'soul.translations.fallback_locale',
-            'en',
-        );
+        return $fallbackLocale;
     }
 
     private function parseAcceptLanguage(?string $header): array
@@ -51,16 +55,24 @@ final class LocaleResolver
             }
 
             $quality = 1.0;
-
-            if (preg_match(
-                '/(?:^|;)\\s*q\\s*=\\s*([0-9.]+)/i',
+            $hasQualityParameter = preg_match(
+                '/(?:^|;)\\s*q\\s*=/i',
                 $item,
-                $matches,
-            ) === 1) {
+            ) === 1;
+
+            if ($hasQualityParameter) {
+                if (preg_match(
+                    '/(?:^|;)\\s*q\\s*=\\s*(0(?:\\.\\d{0,3})?|1(?:\\.0{0,3})?)(?:\\s*;|$)/i',
+                    $item,
+                    $matches,
+                ) !== 1) {
+                    continue;
+                }
+
                 $quality = (float) $matches[1];
             }
 
-            if ($quality <= 0.0 || $quality > 1.0) {
+            if ($quality <= 0.0) {
                 continue;
             }
 

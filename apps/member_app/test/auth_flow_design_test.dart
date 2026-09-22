@@ -59,6 +59,8 @@ void main() {
     expect(source, contains("'settings.expires'"));
     expect(source, contains('_sessionSubtitle(item)'));
     expect(source, contains('() => _confirmRevoke(item)'));
+    expect(source, contains("'auth.log_out'"));
+    expect(source, contains("'common.revoke'"));
   });
 
 }

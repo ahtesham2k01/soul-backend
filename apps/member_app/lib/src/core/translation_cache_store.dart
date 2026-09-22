@@ -5,6 +5,8 @@ import 'package:path_provider/path_provider.dart';
 
 class CachedTranslations {
   const CachedTranslations({
+    this.brandName = 'SOUL',
+    this.brandTranslate = false,
     required this.locale,
     required this.version,
     required this.hash,
@@ -13,6 +15,8 @@ class CachedTranslations {
     this.supportedLanguages = const [],
   });
 
+  final String brandName;
+  final bool brandTranslate;
   final String locale;
   final String version;
   final String hash;
@@ -45,30 +49,43 @@ class TranslationCacheStore {
       if (!await file.exists()) return null;
 
       final decoded = jsonDecode(await file.readAsString());
-      if (decoded is! Map) return null;
+      if (decoded is! Map) {
+        await clear();
+        return null;
+      }
 
       final map = Map<String, dynamic>.from(decoded);
+      final brandName = map['brand_name']?.toString().trim() ?? 'SOUL';
+      final brandTranslate = map['brand_translate'] == true;
       final locale = map['locale']?.toString() ?? '';
       final version = map['version']?.toString() ?? '';
-      final hash = map['hash']?.toString() ?? '';
+      final hash = map['hash']?.toString().toLowerCase() ?? '';
       final values = map['values'];
       final direction = map['direction']?.toString() ?? 'ltr';
       final rawLanguages = map['supported_languages'];
 
-      if (locale.isEmpty ||
+      final validValues = values is Map &&
+          values.entries.every(
+            (entry) => entry.key is String && entry.value is String,
+          );
+
+      if (brandName != 'SOUL' ||
+          brandTranslate ||
+          locale.isEmpty ||
           version.isEmpty ||
-          hash.length != 64 ||
-          values is! Map) {
+          !RegExp(r'^[a-f0-9]{64}$').hasMatch(hash) ||
+          !validValues) {
+        await clear();
         return null;
       }
 
       return CachedTranslations(
+        brandName: brandName,
+        brandTranslate: brandTranslate,
         locale: locale,
         version: version,
         hash: hash,
-        values: values.map(
-          (key, value) => MapEntry(key.toString(), value.toString()),
-        ),
+        values: Map<String, String>.from(values as Map),
         direction: direction == 'rtl' ? 'rtl' : 'ltr',
         supportedLanguages: rawLanguages is List
             ? rawLanguages
@@ -81,6 +98,7 @@ class TranslationCacheStore {
       await clear();
       return null;
     } catch (_) {
+      await clear();
       return null;
     }
   }
@@ -95,6 +113,8 @@ class TranslationCacheStore {
       await file.parent.create(recursive: true);
       await temporary.writeAsString(
         jsonEncode({
+          'brand_name': cache.brandName,
+          'brand_translate': cache.brandTranslate,
           'locale': cache.locale,
           'version': cache.version,
           'hash': cache.hash,

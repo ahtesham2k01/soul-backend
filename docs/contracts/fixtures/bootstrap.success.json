@@ -14,17 +14,18 @@
       "direction": "ltr"
     },
     "translations": {
-      "version": "17",
+      "version": "20",
       "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "not_modified": false,
       "values": {
-        "auth.login": "Login"
+        "auth.create_account": "Account banayein"
       }
     },
     "supported_languages": [
       {
-        "code": "en",
-        "name": "English",
-        "native_name": "English",
+        "code": "ur",
+        "name": "Roman Urdu",
+        "native_name": "Roman Urdu",
         "direction": "ltr",
         "is_launch_target": true,
         "is_launch_ready": true
@@ -32,7 +33,22 @@
     ],
     "location": null,
     "location_status": "unavailable",
-    "capabilities": null
+    "capabilities": null,
+    "legal": {
+      "versions": {
+        "terms": "1.0",
+        "privacy": "1.0",
+        "community_guidelines": "1.0",
+        "community_commitment": "1.0"
+      },
+      "commitment_keys": [
+        "legal.commitment.respect",
+        "legal.commitment.honesty",
+        "legal.commitment.no_abuse",
+        "legal.commitment.guidelines",
+        "legal.commitment.policies"
+      ]
+    }
   },
   "meta": {
     "request_id": "01J00000000000000000000091"

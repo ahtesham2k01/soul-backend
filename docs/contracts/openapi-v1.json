@@ -67,6 +67,19 @@
         ],
         "parameters": [
           {
+            "name": "platform",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "android",
+                "ios"
+              ]
+            },
+            "description": "Optional mobile platform used to resolve platform-specific capabilities."
+          },
+          {
             "name": "translations_hash",
             "in": "query",
             "required": false,

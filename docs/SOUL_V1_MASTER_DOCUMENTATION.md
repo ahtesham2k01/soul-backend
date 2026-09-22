@@ -873,6 +873,7 @@ flowchart TD
 
 - Call `GET /api/v1/bootstrap` on first launch and when the cached translation/config version changes.
 - Send `Accept-Language`. Store the user's explicit locale separately from device-detected locale.
+- Mobile bootstrap sends `platform=android|ios` so authenticated capability overrides are resolved for the current store platform.
 - Store bearer tokens only in Keychain/Keystore-backed secure storage.
 - A 401 clears the local session. A 403 renders the returned account restriction. A 409 follows the returned correction/state contract.
 - Preserve `X-Request-ID` with client logs and support reports, but never log tokens, OTPs, message bodies or private media URLs.

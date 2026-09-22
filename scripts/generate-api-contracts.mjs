@@ -52,6 +52,15 @@ const publicOperations = new Set([
 const queryParameters = {
     'api.v1.bootstrap': [
         {
+            name: 'platform',
+            type: 'string',
+            enum: ['android', 'ios'],
+            example: 'android',
+            disabled: true,
+            description: 'Optional mobile platform used to resolve platform-specific capabilities.',
+            postmanDescription: 'Optional mobile platform for platform-specific capability overrides.',
+        },
+        {
             name: 'translations_hash',
             type: 'string',
             example: '',
@@ -149,6 +158,7 @@ for (const endpoint of endpoints) {
             required: false,
             schema: {
                 type: parameter.type,
+                ...(parameter.enum === undefined ? {} : { enum: parameter.enum }),
                 ...(parameter.default === undefined ? {} : { default: parameter.default }),
             },
             description: parameter.description,

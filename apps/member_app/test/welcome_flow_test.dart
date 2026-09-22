@@ -39,6 +39,14 @@ void main() {
         direction: 'ltr',
         isLaunchReady: true,
       ),
+      SupportedLanguage(
+        code: 'ar',
+        name: 'Arabic',
+        nativeName: 'Arabic',
+        direction: 'rtl',
+        isLaunchTarget: false,
+        isLaunchReady: true,
+      ),
     ],
   );
 
@@ -112,6 +120,18 @@ void main() {
 
     final auth = tester.widget<AuthScreen>(find.byType(AuthScreen));
     expect(auth.registration, isTrue);
+  });
+
+
+  testWidgets('language picker exposes only launch-target ready locales',
+      (tester) async {
+    await pumpWelcome(tester, const Size(412, 915));
+
+    await tester.tap(find.text('English').first);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Roman Urdu'), findsOneWidget);
+    expect(find.text('Arabic'), findsNothing);
   });
 
 }

@@ -57,8 +57,10 @@ class TranslationCatalogTest extends TestCase
 
     public function test_invalid_cached_payload_is_ignored_and_rebuilt(): void
     {
+        $version = (string) config('soul.translations.catalog_version');
+
         cache()->forever(
-            'soul:translation-catalog:18:en',
+            'soul:translation-catalog:'.$version.':en',
             ['broken' => true],
         );
 

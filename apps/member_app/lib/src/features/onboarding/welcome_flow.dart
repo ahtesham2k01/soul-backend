@@ -122,7 +122,10 @@ class _WelcomeFlowState extends ConsumerState<WelcomeFlow> {
       showDragHandle: false,
       builder: (sheetContext) {
         final languages = widget.labels.supportedLanguages
-            .where((language) => language.isLaunchReady)
+            .where(
+              (language) =>
+                  language.isLaunchTarget && language.isLaunchReady,
+            )
             .toList(growable: false);
         return SafeArea(
           child: FractionallySizedBox(
@@ -221,6 +224,8 @@ class _WelcomeFlowState extends ConsumerState<WelcomeFlow> {
 
     if (selected == null || selected == widget.labels.locale) return;
     await ref.read(sessionStoreProvider).saveLocale(selected);
+    await ref.read(translationCacheStoreProvider).clear();
+    ref.invalidate(bootstrapCacheProvider);
     ref.invalidate(bootstrapProvider);
   }
 

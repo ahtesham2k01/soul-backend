@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -36,10 +37,25 @@ final translationCacheStoreProvider = Provider<TranslationCacheStore>(
   (_) => TranslationCacheStore(),
 );
 
+String? _bootstrapPlatform() => switch (defaultTargetPlatform) {
+      TargetPlatform.android => 'android',
+      TargetPlatform.iOS => 'ios',
+      _ => null,
+    };
+
+final bootstrapCacheProvider = FutureProvider<BootstrapState?>(
+  (ref) => BootstrapRepository(
+    ref.watch(apiClientProvider),
+    ref.watch(translationCacheStoreProvider),
+    platform: _bootstrapPlatform(),
+  ).cachedState(),
+);
+
 final bootstrapProvider = FutureProvider<BootstrapState>(
   (ref) => BootstrapRepository(
     ref.watch(apiClientProvider),
     ref.watch(translationCacheStoreProvider),
+    platform: _bootstrapPlatform(),
   ).load(),
 );
 

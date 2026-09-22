@@ -45,6 +45,12 @@ class AppBootstrapController extends Controller
             && strlen($clientTranslationHash) === 64
             && hash_equals($catalog['hash'], $clientTranslationHash);
 
+        $queryPlatform = $request->query('platform');
+        $platform = is_string($queryPlatform)
+            && in_array(strtolower($queryPlatform), ['android', 'ios'], true)
+                ? strtolower($queryPlatform)
+                : null;
+
         /*
          * Production Cloudflare driver approximate
          * IP location return karega.
@@ -90,7 +96,7 @@ class AppBootstrapController extends Controller
                     : 'resolved',
 
                 'capabilities' => ($user = $request->user('sanctum'))
-                    ? $entitlementResolver->for($user, $request->query('platform'))
+                    ? $entitlementResolver->for($user, $platform)
                     : null,
 
                 'legal' => $user

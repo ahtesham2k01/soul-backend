@@ -107,6 +107,12 @@
               ],
               "query": [
                 {
+                  "key": "platform",
+                  "value": "android",
+                  "disabled": true,
+                  "description": "Optional mobile platform for platform-specific capability overrides."
+                },
+                {
                   "key": "translations_hash",
                   "value": "",
                   "disabled": true,

@@ -5,6 +5,7 @@ namespace Tests\Feature\Api\V1;
 use App\Contracts\Location\GeolocationProvider;
 use App\Data\LocationData;
 use App\Models\User;
+use App\Support\Entitlements\EntitlementResolver;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -135,6 +136,46 @@ class AppBootstrapEndpointTest extends TestCase
             ->assertJsonPath(
                 'data.legal.versions.community_commitment',
                 (string) config('soul.legal.commitment_version'),
+            );
+    }
+
+    public function test_authenticated_bootstrap_passes_valid_mobile_platform_to_capabilities(): void
+    {
+        $user = User::factory()->create();
+        Sanctum::actingAs($user, ['mobile']);
+
+        $this->app->instance(
+            EntitlementResolver::class,
+            new class extends EntitlementResolver
+            {
+                public function for(User $user, ?string $platform = null): array
+                {
+                    return [
+                        'platform_probe' => [
+                            'enabled' => $platform === 'ios',
+                            'platform' => $platform,
+                        ],
+                    ];
+                }
+            },
+        );
+
+        $this->getJson('/api/v1/bootstrap?locale=en&platform=ios')
+            ->assertOk()
+            ->assertJsonPath(
+                'data.capabilities.platform_probe.enabled',
+                true,
+            )
+            ->assertJsonPath(
+                'data.capabilities.platform_probe.platform',
+                'ios',
+            );
+
+        $this->getJson('/api/v1/bootstrap?locale=en&platform=unknown')
+            ->assertOk()
+            ->assertJsonPath(
+                'data.capabilities.platform_probe.platform',
+                null,
             );
     }
 

@@ -30,59 +30,71 @@ class _SoulAppState extends ConsumerState<SoulApp> {
   @override
   Widget build(BuildContext context) {
     final bootstrap = ref.watch(bootstrapProvider);
+    final cachedBootstrap = ref.watch(bootstrapCacheProvider);
     final sessionRoute = ref.watch(sessionRouteProvider);
-    return bootstrap.when(
-      data: (state) => MaterialApp(
-        title: 'SOUL',
+
+    final freshState =
+        bootstrap is AsyncData<BootstrapState> ? bootstrap.value : null;
+    final cachedState = cachedBootstrap is AsyncData<BootstrapState?>
+        ? cachedBootstrap.value
+        : null;
+    final state = freshState ?? cachedState;
+
+    if (state == null) {
+      final failed = bootstrap.hasError &&
+          (cachedBootstrap.hasError ||
+              (cachedBootstrap is AsyncData<BootstrapState?> &&
+                  cachedBootstrap.value == null));
+
+      return MaterialApp(
         debugShowCheckedModeBanner: false,
-        theme: soulTheme(),
-        builder: (context, child) => Directionality(
-          textDirection: state.direction == 'rtl'
-              ? TextDirection.rtl
-              : TextDirection.ltr,
-          child: child ?? const SizedBox.shrink(),
-        ),
-        home: sessionRoute.when(
-            data: (route) {
-              if (!_launchFinished) {
-                return LaunchScreen(
-                  onFinished: () => setState(() => _launchFinished = true),
-                );
-              }
-              if (route == 'auth') return WelcomeFlow(labels: state);
-              if (route == 'appeal' ||
-                  route == 'deletion' ||
-                  route == 'account_unavailable') {
-                return RestrictedAccountScreen(
-                  mode: route,
-                  repository: ref.read(profileRepositoryProvider),
-                  labels: state,
-                  onAccountRestored: () =>
-                      ref.invalidate(sessionRouteProvider),
-                  onSignedOut: () => ref.invalidate(sessionRouteProvider),
-                );
-              }
-              if (route == 'onboarding') return OnboardingScreen(labels: state);
-              if (route == 'legal') {
-                return LegalReconsentScreen(
-                  repository: OnboardingRepository(ref.read(apiClientProvider)),
-                  labels: state,
-                  onAccepted: () => ref.invalidate(sessionRouteProvider),
-                );
-              }
-              return _SignedInShell(labels: state);
-            },
-            error: (_, __) => _BootstrapErrorScreen(labels: state),
-            loading: () => const _LaunchScreen(),
-          ),
+        home: failed ? const _BootstrapErrorScreen() : const _LaunchScreen(),
+      );
+    }
+
+    return MaterialApp(
+      title: state.brandName,
+      debugShowCheckedModeBanner: false,
+      theme: soulTheme(),
+      builder: (context, child) => Directionality(
+        textDirection: state.direction == 'rtl'
+            ? TextDirection.rtl
+            : TextDirection.ltr,
+        child: child ?? const SizedBox.shrink(),
       ),
-      error: (_, __) => const MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: _BootstrapErrorScreen(),
-      ),
-      loading: () => const MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: _LaunchScreen(),
+      home: sessionRoute.when(
+        data: (route) {
+          if (!_launchFinished) {
+            return LaunchScreen(
+              labels: state,
+              onFinished: () => setState(() => _launchFinished = true),
+            );
+          }
+          if (route == 'auth') return WelcomeFlow(labels: state);
+          if (route == 'appeal' ||
+              route == 'deletion' ||
+              route == 'account_unavailable') {
+            return RestrictedAccountScreen(
+              mode: route,
+              repository: ref.read(profileRepositoryProvider),
+              labels: state,
+              onAccountRestored: () =>
+                  ref.invalidate(sessionRouteProvider),
+              onSignedOut: () => ref.invalidate(sessionRouteProvider),
+            );
+          }
+          if (route == 'onboarding') return OnboardingScreen(labels: state);
+          if (route == 'legal') {
+            return LegalReconsentScreen(
+              repository: OnboardingRepository(ref.read(apiClientProvider)),
+              labels: state,
+              onAccepted: () => ref.invalidate(sessionRouteProvider),
+            );
+          }
+          return _SignedInShell(labels: state);
+        },
+        error: (_, __) => _BootstrapErrorScreen(labels: state),
+        loading: () => const _LaunchScreen(),
       ),
     );
   }
@@ -115,7 +127,10 @@ class _BootstrapErrorScreen extends ConsumerWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text('SOUL', style: TextStyle(fontSize: 36)),
+                Text(
+                  labels?.brandName ?? 'SOUL',
+                  style: const TextStyle(fontSize: 36),
+                ),
                 const SizedBox(height: 16),
                 Text(
                   labels?.text(
@@ -128,6 +143,7 @@ class _BootstrapErrorScreen extends ConsumerWidget {
                 const SizedBox(height: 16),
                 FilledButton(
                   onPressed: () {
+                    ref.invalidate(bootstrapCacheProvider);
                     ref.invalidate(bootstrapProvider);
                     ref.invalidate(sessionRouteProvider);
                   },
@@ -193,7 +209,11 @@ class _SignedInShellState extends ConsumerState<_SignedInShell> {
         eventRepository: events,
         labels: labels,
         onSessionEnded: () => ref.invalidate(sessionRouteProvider),
-        onLocaleChanged: () => ref.invalidate(bootstrapProvider),
+        onLocaleChanged: () async {
+          await ref.read(translationCacheStoreProvider).clear();
+          ref.invalidate(bootstrapCacheProvider);
+          ref.invalidate(bootstrapProvider);
+        },
       ),
     ];
 

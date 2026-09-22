@@ -25,7 +25,7 @@ class SettingsScreen extends StatelessWidget {
   final AccountSnapshot account;
   final Map<String, dynamic> profile;
   final VoidCallback onSessionEnded;
-  final VoidCallback onLocaleChanged;
+  final Future<void> Function() onLocaleChanged;
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -1122,7 +1122,15 @@ class _DeviceSessionsScreenState extends State<DeviceSessionsScreen> {
                               ? null
                               : () => _confirmRevoke(item),
                           child: Text(
-                            item.isCurrent ? 'Sign out' : 'Revoke',
+                            item.isCurrent
+                                ? widget.labels.text(
+                                    'auth.log_out',
+                                    'Log out',
+                                  )
+                                : widget.labels.text(
+                                    'common.revoke',
+                                    'Revoke',
+                                  ),
                           ),
                         ),
                       );
@@ -1141,12 +1149,12 @@ class LanguageSettingsScreen extends StatelessWidget {
 
   final ProfileRepository repository;
   final BootstrapState labels;
-  final VoidCallback onChanged;
+  final Future<void> Function() onChanged;
 
   @override
   Widget build(BuildContext context) {
     final languages = labels.supportedLanguages
-        .where((item) => item.isLaunchReady)
+        .where((item) => item.isLaunchTarget && item.isLaunchReady)
         .toList(growable: false);
     return Scaffold(
       appBar: AppBar(
@@ -1162,8 +1170,8 @@ class LanguageSettingsScreen extends StatelessWidget {
           return ListTile(
             onTap: () async {
               await repository.saveLocale(language.code);
+              await onChanged();
               if (context.mounted) Navigator.of(context).pop();
-              onChanged();
             },
             title: Text(language.nativeName),
             subtitle: language.nativeName == language.name

@@ -11,7 +11,7 @@ const dart = fs.readFileSync(path.join(contracts, 'soul_v1_api.dart'), 'utf8');
 const models = fs.readFileSync(path.join(contracts, 'soul_v1_models.dart'), 'utf8');
 
 test('Flutter manifest contains only the complete member API surface', () => {
-    assert.equal(manifest.schemaVersion, 2);
+    assert.equal(manifest.schemaVersion, 3);
     assert.equal(manifest.basePath, '/api/v1');
     assert.equal(manifest.endpointCount, 96);
     assert.equal(manifest.endpoints.length, manifest.endpointCount);
@@ -167,4 +167,25 @@ test('bootstrap contract documents translation cache hash query', () => {
     assert.equal(translationHash.in, 'query');
     assert.equal(translationHash.required, false);
     assert.equal(translationHash.schema.type, 'string');
+
+    const platform = parameters.find((parameter) => parameter.name === 'platform');
+    assert.ok(platform);
+    assert.equal(platform.in, 'query');
+    assert.equal(platform.required, false);
+    assert.deepEqual(platform.schema.enum, ['android', 'ios']);
+});
+
+test('typed bootstrap handoff covers startup config', () => {
+    assert.match(models, /class SoulBootstrapBrand/);
+    assert.match(models, /class SoulBootstrapTranslations/);
+    assert.match(models, /class SoulBootstrapLanguage/);
+    assert.match(models, /final SoulJson legal/);
+    assert.match(models, /final SoulJson\? capabilities/);
+
+    const fixture = JSON.parse(
+        fs.readFileSync('docs/contracts/fixtures/bootstrap.success.json', 'utf8'),
+    );
+    assert.equal(fixture.data.brand.translate, false);
+    assert.equal(fixture.data.translations.not_modified, false);
+    assert.ok(fixture.data.legal.versions.terms);
 });

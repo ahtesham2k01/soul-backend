@@ -29,7 +29,7 @@ class ProfileScreen extends StatefulWidget {
   final EventRepository eventRepository;
   final BootstrapState labels;
   final VoidCallback onSessionEnded;
-  final VoidCallback onLocaleChanged;
+  final Future<void> Function() onLocaleChanged;
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
