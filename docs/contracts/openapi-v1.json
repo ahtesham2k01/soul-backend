@@ -65,6 +65,17 @@
         "tags": [
           "Bootstrap"
         ],
+        "parameters": [
+          {
+            "name": "translations_hash",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "SHA-256 hash of the cached translation catalog. Matching hashes return translations.not_modified=true with translations.values=null."
+          }
+        ],
         "responses": {
           "401": {
             "$ref": "#/components/responses/Error"
@@ -78,18 +89,7 @@
           "2XX": {
             "$ref": "#/components/responses/Success"
           }
-        },
-        "parameters": [
-          {
-            "name": "translations_hash",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            },
-            "description": "SHA-256 hash of the cached translation catalog. Matching hashes return translations.not_modified=true with translations.values=null."
-          }
-        ]
+        }
       }
     },
     "/catalogs/profile": {
