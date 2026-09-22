@@ -986,6 +986,85 @@ class _DeviceSessionsScreenState extends State<DeviceSessionsScreen> {
     }
   }
 
+  Future<void> _confirmRevoke(DeviceSession session) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(
+          session.isCurrent
+              ? widget.labels.text('auth.log_out', 'Log out')
+              : widget.labels.text(
+                  'settings.revoke_device',
+                  'Sign out this device',
+                ),
+        ),
+        content: Text(
+          session.isCurrent
+              ? widget.labels.text(
+                  'settings.current_device_logout_confirm',
+                  'You will be signed out on this device.',
+                )
+              : widget.labels.text(
+                  'settings.remote_device_logout_confirm',
+                  'This SOUL session will be signed out.',
+                ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(widget.labels.text('common.cancel', 'Cancel')),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(widget.labels.text('common.confirm', 'Confirm')),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      await _revoke(session);
+    }
+  }
+
+  String _formatSessionDate(DateTime? value) {
+    if (value == null) {
+      return widget.labels.text('common.not_available', 'Not available');
+    }
+
+    final local = value.toLocal();
+    String two(int number) => number.toString().padLeft(2, '0');
+    return '${local.year}-${two(local.month)}-${two(local.day)} '
+        '${two(local.hour)}:${two(local.minute)}';
+  }
+
+  Widget _sessionSubtitle(DeviceSession session) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            session.isCurrent
+                ? widget.labels.text('settings.this_device', 'This device')
+                : widget.labels.text(
+                    'settings.active_session',
+                    'Active session',
+                  ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            '${widget.labels.text('settings.last_used', 'Last used')}: '
+            '${_formatSessionDate(session.lastUsedAt)}',
+          ),
+          Text(
+            '${widget.labels.text('settings.signed_in', 'Signed in')}: '
+            '${_formatSessionDate(session.createdAt)}',
+          ),
+          Text(
+            '${widget.labels.text('settings.expires', 'Expires')}: '
+            '${_formatSessionDate(session.expiresAt)}',
+          ),
+        ],
+      );
+
   Future<void> _revoke(DeviceSession session) async {
     setState(() => _busy.add(session.id));
     try {
@@ -1037,13 +1116,11 @@ class _DeviceSessionsScreenState extends State<DeviceSessionsScreen> {
                               : Icons.devices_other_rounded,
                         ),
                         title: Text(item.deviceName),
-                        subtitle: Text(
-                          item.isCurrent ? 'This device' : 'Active session',
-                        ),
+                        subtitle: _sessionSubtitle(item),
                         trailing: TextButton(
                           onPressed: _busy.contains(item.id)
                               ? null
-                              : () => _revoke(item),
+                              : () => _confirmRevoke(item),
                           child: Text(
                             item.isCurrent ? 'Sign out' : 'Revoke',
                           ),

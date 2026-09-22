@@ -47,4 +47,18 @@ void main() {
     );
   });
 
+  test('active devices show session metadata and require revoke confirmation', () {
+    final source = File(
+      'lib/src/features/profile/settings_screen.dart',
+    ).readAsStringSync();
+
+    expect(source, contains('_confirmRevoke(DeviceSession session)'));
+    expect(source, contains('showDialog<bool>'));
+    expect(source, contains("'settings.last_used'"));
+    expect(source, contains("'settings.signed_in'"));
+    expect(source, contains("'settings.expires'"));
+    expect(source, contains('_sessionSubtitle(item)'));
+    expect(source, contains('() => _confirmRevoke(item)'));
+  });
+
 }
