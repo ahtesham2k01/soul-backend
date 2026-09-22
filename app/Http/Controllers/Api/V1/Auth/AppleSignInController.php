@@ -117,20 +117,10 @@ class AppleSignInController extends Controller
                         );
                     }
 
-                    $user = User::query()
-                        ->where(
-                            'email',
-                            $normalizedEmail,
-                        )
-                        ->lockForUpdate()
-                        ->first();
-
-                    if ($user === null) {
-                        $user = new User();
-
-                        $user->forceFill([
+                    $user = User::query()->firstOrCreate(
+                        ['email' => $normalizedEmail],
+                        [
                             'name' => $displayName,
-                            'email' => $normalizedEmail,
                             'email_verified_at' => now(),
                             'preferred_locale' => is_string(
                                 $requestedLocale,
@@ -141,10 +131,15 @@ class AppleSignInController extends Controller
                                     'en',
                                 ),
                             'status' => User::STATUS_ACTIVE,
-                        ])->save();
+                        ],
+                    );
 
-                        $isNewUser = true;
-                    }
+                    $isNewUser = $user->wasRecentlyCreated;
+
+                    $user = User::query()
+                        ->whereKey($user->getKey())
+                        ->lockForUpdate()
+                        ->firstOrFail();
 
                     if (! in_array($user->status, [
                         User::STATUS_ACTIVE,
@@ -167,7 +162,11 @@ class AppleSignInController extends Controller
                         ->lockForUpdate()
                         ->first();
 
-                    if ($existingAppleAccount !== null) {
+                    if (
+                        $existingAppleAccount !== null
+                        && $existingAppleAccount->provider_user_id
+                            !== $identity->subject
+                    ) {
                         return ApiResponse::error(
                             code: 'APPLE_ACCOUNT_CONFLICT',
                             message: 'A different Apple account is already linked to this account.',
@@ -175,12 +174,37 @@ class AppleSignInController extends Controller
                         );
                     }
 
-                    $user->socialAccounts()->create([
-                        'provider' => SocialProvider::Apple,
-                        'provider_user_id' => $identity->subject,
-                        'provider_email' => $normalizedEmail,
-                        'provider_email_verified' => true,
-                    ]);
+                    if ($existingAppleAccount !== null) {
+                        $existingAppleAccount->forceFill([
+                            'provider_email' => $normalizedEmail,
+                            'provider_email_verified' => true,
+                        ])->save();
+                    } else {
+                        $linkedAppleAccount = SocialAccount::query()
+                            ->firstOrCreate(
+                                [
+                                    'provider' => SocialProvider::Apple,
+                                    'provider_user_id' =>
+                                        $identity->subject,
+                                ],
+                                [
+                                    'user_id' => $user->getKey(),
+                                    'provider_email' => $normalizedEmail,
+                                    'provider_email_verified' => true,
+                                ],
+                            );
+
+                        if (
+                            $linkedAppleAccount->user_id
+                            !== $user->getKey()
+                        ) {
+                            return ApiResponse::error(
+                                code: 'APPLE_ACCOUNT_CONFLICT',
+                                message: 'This Apple identity is already linked to another account.',
+                                status: 409,
+                            );
+                        }
+                    }
                 }
 
                 if (! in_array($user->status, [

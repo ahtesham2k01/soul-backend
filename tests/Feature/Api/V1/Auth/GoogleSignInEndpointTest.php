@@ -244,6 +244,45 @@ class GoogleSignInEndpointTest extends TestCase
         ]);
     }
 
+    public function test_different_google_identity_on_same_account_returns_conflict(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'google-conflict@example.com',
+            'email_verified_at' => now(),
+        ]);
+
+        $user->socialAccounts()->create([
+            'provider' => SocialProvider::Google,
+            'provider_user_id' => 'original-google-subject',
+            'provider_email' => 'google-conflict@example.com',
+            'provider_email_verified' => true,
+        ]);
+
+        $this->bindGoogleIdentity(
+            new VerifiedGoogleIdentity(
+                subject: 'different-google-subject',
+                email: 'google-conflict@example.com',
+                emailVerified: true,
+                name: 'Conflict User',
+                avatarUrl: null,
+            ),
+        );
+
+        $this->postJson('/api/v1/auth/google', [
+            'id_token' => 'different-google-token',
+            'device_name' => 'Pixel',
+        ])
+            ->assertConflict()
+            ->assertJsonPath(
+                'error.code',
+                'GOOGLE_ACCOUNT_CONFLICT',
+            );
+
+        $this->assertDatabaseCount('users', 1);
+        $this->assertDatabaseCount('social_accounts', 1);
+        $this->assertDatabaseCount('personal_access_tokens', 0);
+    }
+
     public function test_invalid_google_token_is_rejected(): void
     {
         $this->bindGoogleIdentity(

@@ -298,6 +298,45 @@ class AppleSignInEndpointTest extends TestCase
         ]);
     }
 
+    public function test_different_apple_identity_on_same_account_returns_conflict(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'apple-conflict@example.com',
+            'email_verified_at' => now(),
+        ]);
+
+        $user->socialAccounts()->create([
+            'provider' => SocialProvider::Apple,
+            'provider_user_id' => 'original-apple-subject',
+            'provider_email' => 'apple-conflict@example.com',
+            'provider_email_verified' => true,
+        ]);
+
+        $this->bindAppleIdentity(
+            new VerifiedAppleIdentity(
+                subject: 'different-apple-subject',
+                email: 'apple-conflict@example.com',
+                emailVerified: true,
+                isPrivateEmail: false,
+            ),
+        );
+
+        $this->postJson('/api/v1/auth/apple', [
+            'identity_token' => 'different-apple-token',
+            'raw_nonce' => self::RAW_NONCE,
+            'device_name' => 'iPhone',
+        ])
+            ->assertConflict()
+            ->assertJsonPath(
+                'error.code',
+                'APPLE_ACCOUNT_CONFLICT',
+            );
+
+        $this->assertDatabaseCount('users', 1);
+        $this->assertDatabaseCount('social_accounts', 1);
+        $this->assertDatabaseCount('personal_access_tokens', 0);
+    }
+
     public function test_invalid_apple_token_is_rejected(): void
     {
         $this->bindAppleIdentity(

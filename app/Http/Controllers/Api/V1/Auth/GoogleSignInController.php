@@ -92,22 +92,12 @@ class GoogleSignInController extends Controller
                         'provider_email_verified' => true,
                     ])->save();
                 } else {
-                    $user = User::query()
-                        ->where(
-                            'email',
-                            $normalizedEmail,
-                        )
-                        ->lockForUpdate()
-                        ->first();
-
-                    if ($user === null) {
-                        $user = new User();
-
-                        $user->forceFill([
+                    $user = User::query()->firstOrCreate(
+                        ['email' => $normalizedEmail],
+                        [
                             'name' => $this->limitedName(
                                 $identity->name,
                             ),
-                            'email' => $normalizedEmail,
                             'email_verified_at' => now(),
                             'preferred_locale' => is_string(
                                 $requestedLocale,
@@ -118,10 +108,15 @@ class GoogleSignInController extends Controller
                                     'en',
                                 ),
                             'status' => User::STATUS_ACTIVE,
-                        ])->save();
+                        ],
+                    );
 
-                        $isNewUser = true;
-                    }
+                    $isNewUser = $user->wasRecentlyCreated;
+
+                    $user = User::query()
+                        ->whereKey($user->getKey())
+                        ->lockForUpdate()
+                        ->firstOrFail();
 
                     if (! in_array($user->status, [
                         User::STATUS_ACTIVE,
@@ -144,7 +139,11 @@ class GoogleSignInController extends Controller
                         ->lockForUpdate()
                         ->first();
 
-                    if ($existingGoogleAccount !== null) {
+                    if (
+                        $existingGoogleAccount !== null
+                        && $existingGoogleAccount->provider_user_id
+                            !== $identity->subject
+                    ) {
                         return ApiResponse::error(
                             code: 'GOOGLE_ACCOUNT_CONFLICT',
                             message: 'A different Google account is already linked to this account.',
@@ -152,12 +151,37 @@ class GoogleSignInController extends Controller
                         );
                     }
 
-                    $user->socialAccounts()->create([
-                        'provider' => SocialProvider::Google,
-                        'provider_user_id' => $identity->subject,
-                        'provider_email' => $normalizedEmail,
-                        'provider_email_verified' => true,
-                    ]);
+                    if ($existingGoogleAccount !== null) {
+                        $existingGoogleAccount->forceFill([
+                            'provider_email' => $normalizedEmail,
+                            'provider_email_verified' => true,
+                        ])->save();
+                    } else {
+                        $linkedGoogleAccount = SocialAccount::query()
+                            ->firstOrCreate(
+                                [
+                                    'provider' => SocialProvider::Google,
+                                    'provider_user_id' =>
+                                        $identity->subject,
+                                ],
+                                [
+                                    'user_id' => $user->getKey(),
+                                    'provider_email' => $normalizedEmail,
+                                    'provider_email_verified' => true,
+                                ],
+                            );
+
+                        if (
+                            $linkedGoogleAccount->user_id
+                            !== $user->getKey()
+                        ) {
+                            return ApiResponse::error(
+                                code: 'GOOGLE_ACCOUNT_CONFLICT',
+                                message: 'This Google identity is already linked to another account.',
+                                status: 409,
+                            );
+                        }
+                    }
                 }
 
                 if (! in_array($user->status, [
