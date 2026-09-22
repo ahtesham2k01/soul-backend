@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:soul_member_app/src/features/auth/auth_screen.dart';
 import 'package:soul_member_app/src/features/bootstrap/bootstrap_repository.dart';
 import 'package:soul_member_app/src/features/onboarding/welcome_flow.dart';
 
@@ -92,4 +93,25 @@ void main() {
       },
     );
   }
+
+  testWidgets('Continue with Email opens returning-member email login', (tester) async {
+    await pumpWelcome(tester, const Size(412, 915));
+
+    await tester.tap(find.text('Continue with Email'));
+    await tester.pumpAndSettle();
+
+    final auth = tester.widget<AuthScreen>(find.byType(AuthScreen));
+    expect(auth.registration, isFalse);
+  });
+
+  testWidgets('Create Account opens registration flow', (tester) async {
+    await pumpWelcome(tester, const Size(412, 915));
+
+    await tester.tap(find.text('Create Account'));
+    await tester.pumpAndSettle();
+
+    final auth = tester.widget<AuthScreen>(find.byType(AuthScreen));
+    expect(auth.registration, isTrue);
+  });
+
 }

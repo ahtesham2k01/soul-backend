@@ -569,5 +569,14 @@
     "subscription.restore_failed": "Purchases restore nahi ho sakin.",
     "subscription.purchase_not_started": "Store purchase start nahi kar saka.",
     "subscription.purchase_start_failed": "Store purchase start nahi kar saka. Dobara koshish karein.",
-    "subscription.purchase_cancelled": "Purchase cancel ho gayi ya complete nahi ho saki."
+    "subscription.purchase_cancelled": "Purchase cancel ho gayi ya complete nahi ho saki.",
+    "settings.revoke_device": "Is device se sign out karein",
+    "settings.current_device_logout_confirm": "Is device par aap sign out ho jayenge.",
+    "settings.remote_device_logout_confirm": "Is SOUL session ko sign out kar diya jayega.",
+    "common.not_available": "Available nahi",
+    "settings.this_device": "Ye device",
+    "settings.active_session": "Abhi active session",
+    "settings.last_used": "Aakhri dafa use hua",
+    "settings.signed_in": "Sign in hua",
+    "settings.expires": "Khatam hoga"
 }

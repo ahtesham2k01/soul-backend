@@ -569,5 +569,14 @@
     "subscription.restore_failed": "Purchases could not be restored.",
     "subscription.purchase_not_started": "The store did not start the purchase.",
     "subscription.purchase_start_failed": "The store could not start the purchase.",
-    "subscription.purchase_cancelled": "The purchase was cancelled or could not be completed."
+    "subscription.purchase_cancelled": "The purchase was cancelled or could not be completed.",
+    "settings.revoke_device": "Sign out this device",
+    "settings.current_device_logout_confirm": "You will be signed out on this device.",
+    "settings.remote_device_logout_confirm": "This SOUL session will be signed out.",
+    "common.not_available": "Not available",
+    "settings.this_device": "This device",
+    "settings.active_session": "Active session",
+    "settings.last_used": "Last used",
+    "settings.signed_in": "Signed in",
+    "settings.expires": "Expires"
 }
