@@ -503,7 +503,7 @@
     "common.fix_now": "Fix now",
     "common.choose_up_to": "Choose up to {count}.",
     "common.options_unavailable": "Options are unavailable right now.",
-    "auth.validation_name": "Enter your full name.",
+    "auth.validation_name": "Enter your first name.",
     "auth.validation_dob": "Enter a valid date of birth. You must be 18 or older.",
     "auth.validation_email": "Enter a valid email address.",
     "auth.otp_sent_to": "Enter the code we sent to {email}.",

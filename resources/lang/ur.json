@@ -503,7 +503,7 @@
     "common.fix_now": "Abhi theek karein",
     "common.choose_up_to": "Zyada se zyada {count} select karein.",
     "common.options_unavailable": "Options abhi available nahi hain.",
-    "auth.validation_name": "Apna poora naam enter karein.",
+    "auth.validation_name": "Apna pehla naam enter karein.",
     "auth.validation_dob": "Valid date of birth enter karein. Umar kam az kam 18 saal honi chahiye.",
     "auth.validation_email": "Valid email address enter karein.",
     "auth.otp_sent_to": "{email} par bheja gaya code enter karein.",
