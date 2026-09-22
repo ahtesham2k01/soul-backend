@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Services\Auth\EmailOtpService;
 use App\Services\Auth\MobileTokenIssuer;
 use App\Support\ApiResponse;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 
@@ -58,7 +59,7 @@ class GoogleSignInController extends Controller
             'locale',
         );
 
-        return DB::transaction(
+        $authenticate = fn (): JsonResponse => DB::transaction(
             function () use (
                 $identity,
                 $normalizedEmail,
@@ -250,6 +251,15 @@ class GoogleSignInController extends Controller
                 );
             },
         );
+        try {
+            return $authenticate();
+        } catch (UniqueConstraintViolationException) {
+            // A concurrent first sign-in may win a unique email/provider
+            // insert. Retry once so the now-persisted identity is resolved
+            // normally instead of surfacing a transient 500.
+            return $authenticate();
+        }
+
     }
 
     private function limitedName(
