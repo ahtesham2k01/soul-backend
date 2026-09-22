@@ -30,13 +30,13 @@ void main() {
     expect(normalizeAdultDateOfBirth('23/09/2008', today: today), isNull);
   });
 
-  test('rejects implausible ages above 120', () {
+  test('does not invent a maximum age beyond the product 18+ rule', () {
     expect(
       normalizeAdultDateOfBirth(
         '21/09/1906',
         today: DateTime(2026, 9, 22),
       ),
-      isNull,
+      '1906-09-21',
     );
   });
 }

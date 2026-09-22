@@ -84,8 +84,14 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   }
 
   String? _registrationValidation() {
-    if (_registrationStep == 0 && _name.text.trim().length < 2) {
-      return widget.labels.text('auth.validation_name', 'Enter your first name.');
+    if (_registrationStep == 0) {
+      final name = _name.text.trim();
+      if (name.isEmpty || name.length > 80) {
+        return widget.labels.text(
+          'auth.validation_name',
+          'Enter your first name.',
+        );
+      }
     }
     if (_registrationStep == 1 && _normalizedDob(_dob.text.trim()) == null) {
       return widget.labels.text('auth.validation_dob', 'Enter a valid date of birth. You must be 18 or older.');

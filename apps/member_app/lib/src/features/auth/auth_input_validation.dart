@@ -43,13 +43,7 @@ String? normalizeAdultDateOfBirth(
     age--;
   }
 
-  final oldestAllowed = DateTime(
-    reference.year - 120,
-    reference.month,
-    reference.day,
-  );
-
-  if (age < 18 || value.isBefore(oldestAllowed)) return null;
+  if (age < 18) return null;
 
   return '${value.year.toString().padLeft(4, '0')}-'
       '${value.month.toString().padLeft(2, '0')}-'
