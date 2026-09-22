@@ -12,6 +12,7 @@ void main() {
       'auth.continue_with_google': 'Continue with Google',
       'auth.continue_with_apple': 'Continue with Apple',
       'auth.create_account': 'Create Account',
+      'auth.continue_with_email': 'Continue with Email',
       'auth.already_have_account': 'Already have an account?',
       'auth.log_in': 'Log in',
       'onboarding.headline_highlight': 'Swipe to Your',
@@ -69,9 +70,11 @@ void main() {
 
         final headline = find.text('Happily Ever After');
         final create = find.text('Create Account');
+        final email = find.text('Continue with Email');
 
         expect(headline, findsOneWidget);
         expect(create, findsOneWidget);
+        expect(email, findsOneWidget);
         expect(
           find.bySemanticsLabel('Continue with Google'),
           findsOneWidget,

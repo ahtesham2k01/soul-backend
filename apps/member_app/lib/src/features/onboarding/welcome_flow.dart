@@ -718,34 +718,26 @@ class _AuthBar extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          InkWell(
-            onTap: busy ? null : onLogin,
-            borderRadius: BorderRadius.circular(16),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 5,
+          SizedBox(
+            width: double.infinity,
+            height: 38,
+            child: OutlinedButton(
+              onPressed: busy ? null : onLogin,
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.white,
+                side: BorderSide(
+                  color: Colors.white.withValues(alpha: .55),
+                ),
+                shape: const StadiumBorder(),
               ),
-              child: Text.rich(
-                TextSpan(
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 11.5,
-                  ),
-                  children: [
-                    TextSpan(
-                      text:
-                          '${labels.text('auth.already_have_account', 'Already have an account?')} ',
-                    ),
-                    TextSpan(
-                      text: labels.text('auth.log_in', 'Log in'),
-                      style: const TextStyle(
-                        decoration: TextDecoration.underline,
-                        decorationColor: Colors.white,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
+              child: Text(
+                labels.text(
+                  'auth.continue_with_email',
+                  'Continue with Email',
+                ),
+                style: const TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
