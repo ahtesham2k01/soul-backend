@@ -14,6 +14,8 @@ class DeviceController extends Controller {
   if($device&&$device->user_id!==$r->user()->id) $device->delete();
   $accessToken=$r->user()->currentAccessToken();
   $personalAccessTokenId=$accessToken instanceof PersonalAccessToken
+   && $accessToken->exists
+   && $accessToken->getKey()
    ? $accessToken->getKey()
    : null;
   $device=$r->user()->devices()->updateOrCreate(
