@@ -12,7 +12,7 @@ class _TestSessionStore extends SessionStore {
 }
 
 class _FakeApiClient extends SoulApiClient {
-  _FakeApiClient(SessionStore sessions, this.response) : super(sessions);
+  _FakeApiClient(super.sessions, this.response);
 
   final Map<String, dynamic> response;
   Map<String, dynamic>? lastQuery;
