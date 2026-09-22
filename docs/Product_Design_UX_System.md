@@ -6,6 +6,9 @@
 
 SOUL should feel calm, premium, trustworthy and international. The experience should communicate that this is a serious consumer product, not a generic template or a local form-based matrimonial app.
 
+
+For the current Flutter-first review phase, the backend-free prototype APK must demonstrate this quality bar end to end using local data. Prototype convenience is not permission to omit documented states, accessibility, reduced-motion behavior, trust/safety presentation or premium interaction polish.
+
 Competitors may be studied for quality expectations, but SOUL must not copy proprietary layouts, brand language, motion, artwork or interaction patterns.
 
 ## Source priority

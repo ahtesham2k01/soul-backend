@@ -55,12 +55,12 @@ jobs:
         run: flutter test
 
       - name: Build Android debug artifact
-        run: flutter build apk --debug --dart-define=SOUL_API_ORIGIN=https://api.invalid
+        run: flutter build apk --debug --dart-define=SOUL_PROTOTYPE_MODE=true --dart-define=SOUL_API_ORIGIN=https://api.invalid
 
       - name: Upload Android debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: soul-design-preview-apk
+          name: soul-flutter-prototype-apk
           path: apps/member_app/build/app/outputs/flutter-apk/app-debug.apk
           if-no-files-found: error
           retention-days: 7
@@ -92,4 +92,4 @@ jobs:
         run: flutter pub get
 
       - name: Build iOS simulator artifact
-        run: flutter build ios --simulator --debug --dart-define=SOUL_API_ORIGIN=https://api.invalid
+        run: flutter build ios --simulator --debug --dart-define=SOUL_PROTOTYPE_MODE=true --dart-define=SOUL_API_ORIGIN=https://api.invalid

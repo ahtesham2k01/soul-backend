@@ -17,6 +17,18 @@ Illustrative Figma names, locations, prices, Muslim-only wording, filters or scr
 
 The member app lives in `apps/member_app`.
 
+## Backend-free design prototype mode
+
+Flutter includes a temporary local prototype runtime selected at build time with `SOUL_PROTOTYPE_MODE=true`.
+
+- Prototype mode is for product/design review only and makes no member API calls.
+- It follows the authoritative master flow and premium UX rules with local mock state for onboarding, discovery, Likes, matches, chat, verification, subscriptions, events, settings, safety and account states.
+- The production/backend-integrated runtime remains in the same codebase and is not deleted or replaced.
+- Prototype-only data must never be promoted into product rules; illustrative names, cities, prices and verification outcomes remain local preview fixtures.
+- The Android design-preview artifact is intentionally built with prototype mode enabled so a reviewer can navigate the app without a live backend.
+- When backend integration resumes, screens and interaction contracts should be preserved while repositories/data sources are reconnected to Laravel.
+
+
 ## Core architecture
 
 Recommended modules remain auth, onboarding, discovery, activity, matches, chat, photos, verification, safety, notifications, events, subscription and settings. Networking must use typed DTOs/contracts rather than passing raw JSON maps through widgets.
