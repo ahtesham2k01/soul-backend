@@ -370,7 +370,11 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
             : _event == null
                 ? _EventError(
                     labels: widget.labels,
-                    message: _error ?? 'Event unavailable.',
+                    message: _error ??
+                        widget.labels.text(
+                          'events.unavailable',
+                          'Event unavailable.',
+                        ),
                     onRetry: _load,
                   )
                 : ListView(

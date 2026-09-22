@@ -474,7 +474,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           ),
         4 => _TextStep(
             title: widget.labels.text('profile.nationality', 'Nationality'),
-            hint: 'PK',
+            hint: widget.labels.text('profile.country_code_example', 'PK'),
             controller: _nationality,
           ),
         5 => _ReligionStep(
@@ -625,8 +625,10 @@ class _LocationStep extends StatelessWidget {
         children: [
           SoulPageTitle(
             labels.text('profile.city', 'Current city'),
-            subtitle:
-                'Use your current city for matching. Exact coordinates are not shown publicly.',
+            subtitle: labels.text(
+              'location.current_city_matching',
+              'Use your current city for matching. Exact coordinates are not shown publicly.',
+            ),
           ),
           const SizedBox(height: 20),
           OutlinedButton.icon(
@@ -641,7 +643,10 @@ class _LocationStep extends StatelessWidget {
             label: Text(
               resolving
                   ? labels.text('location.detecting', 'Detecting your location...')
-                  : 'Use current location',
+                  : labels.text(
+                      'location.use_current',
+                      'Use current location',
+                    ),
             ),
           ),
           if (message != null && message!.isNotEmpty) ...[
@@ -663,7 +668,7 @@ class _LocationStep extends StatelessWidget {
             maxLength: 2,
             decoration: InputDecoration(
               labelText: labels.text('profile.country', 'Country of residence'),
-              hintText: 'PK',
+              hintText: labels.text('profile.country_code_example', 'PK'),
             ),
           ),
         ],
@@ -682,7 +687,12 @@ class _SingleChoiceStep extends StatelessWidget {
         const SizedBox(height: 22),
         Expanded(child: ListView.separated(itemCount: choices.length, separatorBuilder: (_, __) => const SizedBox(height: 10), itemBuilder: (_, index) {
           final choice = choices[index];
-          return _ChoiceTile(label: choice.$2, selected: selected == choice.$1, onTap: () => onSelected(choice.$1));
+          return _ChoiceTile(
+            value: choice.$1,
+            label: choice.$2,
+            selected: selected == choice.$1,
+            onTap: () => onSelected(choice.$1),
+          );
         })),
       ]);
 }
@@ -851,13 +861,19 @@ class _CompletionStep extends StatelessWidget {
 }
 
 class _ChoiceTile extends StatelessWidget {
-  const _ChoiceTile({required this.label, required this.selected, required this.onTap});
+  const _ChoiceTile({
+    this.value,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+  final String? value;
   final String label;
   final bool selected;
   final VoidCallback onTap;
   @override
   Widget build(BuildContext context) {
-    final genderChoice = label == 'Men' || label == 'Women';
+    final genderChoice = value == 'man' || value == 'woman';
     return SoulChoiceTile(
       label: label,
       selected: selected,
@@ -867,7 +883,7 @@ class _ChoiceTile extends StatelessWidget {
               radius: 20,
               backgroundColor: SoulColors.softSurface,
               child: Icon(
-                label == 'Men'
+                value == 'man'
                     ? Icons.person_rounded
                     : Icons.person_2_rounded,
                 color: SoulColors.forest,

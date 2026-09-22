@@ -275,7 +275,7 @@ class _LegalSubmissionScreenState extends State<LegalSubmissionScreen> {
                       ListTile(
                         contentPadding: EdgeInsets.zero,
                         leading: const Icon(Icons.check_circle_outline, color: SoulColors.forest),
-                        title: Text(widget.labels.text(key, _fallbackCommitment(key))),
+                        title: Text(_commitmentLabel(key)),
                       ),
                     const Divider(height: 28),
                     CheckboxListTile(
@@ -320,13 +320,18 @@ class _LegalSubmissionScreenState extends State<LegalSubmissionScreen> {
     );
   }
 
-  String _fallbackCommitment(String key) => switch (key) {
-        'legal.commitment.respect' => 'Treat every member with respect.',
-        'legal.commitment.honesty' => 'Be honest about identity and relationship status.',
-        'legal.commitment.no_abuse' => 'No harassment, scams or inappropriate behaviour.',
-        'legal.commitment.guidelines' => 'Follow the Community Guidelines.',
-        _ => 'Accept the Terms and Privacy Policy.',
-      };
+  String _commitmentLabel(String key) => widget.labels.text(
+        key,
+        switch (key) {
+          'legal.commitment.respect' => 'Treat every member with respect.',
+          'legal.commitment.honesty' =>
+            'Be honest about identity and relationship status.',
+          'legal.commitment.no_abuse' =>
+            'No harassment, scams or inappropriate behaviour.',
+          'legal.commitment.guidelines' => 'Follow the Community Guidelines.',
+          _ => 'Accept the Terms and Privacy Policy.',
+        },
+      );
 }
 
 class _LifecycleCard extends StatelessWidget {
@@ -352,7 +357,15 @@ class _LifecycleCard extends StatelessWidget {
           labels.text('onboarding.changes_required', 'Changes are required'),
           lifecycle.reason ?? '',
         ),
-      'paused' => (Icons.pause_circle_outline, 'Profile paused', lifecycle.reason ?? 'Your profile is temporarily hidden.'),
+      'paused' => (
+          Icons.pause_circle_outline,
+          labels.text('discovery.profile_paused', 'Profile paused'),
+          lifecycle.reason ??
+              labels.text(
+                'onboarding.profile_paused_message',
+                'Your profile is temporarily hidden.',
+              ),
+        ),
       _ => (
           Icons.hourglass_top,
           labels.text('onboarding.checking', 'We are checking your profile'),

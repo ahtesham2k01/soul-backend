@@ -260,7 +260,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         'family_involvement_preference' => widget.labels.text('profile.family_involvement', 'Family involvement'),
         'interests' => widget.labels.text('profile.interests', 'Interests'),
         'personality_traits' => widget.labels.text('profile.traits', 'Personality traits'),
-        _ => field,
+        _ => widget.labels.text('common.not_available', 'Not available'),
       };
 
   void _setValue(VoidCallback change) {
@@ -279,8 +279,11 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         title: Text(
           widget.labels.text('profile.discard_changes', 'Discard changes?'),
         ),
-        content: const Text(
-          'Your unsaved profile changes will be lost.',
+        content: Text(
+          widget.labels.text(
+            'profile.discard_changes_explainer',
+            'Your unsaved profile changes will be lost.',
+          ),
         ),
         actions: [
           TextButton(
@@ -298,49 +301,111 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   }
 
   String? _validate() {
-    if (_firstName.text.trim().length < 2) return 'Enter your first name.';
+    if (_firstName.text.trim().length < 2) {
+      return widget.labels.text(
+        'onboarding.validation_first_name',
+        'Enter your first name.',
+      );
+    }
     final dob = DateTime.tryParse(_dob.text.trim());
-    if (dob == null) return 'Enter your date of birth as YYYY-MM-DD.';
+    if (dob == null) {
+      return widget.labels.text(
+        'profile.validation_dob',
+        'Enter your date of birth as YYYY-MM-DD.',
+      );
+    }
     final now = DateTime.now();
     var age = now.year - dob.year;
     if (now.month < dob.month ||
         (now.month == dob.month && now.day < dob.day)) {
       age--;
     }
-    if (age < 18 || age > 120) return 'You must be 18 or older.';
-    if (_gender == null || _gender!.isEmpty) return 'Select your gender.';
-    if (_city.text.trim().isEmpty) return 'Enter your current city.';
+    if (age < 18 || age > 120) {
+      return widget.labels.text(
+        'profile.validation_adult',
+        'You must be 18 or older.',
+      );
+    }
+    if (_gender == null || _gender!.isEmpty) {
+      return widget.labels.text(
+        'onboarding.validation_gender',
+        'Select your gender.',
+      );
+    }
+    if (_city.text.trim().isEmpty) {
+      return widget.labels.text(
+        'profile.validation_city',
+        'Enter your current city.',
+      );
+    }
     if (!RegExp(r'^[A-Za-z]{2}$').hasMatch(_country.text.trim())) {
-      return 'Use a 2-letter country code.';
+      return widget.labels.text(
+        'profile.validation_country',
+        'Use a 2-letter country code.',
+      );
     }
     if (!RegExp(r'^[A-Za-z]{2}$').hasMatch(_nationality.text.trim())) {
-      return 'Use a 2-letter nationality country code.';
+      return widget.labels.text(
+        'profile.validation_nationality',
+        'Use a 2-letter nationality country code.',
+      );
     }
     final height = int.tryParse(_height.text.trim());
     if (_height.text.trim().isNotEmpty &&
         (height == null || height < 50 || height > 300)) {
-      return 'Height must be between 50 and 300 cm.';
+      return widget.labels.text(
+        'profile.validation_height',
+        'Height must be between 50 and 300 cm.',
+      );
     }
     if (_maritalStatus == null || _maritalStatus!.isEmpty) {
-      return 'Select your marital status.';
+      return widget.labels.text(
+        'profile.validation_marital',
+        'Select your marital status.',
+      );
     }
     if (_professionStatus == null || _professionStatus!.isEmpty) {
-      return 'Select your profession or status.';
+      return widget.labels.text(
+        'profile.validation_profession',
+        'Select your profession or status.',
+      );
     }
     if (_smoking == null || _smoking!.isEmpty) {
-      return 'Answer the smoking question.';
+      return widget.labels.text(
+        'profile.validation_smoking',
+        'Answer the smoking question.',
+      );
     }
     if (_alcohol == null || _alcohol!.isEmpty) {
-      return 'Answer the alcohol question.';
+      return widget.labels.text(
+        'profile.validation_alcohol',
+        'Answer the alcohol question.',
+      );
     }
     if (_currentChildren == null || _currentChildren!.isEmpty) {
-      return 'Answer the current children question.';
+      return widget.labels.text(
+        'profile.validation_children_now',
+        'Answer the current children question.',
+      );
     }
     if (_futureChildren == null || _futureChildren!.isEmpty) {
-      return 'Answer the future children question.';
+      return widget.labels.text(
+        'profile.validation_children_future',
+        'Answer the future children question.',
+      );
     }
-    if (_intentions.isEmpty) return 'Select at least one intention.';
-    if (_languageCodes.isEmpty) return 'Select at least one spoken language.';
+    if (_intentions.isEmpty) {
+      return widget.labels.text(
+        'profile.validation_intention',
+        'Select at least one intention.',
+      );
+    }
+    if (_languageCodes.isEmpty) {
+      return widget.labels.text(
+        'profile.validation_language',
+        'Select at least one spoken language.',
+      );
+    }
     return null;
   }
 
@@ -602,8 +667,11 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                         'Religion or belief',
                       ),
                     ),
-                    subtitle: const Text(
-                      'Update the complete religion / sect path.',
+                    subtitle: Text(
+                      widget.labels.text(
+                        'profile.religion_path_hint',
+                        'Update the complete religion / sect path.',
+                      ),
                     ),
                     trailing: const Icon(Icons.chevron_right_rounded),
                   ),
@@ -681,6 +749,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                 title: widget.labels.text('profile.section_personality', 'Personality and interests'),
                 children: [
                   _CatalogMultiSelect(
+                    labels: widget.labels,
                     label: widget.labels.text(
                       'profile.interests',
                       'Interests',
@@ -696,6 +765,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                     ),
                   ),
                   _CatalogMultiSelect(
+                    labels: widget.labels,
                     label: widget.labels.text(
                       'profile.traits',
                       'Personality traits',
@@ -711,6 +781,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                     ),
                   ),
                   _CatalogMultiSelect(
+                    labels: widget.labels,
                     label: widget.labels.text(
                       'profile.languages',
                       'Languages you speak',
@@ -1143,6 +1214,7 @@ class _ReligionEditorScreenState extends State<ReligionEditorScreen> {
 
 class _CatalogMultiSelect extends StatelessWidget {
   const _CatalogMultiSelect({
+    required this.labels,
     required this.label,
     required this.choices,
     required this.selected,
@@ -1151,6 +1223,7 @@ class _CatalogMultiSelect extends StatelessWidget {
     this.maximum,
   });
 
+  final BootstrapState labels;
   final String label;
   final List<CatalogChoice> choices;
   final Set<String> selected;
@@ -1174,7 +1247,11 @@ class _CatalogMultiSelect extends StatelessWidget {
             if (maximum != null) ...[
               const SizedBox(height: 3),
               Text(
-                'Choose up to $maximum',
+                labels.format(
+                  'common.choose_up_to',
+                  'Choose up to {count}.',
+                  {'count': maximum.toString()},
+                ),
                 style: const TextStyle(
                   color: SoulColors.muted,
                   fontSize: 12,
@@ -1185,9 +1262,12 @@ class _CatalogMultiSelect extends StatelessWidget {
             if (loading)
               const LinearProgressIndicator(minHeight: 2)
             else if (choices.isEmpty)
-              const Text(
-                'Options are temporarily unavailable.',
-                style: TextStyle(color: SoulColors.muted),
+              Text(
+                labels.text(
+                  'common.options_unavailable',
+                  'Options are unavailable right now.',
+                ),
+                style: const TextStyle(color: SoulColors.muted),
               )
             else
               Wrap(

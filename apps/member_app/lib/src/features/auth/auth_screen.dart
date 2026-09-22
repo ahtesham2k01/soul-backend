@@ -236,9 +236,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
             controller: _email,
             keyboardType: TextInputType.emailAddress,
             autofillHints: const [AutofillHints.email],
-            decoration: const InputDecoration(
-              hintText: 'example@gmail.com',
-              prefixIcon: Icon(Icons.mail_outline_rounded),
+            decoration: InputDecoration(
+              hintText: widget.labels.text('auth.email_hint', 'example@gmail.com'),
+              prefixIcon: const Icon(Icons.mail_outline_rounded),
             ),
           ),
         ],
@@ -275,7 +275,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         TextField(
           controller: _dob,
           keyboardType: TextInputType.datetime,
-          decoration: const InputDecoration(hintText: 'DD/MM/YYYY'),
+          decoration: InputDecoration(
+            hintText: widget.labels.text('auth.dob_hint', 'DD/MM/YYYY'),
+          ),
         ),
       ],
     );

@@ -198,7 +198,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
                   : visible.isEmpty
                       ? Center(
                           child: Text(
-                            'No results',
+                            widget.labels.text('common.no_results', 'No results'),
                             style: Theme.of(context).textTheme.bodyLarge,
                           ),
                         )
@@ -447,8 +447,11 @@ class _ChatEmpty extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              const Text(
-                'No matches yet. Like profiles in Home to start a conversation.',
+              Text(
+                widget.labels.text(
+                  'chat.no_matches',
+                  'No matches yet. Like profiles in Home to start a conversation.',
+                ),
                 textAlign: TextAlign.center,
                 style: TextStyle(color: SoulColors.muted, fontSize: 15),
               ),

@@ -212,7 +212,7 @@ class _ReceivedLikesScreenState extends State<ReceivedLikesScreen> {
                   ),
                   const SizedBox(width: 8),
                   _ExploreActionTab(
-                    label: 'Events',
+                    label: widget.labels.text('events.title', 'Events'),
                     icon: Icons.event_outlined,
                     onTap: _openEvents,
                   ),
@@ -244,6 +244,7 @@ class _ReceivedLikesScreenState extends State<ReceivedLikesScreen> {
                   ? _ExploreEmpty(
                       title:
                           widget.labels.text('likes.received', 'Likes received'),
+                      labels: widget.labels,
                       onStart: widget.onStartDiscovering,
                     )
                   : RefreshIndicator(
@@ -274,6 +275,7 @@ class _ReceivedLikesScreenState extends State<ReceivedLikesScreen> {
                             final item = _likes[index];
                             return _LikeGridCard(
                               item: item,
+                              labels: widget.labels,
                               recent: _isRecent(item),
                               busy: _busy.contains(item.profileId),
                               acceptLabel: widget.labels.text(
@@ -375,6 +377,7 @@ class _ExploreActionTab extends StatelessWidget {
 class _LikeGridCard extends StatelessWidget {
   const _LikeGridCard({
     required this.item,
+    required this.labels,
     required this.recent,
     required this.busy,
     required this.acceptLabel,
@@ -384,6 +387,7 @@ class _LikeGridCard extends StatelessWidget {
   });
 
   final IncomingLike item;
+  final BootstrapState labels;
   final bool recent;
   final bool busy;
   final String acceptLabel;
@@ -456,12 +460,14 @@ class _LikeGridCard extends StatelessWidget {
                     color: SoulColors.limeLight,
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 5,
+                    ),
                     child: Text(
-                      'Just now',
-                      style: TextStyle(
+                      labels.text('common.just_now', 'Just now'),
+                      style: const TextStyle(
                         color: SoulColors.ink,
                         fontSize: 11,
                         fontWeight: FontWeight.w800,
@@ -593,9 +599,14 @@ class _MiniAction extends StatelessWidget {
 }
 
 class _ExploreEmpty extends StatelessWidget {
-  const _ExploreEmpty({required this.title, this.onStart});
+  const _ExploreEmpty({
+    required this.title,
+    required this.labels,
+    this.onStart,
+  });
 
   final String title;
+  final BootstrapState labels;
   final VoidCallback? onStart;
 
   @override
@@ -642,10 +653,13 @@ class _ExploreEmpty extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              const Text(
-                'People who like you will appear here.',
+              Text(
+                labels.text(
+                  'likes.empty',
+                  'People who like you will appear here.',
+                ),
                 textAlign: TextAlign.center,
-                style: TextStyle(color: SoulColors.muted, fontSize: 15),
+                style: const TextStyle(color: SoulColors.muted, fontSize: 15),
               ),
               if (onStart != null) ...[
                 const SizedBox(height: 24),
@@ -659,9 +673,9 @@ class _ExploreEmpty extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text(
-                    'Start discovering',
-                    style: TextStyle(fontWeight: FontWeight.w800),
+                  child: Text(
+                    labels.text('common.start_discovering', 'Start discovering'),
+                    style: const TextStyle(fontWeight: FontWeight.w800),
                   ),
                 ),
               ],

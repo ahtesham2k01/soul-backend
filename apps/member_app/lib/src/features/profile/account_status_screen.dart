@@ -71,7 +71,10 @@ class _RestrictedAccountScreenState extends State<RestrictedAccountScreen> {
   Future<void> _submitAppeal() async {
     final statement = _statement.text.trim();
     if (statement.length < 20) {
-      setState(() => _error = 'Please add at least 20 characters.');
+      setState(() => _error = widget.labels.text(
+            'account.appeal_min_chars',
+            'Please add at least 20 characters.',
+          ));
       return;
     }
     setState(() {
@@ -238,7 +241,15 @@ class _RestrictedAccountScreenState extends State<RestrictedAccountScreen> {
                             foregroundColor: SoulColors.ink,
                           ),
                           child: Text(
-                            _busy ? 'Restoring…' : 'Keep my SOUL account',
+                            _busy
+                                ? widget.labels.text(
+                                    'common.restoring',
+                                    'Restoring…',
+                                  )
+                                : widget.labels.text(
+                                    'account.keep_account',
+                                    'Keep my SOUL account',
+                                  ),
                           ),
                         ),
                       ],
@@ -266,7 +277,13 @@ class _RestrictedAccountScreenState extends State<RestrictedAccountScreen> {
     }
     if (widget.mode == 'appeal') {
       final status = _appeal?['status']?.toString();
-      return status == null ? 'Account review' : 'Appeal $status';
+      return status == null
+          ? widget.labels.text('account.review', 'Account review')
+          : widget.labels.format(
+              'account.appeal_status',
+              'Appeal {status}',
+              {'status': status},
+            );
     }
     return widget.labels.text(
       'auth.error.account_unavailable',
@@ -278,19 +295,39 @@ class _RestrictedAccountScreenState extends State<RestrictedAccountScreen> {
     if (widget.mode == 'deletion') {
       final when = _deletion?['scheduled_for']?.toString();
       return when == null
-          ? 'Your account is hidden and scheduled for deletion. You can restore it during the recovery period.'
-          : 'Your account is hidden and scheduled for deletion on $when. You can restore it before then.';
+          ? widget.labels.text(
+              'account.deletion_hidden',
+              'Your account is hidden and scheduled for deletion. You can restore it during the recovery period.',
+            )
+          : widget.labels.format(
+              'account.deletion_hidden_until',
+              'Your account is hidden and scheduled for deletion on {date}. You can restore it before then.',
+              {'date': when},
+            );
     }
     if (widget.mode == 'appeal') {
       final status = _appeal?['status']?.toString();
       if (status == 'pending') {
-        return 'Your appeal has been submitted and is waiting for review.';
+        return widget.labels.text(
+          'account.appeal_pending',
+          'Your appeal has been submitted and is waiting for review.',
+        );
       }
       if (status != null) {
-        return 'Your latest appeal status is $status.';
+        return widget.labels.format(
+          'account.appeal_latest_status',
+          'Your latest appeal status is {status}.',
+          {'status': status},
+        );
       }
-      return 'This account is blocked. You can submit one appeal for review.';
+      return widget.labels.text(
+        'account.blocked_appeal',
+        'This account is blocked. You can submit one appeal for review.',
+      );
     }
-    return 'This account is currently unavailable. Sign out or contact SOUL support if you need help.';
+    return widget.labels.text(
+      'account.unavailable_help',
+      'This account is currently unavailable. Sign out or contact SOUL support if you need help.',
+    );
   }
 }

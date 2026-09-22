@@ -80,7 +80,10 @@ class _DiscoveryFiltersScreenState extends State<DiscoveryFiltersScreen> {
     if (_locationMode == 'selected') {
       final country = _country.text.trim().toUpperCase();
       if (!RegExp(r'^[A-Z]{2}$').hasMatch(country)) {
-        setState(() => _validation = 'Use a 2-letter country code.');
+        setState(() => _validation = widget.labels.text(
+              'profile.validation_country',
+              'Use a 2-letter country code.',
+            ));
         return;
       }
       selected = SelectedDiscoveryLocation(
@@ -167,9 +170,9 @@ class _DiscoveryFiltersScreenState extends State<DiscoveryFiltersScreen> {
                       ),
                       shape: const StadiumBorder(),
                     ),
-                    child: const Text(
-                      'Clear all',
-                      style: TextStyle(fontWeight: FontWeight.w700),
+                    child: Text(
+                      labels.text('common.clear_all', 'Clear all'),
+                      style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
                   ),
                 ],
@@ -179,7 +182,12 @@ class _DiscoveryFiltersScreenState extends State<DiscoveryFiltersScreen> {
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(18, 10, 18, 120),
                 children: [
-                  const _SectionTitle('Basic information'),
+                  _SectionTitle(
+                    labels.text(
+                      'discovery.basic_information',
+                      'Basic information',
+                    ),
+                  ),
                   _FilterCard(
                     children: [
                       _InlineField(
@@ -209,9 +217,9 @@ class _DiscoveryFiltersScreenState extends State<DiscoveryFiltersScreen> {
                         padding: const EdgeInsets.fromLTRB(16, 13, 16, 4),
                         child: Row(
                           children: [
-                            const Text(
-                              'Age',
-                              style: TextStyle(
+                            Text(
+                              widget.labels.text('discovery.age', 'Age'),
+                              style: const TextStyle(
                                 color: SoulColors.ink,
                                 fontWeight: FontWeight.w700,
                               ),
@@ -408,11 +416,14 @@ class _DiscoveryFiltersScreenState extends State<DiscoveryFiltersScreen> {
                       onChanged: (value) =>
                           update(() => _sameCountry = value),
                     ),
-                    const Padding(
-                      padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
                       child: Text(
-                        'Distance',
-                        style: TextStyle(fontWeight: FontWeight.w700),
+                        widget.labels.text(
+                          'discovery.distance',
+                          'Distance',
+                        ),
+                        style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
                     ),
                     DropdownButtonFormField<int?>(
@@ -460,7 +471,10 @@ class _DiscoveryFiltersScreenState extends State<DiscoveryFiltersScreen> {
                           'profile.country',
                           'Country',
                         ),
-                        helperText: '2-letter country code',
+                        helperText: widget.labels.text(
+                          'profile.country_code_hint',
+                          '2-letter country code',
+                        ),
                         counterText: '',
                       ),
                       onChanged: (_) => setSheetState(() {}),

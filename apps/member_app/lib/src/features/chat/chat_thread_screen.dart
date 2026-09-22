@@ -139,7 +139,10 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
     } on SoulApiFailure catch (failure) {
       if (!mounted) return;
       if (failure.statusCode == 404) {
-        setState(() => _error = 'This match is no longer available.');
+        setState(() => _error = widget.labels.text(
+              'chat.match_unavailable',
+              'This match is no longer available.',
+            ));
       }
     } finally {
       _refreshing = false;
@@ -322,7 +325,11 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
           widget.labels.text('matches.unmatch', 'Unmatch'),
         ),
         content: Text(
-          'Your conversation with ${widget.match.firstName} will be removed, and private photo access will be revoked.',
+          widget.labels.format(
+            'chat.unmatch_explainer',
+            'Your conversation with {name} will be removed, and private photo access will be revoked.',
+            {'name': widget.match.firstName},
+          ),
         ),
         actions: [
           TextButton(

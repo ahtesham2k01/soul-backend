@@ -93,7 +93,15 @@ class _PrivatePhotoAccessScreenState extends State<PrivatePhotoAccessScreen> {
       builder: (context) => AlertDialog(
         title: Text(widget.labels.text('private_photos.revoke_confirm', 'Revoke private photo access?')),
         content: Text(
-          '${item.firstName.isEmpty ? widget.profileName : item.firstName} will no longer be able to view your current private photos.',
+          widget.labels.format(
+            'private_photos.revoke_explainer',
+            '{name} will no longer be able to view your current private photos.',
+            {
+              'name': item.firstName.isEmpty
+                  ? widget.profileName
+                  : item.firstName,
+            },
+          ),
         ),
         actions: [
           TextButton(
@@ -215,7 +223,9 @@ class _RequestCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final name = item.firstName.isEmpty ? 'Match' : item.firstName;
+    final name = item.firstName.isEmpty
+        ? widget.labels.text('matches.match', 'Match')
+        : item.firstName;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(

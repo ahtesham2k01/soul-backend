@@ -74,7 +74,7 @@ class _DiscoveryProfileScreenState extends State<DiscoveryProfileScreen> {
             'profile.intention_casual',
             'Casual dating',
           ),
-        _ => value.replaceAll('_', ' '),
+        _ => widget.labels.text('common.not_available', 'Not available'),
       };
 
   Future<void> _safety() async {
@@ -111,7 +111,11 @@ class _DiscoveryProfileScreenState extends State<DiscoveryProfileScreen> {
           ? const Center(child: CircularProgressIndicator())
           : profile == null
               ? _ErrorState(
-                  message: _error ?? 'Profile unavailable.',
+                  message: _error ??
+                       labels.text(
+                         'discovery.profile_unavailable',
+                         'Profile unavailable.',
+                       ),
                   retryLabel: labels.text('common.retry', 'Try again'),
                   onRetry: _load,
                 )

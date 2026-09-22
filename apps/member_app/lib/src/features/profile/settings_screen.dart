@@ -232,8 +232,14 @@ class SettingsScreen extends StatelessWidget {
         ),
         content: Text(
           allDevices
-              ? 'Every SOUL session on your devices will be signed out.'
-              : 'You will be signed out on this device.',
+              ? labels.text(
+                  'settings.logout_all_explainer',
+                  'Every SOUL session on your devices will be signed out.',
+                )
+              : labels.text(
+                  'settings.logout_current_explainer',
+                  'You will be signed out on this device.',
+                ),
         ),
         actions: [
           TextButton(
@@ -412,7 +418,10 @@ class _NotificationSettingsScreenState
             : _settings == null
                 ? _Retry(
                     labels: widget.labels,
-                    message: _error ?? 'Notifications are unavailable.',
+                    message: _error ?? widget.labels.text(
+                      'settings.notifications_unavailable',
+                      'Notifications are unavailable.',
+                    ),
                     onRetry: _load,
                   )
                 : ListView(
@@ -444,21 +453,30 @@ class _NotificationSettingsScreenState
                             ),
                           ),
                           _switch(
-                            'Private photos',
+                            widget.labels.text(
+                              'notifications.private_photos',
+                              'Private photos',
+                            ),
                             _settings!.pushPrivatePhotos,
                             (value) => _settings = _settings!.copyWith(
                               pushPrivatePhotos: value,
                             ),
                           ),
                           _switch(
-                            'Verification',
+                            widget.labels.text(
+                              'verification.title',
+                              'Verification',
+                            ),
                             _settings!.pushVerification,
                             (value) => _settings = _settings!.copyWith(
                               pushVerification: value,
                             ),
                           ),
                           _switch(
-                            'Account updates',
+                            widget.labels.text(
+                              'notifications.account_updates',
+                              'Account updates',
+                            ),
                             _settings!.pushAccount,
                             (value) => _settings = _settings!.copyWith(
                               pushAccount: value,
@@ -481,8 +499,11 @@ class _NotificationSettingsScreenState
                             'Safety updates',
                               ),
                             ),
-                            subtitle: const Text(
-                              'Always on for important safety notices.',
+                            subtitle: Text(
+                              widget.labels.text(
+                                'notifications.safety_always_on',
+                                'Always on for important safety notices.',
+                              ),
                             ),
                             trailing: const Icon(Icons.lock_outline_rounded),
                           ),
@@ -512,21 +533,30 @@ class _NotificationSettingsScreenState
                             ),
                           ),
                           _switch(
-                            'Private photos',
+                            widget.labels.text(
+                              'notifications.private_photos',
+                              'Private photos',
+                            ),
                             _settings!.emailPrivatePhotos,
                             (value) => _settings = _settings!.copyWith(
                               emailPrivatePhotos: value,
                             ),
                           ),
                           _switch(
-                            'Verification',
+                            widget.labels.text(
+                              'verification.title',
+                              'Verification',
+                            ),
                             _settings!.emailVerification,
                             (value) => _settings = _settings!.copyWith(
                               emailVerification: value,
                             ),
                           ),
                           _switch(
-                            'Account updates',
+                            widget.labels.text(
+                              'notifications.account_updates',
+                              'Account updates',
+                            ),
                             _settings!.emailAccount,
                             (value) => _settings = _settings!.copyWith(
                               emailAccount: value,
@@ -549,8 +579,11 @@ class _NotificationSettingsScreenState
                             'Safety updates',
                               ),
                             ),
-                            subtitle: const Text(
-                              'Always on for important safety notices.',
+                            subtitle: Text(
+                              widget.labels.text(
+                                'notifications.safety_always_on',
+                                'Always on for important safety notices.',
+                              ),
                             ),
                             trailing: const Icon(Icons.lock_outline_rounded),
                           ),
@@ -662,7 +695,10 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
             : _settings == null
                 ? _Retry(
                     labels: widget.labels,
-                    message: _error ?? 'Privacy settings are unavailable.',
+                    message: _error ?? widget.labels.text(
+                      'settings.privacy_unavailable',
+                      'Privacy settings are unavailable.',
+                    ),
                     onRetry: _load,
                   )
                 : ListView(
@@ -674,29 +710,47 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
                         title: widget.labels.text('settings.profile_visibility', 'Profile visibility'),
                         children: [
                           _privacySwitch(
-                            'Discoverable',
-                            'Allow your profile to appear in discovery.',
+                            widget.labels.text(
+                              'settings.discoverable',
+                              'Discoverable',
+                            ),
+                            widget.labels.text(
+                              'settings.discoverable_subtitle',
+                              'Allow your profile to appear in discovery.',
+                            ),
                             _settings!.discoverable,
                             (value) => _settings =
                                 _settings!.copyWith(discoverable: value),
                           ),
                           _privacySwitch(
-                            'Incognito',
-                            'Only people you have liked can discover you.',
+                            widget.labels.text('settings.incognito', 'Incognito'),
+                            widget.labels.text(
+                              'settings.incognito_subtitle',
+                              'Only people you have liked can discover you.',
+                            ),
                             _settings!.incognito,
                             (value) =>
                                 _settings = _settings!.copyWith(incognito: value),
                           ),
                           _privacySwitch(
-                            'Pause profile',
-                            'Temporarily stop appearing in discovery.',
+                            widget.labels.text(
+                              'settings.pause_profile',
+                              'Pause profile',
+                            ),
+                            widget.labels.text(
+                              'settings.pause_profile_subtitle',
+                              'Temporarily stop appearing in discovery.',
+                            ),
                             _settings!.profilePaused,
                             (value) => _settings =
                                 _settings!.copyWith(profilePaused: value),
                           ),
                           _privacySwitch(
-                            'Show city',
-                            'Show your city, never your precise coordinates.',
+                            widget.labels.text('settings.show_city', 'Show city'),
+                            widget.labels.text(
+                              'settings.show_city_subtitle',
+                              'Show your city, never your precise coordinates.',
+                            ),
                             _settings!.showCity,
                             (value) =>
                                 _settings = _settings!.copyWith(showCity: value),
@@ -707,8 +761,14 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
                         title: widget.labels.text('settings.contact_privacy', 'Contact privacy'),
                         children: [
                           _privacySwitch(
-                            'Hide phone contacts',
-                            'Hide profiles that match contacts you upload for privacy filtering.',
+                            widget.labels.text(
+                              'settings.hide_contacts',
+                              'Hide phone contacts',
+                            ),
+                            widget.labels.text(
+                              'settings.hide_contacts_subtitle',
+                              'Hide profiles that match contacts you upload for privacy filtering.',
+                            ),
                             _settings!.hideContacts,
                             (value) => _settings =
                                 _settings!.copyWith(hideContacts: value),
@@ -719,8 +779,14 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
                         title: widget.labels.text('settings.private_photos', 'Private photos'),
                         children: [
                           _privacySwitch(
-                            'Screenshot protection',
-                            'Use the maximum protection available on supported devices.',
+                            widget.labels.text(
+                              'settings.screenshot_protection',
+                              'Screenshot protection',
+                            ),
+                            widget.labels.text(
+                              'settings.screenshot_protection_subtitle',
+                              'Use the maximum protection available on supported devices.',
+                            ),
                             _settings!.screenshotProtectionEnabled,
                             (value) => _settings = _settings!.copyWith(
                               screenshotProtectionEnabled: value,
@@ -733,8 +799,11 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
                                 'Read receipts',
                               ),
                             ),
-                            subtitle: const Text(
-                              'Read receipts remain enabled for all chats.',
+                            subtitle: Text(
+                              widget.labels.text(
+                                'settings.read_receipts_locked',
+                                'Read receipts remain enabled for all chats.',
+                              ),
                             ),
                             trailing: const Icon(Icons.lock_outline_rounded),
                           ),
@@ -1261,15 +1330,23 @@ class _DataExportScreenState extends State<DataExportScreen> {
             : ListView(
                 padding: const EdgeInsets.fromLTRB(18, 12, 18, 30),
                 children: [
-                  const Text(
-                    'SOUL prepares a private export in the background. Completed exports expire for your security.',
+                  Text(
+                    widget.labels.text(
+                      'settings.export_explainer',
+                      'SOUL prepares a private export in the background. Completed exports expire for your security.',
+                    ),
                   ),
                   const SizedBox(height: 16),
                   FilledButton.icon(
                     onPressed: _requesting ? null : _request,
                     icon: const Icon(Icons.download_rounded),
                     label: Text(
-                      _requesting ? 'Requesting…' : 'Request new export',
+                      _requesting
+                          ? widget.labels.text('common.requesting', 'Requesting…')
+                          : widget.labels.text(
+                              'settings.request_export',
+                              'Request new export',
+                            ),
                     ),
                   ),
                   if (_error != null) ...[
@@ -1281,11 +1358,22 @@ class _DataExportScreenState extends State<DataExportScreen> {
                     Card(
                       child: ListTile(
                         leading: const Icon(Icons.description_outlined),
-                        title: Text(item.status),
+                        title: Text(
+                          widget.labels.text(
+                            'settings.data_export',
+                            'Data export',
+                          ),
+                        ),
                         subtitle: Text(
                           item.downloadAvailable
-                              ? 'Ready to download'
-                              : 'Export is being prepared',
+                              ? widget.labels.text(
+                                  'settings.export_ready',
+                                  'Ready to download',
+                                )
+                              : widget.labels.text(
+                                  'settings.export_preparing',
+                                  'Export is being prepared',
+                                ),
                         ),
                         trailing: item.downloadAvailable
                             ? const Icon(Icons.check_circle_outline_rounded)
@@ -1336,7 +1424,10 @@ class _MembershipScreenState extends State<MembershipScreen> {
       onError: (_) {
         if (mounted) {
           setState(() {
-            _storeMessage = 'The store could not complete this request.';
+            _storeMessage = widget.labels.text(
+              'subscription.store_request_failed',
+              'The store could not complete this request.',
+            );
             _pendingProducts = const {};
           });
         }
@@ -1370,10 +1461,15 @@ class _MembershipScreenState extends State<MembershipScreen> {
           for (final detail in response.productDetails) detail.id: detail,
         };
         if (response.error != null) {
-          storeMessage = response.error!.message;
+          storeMessage = widget.labels.text(
+            'subscription.store_request_failed',
+            'The store could not complete this request.',
+          );
         } else if (response.notFoundIDs.isNotEmpty) {
-          storeMessage =
-              'Some membership options are not configured in this store yet.';
+          storeMessage = widget.labels.text(
+            'subscription.options_not_configured',
+            'Some membership options are not configured in this store yet.',
+          );
         }
       }
 
@@ -1399,8 +1495,10 @@ class _MembershipScreenState extends State<MembershipScreen> {
   Future<void> _buy(SubscriptionProduct product) async {
     final details = _storeProducts[product.productId];
     if (details == null) {
-      setState(() => _storeMessage =
-          'This membership is not available from your platform store right now.');
+      setState(() => _storeMessage = widget.labels.text(
+          'subscription.platform_unavailable',
+          'This membership is not available from your platform store right now.',
+        ));
       return;
     }
 
@@ -1416,14 +1514,20 @@ class _MembershipScreenState extends State<MembershipScreen> {
       if (!started && mounted) {
         setState(() {
           _pendingProducts = {..._pendingProducts}..remove(product.productId);
-          _storeMessage = 'The store did not start the purchase.';
+          _storeMessage = widget.labels.text(
+            'subscription.purchase_not_started',
+            'The store did not start the purchase.',
+          );
         });
       }
     } catch (_) {
       if (!mounted) return;
       setState(() {
         _pendingProducts = {..._pendingProducts}..remove(product.productId);
-        _storeMessage = 'The store could not start the purchase.';
+        _storeMessage = widget.labels.text(
+          'subscription.purchase_start_failed',
+          'The store could not start the purchase.',
+        );
       });
     }
   }
@@ -1438,13 +1542,18 @@ class _MembershipScreenState extends State<MembershipScreen> {
       await _store.restorePurchases();
       if (mounted) {
         setState(() {
-          _storeMessage =
-              'Restore requested. SOUL will verify any store purchases returned.';
+          _storeMessage = widget.labels.text(
+            'subscription.restore_requested',
+            'Restore requested. SOUL will verify any store purchases returned.',
+          );
         });
       }
     } catch (_) {
       if (mounted) {
-        setState(() => _storeMessage = 'Purchases could not be restored.');
+        setState(() => _storeMessage = widget.labels.text(
+              'subscription.restore_failed',
+              'Purchases could not be restored.',
+            ));
       }
     } finally {
       if (mounted) setState(() => _restoring = false);
@@ -1468,8 +1577,10 @@ class _MembershipScreenState extends State<MembershipScreen> {
           setState(() {
             _pendingProducts = {..._pendingProducts}
               ..remove(purchase.productID);
-            _storeMessage = purchase.error?.message ??
-                'The purchase was cancelled or could not be completed.';
+            _storeMessage = widget.labels.text(
+              'subscription.purchase_cancelled',
+              'The purchase was cancelled or could not be completed.',
+            );
           });
         }
         continue;
@@ -1488,8 +1599,10 @@ class _MembershipScreenState extends State<MembershipScreen> {
           setState(() {
             _pendingProducts = {..._pendingProducts}
               ..remove(purchase.productID);
-            _storeMessage =
-                'The store did not return a verifiable transaction.';
+            _storeMessage = widget.labels.text(
+              'subscription.transaction_unverifiable',
+              'The store did not return a verifiable transaction.',
+            );
           });
         }
         continue;
@@ -1512,8 +1625,14 @@ class _MembershipScreenState extends State<MembershipScreen> {
             ..remove(purchase.productID);
           _capabilities = capabilities;
           _storeMessage = verified.status == 'active'
-              ? 'Membership is active on your SOUL account.'
-              : 'The store transaction was verified.';
+              ? widget.labels.text(
+                  'subscription.active',
+                  'Membership is active on your SOUL account.',
+                )
+              : widget.labels.text(
+                  'subscription.verified',
+                  'The store transaction was verified.',
+                );
         });
       } on SoulApiFailure catch (failure) {
         if (!mounted) return;
@@ -1549,9 +1668,12 @@ class _MembershipScreenState extends State<MembershipScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'SOUL Membership',
-                              style: TextStyle(
+                            Text(
+                              widget.labels.text(
+                                'subscription.title',
+                                'SOUL Membership',
+                              ),
+                              style: const TextStyle(
                                 color: SoulColors.ink,
                                 fontSize: 23,
                                 fontWeight: FontWeight.w900,
@@ -1560,8 +1682,14 @@ class _MembershipScreenState extends State<MembershipScreen> {
                             const SizedBox(height: 6),
                             Text(
                               _capabilities.isEmpty
-                                  ? 'Your account is using the standard feature set.'
-                                  : 'Your current account capabilities are active.',
+                                  ? widget.labels.text(
+                                      'subscription.standard_features',
+                                      'Your account is using the standard feature set.',
+                                    )
+                                  : widget.labels.text(
+                                      'subscription.active_capabilities',
+                                      'Your current account capabilities are active.',
+                                    ),
                             ),
                           ],
                         ),
@@ -1594,7 +1722,11 @@ class _MembershipScreenState extends State<MembershipScreen> {
                                 if (product.trialDays > 0) ...[
                                   const SizedBox(height: 8),
                                   Text(
-                                    '${product.trialDays}-day free trial',
+                                    widget.labels.format(
+                                      'subscription.trial_days',
+                                      '{count}-day free trial',
+                                      {'count': product.trialDays.toString()},
+                                    ),
                                     style: const TextStyle(
                                       color: SoulColors.forest,
                                       fontWeight: FontWeight.w700,
@@ -1623,8 +1755,14 @@ class _MembershipScreenState extends State<MembershipScreen> {
                                       child: Text(
                                         _pendingProducts
                                                 .contains(product.productId)
-                                            ? 'Waiting for store…'
-                                            : 'Continue with store',
+                                            ? widget.labels.text(
+                                                'subscription.waiting_store',
+                                                'Waiting for store…',
+                                              )
+                                            : widget.labels.text(
+                                                'subscription.continue_store',
+                                                'Continue with store',
+                                              ),
                                       ),
                                     ),
                                   ),
@@ -1634,10 +1772,13 @@ class _MembershipScreenState extends State<MembershipScreen> {
                           ),
                         ),
                       if (_products.isEmpty)
-                        const Padding(
-                          padding: EdgeInsets.all(20),
+                        Padding(
+                          padding: const EdgeInsets.all(20),
                           child: Text(
-                            'No store products are available for this account and region right now.',
+                            widget.labels.text(
+                              'subscription.no_products',
+                              'No store products are available for this account and region right now.',
+                            ),
                             textAlign: TextAlign.center,
                           ),
                         ),
@@ -1647,13 +1788,24 @@ class _MembershipScreenState extends State<MembershipScreen> {
                             _storeAvailable && !_restoring ? _restore : null,
                         icon: const Icon(Icons.restore_rounded),
                         label: Text(
-                          _restoring ? 'Restoring…' : 'Restore purchases',
+                          _restoring
+                              ? widget.labels.text(
+                                  'subscription.restoring',
+                                  'Restoring…',
+                                )
+                              : widget.labels.text(
+                                  'subscription.restore',
+                                  'Restore purchases',
+                                ),
                         ),
                       ),
                       const SizedBox(height: 12),
-                      const Text(
-                        'Apple or Google processes payment. SOUL activates membership only after the server verifies the store transaction.',
-                        style: TextStyle(
+                      Text(
+                        widget.labels.text(
+                          'subscription.payment_explainer',
+                          'Apple or Google processes payment. SOUL activates membership only after the server verifies the store transaction.',
+                        ),
+                        style: const TextStyle(
                           color: SoulColors.muted,
                           fontSize: 12,
                         ),

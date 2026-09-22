@@ -200,8 +200,16 @@ class _PrivatePhotoViewerScreenState extends State<PrivatePhotoViewerScreen> {
                 'Private photo access required',
               ),
         message: _requestPending
-            ? 'You can view these photos after ${widget.profileName} approves your request.'
-            : 'Ask ${widget.profileName} for permission to view private photos.',
+            ? widget.labels.format(
+                'private_photos.pending_access_message',
+                'You can view these photos after {name} approves your request.',
+                {'name': widget.profileName},
+              )
+            : widget.labels.format(
+                'private_photos.request_access_message',
+                'Ask {name} for permission to view private photos.',
+                {'name': widget.profileName},
+              ),
         action: _requestPending
             ? widget.labels.text('common.retry', 'Try again')
             : widget.labels.text(
@@ -218,7 +226,11 @@ class _PrivatePhotoViewerScreenState extends State<PrivatePhotoViewerScreen> {
       return _ViewerState(
         icon: Icons.photo_outlined,
         title: widget.labels.text('private_photos.no_photos', 'No private photos'),
-        message: '${widget.profileName} has no approved private photos to show.',
+        message: widget.labels.format(
+          'private_photos.no_approved',
+          '{name} has no approved private photos to show.',
+          {'name': widget.profileName},
+        ),
         action: widget.labels.text('common.done', 'Done'),
         onAction: () => Navigator.of(context).pop(),
       );

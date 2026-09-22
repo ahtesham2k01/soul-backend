@@ -186,7 +186,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
               ),
             ),
             action: SnackBarAction(
-              label: 'Undo',
+              label: widget.labels.text('common.undo', 'Undo'),
               onPressed: () async {
                 try {
                   await widget.repository.withdrawLike(candidate.id);
@@ -260,7 +260,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
             'profile.intention_casual',
             'Casual dating',
           ),
-        _ => value.replaceAll('_', ' '),
+        _ => widget.labels.text('common.not_available', 'Not available'),
       };
 
   String? _distanceLabel(String? key) {
@@ -414,7 +414,10 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                     const SizedBox(height: 10),
                     _CircleAction(
                       icon: Icons.more_horiz_rounded,
-                      semanticLabel: 'Safety options',
+                      semanticLabel: widget.labels.text(
+                        'chat.safety_options',
+                        'Safety options',
+                      ),
                       onPressed:
                           _savingDecision ? null : () => _safety(candidate),
                     ),

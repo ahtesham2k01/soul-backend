@@ -134,7 +134,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (raw == null || raw.isEmpty) return '—';
     return widget.labels.text(
       '$key.$raw',
-      raw.replaceAll('_', ' '),
+      widget.labels.text('common.not_available', 'Not available'),
     );
   }
 
@@ -187,7 +187,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 'profile.intention_casual',
                 'Casual dating',
               ),
-            _ => value.replaceAll('_', ' '),
+            _ => widget.labels.text('common.not_available', 'Not available'),
           },
         )
         .join(' · ');
@@ -422,7 +422,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   _ProfileValue(
                     icon: Icons.short_text_rounded,
                     label: widget.labels.text('profile.bio', 'About you'),
-                    value: _profile['bio']?.toString() ?? 'Add a bio',
+                    value: _profile['bio']?.toString() ??
+                        widget.labels.text('profile.add_bio', 'Add a bio'),
                   ),
                   _ProfileValue(
                     icon: Icons.location_on_outlined,
@@ -709,8 +710,14 @@ class _ProfileHero extends StatelessWidget {
                       const SizedBox(height: 3),
                       Text(
                         status.isEmpty
-                            ? 'Profile'
-                            : status.replaceAll('_', ' '),
+                            ? labels.text('nav.profile', 'Profile')
+                            : labels.text(
+                                'profile.status.$status',
+                                labels.text(
+                                  'common.not_available',
+                                  'Not available',
+                                ),
+                              ),
                         style: const TextStyle(color: SoulColors.muted),
                       ),
                     ],
