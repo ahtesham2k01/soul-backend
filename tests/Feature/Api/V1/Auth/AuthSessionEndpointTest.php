@@ -293,6 +293,35 @@ class AuthSessionEndpointTest extends TestCase
         );
     }
 
+    public function test_logout_all_removes_linked_push_devices(): void
+    {
+        $user = User::factory()->create([
+            'status' => User::STATUS_ACTIVE,
+        ]);
+
+        $token = $user->createToken(
+            'Current Android',
+            ['mobile'],
+            now()->addDays(90),
+        );
+
+        $user->devices()->create([
+            'personal_access_token_id' => $token->accessToken->id,
+            'platform' => 'android',
+            'push_token' => 'logout-all-push-token',
+            'token_hash' => hash('sha256', 'logout-all-push-token'),
+            'device_name' => 'Current Android',
+            'last_seen_at' => now(),
+        ]);
+
+        $this->withToken($token->plainTextToken)
+            ->postJson('/api/v1/auth/logout-all')
+            ->assertOk();
+
+        $this->assertDatabaseCount('personal_access_tokens', 0);
+        $this->assertDatabaseCount('user_devices', 0);
+    }
+
     public function test_user_can_list_active_device_sessions_with_current_device_marked(): void
     {
         $user = User::factory()->create(['status' => User::STATUS_ACTIVE]);

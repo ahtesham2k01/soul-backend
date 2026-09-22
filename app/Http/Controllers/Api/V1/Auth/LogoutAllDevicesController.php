@@ -12,10 +12,10 @@ class LogoutAllDevicesController extends Controller
     public function __invoke(
         Request $request,
     ): JsonResponse {
-        $request
-            ->user()
-            ->tokens()
-            ->delete();
+        $user = $request->user();
+
+        $user->devices()->delete();
+        $user->tokens()->delete();
 
         return ApiResponse::success(
             data: null,

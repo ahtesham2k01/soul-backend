@@ -619,7 +619,12 @@ class ProfileRepository {
       'auth/devices/${Uri.encodeComponent(sessionId)}',
     );
     final wasCurrent = data['was_current'] == true;
-    if (wasCurrent) await _sessions.clear();
+    if (wasCurrent) {
+      await Future.wait([
+        _sessions.clear(),
+        _sessions.clearPushDeviceId(),
+      ]);
+    }
     return wasCurrent;
   }
 
@@ -680,24 +685,18 @@ class ProfileRepository {
   }
 
   Future<void> logout({bool allDevices = false}) async {
-    await _revokePushDevice();
-    await _api.post(allDevices ? 'auth/logout-all' : 'auth/logout');
+    try {
+      await _api.post(allDevices ? 'auth/logout-all' : 'auth/logout');
+    } on SoulApiFailure catch (failure) {
+      if (failure.statusCode != 401) rethrow;
+      // A 401 means this session is already invalid server-side. Treat that
+      // as a successful local logout instead of trapping the member in-app.
+    }
+
     await Future.wait([
       _sessions.clear(),
       _sessions.clearPushDeviceId(),
     ]);
-  }
-
-  Future<void> _revokePushDevice() async {
-    final deviceId = await _sessions.readPushDeviceId();
-    if (deviceId == null || deviceId.isEmpty) return;
-    try {
-      await _api.delete('devices/${Uri.encodeComponent(deviceId)}');
-    } on SoulApiFailure {
-      // Logout still clears the local authenticated session.
-    } finally {
-      await _sessions.clearPushDeviceId();
-    }
   }
 
   Future<void> saveLocale(String locale) async {
