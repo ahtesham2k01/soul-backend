@@ -371,6 +371,189 @@ Supporting modules include filters, full profiles, likes/visitors, matches/chat,
 - Taxonomy and catalog labels are multilingual and admin-configurable.
 - Privacy and safety defaults take priority over monetization.
 
+### 24. Premium product experience standard
+
+SOUL Version 1 is not complete merely because a flow works. The member app must feel like a polished international consumer product. A feature is considered complete only when its functionality, visual presentation, interaction quality, performance, error handling, accessibility, localization and safety states are all production-grade.
+
+The target is not to copy Muzz, Bumble, Tinder or another competitor. Competitors are quality references only. SOUL must keep its own identity, visual language, product rules and cultural/religious positioning.
+
+#### 24.1 Design-system consistency
+
+- Flutter must use a shared design-token system for color, typography, spacing, corner radius, elevation, icon sizing, control heights and motion values rather than screen-local magic numbers.
+- The existing SOUL lime/forest direction is the current visual reference, but final tokens must remain centrally changeable without rebuilding every screen.
+- Reusable controls such as buttons, text fields, chips, cards, dialogs, sheets, list rows, navigation elements, badges and empty states must come from shared components.
+- The same action must not change shape, label hierarchy, spacing or interaction behavior arbitrarily between screens.
+- Typography must have a documented hierarchy for display, title, body, caption, helper, error and button text.
+- Screen density must stay calm and readable. Avoid clutter, excessive borders, unnecessary dividers and visually competing calls to action.
+- Dark mode is not required for Version 1 unless separately approved. If introduced, it must be complete across the whole member app rather than a partial or experimental theme.
+
+#### 24.2 Motion and micro-interactions
+
+- Navigation, dialogs, bottom sheets, state changes, Like/Pass feedback, match creation, verification success, profile completion and purchase success should use subtle motion where it improves comprehension or delight.
+- Motion must never delay the user's next action or make routine navigation feel theatrical.
+- Shared motion durations/easing must be tokenized; avoid unrelated animation timings on different screens.
+- The app must respect the operating system's reduced-motion/accessibility setting. Decorative movement should be removed or simplified when reduced motion is enabled.
+- Repeated/continuous animations must pause when off-screen and must not waste battery or GPU time.
+- Match/success moments may be celebratory but must stay tasteful and fast enough that the user can continue immediately.
+
+#### 24.3 Haptic feedback
+
+- Haptics should be deliberate and platform-appropriate, not attached to every tap.
+- Suitable moments include decisive Like/Pass actions, successful match creation, important confirmations and destructive-action warnings where native conventions support them.
+- Repeated scrolling, typing, ordinary tab navigation and passive state changes should not create noisy vibration.
+- Haptic behavior must degrade safely on devices that do not support the requested feedback.
+
+#### 24.4 Perceived performance and smoothness
+
+- The app should target smooth 60 fps interaction on the supported baseline device class, with no sustained jank during discovery swipes, scrolling, navigation, chat, profile editing or image viewing.
+- Expensive work must not block the Flutter UI thread.
+- Candidate images should use appropriately sized CDN variants and prefetch the next likely profile/photo when network and memory conditions permit.
+- Previously viewed safe public media may use bounded cache behavior; private media remains governed by the stricter private-photo contract and must not be persisted beyond the authorized grant.
+- Use skeleton/content placeholders for structured content when useful instead of flashing blank screens or full-screen spinners.
+- Short operations should not flash a loader unnecessarily; long operations must always communicate progress or state.
+- Pagination must load before the user reaches a hard visual stop where practical.
+- Optimistic UI is allowed only where rollback is safe and Laravel remains authoritative.
+- Network retries must be bounded and idempotent; a retry must not duplicate Likes, messages, purchases, reports or other side effects.
+- Cold launch, authenticated resume and main navigation should render the last safe/local shell quickly while authoritative server state refreshes.
+
+#### 24.5 Loading, empty, offline and recovery states
+
+- Every network-backed surface must define loading, empty, retry and failure states.
+- Contextual empty states must explain what the user can do next rather than showing a dead-end message.
+- Discovery exhaustion should offer useful actions such as reviewing filters, widening distance/location or returning later only when those actions are valid for the user's current configuration.
+- Offline behavior must preserve safe local state, never pretend a server write succeeded and clearly show actions waiting for retry.
+- Errors should be actionable and human-readable; raw HTTP codes, exception text and provider messages must never be shown directly to members.
+- Failed forms/uploads should preserve entered data wherever safe so the user does not have to repeat work.
+- A recoverable error must provide a clear retry path; an unrecoverable account/safety state must provide the authoritative correction/support path.
+
+#### 24.6 Input, keyboard, gesture and safe-area polish
+
+- Forms must keep focused fields visible above the keyboard and preserve progress across temporary app backgrounding where safe.
+- Back navigation, swipe-back, Android system back and modal dismissal must not silently discard meaningful unsaved changes.
+- Bottom sheets, dialogs and menus must respect safe areas, display cutouts, gesture navigation and small-screen layouts.
+- Tap targets should meet platform accessibility expectations: approximately 44x44 points on iOS and 48x48 logical pixels on Android wherever practical.
+- Buttons must expose disabled, loading, pressed and success/failure states without layout jumping.
+- Destructive actions require clear confirmation when accidental execution would cause meaningful loss.
+
+#### 24.7 Accessibility
+
+- Interactive controls require meaningful semantics/labels for screen readers.
+- Color alone must not communicate required state, error, verification, selection or safety meaning.
+- Text and controls should meet WCAG AA contrast where applicable to mobile UI.
+- Dynamic text/font scaling should not hide critical controls or make primary flows unusable.
+- Focus order must remain logical in LTR and RTL layouts.
+- Reduced motion, high text scaling, screen-reader navigation and contrast must be included in physical-device QA before release.
+
+#### 24.8 Localization and bidirectional visual quality
+
+- A translation being present is not enough; every launch-ready language needs visual review for truncation, wrapping, text expansion, punctuation, font fallback and control alignment.
+- RTL screens must mirror layout where appropriate without mirroring media/content that should keep its natural orientation.
+- No string may be shortened into unnatural language merely to fit a layout when the layout can be fixed instead.
+- Server-provided locale direction remains authoritative. Roman Urdu remains LTR.
+- Localized copy should sound natural and human rather than mechanically translated.
+- Member-facing hard-coded English is not permitted on a launch-ready localized journey except approved brand/product terms.
+
+#### 24.9 Copy and tone
+
+- Member copy must be concise, respectful, calm and human.
+- Avoid robotic labels, developer terminology, shame-based copy, manipulative urgency and unnecessary exclamation marks.
+- Safety, rejection, verification and correction messages must explain the next step without accusing the member beyond the confirmed facts.
+- Subscription copy must clearly distinguish included benefits, limits, trial conditions and renewal behavior.
+- Notification copy should be useful rather than click-baiting or repeatedly manufacturing urgency.
+
+#### 24.10 Trust, safety and privacy presentation
+
+- Verification and privacy controls must be easy to understand, not buried behind ambiguous icons.
+- Sensitive permissions must be requested in context after explaining why they improve the experience; denial must preserve a usable alternative where the product contract allows it.
+- Exact location, private-photo access, contact hiding, incognito, account deletion and safety controls must never be presented in a misleading way.
+- Fake-profile, scam, harassment, nudity/sexual-content and underage reporting paths must stay reachable from the relevant member surfaces.
+- Safety and privacy controls may never be visually degraded to make paid features more prominent.
+- Private or security-sensitive values must not appear in screenshots, analytics payloads, logs, crash reports or debug overlays.
+
+#### 24.11 Profile and discovery quality
+
+- Discovery cards must prioritize the member's photos and the small set of attributes needed for a confident first decision; secondary detail belongs on the full profile.
+- Profile screens should encourage useful completion without turning the experience into a long form or score-chasing game.
+- Low-quality, rejected, pending or unavailable media must have intentional placeholders and guidance rather than broken-image chrome.
+- Filters should expose only supported, useful choices and must not create the impression that a deferred criterion affects matching when Laravel does not use it.
+- No-results experiences should help the member understand which active filters can safely be relaxed.
+- Matching/discovery presentation must never expose exact coordinates or create a live-location tracking impression.
+
+#### 24.12 Chat quality
+
+- Chat must remain responsive with stable scroll position, correct unread/read state, clear send/retry state and no duplicate visible messages.
+- The composer must handle keyboard opening/closing, multiline text, emoji and safe-area changes without covering messages or controls.
+- Presence and typing are helpful signals, not blocking dependencies; temporary real-time transport failure must not make the conversation unusable.
+- Version 1 remains text/emoji only. Chat photos, voice notes, audio calls and video calls are intentionally deferred.
+- Chaperone/guardian functionality is intentionally deferred from Version 1.
+
+#### 24.13 Subscription and paywall restraint
+
+- The member should experience product value before being repeatedly asked to pay.
+- Paywalls must appear at understandable entitlement boundaries, not after arbitrary navigation taps.
+- Dismissing a paywall must return the member to a sensible previous state without punishment loops.
+- Free safety, privacy, blocking, reporting, deletion and appeals must never be obscured by monetization.
+- Store price/period/trial text comes from the server/store contract and must never be faked with illustrative Figma values.
+- No dark-pattern countdowns, fake scarcity, preselected expensive plans or misleading close controls are allowed.
+
+#### 24.14 Emotional quality and delight
+
+- High-value moments such as completing a profile, becoming verified, receiving a mutual match or completing a legitimate subscription purchase should feel distinct and rewarding.
+- Delight must come from polish, clarity and tasteful feedback rather than casino-like effects, confetti everywhere or manipulative streak mechanics.
+- Empty, paused, correction and safety states still need intentional visual design; premium quality does not apply only to the happy path.
+
+#### 24.15 Reliability and state consistency
+
+- The same server state must render consistently after app restart, deep link, background/resume and navigation between tabs.
+- Likes, matches, message state, verification state, profile lifecycle, subscription state and privacy settings must not rely on stale client-only truth.
+- Duplicate taps and repeated callbacks must be idempotent where the API contract supports writes.
+- Session expiry must route cleanly to re-authentication without exposing protected cached screens.
+- Crash recovery should restore the safest possible route without bypassing onboarding, legal, subscription or safety gates.
+
+#### 24.16 Analytics and quality telemetry
+
+- Product analytics should measure onboarding completion, discovery engagement, match creation, conversation start, verification completion, subscription conversion, error funnels and retention without collecting unnecessary sensitive profile/message content.
+- Crash, ANR and performance monitoring must redact tokens, OTPs, exact coordinates, message bodies and private-media values.
+- UI-performance regressions, repeated API failures and high-abandonment steps should be observable so polish decisions are based on real member behavior rather than guesswork.
+- Analytics must not be used to weaken consent, privacy or safety rules.
+
+#### 24.17 Feature-completion quality gate
+
+A member-facing feature is not 100% complete until all applicable checks pass:
+
+1. authoritative functionality and authorization;
+2. visual consistency with the SOUL design system;
+3. complete loading, empty, success, error, offline and restricted states;
+4. smooth motion and reduced-motion behavior;
+5. appropriate haptics where useful;
+6. keyboard, gesture, safe-area and small-screen behavior;
+7. image/media optimization and bounded caching;
+8. accessibility semantics, contrast, touch targets and text scaling;
+9. LTR/RTL and launch-language visual quality;
+10. retry, idempotency and app-resume consistency;
+11. privacy/safety review;
+12. analytics/telemetry redaction;
+13. representative widget/integration tests where practical;
+14. physical-device QA for behavior that cannot be proven in source;
+15. product-owner visual review for high-visibility member journeys.
+
+A feature that technically works but visibly feels unfinished, inconsistent, sluggish or confusing remains incomplete.
+
+#### 24.18 Pre-launch premium experience audit
+
+Before public launch, SOUL must receive a dedicated end-to-end premium UX audit covering launch/authentication, onboarding, photos, discovery, full profile, filters, Likes/Explore, matching, chat, profile/edit, verification, safety/reporting, notifications, subscriptions, events, privacy/settings, account recovery and every meaningful error/empty/restricted state.
+
+The audit may compare current leading matchmaking/dating products as quality references, including Muzz where relevant, but must not copy proprietary layouts, wording, animation, branding or product behavior. The purpose is to catch missing expected quality, not to clone a competitor.
+
+For every useful competitor capability encountered, record one of:
+
+- implemented in SOUL;
+- deliberately different with a documented product reason;
+- intentionally deferred;
+- missing and must be closed before launch.
+
+Version 1 intentionally keeps chat photos, voice notes, audio/video calls and chaperone/guardian functionality deferred. Their absence alone does not fail the Version 1 premium-experience audit.
+
 ---
 
 ## Backend scope and implementation status
@@ -459,6 +642,8 @@ Moderator scope: report/verification review and allowed safety actions. Super-ad
 ### Definition of complete
 
 A phase is checked only when its migrations/models/services, authorized APIs, React administration where applicable, Flutter contract, automated tests, documentation and CI are complete. A local implementation without provider/staging verification is reported separately rather than called production-ready.
+
+For member-facing Flutter work, functional correctness alone is not enough: the applicable Premium product experience standard must also pass before a feature is called 100% complete. Mobile M7 and M8 are final product-quality gates and do not reintroduce capabilities that Version 1 explicitly defers.
 
 ### Post-audit completion roadmap
 
@@ -612,6 +797,8 @@ The Flutter member app is maintained in `apps/member_app`. It consumes only the 
 - [x] Mobile M4 — Matches, cursor-paginated chat, read receipts, presence/typing and protected private-photo viewer
 - [x] Mobile M5 — Profile/edit/settings, safety/report/block/appeal, verification, events, notifications, subscription entry, privacy, account recovery and device-session settings
 - [ ] Mobile M6 — Physical-device/provider verification: live APNs/FCM, Apple/Google purchases, signing/capabilities, accessibility, RTL, capture protection and full device E2E QA
+- [ ] Mobile M7 — Premium UX polish closure: design-token consistency, motion/haptics, perceived performance, loading/empty/offline recovery, keyboard/safe-area behavior, accessibility, localization visual QA, subscription restraint and member-journey visual review
+- [ ] Mobile M8 — Pre-launch product-quality parity audit: compare expected modern matchmaking quality across all V1 journeys, close unexplained gaps and document intentional differences/deferred capabilities without copying competitor design
 
 M1 adds a Linux CI Android debug build. Android and iOS runners are checked in and must not be regenerated over the app directory during normal setup because CI audits their reviewed native permissions and entitlements. iOS signing, APNs, Apple sign-in and store verification require the owner's Apple developer account and a macOS/device verification phase.
 
