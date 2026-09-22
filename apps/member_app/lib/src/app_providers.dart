@@ -3,6 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'core/api_client.dart';
 import 'core/session_store.dart';
+import 'core/translation_cache_store.dart';
 import 'core/push_registration_service.dart';
 import 'features/auth/auth_repository.dart';
 import 'features/auth/native_identity_service.dart';
@@ -21,10 +22,14 @@ final apiClientProvider = Provider<SoulApiClient>(
   (ref) => SoulApiClient(ref.watch(sessionStoreProvider)),
 );
 
+final translationCacheStoreProvider = Provider<TranslationCacheStore>(
+  (_) => TranslationCacheStore(),
+);
+
 final bootstrapProvider = FutureProvider<BootstrapState>(
   (ref) => BootstrapRepository(
     ref.watch(apiClientProvider),
-    ref.watch(sessionStoreProvider),
+    ref.watch(translationCacheStoreProvider),
   ).load(),
 );
 

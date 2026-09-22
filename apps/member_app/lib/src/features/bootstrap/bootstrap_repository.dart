@@ -1,5 +1,5 @@
 import '../../core/api_client.dart';
-import '../../core/session_store.dart';
+import '../../core/translation_cache_store.dart';
 
 class SupportedLanguage {
   const SupportedLanguage({
@@ -93,13 +93,13 @@ class BootstrapState {
 }
 
 class BootstrapRepository {
-  BootstrapRepository(this._api, this._sessions);
+  BootstrapRepository(this._api, this._cache);
 
   final SoulApiClient _api;
-  final SessionStore _sessions;
+  final TranslationCacheStore _cache;
 
   Future<BootstrapState> load() async {
-    final cached = await _sessions.readTranslations();
+    final cached = await _cache.read();
     final data = await _api.get(
       'bootstrap',
       query: {
@@ -131,7 +131,7 @@ class BootstrapRepository {
       );
 
       if (hash.length == 64 && version.isNotEmpty) {
-        await _sessions.saveTranslations(
+        await _cache.write(
           CachedTranslations(
             locale: locale,
             version: version,
