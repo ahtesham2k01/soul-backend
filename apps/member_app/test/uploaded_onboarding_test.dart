@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:soul_member_app/src/prototype/uploaded_onboarding/uploaded_onboarding_app.dart';
-import 'package:soul_member_app/src/prototype/uploaded_onboarding/uploaded_opening_design.dart';
 import 'package:soul_member_app/src/prototype/uploaded_onboarding/uploaded_splash_screen.dart';
 import 'package:soul_member_app/src/prototype/uploaded_onboarding/uploaded_welcome_screen.dart';
 
