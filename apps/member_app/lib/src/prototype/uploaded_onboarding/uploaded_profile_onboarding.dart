@@ -1309,7 +1309,7 @@ class _ChoiceTile extends StatelessWidget {
               duration: MediaQuery.disableAnimationsOf(context)
                   ? Duration.zero
                   : const Duration(milliseconds: 160),
-              minHeight: 54,
+              constraints: const BoxConstraints(minHeight: 54),
               padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 13),
               decoration: BoxDecoration(
                 color: selected ? const Color(0xFFF1F8D9) : Colors.white,
