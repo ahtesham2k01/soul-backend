@@ -160,100 +160,63 @@ class UploadedGlobeIntroScreen extends StatefulWidget {
 }
 
 class _UploadedGlobeIntroScreenState extends State<UploadedGlobeIntroScreen>
-    with TickerProviderStateMixin {
-  late final AnimationController _spinController = AnimationController(
-    vsync: this,
-    duration: OpeningMotion.globeSpin,
-  );
-  late final AnimationController _settleController = AnimationController(
-    vsync: this,
-    duration: OpeningMotion.settlePause,
-  );
-  late final AnimationController _contentController = AnimationController(
-    vsync: this,
-    duration: OpeningMotion.contentReveal,
-  );
-  late final AnimationController _endController = AnimationController(
-    vsync: this,
-    duration: OpeningMotion.finalHold,
-  );
+    with SingleTickerProviderStateMixin {
+  static const double _spinEnd = 1650 / 3250;
+  static const double _revealStart = (1650 + 180) / 3250;
+  static const double _revealEnd = (1650 + 180 + 900) / 3250;
 
-  late final Animation<double> _rotation = Tween<double>(
-    begin: -math.pi * 9,
-    end: 0,
-  ).animate(
-    CurvedAnimation(
-      parent: _spinController,
-      curve: Curves.easeOutCubic,
-    ),
-  );
-  late final Animation<double> _globeScale = Tween<double>(
-    begin: 0.965,
-    end: 1,
-  ).animate(
-    CurvedAnimation(
-      parent: _spinController,
-      curve: Curves.easeOutCubic,
-    ),
-  );
+  late final AnimationController _sequence = AnimationController(
+    vsync: this,
+    duration: OpeningMotion.globeSequence,
+  )..addStatusListener(_handleSequenceStatus);
 
   bool _started = false;
   bool _navigating = false;
+
+  double get _spinProgress {
+    if (_sequence.value >= _spinEnd) return 1;
+    return Curves.easeOutCubic.transform(
+      (_sequence.value / _spinEnd).clamp(0, 1),
+    );
+  }
+
+  double get _revealProgress {
+    if (_sequence.value <= _revealStart) return 0;
+    if (_sequence.value >= _revealEnd) return 1;
+    return ((_sequence.value - _revealStart) /
+            (_revealEnd - _revealStart))
+        .clamp(0, 1);
+  }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_started) return;
     _started = true;
-    unawaited(_runSequence());
+
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
+    if (reduceMotion) {
+      _sequence.value = _revealStart;
+      _sequence.animateTo(
+        1,
+        duration: OpeningMotion.reducedSequence,
+        curve: Curves.easeOut,
+      );
+    } else {
+      _sequence.forward();
+    }
   }
 
-  Future<void> _runSequence() async {
-    final reduceMotion = MediaQuery.disableAnimationsOf(context);
-    try {
-      if (reduceMotion) {
-        _spinController.value = 1;
-        await _settleController
-            .animateTo(
-              1,
-              duration: const Duration(milliseconds: 80),
-              curve: Curves.linear,
-            )
-            .orCancel;
-        await _contentController
-            .animateTo(
-              1,
-              duration: OpeningMotion.reducedReveal,
-              curve: Curves.easeOut,
-            )
-            .orCancel;
-        await _endController
-            .animateTo(
-              1,
-              duration: OpeningMotion.reducedHold,
-              curve: Curves.linear,
-            )
-            .orCancel;
-      } else {
-        await _spinController.forward().orCancel;
-        await _settleController.forward().orCancel;
-        await _contentController.forward().orCancel;
-        await _endController.forward().orCancel;
-      }
-    } on TickerCanceled {
-      return;
+  void _handleSequenceStatus(AnimationStatus status) {
+    if (status == AnimationStatus.completed) {
+      _continue();
     }
-    if (!mounted) return;
-    _continue();
   }
 
   void _skip() {
     if (_navigating || !mounted) return;
     HapticFeedback.selectionClick();
-    _spinController.stop();
-    _settleController.stop();
-    _contentController.value = 1;
-    _endController.stop();
+    _sequence.stop();
     _continue();
   }
 
@@ -281,9 +244,18 @@ class _UploadedGlobeIntroScreenState extends State<UploadedGlobeIntroScreen>
     required double width,
     required double start,
     required String keyName,
-  }) =>
-      AnimatedBuilder(
-        animation: _contentController,
+  }) {
+    final raw = _phase(
+      _revealProgress,
+      start,
+      math.min(start + .26, .70),
+    );
+    final eased = Curves.easeOutBack.transform(raw);
+    return Opacity(
+      key: ValueKey(keyName),
+      opacity: raw.clamp(0, 1),
+      child: Transform.scale(
+        scale: .62 + (.38 * eased),
         child: ExcludeSemantics(
           child: Image.asset(
             asset,
@@ -292,30 +264,15 @@ class _UploadedGlobeIntroScreenState extends State<UploadedGlobeIntroScreen>
             filterQuality: FilterQuality.medium,
           ),
         ),
-        builder: (context, child) {
-          final raw = _phase(
-            _contentController.value,
-            start,
-            math.min(start + .26, .70),
-          );
-          final eased = Curves.easeOutBack.transform(raw);
-          return Opacity(
-            key: ValueKey(keyName),
-            opacity: raw.clamp(0, 1),
-            child: Transform.scale(
-              scale: .62 + (.38 * eased),
-              child: child,
-            ),
-          );
-        },
-      );
+      ),
+    );
+  }
 
   @override
   void dispose() {
-    _spinController.dispose();
-    _settleController.dispose();
-    _contentController.dispose();
-    _endController.dispose();
+    _sequence
+      ..removeStatusListener(_handleSequenceStatus)
+      ..dispose();
     super.dispose();
   }
 
@@ -392,12 +349,13 @@ class _UploadedGlobeIntroScreenState extends State<UploadedGlobeIntroScreen>
                 ),
                 SafeArea(
                   child: AnimatedBuilder(
-                    animation: Listenable.merge([
-                      _spinController,
-                      _contentController,
-                    ]),
+                    animation: _sequence,
                     builder: (context, _) {
-                      final reveal = _contentController.value;
+                      final spin = _spinProgress;
+                      final reveal = _revealProgress;
+                      final angle = -math.pi * 9 * (1 - spin);
+                      final globeScale = .965 + (.035 * spin);
+
                       return Stack(
                         children: [
                           Positioned(
@@ -413,27 +371,23 @@ class _UploadedGlobeIntroScreenState extends State<UploadedGlobeIntroScreen>
                                   children: [
                                     Center(
                                       child: RepaintBoundary(
-                                        child: AnimatedBuilder(
-                                          animation: _spinController,
-                                          child: ExcludeSemantics(
-                                            child: Image.asset(
-                                              '$uploadedOpeningAssetRoot/onboarding/globe.webp',
-                                              width: globeWidth,
-                                              cacheWidth: decodedGlobeWidth,
-                                              filterQuality:
-                                                  FilterQuality.medium,
-                                              gaplessPlayback: true,
-                                            ),
+                                        child: Transform.rotate(
+                                          key: const ValueKey(
+                                            'opening-globe-rotator',
                                           ),
-                                          builder: (context, child) =>
-                                              Transform.rotate(
-                                            key: const ValueKey(
-                                              'opening-globe-rotator',
-                                            ),
-                                            angle: _rotation.value,
-                                            child: Transform.scale(
-                                              scale: _globeScale.value,
-                                              child: child,
+                                          angle: angle,
+                                          child: Transform.scale(
+                                            scale: globeScale,
+                                            child: ExcludeSemantics(
+                                              child: Image.asset(
+                                                '$uploadedOpeningAssetRoot/onboarding/globe.webp',
+                                                width: globeWidth,
+                                                cacheWidth:
+                                                    decodedGlobeWidth,
+                                                filterQuality:
+                                                    FilterQuality.medium,
+                                                gaplessPlayback: true,
+                                              ),
                                             ),
                                           ),
                                         ),

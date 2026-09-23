@@ -15,6 +15,8 @@ abstract final class OpeningMotion {
   static const settlePause = Duration(milliseconds: 180);
   static const contentReveal = Duration(milliseconds: 900);
   static const finalHold = Duration(milliseconds: 520);
+  static const globeSequence = Duration(milliseconds: 3250);
+  static const reducedSequence = Duration(milliseconds: 760);
   static const route = Duration(milliseconds: 360);
   static const reducedReveal = Duration(milliseconds: 300);
   static const reducedHold = Duration(milliseconds: 460);
