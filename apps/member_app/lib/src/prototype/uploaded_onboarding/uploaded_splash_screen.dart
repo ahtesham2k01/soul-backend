@@ -168,6 +168,7 @@ class _UploadedGlobeIntroScreenState extends State<UploadedGlobeIntroScreen>
   late final AnimationController _sequence = AnimationController(
     vsync: this,
     duration: OpeningMotion.globeSequence,
+    animationBehavior: AnimationBehavior.preserve,
   )..addStatusListener(_handleSequenceStatus);
 
   bool _started = false;
@@ -196,11 +197,14 @@ class _UploadedGlobeIntroScreenState extends State<UploadedGlobeIntroScreen>
 
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
     if (reduceMotion) {
-      _sequence.value = _revealStart;
+      // Reduced motion is a fully settled, already-revealed static frame.
+      // AnimationBehavior.preserve keeps this deliberate hold from being
+      // fast-forwarded by the framework accessibility setting.
+      _sequence.value = _revealEnd;
       _sequence.animateTo(
         1,
-        duration: OpeningMotion.reducedSequence,
-        curve: Curves.easeOut,
+        duration: OpeningMotion.reducedHold,
+        curve: Curves.linear,
       );
     } else {
       _sequence.forward();
