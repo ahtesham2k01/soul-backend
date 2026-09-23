@@ -45,6 +45,12 @@ jobs:
           cmp ../../docs/contracts/soul_v1_api.dart lib/src/generated/soul_v1_api.dart
           cmp ../../docs/contracts/soul_v1_models.dart lib/src/generated/soul_v1_models.dart
 
+      - name: Materialize owner-provided onboarding assets
+        run: |
+          rm -rf assets/uploaded_onboarding
+          mkdir -p assets/uploaded_onboarding
+          unzip -q .prototype_assets/uploaded_onboarding_assets.zip -d assets/uploaded_onboarding
+
       - name: Install dependencies
         run: flutter pub get
 
@@ -60,7 +66,7 @@ jobs:
       - name: Upload Android debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: soul-flutter-prototype-apk
+          name: soul-onboarding-preview-apk
           path: apps/member_app/build/app/outputs/flutter-apk/app-debug.apk
           if-no-files-found: error
           retention-days: 7
@@ -87,6 +93,12 @@ jobs:
         run: |
           node ../../scripts/configure-flutter-platforms.mjs .
           git diff --exit-code -- android ios
+
+      - name: Materialize owner-provided onboarding assets
+        run: |
+          rm -rf assets/uploaded_onboarding
+          mkdir -p assets/uploaded_onboarding
+          unzip -q .prototype_assets/uploaded_onboarding_assets.zip -d assets/uploaded_onboarding
 
       - name: Install dependencies
         run: flutter pub get

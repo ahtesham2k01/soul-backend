@@ -2,7 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'src/app.dart';
-import 'src/prototype/prototype_app.dart';
+import 'src/prototype/uploaded_onboarding/uploaded_onboarding_app.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,7 +12,7 @@ void main() {
   );
   runApp(
     prototypeMode
-        ? const SoulPrototypeApp()
+        ? const SoulOnboardingPreviewApp()
         : const ProviderScope(child: SoulApp()),
   );
 }

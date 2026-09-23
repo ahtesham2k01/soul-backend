@@ -19,6 +19,9 @@ The member app lives in `apps/member_app`.
 
 ## Backend-free design prototype mode
 
+The current review APK is intentionally scoped to onboarding first. The product-owner-provided Flutter onboarding handoff is the visual source for the opening SOUL splash, animated globe intro, three welcome slides and email entry. Document-required onboarding steps continue in the same local prototype until the completion screen; Discovery and backend wiring are deliberately excluded from this APK.
+
+
 Flutter includes a temporary local prototype runtime selected at build time with `SOUL_PROTOTYPE_MODE=true`.
 
 - Prototype mode is for product/design review only and makes no member API calls.
