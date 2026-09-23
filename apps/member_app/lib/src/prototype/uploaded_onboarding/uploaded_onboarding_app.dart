@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'uploaded_opening_design.dart';
+export 'uploaded_opening_design.dart';
 import 'uploaded_splash_screen.dart';
 
 class SoulOnboardingPreviewApp extends StatelessWidget {
