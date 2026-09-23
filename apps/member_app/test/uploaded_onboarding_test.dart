@@ -43,11 +43,15 @@ void main() {
       );
       expect(avatarBefore.opacity, 0);
 
+      // Give the ticker its first frame, then advance through spin + settle.
+      // This mirrors a real rendered timeline rather than starting the fake
+      // clock at the controller's creation instant.
+      await tester.pump();
       await tester.pump(OpeningMotion.globeSpin);
       await tester.pump();
       await tester.pump(OpeningMotion.settlePause);
       await tester.pump();
-      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump(const Duration(milliseconds: 600));
 
       final avatarAfter = tester.widget<Opacity>(
         find.byKey(const ValueKey('opening-avatar-0')),

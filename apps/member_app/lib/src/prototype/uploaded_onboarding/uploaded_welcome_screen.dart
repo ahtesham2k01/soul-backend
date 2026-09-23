@@ -320,58 +320,63 @@ class _UploadedWelcomeScreenState extends State<UploadedWelcomeScreen> {
                     ),
                     child: Row(
                       children: [
-                        Semantics(
-                          button: true,
-                          label: copy.selectLanguage,
-                          child: Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(24),
-                              onTap: _showLanguageSelector,
-                              child: ConstrainedBox(
-                                constraints: const BoxConstraints(
-                                  minHeight: 48,
-                                  minWidth: 48,
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 4,
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      const Icon(
-                                        Icons.language_rounded,
-                                        color: Colors.white,
-                                        size: 22,
+                        Expanded(
+                          child: Semantics(
+                            button: true,
+                            label: copy.selectLanguage,
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(24),
+                                  onTap: _showLanguageSelector,
+                                  child: ConstrainedBox(
+                                    constraints: const BoxConstraints(
+                                      minHeight: 48,
+                                      minWidth: 48,
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 4,
                                       ),
-                                      const SizedBox(width: 8),
-                                      Flexible(
-                                        child: Text(
-                                          _languages
-                                              .firstWhere(
-                                                (item) =>
-                                                    item.$1 ==
-                                                    _languageCode,
-                                              )
-                                              .$2,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Icon(
+                                            Icons.language_rounded,
                                             color: Colors.white,
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.w700,
+                                            size: 22,
                                           ),
-                                        ),
+                                          const SizedBox(width: 8),
+                                          Flexible(
+                                            child: Text(
+                                              _languages
+                                                  .firstWhere(
+                                                    (item) =>
+                                                        item.$1 ==
+                                                        _languageCode,
+                                                  )
+                                                  .$2,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ],
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
                         ),
-                        const Spacer(),
+                        const SizedBox(width: 8),
                         IconButton(
                           tooltip: 'Help',
                           constraints: const BoxConstraints(
