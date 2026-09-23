@@ -44,7 +44,9 @@ void main() {
       expect(avatarBefore.opacity, 0);
 
       await tester.pump(OpeningMotion.globeSpin);
+      await tester.pump();
       await tester.pump(OpeningMotion.settlePause);
+      await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
 
       final avatarAfter = tester.widget<Opacity>(
@@ -67,7 +69,9 @@ void main() {
     );
 
     await tester.pump(OpeningMotion.globeSpin);
+    await tester.pump();
     await tester.pump(OpeningMotion.settlePause);
+    await tester.pump();
     await tester.pump(const Duration(milliseconds: 800));
 
     expect(find.text('Karachi, PK'), findsOneWidget);

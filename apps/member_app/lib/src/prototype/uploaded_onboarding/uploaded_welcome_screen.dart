@@ -338,6 +338,7 @@ class _UploadedWelcomeScreenState extends State<UploadedWelcomeScreen> {
                                     horizontal: 4,
                                   ),
                                   child: Row(
+                                    mainAxisSize: MainAxisSize.min,
                                     children: [
                                       const Icon(
                                         Icons.language_rounded,
@@ -345,18 +346,22 @@ class _UploadedWelcomeScreenState extends State<UploadedWelcomeScreen> {
                                         size: 22,
                                       ),
                                       const SizedBox(width: 8),
-                                      Text(
-                                        _languages
-                                            .firstWhere(
-                                              (item) =>
-                                                  item.$1 ==
-                                                  _languageCode,
-                                            )
-                                            .$2,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w700,
+                                      Flexible(
+                                        child: Text(
+                                          _languages
+                                              .firstWhere(
+                                                (item) =>
+                                                    item.$1 ==
+                                                    _languageCode,
+                                              )
+                                              .$2,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w700,
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -557,34 +562,34 @@ class _WelcomeHeadline extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+            Wrap(
+              spacing: 12,
+              runSpacing: 6,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                Flexible(
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: compact ? 7 : 9,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: soulLimeAccent,
-                      borderRadius: BorderRadius.circular(9),
-                    ),
-                    child: Text(
-                      highlight,
-                      maxLines: 2,
-                      style: TextStyle(
-                        color: soulInk,
-                        fontSize: fontSize,
-                        height: 1.02,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: -1,
-                      ),
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: compact ? 7 : 9,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: soulLimeAccent,
+                    borderRadius: BorderRadius.circular(9),
+                  ),
+                  child: Text(
+                    highlight,
+                    maxLines: 2,
+                    overflow: TextOverflow.visible,
+                    style: TextStyle(
+                      color: soulInk,
+                      fontSize: fontSize,
+                      height: 1.02,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: -1,
                     ),
                   ),
                 ),
-                if (showHeart) ...[
-                  const SizedBox(width: 12),
+                if (showHeart)
                   Container(
                     width: compact ? 38 : 44,
                     height: compact ? 38 : 44,
@@ -598,7 +603,6 @@ class _WelcomeHeadline extends StatelessWidget {
                       size: 23,
                     ),
                   ),
-                ],
               ],
             ),
             const SizedBox(height: 6),
@@ -634,62 +638,133 @@ class _WelcomeActionBar extends StatelessWidget {
   final VoidCallback onCreate;
 
   @override
-  Widget build(BuildContext context) => Container(
-        height: 58,
-        padding: const EdgeInsets.all(7),
-        decoration: BoxDecoration(
-          color: const Color(0xCC637F22),
-          borderRadius: BorderRadius.circular(29),
-          border: Border.all(
-            color: Colors.white.withValues(alpha: .20),
-          ),
-        ),
-        child: Row(
-          children: [
-            _SocialCircle(
-              semanticsLabel: 'Continue with Google',
-              asset:
-                  '$uploadedOpeningAssetRoot/onboarding/BarGoogle.webp',
-              onTap: onGoogle,
+  Widget build(BuildContext context) {
+    final textScale = MediaQuery.textScalerOf(context).scale(1);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final accessibilityLayout =
+            textScale >= 1.5 || constraints.maxWidth < 300;
+
+        if (accessibilityLayout) {
+          return Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: const Color(0xCC637F22),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: .20),
+              ),
             ),
-            const SizedBox(width: 9),
-            _SocialCircle(
-              semanticsLabel: 'Continue with Apple',
-              asset:
-                  '$uploadedOpeningAssetRoot/onboarding/BarApple.webp',
-              onTap: onApple,
-            ),
-            const SizedBox(width: 9),
-            Expanded(
-              child: SizedBox(
-                height: 44,
-                child: FilledButton(
-                  key: const ValueKey('opening-create-account'),
-                  onPressed: onCreate,
-                  style: FilledButton.styleFrom(
-                    backgroundColor: soulLimeAccent,
-                    foregroundColor: soulInk,
-                    elevation: 0,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12),
-                    shape: const StadiumBorder(),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _SocialCircle(
+                      semanticsLabel: 'Continue with Google',
+                      asset:
+                          '$uploadedOpeningAssetRoot/onboarding/BarGoogle.webp',
+                      onTap: onGoogle,
+                    ),
+                    const SizedBox(width: 12),
+                    _SocialCircle(
+                      semanticsLabel: 'Continue with Apple',
+                      asset:
+                          '$uploadedOpeningAssetRoot/onboarding/BarApple.webp',
+                      onTap: onApple,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    key: const ValueKey('opening-create-account'),
+                    onPressed: onCreate,
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size.fromHeight(48),
+                      backgroundColor: soulLimeAccent,
+                      foregroundColor: soulInk,
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 10,
+                      ),
+                      shape: const StadiumBorder(),
+                    ),
+                    child: Text(
+                      copy.createAccount,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
                   ),
-                  child: Text(
-                    copy.createAccount,
-                    maxLines: 1,
-                    overflow: TextOverflow.fade,
-                    softWrap: false,
-                    style: const TextStyle(
-                      fontSize: 13.5,
-                      fontWeight: FontWeight.w900,
+                ),
+              ],
+            ),
+          );
+        }
+
+        return Container(
+          height: 58,
+          padding: const EdgeInsets.all(7),
+          decoration: BoxDecoration(
+            color: const Color(0xCC637F22),
+            borderRadius: BorderRadius.circular(29),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: .20),
+            ),
+          ),
+          child: Row(
+            children: [
+              _SocialCircle(
+                semanticsLabel: 'Continue with Google',
+                asset:
+                    '$uploadedOpeningAssetRoot/onboarding/BarGoogle.webp',
+                onTap: onGoogle,
+              ),
+              const SizedBox(width: 9),
+              _SocialCircle(
+                semanticsLabel: 'Continue with Apple',
+                asset:
+                    '$uploadedOpeningAssetRoot/onboarding/BarApple.webp',
+                onTap: onApple,
+              ),
+              const SizedBox(width: 9),
+              Expanded(
+                child: SizedBox(
+                  height: 44,
+                  child: FilledButton(
+                    key: const ValueKey('opening-create-account'),
+                    onPressed: onCreate,
+                    style: FilledButton.styleFrom(
+                      backgroundColor: soulLimeAccent,
+                      foregroundColor: soulInk,
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      shape: const StadiumBorder(),
+                    ),
+                    child: Text(
+                      copy.createAccount,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: false,
+                      style: const TextStyle(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w900,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
-        ),
-      );
+            ],
+          ),
+        );
+      },
+    );
+  }
 }
 
 class _SocialCircle extends StatelessWidget {
