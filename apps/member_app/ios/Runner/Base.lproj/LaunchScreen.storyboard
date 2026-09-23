@@ -20,11 +20,23 @@
                                 <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <label opaque="NO" userInteractionEnabled="NO" alpha="0.45" contentMode="left" text="♡" textAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="heart-one">
+                                <fontDescription key="fontDescription" type="system" pointSize="46"/>
+                                <color key="textColor" red="0.745" green="0.863" blue="0.345" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" alpha="0.30" contentMode="left" text="♡" textAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="heart-two">
+                                <fontDescription key="fontDescription" type="system" pointSize="96"/>
+                                <color key="textColor" red="0.745" green="0.863" blue="0.345" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" red="0.7019607843" green="0.8392156863" blue="0.2313725490" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="soul-brand" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="brand-x"/>
                             <constraint firstItem="soul-brand" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="brand-y"/>
+                            <constraint firstItem="heart-one" firstAttribute="trailing" secondItem="Ze5-6b-2t3" secondAttribute="trailing" constant="-34" id="heart-one-right"/>
+                            <constraint firstItem="heart-one" firstAttribute="top" secondItem="Ydg-fD-yQy" secondAttribute="bottom" constant="48" id="heart-one-top"/>
+                            <constraint firstItem="heart-two" firstAttribute="trailing" secondItem="Ze5-6b-2t3" secondAttribute="trailing" constant="-18" id="heart-two-right"/>
+                            <constraint firstItem="heart-two" firstAttribute="top" secondItem="Ydg-fD-yQy" secondAttribute="bottom" constant="102" id="heart-two-top"/>
                         </constraints>
                     </view>
                 </viewController>

@@ -48,6 +48,16 @@ The intended visible sequence is:
 
 `SOUL splash → globe fast spin → smooth deceleration/settle → staggered member markers → actual location pill → tagline reveal → existing Welcome/Auth/Onboarding route`.
 
+Opening implementation rules:
+
+- the first Flutter splash uses the same approved `#B3D63B` color as native launch surfaces;
+- opening art is pre-cached during the splash hold to avoid a visible decode hitch on the globe/welcome transition;
+- no illustrative or generic location text is permitted: if an authoritative resolved city/country is unavailable, the location pill is omitted rather than invented;
+- the tagline and welcome headlines remain real localized text with screen-reader semantics instead of rasterized copy;
+- launch timing is ticker-driven so pause/background/resume does not silently skip opening stages;
+- welcome content must remain usable on a 320×568 logical viewport with 200% text scale, using scroll recovery rather than clipping;
+- the opening preview may stop at the welcome actions, but production routing remains authoritative after the same presentation sequence.
+
 ## Design tokens
 
 Maintain centralized tokens for:

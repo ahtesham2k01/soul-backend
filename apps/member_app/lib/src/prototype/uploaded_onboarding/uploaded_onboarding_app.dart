@@ -1,14 +1,7 @@
-// ignore_for_file: prefer_const_constructors
-
 import 'package:flutter/material.dart';
 
+import 'uploaded_opening_design.dart';
 import 'uploaded_splash_screen.dart';
-
-const soulLime = Color(0xFFB4D63C);
-const soulDeepGreen = Color(0xFF071B05);
-const soulInk = Color(0xFF20242C);
-const soulMuted = Color(0xFF8A9099);
-const soulLine = Color(0xFFE5E7EB);
 
 class SoulOnboardingPreviewApp extends StatelessWidget {
   const SoulOnboardingPreviewApp({super.key});
@@ -24,7 +17,7 @@ class SoulOnboardingPreviewApp extends StatelessWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'SOUL Onboarding',
+      title: 'SOUL',
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: scheme,
@@ -48,39 +41,12 @@ class SoulOnboardingPreviewApp extends StatelessWidget {
             height: 1.45,
           ),
         ),
-        inputDecorationTheme: InputDecorationTheme(
-          filled: true,
-          fillColor: Colors.white,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 14,
-            vertical: 16,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: soulLine),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: soulLime, width: 1.4),
-          ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Color(0xFFBA1A1A)),
-          ),
-        ),
-        filledButtonTheme: FilledButtonThemeData(
-          style: FilledButton.styleFrom(
-            minimumSize: const Size.fromHeight(50),
-            backgroundColor: soulLime,
-            foregroundColor: Colors.black,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            textStyle: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w800,
-            ),
+        snackBarTheme: SnackBarThemeData(
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: soulInk,
+          contentTextStyle: const TextStyle(color: Colors.white),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
           ),
         ),
       ),

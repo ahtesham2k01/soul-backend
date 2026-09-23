@@ -1,14 +1,17 @@
-// ignore_for_file: prefer_interpolation_to_compose_strings, deprecated_member_use
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'uploaded_onboarding_app.dart';
-
-const _assetRoot = 'assets/uploaded_onboarding';
+import 'uploaded_opening_design.dart';
 
 class UploadedWelcomeScreen extends StatefulWidget {
-  const UploadedWelcomeScreen({super.key});
+  const UploadedWelcomeScreen({
+    super.key,
+    this.initialLanguageCode,
+  });
+
+  final String? initialLanguageCode;
 
   @override
   State<UploadedWelcomeScreen> createState() => _UploadedWelcomeScreenState();
@@ -16,31 +19,29 @@ class UploadedWelcomeScreen extends StatefulWidget {
 
 class _UploadedWelcomeScreenState extends State<UploadedWelcomeScreen> {
   late final PageController _controller;
+  late String _languageCode;
   int _currentPage = 0;
-  String _selectedLanguage = 'English';
 
   static const _backgrounds = [
-    '$_assetRoot/onboarding/slide1/slide1bg.webp',
-    '$_assetRoot/onboarding/slide2/slide2bg.webp',
-    '$_assetRoot/onboarding/slide3/slide3bg.webp',
+    '$uploadedOpeningAssetRoot/onboarding/slide1/slide1bg.webp',
+    '$uploadedOpeningAssetRoot/onboarding/slide2/slide2bg.webp',
+    '$uploadedOpeningAssetRoot/onboarding/slide3/slide3bg.webp',
   ];
 
-  static const _headings = [
-    '$_assetRoot/onboarding/slide1/slide1heading.webp',
-    '$_assetRoot/onboarding/slide2/slide2heading.webp',
-    '$_assetRoot/onboarding/slide3/slide3heading.webp',
+  static const _languages = <(String, String, String)>[
+    ('en', 'English', 'English'),
+    ('en-GB', 'English (UK)', 'English (United Kingdom)'),
+    ('ur', 'Roman Urdu', 'Roman Urdu'),
   ];
 
-  static const _languages = [
-    ('English', 'English'),
-    ('English (UK)', 'English (United Kingdom)'),
-    ('Roman Urdu', 'Roman Urdu'),
-  ];
+  OpeningCopy get copy => openingCopyFor(_languageCode);
 
   @override
   void initState() {
     super.initState();
     _controller = PageController();
+    _languageCode =
+        widget.initialLanguageCode ?? detectOpeningLanguageCode();
   }
 
   @override
@@ -59,74 +60,99 @@ class _UploadedWelcomeScreenState extends State<UploadedWelcomeScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
-      builder: (sheetContext) => StatefulBuilder(
-        builder: (sheetContext, setSheetState) => FractionallySizedBox(
-          heightFactor: 0.66,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 2, 20, 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Select language',
-                  style: TextStyle(
-                    color: soulInk,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -0.4,
-                  ),
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(18, 2, 18, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                copy.selectLanguage,
+                style: const TextStyle(
+                  color: soulInk,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
                 ),
-                const SizedBox(height: 6),
-                const Text(
-                  'Only launch-ready languages are shown here.',
-                  style: TextStyle(color: soulMuted),
-                ),
-                const SizedBox(height: 20),
-                Expanded(
-                  child: ListView.separated(
-                    itemCount: _languages.length,
-                    separatorBuilder: (_, __) => const Divider(height: 1),
-                    itemBuilder: (_, index) {
-                      final item = _languages[index];
-                      final selected = _selectedLanguage == item.$1;
-                      return ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        onTap: () {
-                          HapticFeedback.selectionClick();
-                          setSheetState(() => _selectedLanguage = item.$1);
-                          setState(() => _selectedLanguage = item.$1);
-                          Navigator.of(sheetContext).pop();
-                        },
-                        title: Text(
-                          item.$1,
-                          style: const TextStyle(
-                            color: soulInk,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        subtitle: Text(item.$2),
-                        trailing: AnimatedContainer(
-                          duration: const Duration(milliseconds: 160),
-                          width: 22,
-                          height: 22,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: selected ? soulLime : Colors.transparent,
-                            border: Border.all(
-                              color: selected ? soulLime : soulLine,
-                              width: 1.6,
-                            ),
-                          ),
-                          child: selected
-                              ? const Icon(Icons.check_rounded, size: 15)
-                              : null,
-                        ),
-                      );
+              ),
+              const SizedBox(height: 14),
+              for (final language in _languages)
+                Semantics(
+                  button: true,
+                  selected: _languageCode == language.$1,
+                  label: language.$2,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: () {
+                      HapticFeedback.selectionClick();
+                      setState(() => _languageCode = language.$1);
+                      Navigator.of(sheetContext).pop();
                     },
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(minHeight: 58),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 8,
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    language.$2,
+                                    style: const TextStyle(
+                                      color: soulInk,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    language.$3,
+                                    style: const TextStyle(
+                                      color: soulMuted,
+                                      fontSize: 12.5,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            AnimatedContainer(
+                              duration:
+                                  MediaQuery.disableAnimationsOf(context)
+                                      ? Duration.zero
+                                      : const Duration(milliseconds: 160),
+                              width: 22,
+                              height: 22,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color:
+                                      _languageCode == language.$1
+                                          ? soulLimeAccent
+                                          : soulLine,
+                                  width: 1.8,
+                                ),
+                              ),
+                              child: _languageCode == language.$1
+                                  ? const Center(
+                                      child: CircleAvatar(
+                                        radius: 5,
+                                        backgroundColor: soulLimeAccent,
+                                      ),
+                                    )
+                                  : null,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ],
-            ),
+            ],
           ),
         ),
       ),
@@ -142,30 +168,34 @@ class _UploadedWelcomeScreenState extends State<UploadedWelcomeScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
-      builder: (sheetContext) => const Padding(
-        padding: EdgeInsets.fromLTRB(24, 4, 24, 28),
+      builder: (sheetContext) => Padding(
+        padding: const EdgeInsets.fromLTRB(24, 2, 24, 28),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CircleAvatar(
-              radius: 29,
-              backgroundColor: soulLime,
-              child: Icon(Icons.info_outline_rounded, color: Colors.black, size: 30),
+            const Icon(
+              Icons.favorite_rounded,
+              color: soulLime,
+              size: 36,
             ),
-            SizedBox(height: 14),
+            const SizedBox(height: 10),
             Text(
-              'Welcome to SOUL',
-              style: TextStyle(
+              copy.helpTitle,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
                 color: soulInk,
-                fontSize: 24,
-                fontWeight: FontWeight.w800,
+                fontSize: 22,
+                fontWeight: FontWeight.w900,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 10),
             Text(
-              'This APK is only for reviewing the opening experience: splash, animated globe and the three welcome slides. Account flows are intentionally not included.',
+              copy.helpBody,
               textAlign: TextAlign.center,
-              style: TextStyle(color: soulMuted, height: 1.45),
+              style: const TextStyle(
+                color: soulMuted,
+                height: 1.45,
+              ),
             ),
           ],
         ),
@@ -178,33 +208,51 @@ class _UploadedWelcomeScreenState extends State<UploadedWelcomeScreen> {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        const SnackBar(
-          behavior: SnackBarBehavior.floating,
-          content: Text(
-            'Opening preview ends here — account flow is intentionally not included.',
-          ),
-          duration: Duration(seconds: 2),
+        SnackBar(
+          content: Text(copy.previewEnd),
+          duration: const Duration(seconds: 2),
         ),
       );
   }
 
   Widget _buildSlide(int index) => AnimatedBuilder(
         animation: _controller,
-        child: SizedBox.expand(
-          child: Image.asset(
-            _backgrounds[index],
-            fit: BoxFit.cover,
-            filterQuality: FilterQuality.medium,
-          ),
+        child: Builder(
+          builder: (context) {
+            final targetWidth = math
+                .min(
+                  1500,
+                  math.max(
+                    720,
+                    MediaQuery.sizeOf(context).width *
+                        MediaQuery.devicePixelRatioOf(context),
+                  ),
+                )
+                .round();
+            return RepaintBoundary(
+              child: SizedBox.expand(
+                child: Image.asset(
+                  _backgrounds[index],
+                  fit: BoxFit.cover,
+                  cacheWidth: targetWidth,
+                  filterQuality: FilterQuality.medium,
+                  gaplessPlayback: true,
+                ),
+              ),
+            );
+          },
         ),
         builder: (context, child) {
+          if (MediaQuery.disableAnimationsOf(context)) return child!;
           var opacity = 1.0;
           var scale = 1.0;
-          if (_controller.hasClients && _controller.position.haveDimensions) {
-            final page = _controller.page ?? _controller.initialPage.toDouble();
+          if (_controller.hasClients &&
+              _controller.position.haveDimensions) {
+            final page =
+                _controller.page ?? _controller.initialPage.toDouble();
             final diff = (page - index).abs();
-            opacity = (1 - (diff * 0.65)).clamp(0, 1);
-            scale = (1 - (diff * 0.04)).clamp(0.96, 1);
+            opacity = (1 - (diff * .65)).clamp(0, 1);
+            scale = (1 - (diff * .04)).clamp(.96, 1);
           }
           return Opacity(
             opacity: opacity,
@@ -213,9 +261,27 @@ class _UploadedWelcomeScreenState extends State<UploadedWelcomeScreen> {
         },
       );
 
+  Widget _buildDot(int index) {
+    final active = _currentPage == index;
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
+    return AnimatedContainer(
+      duration:
+          reduceMotion ? Duration.zero : const Duration(milliseconds: 220),
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      width: active ? 22 : 8,
+      height: 7,
+      decoration: BoxDecoration(
+        color: active ? soulLimeAccent : Colors.white30,
+        borderRadius: BorderRadius.circular(99),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final compact = MediaQuery.sizeOf(context).height < 700;
+    final currentCopy = copy;
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -223,47 +289,79 @@ class _UploadedWelcomeScreenState extends State<UploadedWelcomeScreen> {
         statusBarBrightness: Brightness.dark,
         systemNavigationBarColor: soulDeepGreen,
         systemNavigationBarIconBrightness: Brightness.light,
+        systemNavigationBarDividerColor: soulDeepGreen,
+        systemNavigationBarContrastEnforced: false,
       ),
       child: Scaffold(
+        key: const ValueKey('opening-welcome'),
         backgroundColor: soulDeepGreen,
         body: Stack(
+          fit: StackFit.expand,
           children: [
             PageView.builder(
+              key: const ValueKey('opening-welcome-pages'),
               controller: _controller,
-              physics: const BouncingScrollPhysics(),
+              physics: const PageScrollPhysics(),
+              allowImplicitScrolling: true,
               itemCount: _backgrounds.length,
-              onPageChanged: (index) => setState(() => _currentPage = index),
+              onPageChanged: (index) =>
+                  setState(() => _currentPage = index),
               itemBuilder: (_, index) => _buildSlide(index),
             ),
             SafeArea(
-              child: Stack(
+              child: Column(
                 children: [
-                  Positioned(
-                    top: compact ? 12 : 18,
-                    left: 20,
-                    right: 20,
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      16,
+                      compact ? 4 : 8,
+                      12,
+                      0,
+                    ),
                     child: Row(
                       children: [
-                        Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(24),
-                            onTap: _showLanguageSelector,
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 6),
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.language_rounded, color: Colors.white, size: 22),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    _selectedLanguage,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                        Semantics(
+                          button: true,
+                          label: copy.selectLanguage,
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(24),
+                              onTap: _showLanguageSelector,
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(
+                                  minHeight: 48,
+                                  minWidth: 48,
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 4,
                                   ),
-                                ],
+                                  child: Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.language_rounded,
+                                        color: Colors.white,
+                                        size: 22,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        _languages
+                                            .firstWhere(
+                                              (item) =>
+                                                  item.$1 ==
+                                                  _languageCode,
+                                            )
+                                            .$2,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -271,152 +369,56 @@ class _UploadedWelcomeScreenState extends State<UploadedWelcomeScreen> {
                         const Spacer(),
                         IconButton(
                           tooltip: 'Help',
+                          constraints: const BoxConstraints(
+                            minWidth: 48,
+                            minHeight: 48,
+                          ),
                           onPressed: _showHelpSheet,
-                          icon: const Icon(Icons.info_outline_rounded, color: Colors.white),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Positioned(
-                    left: 20,
-                    bottom: compact ? 258 : 288,
-                    child: Image.asset(
-                      '$_assetRoot/onboarding/soulLogo.webp',
-                      width: 112,
-                    ),
-                  ),
-                  Positioned(
-                    left: 20,
-                    right: 20,
-                    bottom: compact ? 170 : 190,
-                    child: AnimatedSwitcher(
-                      duration: MediaQuery.disableAnimationsOf(context)
-                          ? Duration.zero
-                          : const Duration(milliseconds: 280),
-                      child: Image.asset(
-                        _headings[_currentPage],
-                        key: ValueKey(_currentPage),
-                        fit: BoxFit.contain,
-                        alignment: Alignment.centerLeft,
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    left: 20,
-                    right: 20,
-                    bottom: compact ? 128 : 140,
-                    child: const Text(
-                      'The right person can change your life. Your journey to that moment starts here.',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 13,
-                        height: 1.38,
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    bottom: compact ? 96 : 104,
-                    left: 0,
-                    right: 0,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(
-                        _backgrounds.length,
-                        (index) => AnimatedContainer(
-                          duration: const Duration(milliseconds: 220),
-                          margin: const EdgeInsets.symmetric(horizontal: 4),
-                          width: _currentPage == index ? 22 : 8,
-                          height: 7,
-                          decoration: BoxDecoration(
-                            color: _currentPage == index ? soulLime : Colors.white30,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    left: 20,
-                    right: 20,
-                    bottom: 16 + MediaQuery.paddingOf(context).bottom,
-                    child: Column(
-                      children: [
-                        SizedBox(
-                          height: 55,
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              Positioned.fill(
-                                child: Image.asset(
-                                  '$_assetRoot/onboarding/barBg.webp',
-                                  fit: BoxFit.fill,
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 6),
-                                child: Row(
-                                  children: [
-                                    Semantics(
-                                      button: true,
-                                      label: 'Continue with Google',
-                                      child: GestureDetector(
-                                        onTap: _showPreviewEnd,
-                                        child: Image.asset(
-                                          '$_assetRoot/onboarding/BarGoogle.webp',
-                                          width: 42,
-                                          height: 42,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Semantics(
-                                      button: true,
-                                      label: 'Continue with Apple',
-                                      child: GestureDetector(
-                                        onTap: _showPreviewEnd,
-                                        child: Image.asset(
-                                          '$_assetRoot/onboarding/BarApple.webp',
-                                          width: 42,
-                                          height: 42,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Expanded(
-                                      child: Semantics(
-                                        button: true,
-                                        label: 'Create Account',
-                                        child: GestureDetector(
-                                          onTap: _showPreviewEnd,
-                                          child: SizedBox(
-                                            height: 42,
-                                            child: Image.asset(
-                                              '$_assetRoot/onboarding/barCreateAccountButton.webp',
-                                              fit: BoxFit.fill,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 5),
-                        TextButton(
-                          onPressed: _showPreviewEnd,
-                          style: TextButton.styleFrom(
-                            foregroundColor: Colors.white,
-                            visualDensity: VisualDensity.compact,
-                          ),
-                          child: const Text(
-                            'Already have an account? Continue with Email',
-                            style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600),
+                          icon: const Icon(
+                            Icons.info_outline_rounded,
+                            color: Colors.white,
                           ),
                         ),
                       ],
+                    ),
+                  ),
+                  Expanded(
+                    child: LayoutBuilder(
+                      builder: (context, constraints) =>
+                          SingleChildScrollView(
+                        padding: EdgeInsets.fromLTRB(
+                          20,
+                          compact ? 8 : 18,
+                          20,
+                          14,
+                        ),
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minHeight: constraints.maxHeight - 22,
+                          ),
+                          child: Align(
+                            alignment: Alignment.bottomCenter,
+                            child: _WelcomeBottomPanel(
+                              copy: currentCopy,
+                              currentPage: _currentPage,
+                              compact: compact,
+                              dots: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.center,
+                                children: [
+                                  _buildDot(0),
+                                  _buildDot(1),
+                                  _buildDot(2),
+                                ],
+                              ),
+                              onGoogle: _showPreviewEnd,
+                              onApple: _showPreviewEnd,
+                              onCreate: _showPreviewEnd,
+                              onEmail: _showPreviewEnd,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -427,4 +429,302 @@ class _UploadedWelcomeScreenState extends State<UploadedWelcomeScreen> {
       ),
     );
   }
+}
+
+class _WelcomeBottomPanel extends StatelessWidget {
+  const _WelcomeBottomPanel({
+    required this.copy,
+    required this.currentPage,
+    required this.compact,
+    required this.dots,
+    required this.onGoogle,
+    required this.onApple,
+    required this.onCreate,
+    required this.onEmail,
+  });
+
+  final OpeningCopy copy;
+  final int currentPage;
+  final bool compact;
+  final Widget dots;
+  final VoidCallback onGoogle;
+  final VoidCallback onApple;
+  final VoidCallback onCreate;
+  final VoidCallback onEmail;
+
+  @override
+  Widget build(BuildContext context) {
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Semantics(
+          image: true,
+          label: 'SOUL',
+          child: ExcludeSemantics(
+            child: Image.asset(
+              '$uploadedOpeningAssetRoot/onboarding/soulLogo.webp',
+              width: compact ? 98 : 112,
+              cacheWidth: 384,
+              filterQuality: FilterQuality.medium,
+            ),
+          ),
+        ),
+        SizedBox(height: compact ? 10 : 14),
+        AnimatedSwitcher(
+          duration:
+              reduceMotion ? Duration.zero : const Duration(milliseconds: 240),
+          switchInCurve: Curves.easeOutCubic,
+          switchOutCurve: Curves.easeInCubic,
+          child: _WelcomeHeadline(
+            key: ValueKey('${copy.languageCode}-$currentPage'),
+            highlight: copy.slideHighlight,
+            rest: copy.slideRest[currentPage],
+            showHeart: currentPage == 0,
+            compact: compact,
+          ),
+        ),
+        SizedBox(height: compact ? 9 : 12),
+        Text(
+          copy.description,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: compact ? 12.5 : 14,
+            height: 1.35,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+        SizedBox(height: compact ? 12 : 16),
+        Semantics(
+          label: 'Page ${currentPage + 1} of 3',
+          child: ExcludeSemantics(child: dots),
+        ),
+        SizedBox(height: compact ? 12 : 16),
+        _WelcomeActionBar(
+          copy: copy,
+          onGoogle: onGoogle,
+          onApple: onApple,
+          onCreate: onCreate,
+        ),
+        const SizedBox(height: 3),
+        Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 44),
+            child: TextButton(
+              onPressed: onEmail,
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 9),
+              ),
+              child: Text(
+                copy.emailContinue,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _WelcomeHeadline extends StatelessWidget {
+  const _WelcomeHeadline({
+    required this.highlight,
+    required this.rest,
+    required this.showHeart,
+    required this.compact,
+    super.key,
+  });
+
+  final String highlight;
+  final String rest;
+  final bool showHeart;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) {
+    final fontSize = compact ? 29.0 : 34.0;
+    return Semantics(
+      header: true,
+      label: '$highlight $rest',
+      child: ExcludeSemantics(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Flexible(
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: compact ? 7 : 9,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: soulLimeAccent,
+                      borderRadius: BorderRadius.circular(9),
+                    ),
+                    child: Text(
+                      highlight,
+                      maxLines: 2,
+                      style: TextStyle(
+                        color: soulInk,
+                        fontSize: fontSize,
+                        height: 1.02,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: -1,
+                      ),
+                    ),
+                  ),
+                ),
+                if (showHeart) ...[
+                  const SizedBox(width: 12),
+                  Container(
+                    width: compact ? 38 : 44,
+                    height: compact ? 38 : 44,
+                    decoration: const BoxDecoration(
+                      color: Color(0x55334A08),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.favorite_rounded,
+                      color: soulLimeAccent,
+                      size: 23,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              rest,
+              maxLines: 3,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: fontSize,
+                height: 1.02,
+                fontWeight: FontWeight.w900,
+                letterSpacing: -1,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _WelcomeActionBar extends StatelessWidget {
+  const _WelcomeActionBar({
+    required this.copy,
+    required this.onGoogle,
+    required this.onApple,
+    required this.onCreate,
+  });
+
+  final OpeningCopy copy;
+  final VoidCallback onGoogle;
+  final VoidCallback onApple;
+  final VoidCallback onCreate;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        height: 58,
+        padding: const EdgeInsets.all(7),
+        decoration: BoxDecoration(
+          color: const Color(0xCC637F22),
+          borderRadius: BorderRadius.circular(29),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: .20),
+          ),
+        ),
+        child: Row(
+          children: [
+            _SocialCircle(
+              semanticsLabel: 'Continue with Google',
+              asset:
+                  '$uploadedOpeningAssetRoot/onboarding/BarGoogle.webp',
+              onTap: onGoogle,
+            ),
+            const SizedBox(width: 9),
+            _SocialCircle(
+              semanticsLabel: 'Continue with Apple',
+              asset:
+                  '$uploadedOpeningAssetRoot/onboarding/BarApple.webp',
+              onTap: onApple,
+            ),
+            const SizedBox(width: 9),
+            Expanded(
+              child: SizedBox(
+                height: 44,
+                child: FilledButton(
+                  key: const ValueKey('opening-create-account'),
+                  onPressed: onCreate,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: soulLimeAccent,
+                    foregroundColor: soulInk,
+                    elevation: 0,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12),
+                    shape: const StadiumBorder(),
+                  ),
+                  child: Text(
+                    copy.createAccount,
+                    maxLines: 1,
+                    overflow: TextOverflow.fade,
+                    softWrap: false,
+                    style: const TextStyle(
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+}
+
+class _SocialCircle extends StatelessWidget {
+  const _SocialCircle({
+    required this.semanticsLabel,
+    required this.asset,
+    required this.onTap,
+  });
+
+  final String semanticsLabel;
+  final String asset;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+        button: true,
+        label: semanticsLabel,
+        child: Material(
+          color: Colors.white,
+          shape: const CircleBorder(),
+          child: InkWell(
+            customBorder: const CircleBorder(),
+            onTap: onTap,
+            child: SizedBox.square(
+              dimension: 44,
+              child: Padding(
+                padding: const EdgeInsets.all(3),
+                child: Image.asset(
+                  asset,
+                  cacheWidth: 144,
+                  filterQuality: FilterQuality.medium,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
 }

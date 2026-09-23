@@ -66,7 +66,7 @@ jobs:
       - name: Upload Android debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: soul-onboarding-preview-apk
+          name: soul-feature-01-opening-apk
           path: apps/member_app/build/app/outputs/flutter-apk/app-debug.apk
           if-no-files-found: error
           retention-days: 7
