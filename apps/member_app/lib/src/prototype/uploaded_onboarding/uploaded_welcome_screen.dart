@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'uploaded_onboarding_app.dart';
-import 'uploaded_profile_onboarding.dart';
 
 const _assetRoot = 'assets/uploaded_onboarding';
 
@@ -164,7 +163,7 @@ class _UploadedWelcomeScreenState extends State<UploadedWelcomeScreen> {
             ),
             SizedBox(height: 8),
             Text(
-              'Create an account or log in. This APK is a backend-free onboarding preview, so no email, Apple or Google request leaves your phone.',
+              'This APK is only for reviewing the opening experience: splash, animated globe and the three welcome slides. Account flows are intentionally not included.',
               textAlign: TextAlign.center,
               style: TextStyle(color: soulMuted, height: 1.45),
             ),
@@ -174,26 +173,19 @@ class _UploadedWelcomeScreenState extends State<UploadedWelcomeScreen> {
     );
   }
 
-  void _openEmail({required bool registration}) {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => UploadedEmailScreen(
-          registration: registration,
-          selectedLanguage: _selectedLanguage,
+  void _showPreviewEnd() {
+    HapticFeedback.selectionClick();
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        const SnackBar(
+          behavior: SnackBarBehavior.floating,
+          content: Text(
+            'Opening preview ends here — account flow is intentionally not included.',
+          ),
+          duration: Duration(seconds: 2),
         ),
-      ),
-    );
-  }
-
-  void _socialContinue() {
-    HapticFeedback.mediumImpact();
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => UploadedProfileOnboardingScreen(
-          selectedLanguage: _selectedLanguage,
-        ),
-      ),
-    );
+      );
   }
 
   Widget _buildSlide(int index) => AnimatedBuilder(
@@ -368,7 +360,7 @@ class _UploadedWelcomeScreenState extends State<UploadedWelcomeScreen> {
                                       button: true,
                                       label: 'Continue with Google',
                                       child: GestureDetector(
-                                        onTap: _socialContinue,
+                                        onTap: _showPreviewEnd,
                                         child: Image.asset(
                                           '$_assetRoot/onboarding/BarGoogle.webp',
                                           width: 42,
@@ -381,7 +373,7 @@ class _UploadedWelcomeScreenState extends State<UploadedWelcomeScreen> {
                                       button: true,
                                       label: 'Continue with Apple',
                                       child: GestureDetector(
-                                        onTap: _socialContinue,
+                                        onTap: _showPreviewEnd,
                                         child: Image.asset(
                                           '$_assetRoot/onboarding/BarApple.webp',
                                           width: 42,
@@ -395,7 +387,7 @@ class _UploadedWelcomeScreenState extends State<UploadedWelcomeScreen> {
                                         button: true,
                                         label: 'Create Account',
                                         child: GestureDetector(
-                                          onTap: () => _openEmail(registration: true),
+                                          onTap: _showPreviewEnd,
                                           child: SizedBox(
                                             height: 42,
                                             child: Image.asset(
@@ -414,7 +406,7 @@ class _UploadedWelcomeScreenState extends State<UploadedWelcomeScreen> {
                         ),
                         const SizedBox(height: 5),
                         TextButton(
-                          onPressed: () => _openEmail(registration: false),
+                          onPressed: _showPreviewEnd,
                           style: TextButton.styleFrom(
                             foregroundColor: Colors.white,
                             visualDensity: VisualDensity.compact,
@@ -435,242 +427,4 @@ class _UploadedWelcomeScreenState extends State<UploadedWelcomeScreen> {
       ),
     );
   }
-}
-
-class UploadedEmailScreen extends StatefulWidget {
-  const UploadedEmailScreen({
-    required this.registration,
-    required this.selectedLanguage,
-    super.key,
-  });
-
-  final bool registration;
-  final String selectedLanguage;
-
-  @override
-  State<UploadedEmailScreen> createState() => _UploadedEmailScreenState();
-}
-
-class _UploadedEmailScreenState extends State<UploadedEmailScreen> {
-  final TextEditingController _email = TextEditingController();
-  final TextEditingController _code = TextEditingController();
-  bool _codeSent = false;
-
-  @override
-  void dispose() {
-    _email.dispose();
-    _code.dispose();
-    super.dispose();
-  }
-
-  void _continue() {
-    FocusScope.of(context).unfocus();
-    if (!_codeSent) {
-      final value = _email.text.trim();
-      if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(value)) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Enter a valid email address.')),
-        );
-        return;
-      }
-      HapticFeedback.selectionClick();
-      setState(() => _codeSent = true);
-      return;
-    }
-
-    if (_code.text.trim().length < 4) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Use 123456 for this preview.')),
-      );
-      return;
-    }
-
-    HapticFeedback.mediumImpact();
-    if (widget.registration) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute<void>(
-          builder: (_) => UploadedProfileOnboardingScreen(
-            selectedLanguage: widget.selectedLanguage,
-          ),
-        ),
-      );
-    } else {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute<void>(
-          builder: (_) => const _LoginPreviewScreen(),
-        ),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final title = widget.registration ? 'Welcome to SOUL!' : 'Welcome back';
-    final subtitle = widget.registration
-        ? 'Where meaningful connections come alive.'
-        : 'Continue to your existing account.';
-
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 18),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 6),
-              Row(
-                children: [
-                  IconButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.arrow_back_rounded),
-                  ),
-                  const Spacer(),
-                  const Icon(Icons.info_outline_rounded, size: 22),
-                ],
-              ),
-              const SizedBox(height: 18),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 21,
-                  fontWeight: FontWeight.w800,
-                  color: soulInk,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(subtitle, style: const TextStyle(color: soulMuted, fontSize: 12.5)),
-              const SizedBox(height: 28),
-              if (!_codeSent) ...[
-                const Text(
-                  'Email',
-                  style: TextStyle(fontSize: 13, color: soulInk, fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(height: 10),
-                TextField(
-                  controller: _email,
-                  autofocus: true,
-                  keyboardType: TextInputType.emailAddress,
-                  textInputAction: TextInputAction.done,
-                  decoration: const InputDecoration(
-                    hintText: 'Enter email address',
-                    prefixIcon: Icon(Icons.mail_outline_rounded, color: soulMuted),
-                  ),
-                  onSubmitted: (_) => _continue(),
-                ),
-              ] else ...[
-                Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF7F8FA),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: soulLine),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.mail_outline_rounded, color: soulMuted),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          _email.text.trim(),
-                          style: const TextStyle(color: soulInk, fontWeight: FontWeight.w700),
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () => setState(() => _codeSent = false),
-                        child: const Text('Change'),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Verification code',
-                  style: TextStyle(fontSize: 13, color: soulInk, fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(height: 10),
-                TextField(
-                  controller: _code,
-                  autofocus: true,
-                  keyboardType: TextInputType.number,
-                  maxLength: 6,
-                  decoration: const InputDecoration(
-                    hintText: 'Use 123456',
-                    prefixIcon: Icon(Icons.lock_outline_rounded, color: soulMuted),
-                  ),
-                  onSubmitted: (_) => _continue(),
-                ),
-                const SizedBox(height: 6),
-                const Text(
-                  'Preview only: no message is sent and no backend is contacted.',
-                  style: TextStyle(color: soulMuted, fontSize: 11.5),
-                ),
-              ],
-              const Spacer(),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: _continue,
-                  child: Text(_codeSent ? 'Verify & Continue' : 'Continue'),
-                ),
-              ),
-              const SizedBox(height: 16),
-              const Center(
-                child: Text.rich(
-                  TextSpan(
-                    text: 'By continuing you agree to our ',
-                    style: TextStyle(fontSize: 11, color: soulInk),
-                    children: [
-                      TextSpan(text: 'Terms', style: TextStyle(decoration: TextDecoration.underline)),
-                      TextSpan(text: ' and '),
-                      TextSpan(text: 'Privacy Policy', style: TextStyle(decoration: TextDecoration.underline)),
-                    ],
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              const SizedBox(height: 12),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _LoginPreviewScreen extends StatelessWidget {
-  const _LoginPreviewScreen();
-
-  @override
-  Widget build(BuildContext context) => Scaffold(
-        body: SafeArea(
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(28),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.check_circle_rounded, size: 72, color: soulLime),
-                  const SizedBox(height: 18),
-                  const Text(
-                    'Login flow reached',
-                    style: TextStyle(color: soulInk, fontSize: 24, fontWeight: FontWeight.w800),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'For this onboarding-only APK, existing-account login stops here. The backend will be wired later.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: soulMuted, height: 1.45),
-                  ),
-                  const SizedBox(height: 22),
-                  FilledButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('Back'),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      );
 }
