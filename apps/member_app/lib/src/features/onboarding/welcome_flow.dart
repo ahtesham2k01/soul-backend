@@ -19,7 +19,8 @@ class WelcomeFlow extends ConsumerStatefulWidget {
 }
 
 class _WelcomeFlowState extends ConsumerState<WelcomeFlow> {
-  bool _socialBusy = false;
+  String? _socialProvider;
+  bool _languageBusy = false;
 
   String? get _locationLabel {
     final location = widget.labels.location;
@@ -52,8 +53,8 @@ class _WelcomeFlowState extends ConsumerState<WelcomeFlow> {
   }
 
   Future<void> _socialSignIn({required bool apple}) async {
-    if (_socialBusy) return;
-    setState(() => _socialBusy = true);
+    if (_socialProvider != null) return;
+    setState(() => _socialProvider = apple ? 'apple' : 'google');
     try {
       final native = ref.read(nativeIdentityProvider);
       final auth = ref.read(authRepositoryProvider);
@@ -93,25 +94,39 @@ class _WelcomeFlowState extends ConsumerState<WelcomeFlow> {
               ),
       );
     } finally {
-      if (mounted) setState(() => _socialBusy = false);
+      if (mounted) setState(() => _socialProvider = null);
     }
   }
 
   Future<void> _useOpeningLanguage(String code) async {
-    if (code == widget.labels.locale) return;
-    await ref.read(sessionStoreProvider).saveLocale(code);
-    await ref.read(translationCacheStoreProvider).clear();
-    ref.invalidate(bootstrapCacheProvider);
-    ref.invalidate(bootstrapProvider);
+    if (code == widget.labels.locale || _languageBusy) return;
+    setState(() => _languageBusy = true);
+    try {
+      await ref.read(sessionStoreProvider).saveLocale(code);
+      await ref.read(translationCacheStoreProvider).clear();
+      ref.invalidate(bootstrapCacheProvider);
+      ref.invalidate(bootstrapProvider);
+    } catch (_) {
+      _showMessage(
+        widget.labels.text(
+          'error.bootstrap_unavailable',
+          'We could not load the app configuration. Please try again.',
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _languageBusy = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) => UploadedWelcomeScreen(
         initialLanguageCode: widget.labels.locale,
         resolvedLocationLabel: _locationLabel,
+        busySocialProvider: _socialProvider,
+        languageBusy: _languageBusy,
         onLanguageSelected: _useOpeningLanguage,
-        onGoogle: _socialBusy ? null : () => _socialSignIn(apple: false),
-        onApple: _socialBusy ? null : () => _socialSignIn(apple: true),
+        onGoogle: _socialProvider != null ? null : () => _socialSignIn(apple: false),
+        onApple: _socialProvider != null ? null : () => _socialSignIn(apple: true),
         onCreateAccount: () => _openEmail(registration: true),
         onEmailLogin: () => _openEmail(registration: false),
       );

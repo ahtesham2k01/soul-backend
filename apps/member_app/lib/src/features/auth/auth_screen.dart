@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app_providers.dart';
@@ -29,9 +32,15 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   final _dob = TextEditingController();
   final _email = TextEditingController();
   final _code = TextEditingController();
+  final _nameFocus = FocusNode();
+  final _dobFocus = FocusNode();
+  final _emailFocus = FocusNode();
+  final _codeFocus = FocusNode();
   OtpChallenge? _challenge;
   String? _error;
   bool _busy = false;
+  Timer? _resendTimer;
+  int _resendSeconds = 0;
   int _registrationStep = 0;
 
   @override
@@ -40,7 +49,44 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     _dob.dispose();
     _email.dispose();
     _code.dispose();
+    _nameFocus.dispose();
+    _dobFocus.dispose();
+    _emailFocus.dispose();
+    _codeFocus.dispose();
+    _resendTimer?.cancel();
     super.dispose();
+  }
+
+  void _focusCurrentField() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (_challenge != null) {
+        _codeFocus.requestFocus();
+      } else if (!widget.registration || _registrationStep == 2) {
+        _emailFocus.requestFocus();
+      } else if (_registrationStep == 0) {
+        _nameFocus.requestFocus();
+      } else {
+        _dobFocus.requestFocus();
+      }
+    });
+  }
+
+  void _startResendCooldown() {
+    _resendTimer?.cancel();
+    _resendSeconds = 30;
+    _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      if (_resendSeconds <= 1) {
+        timer.cancel();
+        setState(() => _resendSeconds = 0);
+      } else {
+        setState(() => _resendSeconds--);
+      }
+    });
   }
 
   void _back() {
@@ -50,7 +96,10 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         _challenge = null;
         _code.clear();
         _error = null;
+        _resendSeconds = 0;
       });
+      _resendTimer?.cancel();
+      _focusCurrentField();
       return;
     }
     if (widget.registration && _registrationStep > 0) {
@@ -58,6 +107,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         _registrationStep--;
         _error = null;
       });
+      _focusCurrentField();
       return;
     }
     Navigator.of(context).maybePop();
@@ -78,6 +128,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         _registrationStep++;
         _error = null;
       });
+      _focusCurrentField();
       return;
     }
     await _requestCode();
@@ -120,7 +171,12 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       _challenge = widget.registration
           ? await repository.requestRegistrationOtp(email)
           : await repository.requestLoginOtp(email);
-      if (mounted) setState(() {});
+      if (mounted) {
+        _code.clear();
+        _startResendCooldown();
+        setState(() {});
+        _focusCurrentField();
+      }
     } on SoulApiFailure catch (failure) {
       if (mounted) setState(() => _error = failure.message);
     } finally {
@@ -131,6 +187,14 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   Future<void> _verifyCode() async {
     final challenge = _challenge;
     if (challenge == null) return;
+    if (_code.text.trim().length != 6) {
+      setState(() => _error = widget.labels.text(
+            'auth.enter_code',
+            'Enter the verification code.',
+          ));
+      _codeFocus.requestFocus();
+      return;
+    }
     setState(() {
       _busy = true;
       _error = null;
@@ -209,17 +273,60 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     if (_challenge != null) {
       return widget.labels.format('auth.otp_sent_to', 'Enter the code we sent to {email}.', {'email': _email.text.trim()});
     }
+    if (widget.registration && _registrationStep == 0) {
+      return widget.labels.text(
+        'auth.validation_name',
+        'Enter your first name.',
+      );
+    }
+    if (widget.registration && _registrationStep == 1) {
+      return widget.labels.text(
+        'auth.validation_dob',
+        'Enter a valid date of birth. You must be 18 or older.',
+      );
+    }
     return widget.labels.text('auth.email_code_help', 'We’ll email you a code to verify your identity.');
   }
 
   Widget _fields() {
     if (_challenge != null) {
-      return TextField(
-        controller: _code,
-        keyboardType: TextInputType.number,
-        autofillHints: const [AutofillHints.oneTimeCode],
-        maxLength: 6,
-        decoration: InputDecoration(hintText: widget.labels.text('auth.otp_hint', '6-digit code')),
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextField(
+            key: const ValueKey('auth-otp-field'),
+            controller: _code,
+            focusNode: _codeFocus,
+            keyboardType: TextInputType.number,
+            textInputAction: TextInputAction.done,
+            autofillHints: const [AutofillHints.oneTimeCode],
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            maxLength: 6,
+            onSubmitted: (_) {
+              if (!_busy) _verifyCode();
+            },
+            onChanged: (value) {
+              if (_error != null) setState(() => _error = null);
+              if (value.length == 6 && !_busy) _verifyCode();
+            },
+            decoration: InputDecoration(
+              hintText: widget.labels.text('auth.otp_hint', '6-digit code'),
+              prefixIcon: const Icon(Icons.password_rounded),
+            ),
+          ),
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: TextButton(
+              key: const ValueKey('auth-resend-code'),
+              onPressed: _busy || _resendSeconds > 0 ? null : _requestCode,
+              child: Text(
+                _resendSeconds > 0
+                    ? '${widget.labels.text('common.retry', 'Try again')} (${_resendSeconds}s)'
+                    : widget.labels.text('common.retry', 'Try again'),
+              ),
+            ),
+          ),
+        ],
       );
     }
 
@@ -234,8 +341,18 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           const SizedBox(height: 6),
           TextField(
             controller: _email,
+            focusNode: _emailFocus,
             keyboardType: TextInputType.emailAddress,
+            textInputAction: TextInputAction.done,
+            autocorrect: false,
+            enableSuggestions: false,
             autofillHints: const [AutofillHints.email],
+            onSubmitted: (_) {
+              if (!_busy) _continue();
+            },
+            onChanged: (_) {
+              if (_error != null) setState(() => _error = null);
+            },
             decoration: InputDecoration(
               hintText: widget.labels.text('auth.email_hint', 'example@gmail.com'),
               prefixIcon: const Icon(Icons.mail_outline_rounded),
@@ -256,8 +373,16 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           const SizedBox(height: 6),
           TextField(
             controller: _name,
+            focusNode: _nameFocus,
             textCapitalization: TextCapitalization.words,
+            textInputAction: TextInputAction.next,
             autofillHints: const [AutofillHints.name],
+            onSubmitted: (_) {
+              if (!_busy) _continue();
+            },
+            onChanged: (_) {
+              if (_error != null) setState(() => _error = null);
+            },
             decoration: InputDecoration(hintText: widget.labels.text('auth.name_hint', 'Your name')),
           ),
         ],
@@ -274,7 +399,16 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         const SizedBox(height: 6),
         TextField(
           controller: _dob,
+          focusNode: _dobFocus,
           keyboardType: TextInputType.datetime,
+          textInputAction: TextInputAction.next,
+          autofillHints: const [AutofillHints.birthday],
+          onSubmitted: (_) {
+            if (!_busy) _continue();
+          },
+          onChanged: (_) {
+            if (_error != null) setState(() => _error = null);
+          },
           decoration: InputDecoration(
             hintText: widget.labels.text('auth.dob_hint', 'DD/MM/YYYY'),
           ),
@@ -310,10 +444,22 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           _fields(),
           if (_error != null) ...[
             const SizedBox(height: 12),
-            Text(
-              _error!,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.error,
+            Semantics(
+              liveRegion: true,
+              container: true,
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.errorContainer,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  _error!,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onErrorContainer,
+                  ),
+                ),
               ),
             ),
           ],

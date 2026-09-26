@@ -15,6 +15,8 @@ class UploadedWelcomeScreen extends StatefulWidget {
     this.onCreateAccount,
     this.onEmailLogin,
     this.resolvedLocationLabel,
+    this.busySocialProvider,
+    this.languageBusy = false,
   });
 
   final String? initialLanguageCode;
@@ -24,6 +26,8 @@ class UploadedWelcomeScreen extends StatefulWidget {
   final VoidCallback? onCreateAccount;
   final VoidCallback? onEmailLogin;
   final String? resolvedLocationLabel;
+  final String? busySocialProvider;
+  final bool languageBusy;
 
   @override
   State<UploadedWelcomeScreen> createState() => _UploadedWelcomeScreenState();
@@ -397,7 +401,9 @@ class _UploadedWelcomeScreenState extends State<UploadedWelcomeScreen> {
                                 color: Colors.transparent,
                                 child: InkWell(
                                   borderRadius: BorderRadius.circular(24),
-                                  onTap: _showLanguageSelector,
+                                  onTap: widget.languageBusy
+                                      ? null
+                                      : _showLanguageSelector,
                                   child: ConstrainedBox(
                                     constraints: const BoxConstraints(
                                       minHeight: 48,
@@ -410,11 +416,20 @@ class _UploadedWelcomeScreenState extends State<UploadedWelcomeScreen> {
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          const Icon(
-                                            Icons.language_rounded,
-                                            color: Colors.white,
-                                            size: 22,
-                                          ),
+                                          if (widget.languageBusy)
+                                            const SizedBox.square(
+                                              dimension: 20,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                color: Colors.white,
+                                              ),
+                                            )
+                                          else
+                                            const Icon(
+                                              Icons.language_rounded,
+                                              color: Colors.white,
+                                              size: 22,
+                                            ),
                                           const SizedBox(width: 8),
                                           Flexible(
                                             child: Text(
@@ -490,6 +505,7 @@ class _UploadedWelcomeScreenState extends State<UploadedWelcomeScreen> {
                               ),
                               onGoogle: () => _runOrPreview(widget.onGoogle),
                               onApple: () => _runOrPreview(widget.onApple),
+                              busySocialProvider: widget.busySocialProvider,
                               onCreate: () =>
                                   _runOrPreview(widget.onCreateAccount),
                               onEmail: () =>
@@ -520,6 +536,7 @@ class _WelcomeBottomPanel extends StatelessWidget {
     required this.onApple,
     required this.onCreate,
     required this.onEmail,
+    this.busySocialProvider,
   });
 
   final OpeningCopy copy;
@@ -530,6 +547,7 @@ class _WelcomeBottomPanel extends StatelessWidget {
   final VoidCallback onApple;
   final VoidCallback onCreate;
   final VoidCallback onEmail;
+  final String? busySocialProvider;
 
   @override
   Widget build(BuildContext context) {
@@ -584,13 +602,14 @@ class _WelcomeBottomPanel extends StatelessWidget {
           onGoogle: onGoogle,
           onApple: onApple,
           onCreate: onCreate,
+          busySocialProvider: busySocialProvider,
         ),
         const SizedBox(height: 3),
         Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(minHeight: 44),
             child: TextButton(
-              onPressed: onEmail,
+              onPressed: busySocialProvider == null ? onEmail : null,
               style: TextButton.styleFrom(
                 foregroundColor: Colors.white,
                 padding:
@@ -704,12 +723,14 @@ class _WelcomeActionBar extends StatelessWidget {
     required this.onGoogle,
     required this.onApple,
     required this.onCreate,
+    this.busySocialProvider,
   });
 
   final OpeningCopy copy;
   final VoidCallback onGoogle;
   final VoidCallback onApple;
   final VoidCallback onCreate;
+  final String? busySocialProvider;
 
   @override
   Widget build(BuildContext context) {
@@ -739,6 +760,9 @@ class _WelcomeActionBar extends StatelessWidget {
                       asset:
                           '$uploadedOpeningAssetRoot/onboarding/BarGoogle.webp',
                       onTap: onGoogle,
+                      busy: busySocialProvider == 'google',
+                      enabled: busySocialProvider == null,
+                      busySemanticsLabel: copy.workingLabel,
                     ),
                     const SizedBox(width: 12),
                     _SocialCircle(
@@ -746,6 +770,9 @@ class _WelcomeActionBar extends StatelessWidget {
                       asset:
                           '$uploadedOpeningAssetRoot/onboarding/BarApple.webp',
                       onTap: onApple,
+                      busy: busySocialProvider == 'apple',
+                      enabled: busySocialProvider == null,
+                      busySemanticsLabel: copy.workingLabel,
                     ),
                   ],
                 ),
@@ -754,7 +781,7 @@ class _WelcomeActionBar extends StatelessWidget {
                   width: double.infinity,
                   child: FilledButton(
                     key: const ValueKey('opening-create-account'),
-                    onPressed: onCreate,
+                    onPressed: busySocialProvider == null ? onCreate : null,
                     style: FilledButton.styleFrom(
                       minimumSize: const Size.fromHeight(48),
                       backgroundColor: soulLimeAccent,
@@ -798,6 +825,9 @@ class _WelcomeActionBar extends StatelessWidget {
                 asset:
                     '$uploadedOpeningAssetRoot/onboarding/BarGoogle.webp',
                 onTap: onGoogle,
+                busy: busySocialProvider == 'google',
+                enabled: busySocialProvider == null,
+                busySemanticsLabel: copy.workingLabel,
               ),
               const SizedBox(width: 9),
               _SocialCircle(
@@ -805,6 +835,9 @@ class _WelcomeActionBar extends StatelessWidget {
                 asset:
                     '$uploadedOpeningAssetRoot/onboarding/BarApple.webp',
                 onTap: onApple,
+                busy: busySocialProvider == 'apple',
+                enabled: busySocialProvider == null,
+                busySemanticsLabel: copy.workingLabel,
               ),
               const SizedBox(width: 9),
               Expanded(
@@ -812,7 +845,7 @@ class _WelcomeActionBar extends StatelessWidget {
                   height: 44,
                   child: FilledButton(
                     key: const ValueKey('opening-create-account'),
-                    onPressed: onCreate,
+                    onPressed: busySocialProvider == null ? onCreate : null,
                     style: FilledButton.styleFrom(
                       backgroundColor: soulLimeAccent,
                       foregroundColor: soulInk,
@@ -846,32 +879,51 @@ class _SocialCircle extends StatelessWidget {
     required this.semanticsLabel,
     required this.asset,
     required this.onTap,
+    required this.busySemanticsLabel,
+    this.busy = false,
+    this.enabled = true,
   });
 
   final String semanticsLabel;
   final String asset;
   final VoidCallback onTap;
+  final bool busy;
+  final bool enabled;
+  final String busySemanticsLabel;
 
   @override
   Widget build(BuildContext context) => Semantics(
         button: true,
+        enabled: enabled,
         label: semanticsLabel,
+        value: busy ? busySemanticsLabel : null,
         child: Material(
           color: Colors.white,
           shape: const CircleBorder(),
           child: InkWell(
             customBorder: const CircleBorder(),
-            onTap: onTap,
+            onTap: enabled ? onTap : null,
             child: SizedBox.square(
               dimension: 44,
-              child: Padding(
-                padding: const EdgeInsets.all(3),
-                child: Image.asset(
-                  asset,
-                  cacheWidth: 144,
-                  filterQuality: FilterQuality.medium,
-                ),
-              ),
+              child: busy
+                  ? const Padding(
+                      padding: EdgeInsets.all(12),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.2,
+                        color: soulInk,
+                      ),
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.all(3),
+                      child: Opacity(
+                        opacity: enabled ? 1 : .55,
+                        child: Image.asset(
+                          asset,
+                          cacheWidth: 144,
+                          filterQuality: FilterQuality.medium,
+                        ),
+                      ),
+                    ),
             ),
           ),
         ),

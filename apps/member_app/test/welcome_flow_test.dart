@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -132,6 +134,22 @@ void main() {
 
     expect(find.text('Roman Urdu'), findsNWidgets(2));
     expect(find.text('Arabic'), findsNothing);
+  });
+
+  test('social sign-in exposes provider-specific progress and disables races', () {
+    final flow = File(
+      'lib/src/features/onboarding/welcome_flow.dart',
+    ).readAsStringSync();
+    final opening = File(
+      'lib/src/prototype/uploaded_onboarding/uploaded_welcome_screen.dart',
+    ).readAsStringSync();
+
+    expect(flow, contains("apple ? 'apple' : 'google'"));
+    expect(flow, contains('busySocialProvider: _socialProvider'));
+    expect(flow, contains('languageBusy: _languageBusy'));
+    expect(opening, contains("busySocialProvider == 'google'"));
+    expect(opening, contains("busySocialProvider == 'apple'"));
+    expect(opening, contains('value: busy ? busySemanticsLabel : null'));
   });
 
 }

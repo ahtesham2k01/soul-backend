@@ -435,9 +435,23 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             if (_error != null)
               Padding(
                 padding: const EdgeInsets.only(top: 10),
-                child: Text(
-                  _error!,
-                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                child: Semantics(
+                  liveRegion: true,
+                  container: true,
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.errorContainer,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      _error!,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onErrorContainer,
+                      ),
+                    ),
+                  ),
                 ),
               ),
           ],
@@ -449,12 +463,17 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             title: widget.labels.text('profile.first_name', 'First name'),
             hint: widget.labels.text('profile.first_name', 'First name'),
             controller: _name,
+            textCapitalization: TextCapitalization.words,
+            autofillHints: const [AutofillHints.givenName],
+            onSubmitted: _continue,
           ),
         1 => _TextStep(
             title: widget.labels.text('profile.date_of_birth', 'Date of birth'),
             hint: 'YYYY-MM-DD',
             controller: _dob,
             keyboardType: TextInputType.datetime,
+            autofillHints: const [AutofillHints.birthday],
+            onSubmitted: _continue,
           ),
         2 => _singleChoice(
             widget.labels.text('profile.gender', 'Gender'),
@@ -476,6 +495,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             title: widget.labels.text('profile.nationality', 'Nationality'),
             hint: widget.labels.text('profile.country_code_example', 'PK'),
             controller: _nationality,
+            textCapitalization: TextCapitalization.characters,
+            onSubmitted: _continue,
           ),
         5 => _ReligionStep(
             labels: widget.labels,
@@ -583,11 +604,22 @@ List<(String, String)> _lifestyleChoices(BootstrapState labels) => [
     ];
 
 class _TextStep extends StatelessWidget {
-  const _TextStep({required this.title, required this.hint, required this.controller, this.keyboardType = TextInputType.text});
+  const _TextStep({
+    required this.title,
+    required this.hint,
+    required this.controller,
+    this.keyboardType = TextInputType.text,
+    this.textCapitalization = TextCapitalization.none,
+    this.autofillHints,
+    this.onSubmitted,
+  });
   final String title;
   final String hint;
   final TextEditingController controller;
   final TextInputType keyboardType;
+  final TextCapitalization textCapitalization;
+  final Iterable<String>? autofillHints;
+  final VoidCallback? onSubmitted;
   @override
   Widget build(BuildContext context) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -597,6 +629,10 @@ class _TextStep extends StatelessWidget {
           TextField(
             controller: controller,
             keyboardType: keyboardType,
+            textCapitalization: textCapitalization,
+            textInputAction: TextInputAction.done,
+            autofillHints: autofillHints,
+            onSubmitted: (_) => onSubmitted?.call(),
             decoration: InputDecoration(hintText: hint),
           ),
         ],
@@ -657,6 +693,8 @@ class _LocationStep extends StatelessWidget {
           TextField(
             controller: city,
             textCapitalization: TextCapitalization.words,
+            textInputAction: TextInputAction.next,
+            autofillHints: const [AutofillHints.addressCity],
             decoration: InputDecoration(
               labelText: labels.text('profile.city', 'Current city'),
             ),
@@ -665,6 +703,7 @@ class _LocationStep extends StatelessWidget {
           TextField(
             controller: country,
             textCapitalization: TextCapitalization.characters,
+            textInputAction: TextInputAction.done,
             maxLength: 2,
             decoration: InputDecoration(
               labelText: labels.text('profile.country', 'Country of residence'),

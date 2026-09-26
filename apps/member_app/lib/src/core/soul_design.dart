@@ -301,51 +301,56 @@ class SoulStepScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
         backgroundColor: backgroundColor,
+        resizeToAvoidBottomInset: true,
         body: SafeArea(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  SoulDesign.horizontalPadding - 8,
-                  7,
-                  SoulDesign.horizontalPadding - 8,
-                  0,
-                ),
-                child: SoulTopBar(
-                  onBack: onBack,
-                  onInfo: onInfo,
-                  title: title,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  SoulDesign.horizontalPadding,
-                  7,
-                  SoulDesign.horizontalPadding,
-                  0,
-                ),
-                child: SoulProgressLine(value: progress),
-              ),
-              const SizedBox(height: 22),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: SoulDesign.horizontalPadding,
-                  ),
-                  child: child,
-                ),
-              ),
-              if (footer != null)
+          child: GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+            child: Column(
+              children: [
                 Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    SoulDesign.horizontalPadding,
-                    12,
-                    SoulDesign.horizontalPadding,
-                    18 + MediaQuery.paddingOf(context).bottom * .35,
+                  padding: const EdgeInsets.fromLTRB(
+                    SoulDesign.horizontalPadding - 8,
+                    7,
+                    SoulDesign.horizontalPadding - 8,
+                    0,
                   ),
-                  child: footer!,
+                  child: SoulTopBar(
+                    onBack: onBack,
+                    onInfo: onInfo,
+                    title: title,
+                  ),
                 ),
-            ],
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    SoulDesign.horizontalPadding,
+                    7,
+                    SoulDesign.horizontalPadding,
+                    0,
+                  ),
+                  child: SoulProgressLine(value: progress),
+                ),
+                const SizedBox(height: 22),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: SoulDesign.horizontalPadding,
+                    ),
+                    child: child,
+                  ),
+                ),
+                if (footer != null)
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      SoulDesign.horizontalPadding,
+                      12,
+                      SoulDesign.horizontalPadding,
+                      18 + MediaQuery.paddingOf(context).bottom * .35,
+                    ),
+                    child: footer!,
+                  ),
+              ],
+            ),
           ),
         ),
       );

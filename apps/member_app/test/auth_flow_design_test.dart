@@ -47,6 +47,40 @@ void main() {
     );
   });
 
+  test('OTP entry is digit-only, auto-submits and rate-limits resend', () {
+    final source = File(
+      'lib/src/features/auth/auth_screen.dart',
+    ).readAsStringSync();
+
+    expect(source, contains('FilteringTextInputFormatter.digitsOnly'));
+    expect(source, contains('value.length == 6 && !_busy'));
+    expect(source, contains('Timer.periodic(const Duration(seconds: 1)'));
+    expect(source, contains('_resendSeconds = 30;'));
+    expect(source, contains("const ValueKey('auth-resend-code')"));
+    expect(source, contains('liveRegion: true'));
+  });
+
+  test('auth and onboarding fields support keyboard and autofill flow', () {
+    final auth = File(
+      'lib/src/features/auth/auth_screen.dart',
+    ).readAsStringSync();
+    final onboarding = File(
+      'lib/src/features/onboarding/onboarding_screen.dart',
+    ).readAsStringSync();
+    final design = File(
+      'lib/src/core/soul_design.dart',
+    ).readAsStringSync();
+
+    expect(auth, contains('AutofillHints.oneTimeCode'));
+    expect(auth, contains('AutofillHints.birthday'));
+    expect(auth, contains('onSubmitted:'));
+    expect(onboarding, contains('AutofillHints.addressCity'));
+    expect(onboarding, contains('TextInputAction.done'));
+    expect(onboarding, contains('liveRegion: true'));
+    expect(design, contains('FocusManager.instance.primaryFocus?.unfocus()'));
+    expect(design, contains('resizeToAvoidBottomInset: true'));
+  });
+
   test('active devices show session metadata and require revoke confirmation', () {
     final source = File(
       'lib/src/features/profile/settings_screen.dart',

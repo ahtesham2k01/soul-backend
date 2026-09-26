@@ -39,6 +39,7 @@ class OpeningCopy {
     required this.skipIntroLabel,
     required this.skipIntroHint,
     required this.nearbyLabel,
+    required this.workingLabel,
   });
 
   final String languageCode;
@@ -56,6 +57,7 @@ class OpeningCopy {
   final String skipIntroLabel;
   final String skipIntroHint;
   final String nearbyLabel;
+  final String workingLabel;
 }
 
 OpeningCopy openingCopyFor(String rawCode) {
@@ -84,6 +86,7 @@ OpeningCopy openingCopyFor(String rawCode) {
       skipIntroLabel: 'Intro skip karein',
       skipIntroHint: 'Welcome screens par jane ke liye double tap karein.',
       nearbyLabel: 'Aap ke qareeb log',
+      workingLabel: 'Kaam jaari hai',
     );
   }
 
@@ -110,6 +113,7 @@ OpeningCopy openingCopyFor(String rawCode) {
     skipIntroLabel: 'Skip intro',
     skipIntroHint: 'Double tap to continue to the welcome screens.',
     nearbyLabel: 'People near you',
+    workingLabel: 'In progress',
   );
 }
 
