@@ -67,13 +67,14 @@ void main() {
 
     fresh.complete(refreshedLabels);
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 620));
-    await tester.pump(const Duration(milliseconds: 180));
+    await tester.pump(const Duration(milliseconds: 900));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 2300));
 
     expect(find.text('Karachi, PK'), findsOneWidget);
 
-    await tester.tap(find.byKey(const ValueKey('launch-globe-stage')));
-    await tester.pump(const Duration(milliseconds: 160));
+    await tester.tap(find.byKey(const ValueKey('opening-globe')));
+    await tester.pumpAndSettle();
 
     expect(find.text('Continue with Email'), findsOneWidget);
   });

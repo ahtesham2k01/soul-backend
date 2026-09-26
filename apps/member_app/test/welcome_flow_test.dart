@@ -130,7 +130,7 @@ void main() {
     await tester.tap(find.text('English').first);
     await tester.pumpAndSettle();
 
-    expect(find.text('Roman Urdu'), findsOneWidget);
+    expect(find.text('Roman Urdu'), findsNWidgets(2));
     expect(find.text('Arabic'), findsNothing);
   });
 
