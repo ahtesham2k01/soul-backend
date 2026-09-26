@@ -149,10 +149,12 @@ class UploadedGlobeIntroScreen extends StatefulWidget {
     required this.copy,
     super.key,
     this.resolvedLocationLabel,
+    this.onFinished,
   });
 
   final OpeningCopy copy;
   final String? resolvedLocationLabel;
+  final VoidCallback? onFinished;
 
   @override
   State<UploadedGlobeIntroScreen> createState() =>
@@ -227,6 +229,10 @@ class _UploadedGlobeIntroScreenState extends State<UploadedGlobeIntroScreen>
   void _continue() {
     if (_navigating || !mounted) return;
     _navigating = true;
+    if (widget.onFinished != null) {
+      widget.onFinished!();
+      return;
+    }
     Navigator.of(context).pushReplacement(
       openingRoute(
         context,

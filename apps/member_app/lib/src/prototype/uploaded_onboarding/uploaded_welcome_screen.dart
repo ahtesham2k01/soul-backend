@@ -9,9 +9,21 @@ class UploadedWelcomeScreen extends StatefulWidget {
   const UploadedWelcomeScreen({
     super.key,
     this.initialLanguageCode,
+    this.onLanguageSelected,
+    this.onGoogle,
+    this.onApple,
+    this.onCreateAccount,
+    this.onEmailLogin,
+    this.resolvedLocationLabel,
   });
 
   final String? initialLanguageCode;
+  final ValueChanged<String>? onLanguageSelected;
+  final VoidCallback? onGoogle;
+  final VoidCallback? onApple;
+  final VoidCallback? onCreateAccount;
+  final VoidCallback? onEmailLogin;
+  final String? resolvedLocationLabel;
 
   @override
   State<UploadedWelcomeScreen> createState() => _UploadedWelcomeScreenState();
@@ -86,6 +98,7 @@ class _UploadedWelcomeScreenState extends State<UploadedWelcomeScreen> {
                       HapticFeedback.selectionClick();
                       setState(() => _languageCode = language.$1);
                       Navigator.of(sheetContext).pop();
+                      widget.onLanguageSelected?.call(language.$1);
                     },
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(minHeight: 58),
@@ -215,6 +228,14 @@ class _UploadedWelcomeScreenState extends State<UploadedWelcomeScreen> {
       );
   }
 
+  void _runOrPreview(VoidCallback? action) {
+    if (action != null) {
+      action();
+      return;
+    }
+    _showPreviewEnd();
+  }
+
   Widget _buildSlide(int index) => AnimatedBuilder(
         animation: _controller,
         child: Builder(
@@ -230,14 +251,60 @@ class _UploadedWelcomeScreenState extends State<UploadedWelcomeScreen> {
                 )
                 .round();
             return RepaintBoundary(
-              child: SizedBox.expand(
-                child: Image.asset(
-                  _backgrounds[index],
-                  fit: BoxFit.cover,
-                  cacheWidth: targetWidth,
-                  filterQuality: FilterQuality.medium,
-                  gaplessPlayback: true,
-                ),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image.asset(
+                    _backgrounds[index],
+                    fit: BoxFit.cover,
+                    cacheWidth: targetWidth,
+                    filterQuality: FilterQuality.medium,
+                    gaplessPlayback: true,
+                  ),
+                  if (index == 2)
+                    Align(
+                      alignment: const Alignment(0, -.69),
+                      child: Container(
+                        constraints: const BoxConstraints(minHeight: 38),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: soulLimeAccent,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Color(0x33000000),
+                              blurRadius: 8,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.location_on_rounded,
+                              color: soulInk,
+                              size: 16,
+                            ),
+                            const SizedBox(width: 5),
+                            Text(
+                              widget.resolvedLocationLabel ?? copy.nearbyLabel,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: soulInk,
+                                fontSize: 12.5,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
               ),
             );
           },
@@ -421,10 +488,12 @@ class _UploadedWelcomeScreenState extends State<UploadedWelcomeScreen> {
                                   _buildDot(2),
                                 ],
                               ),
-                              onGoogle: _showPreviewEnd,
-                              onApple: _showPreviewEnd,
-                              onCreate: _showPreviewEnd,
-                              onEmail: _showPreviewEnd,
+                              onGoogle: () => _runOrPreview(widget.onGoogle),
+                              onApple: () => _runOrPreview(widget.onApple),
+                              onCreate: () =>
+                                  _runOrPreview(widget.onCreateAccount),
+                              onEmail: () =>
+                                  _runOrPreview(widget.onEmailLogin),
                             ),
                           ),
                         ),

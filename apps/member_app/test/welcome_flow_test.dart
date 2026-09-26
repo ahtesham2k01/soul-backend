@@ -77,7 +77,7 @@ void main() {
       (tester) async {
         await pumpWelcome(tester, size);
 
-        final headline = find.text('Happily Ever After');
+        final headline = find.text('True Soul Match');
         final create = find.text('Create Account');
         final email = find.text('Continue with Email');
 

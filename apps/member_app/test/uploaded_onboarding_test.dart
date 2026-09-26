@@ -115,7 +115,7 @@ void main() {
     expect(find.text('Swipe karke Apna'), findsOneWidget);
     expect(find.text('Sacha Soul Match Paayein'), findsOneWidget);
     expect(find.text('Account Banayein'), findsOneWidget);
-    expect(find.text('Email se Continue karein'), findsOneWidget);
+    expect(find.text('Email se Login karein'), findsOneWidget);
   });
 
   testWidgets('welcome exposes all three slides and stays in opening scope', (
@@ -141,6 +141,34 @@ void main() {
       ),
       findsOneWidget,
     );
+  });
+
+  testWidgets('canonical welcome hands every entry action to production', (
+    tester,
+  ) async {
+    var google = 0;
+    var apple = 0;
+    var create = 0;
+    var login = 0;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: UploadedWelcomeScreen(
+          onGoogle: () => google++,
+          onApple: () => apple++,
+          onCreateAccount: () => create++,
+          onEmailLogin: () => login++,
+        ),
+      ),
+    );
+
+    await tester.tap(find.bySemanticsLabel('Continue with Google'));
+    await tester.tap(find.bySemanticsLabel('Continue with Apple'));
+    await tester.tap(find.byKey(const ValueKey('opening-create-account')));
+    await tester.tap(find.text('Continue with Email'));
+
+    expect((google, apple, create, login), (1, 1, 1, 1));
+    expect(find.textContaining('preview ends here'), findsNothing);
   });
 
   testWidgets('opening survives a small screen and large text without overflow', (

@@ -8,6 +8,7 @@ import 'core/soul_theme.dart';
 import 'features/bootstrap/bootstrap_repository.dart';
 import 'features/chat/chat_list_screen.dart';
 import 'features/discovery/discovery_screen.dart';
+import 'features/launch/canonical_opening_launch.dart';
 import 'features/launch/launch_screen.dart';
 import 'features/likes/received_likes_screen.dart';
 import 'features/onboarding/onboarding_screen.dart';
@@ -65,7 +66,7 @@ class _SoulAppState extends ConsumerState<SoulApp> {
       home: sessionRoute.when(
         data: (route) {
           if (!_launchFinished) {
-            return LaunchScreen(
+            return CanonicalOpeningLaunch(
               labels: state,
               onFinished: () => setState(() => _launchFinished = true),
             );

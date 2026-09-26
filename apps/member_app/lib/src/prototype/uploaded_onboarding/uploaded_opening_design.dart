@@ -38,6 +38,7 @@ class OpeningCopy {
     required this.previewEnd,
     required this.skipIntroLabel,
     required this.skipIntroHint,
+    required this.nearbyLabel,
   });
 
   final String languageCode;
@@ -54,6 +55,7 @@ class OpeningCopy {
   final String previewEnd;
   final String skipIntroLabel;
   final String skipIntroHint;
+  final String nearbyLabel;
 }
 
 OpeningCopy openingCopyFor(String rawCode) {
@@ -72,7 +74,7 @@ OpeningCopy openingCopyFor(String rawCode) {
       description:
           'Sahi insan aap ki zindagi badal sakta hai. Us lamhe tak ka safar yahan se shuru hota hai.',
       createAccount: 'Account Banayein',
-      emailContinue: 'Email se Continue karein',
+      emailContinue: 'Email se Login karein',
       selectLanguage: 'Language select karein',
       helpTitle: 'SOUL mein khush aamdeed',
       helpBody:
@@ -81,6 +83,7 @@ OpeningCopy openingCopyFor(String rawCode) {
           'Opening preview yahin khatam hota hai — account flow jaan boojh kar include nahi kiya gaya.',
       skipIntroLabel: 'Intro skip karein',
       skipIntroHint: 'Welcome screens par jane ke liye double tap karein.',
+      nearbyLabel: 'Aap ke qareeb log',
     );
   }
 
@@ -97,7 +100,7 @@ OpeningCopy openingCopyFor(String rawCode) {
     description:
         'The right person can change your life. Your journey to that moment starts here.',
     createAccount: 'Create Account',
-    emailContinue: 'Already have an account? Continue with Email',
+    emailContinue: 'Continue with Email',
     selectLanguage: 'Select language',
     helpTitle: 'Welcome to SOUL',
     helpBody:
@@ -106,6 +109,7 @@ OpeningCopy openingCopyFor(String rawCode) {
         'Opening preview ends here — account flow is intentionally not included.',
     skipIntroLabel: 'Skip intro',
     skipIntroHint: 'Double tap to continue to the welcome screens.',
+    nearbyLabel: 'People near you',
   );
 }
 
