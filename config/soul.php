@@ -2,6 +2,21 @@
 
 return [
 
+    'safety' => [
+        /*
+         * These thresholds create reversible moderator-review signals only.
+         * They never ban, suspend or permanently penalize a member by
+         * themselves. Keep them configurable so staging evidence can tune
+         * sensitivity without shipping a mobile release.
+         */
+        'decision_velocity_window_minutes' => (int) env('SOUL_SAFETY_DECISION_WINDOW_MINUTES', 10),
+        'decision_velocity_threshold' => (int) env('SOUL_SAFETY_DECISION_THRESHOLD', 80),
+        'message_velocity_window_minutes' => (int) env('SOUL_SAFETY_MESSAGE_WINDOW_MINUTES', 15),
+        'message_velocity_threshold' => (int) env('SOUL_SAFETY_MESSAGE_THRESHOLD', 60),
+        'repeated_message_window_minutes' => (int) env('SOUL_SAFETY_REPEATED_MESSAGE_WINDOW_MINUTES', 60),
+        'repeated_message_conversation_threshold' => (int) env('SOUL_SAFETY_REPEATED_MESSAGE_CONVERSATIONS', 5),
+    ],
+
     'legal' => [
         'terms_version' => env('SOUL_TERMS_VERSION', '1.0'),
         'privacy_version' => env('SOUL_PRIVACY_VERSION', '1.0'),
@@ -21,7 +36,7 @@ return [
 
     'translations' => [
         'fallback_locale' => 'en',
-        'catalog_version' => '21',
+        'catalog_version' => '22',
 
         /*
          * Product-approved global target. This includes useful member

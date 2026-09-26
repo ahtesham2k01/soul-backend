@@ -9,13 +9,17 @@ use App\Models\Conversation;
 use App\Models\UserMatch;
 use App\Support\ApiResponse;
 use App\Support\Notifications\UserNotifier;
+use App\Support\Safety\SafetyRiskMonitor;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class MatchMessagesController extends Controller
 {
-    public function __construct(private readonly UserNotifier $notifier) {}
+    public function __construct(
+        private readonly UserNotifier $notifier,
+        private readonly SafetyRiskMonitor $riskMonitor,
+    ) {}
 
     public function index(Request $request, string $match): JsonResponse
     {
@@ -59,6 +63,7 @@ class MatchMessagesController extends Controller
         });
         $recipientId = $record->first_user_id === $request->user()->id
             ? $record->second_user_id : $record->first_user_id;
+        $this->riskMonitor->observeMessageActivity($request->user(), $message);
         $this->notifier->send($recipientId, 'new_message', ['match_id' => $record->public_id, 'message_id' => $message->public_id], 'new_messages', 'message:'.$message->public_id);
         ChatMessageCreated::dispatch($record, $message, $request->user());
 

@@ -480,6 +480,8 @@
     "chat.private_photos": "Private photos",
     "chat.photo_access_requests": "Photo access requests",
     "chat.safety_options": "Safety options",
+    "chat.safety_tip_title": "Stay safe while chatting",
+    "chat.safety_tip_body": "Never share OTPs, passwords or money. Use Safety options if someone pressures you to move off-platform or pay.",
     "chat.no_matches": "No matches yet. Like profiles in Home to start a conversation.",
     "chat.first_message": "You matched. Send the first message!",
     "likes.match_added": "{name} is now in your matches.",

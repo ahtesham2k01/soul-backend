@@ -480,6 +480,8 @@
     "chat.private_photos": "Private photos dekhein",
     "chat.photo_access_requests": "Photo access requests dekhein",
     "chat.safety_options": "Safety ke options",
+    "chat.safety_tip_title": "Chat karte hue safe rahein",
+    "chat.safety_tip_body": "OTP, password ya paisay kabhi share na karein. Agar koi app se bahar jane ya payment ka pressure de to Safety ke options use karein.",
     "chat.no_matches": "Abhi koi match nahi. Conversation shuru karne ke liye Home mein profiles like karein.",
     "chat.first_message": "Aap match ho gaye. Pehla message bhejein!",
     "likes.match_added": "{name} ab aapke matches mein hai.",

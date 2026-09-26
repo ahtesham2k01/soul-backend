@@ -11,6 +11,7 @@ use App\Models\ProfilePhoto;
 use App\Models\ProfilePhotoUpload;
 use App\Support\ApiResponse;
 use App\Support\Media\CloudinaryUploadVerifier;
+use App\Support\Safety\SafetyRiskMonitor;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -24,6 +25,7 @@ class RegisterProfilePhotoController extends Controller
         RegisterProfilePhotoRequest $request,
         int $position,
         CloudinaryUploadVerifier $verifier,
+        SafetyRiskMonitor $riskMonitor,
     ): JsonResponse {
         if (! $verifier->isConfigured()) {
             return ApiResponse::error(
@@ -53,6 +55,28 @@ class RegisterProfilePhotoController extends Controller
                 message: 'Start the profile draft before adding photos.',
                 status: 409,
             );
+        }
+
+        $currentPhoto = $profile->photos()->where('position', $position)->first();
+        $registeredPhoto = ProfilePhoto::query()
+            ->where('storage_provider', 'cloudinary')
+            ->where('provider_asset_id', $validated['provider_asset_id'])
+            ->when($currentPhoto !== null, fn ($query) => $query->whereKeyNot($currentPhoto->getKey()))
+            ->with('userProfile.user')
+            ->first();
+        if ($registeredPhoto !== null) {
+            $existingOwner = $registeredPhoto->userProfile?->user;
+            if ($existingOwner !== null) {
+                $riskMonitor->observeRepeatedMedia(
+                    $request->user(),
+                    $existingOwner,
+                    $validated['provider_asset_id'],
+                );
+            }
+
+            throw ValidationException::withMessages([
+                'provider_asset_id' => ['This uploaded asset is already registered.'],
+            ]);
         }
 
         $photo = DB::transaction(function () use (

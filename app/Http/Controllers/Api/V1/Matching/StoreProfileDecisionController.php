@@ -11,6 +11,7 @@ use App\Models\UserMatch;
 use App\Models\UserProfile;
 use App\Support\ApiResponse;
 use App\Support\Notifications\UserNotifier;
+use App\Support\Safety\SafetyRiskMonitor;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +19,12 @@ use Illuminate\Validation\Rule;
 
 class StoreProfileDecisionController extends Controller
 {
-    public function __invoke(Request $request, string $profile, UserNotifier $notifier): JsonResponse
+    public function __invoke(
+        Request $request,
+        string $profile,
+        UserNotifier $notifier,
+        SafetyRiskMonitor $riskMonitor,
+    ): JsonResponse
     {
         $validated = $request->validate(['decision' => ['required', Rule::in(['like', 'pass'])]]);
         $actor = $request->user();
@@ -95,6 +101,8 @@ class StoreProfileDecisionController extends Controller
                 $notifier->send($userId, 'new_match', ['match_id' => $match->public_id], 'new_matches', 'match:'.$match->public_id);
             }
         }
+
+        $riskMonitor->observeDecisionVelocity($actor);
 
         return ApiResponse::success([
             'decision' => $validated['decision'],

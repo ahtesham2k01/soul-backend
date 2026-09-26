@@ -7,7 +7,21 @@ use Illuminate\Support\Str;
 
 class SafetyCase extends Model
 {
-    protected $fillable = ['user_id', 'source_report_id', 'type', 'severity', 'status', 'reason', 'previous_profile_status', 'resolved_at'];
+    protected $fillable = [
+        'user_id',
+        'source_report_id',
+        'type',
+        'signal_key',
+        'severity',
+        'status',
+        'reason',
+        'evidence',
+        'occurrence_count',
+        'first_observed_at',
+        'last_observed_at',
+        'previous_profile_status',
+        'resolved_at',
+    ];
 
     protected static function booted(): void
     {
@@ -16,6 +30,12 @@ class SafetyCase extends Model
 
     protected function casts(): array
     {
-        return ['resolved_at' => 'immutable_datetime'];
+        return [
+            'evidence' => 'array',
+            'occurrence_count' => 'integer',
+            'first_observed_at' => 'immutable_datetime',
+            'last_observed_at' => 'immutable_datetime',
+            'resolved_at' => 'immutable_datetime',
+        ];
     }
 }

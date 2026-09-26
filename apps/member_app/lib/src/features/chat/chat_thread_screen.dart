@@ -44,6 +44,7 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
   bool _sending = false;
   bool _typingSent = false;
   bool _refreshing = false;
+  bool _showSafetyTip = true;
   String? _error;
 
   @override
@@ -522,6 +523,73 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
                   icon: const Icon(Icons.close_rounded, size: 18),
                 ),
               ],
+            ),
+          ),
+        if (_showSafetyTip)
+          Semantics(
+            container: true,
+            label: widget.labels.text(
+              'chat.safety_tip_title',
+              'Stay safe while chatting',
+            ),
+            child: Container(
+              width: double.infinity,
+              margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              padding: const EdgeInsets.fromLTRB(12, 10, 4, 10),
+              decoration: BoxDecoration(
+                color: SoulColors.softSurface,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: SoulColors.line),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(top: 2),
+                    child: Icon(
+                      Icons.shield_outlined,
+                      size: 20,
+                      color: Color(0xff008f5c),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.labels.text(
+                            'chat.safety_tip_title',
+                            'Stay safe while chatting',
+                          ),
+                          style: const TextStyle(
+                            color: SoulColors.ink,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          widget.labels.text(
+                            'chat.safety_tip_body',
+                            'Never share OTPs, passwords or money. Use Safety options if someone pressures you to move off-platform or pay.',
+                          ),
+                          style: const TextStyle(
+                            color: SoulColors.muted,
+                            fontSize: 12,
+                            height: 1.35,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: widget.labels.text('common.close', 'Close'),
+                    visualDensity: VisualDensity.compact,
+                    onPressed: () => setState(() => _showSafetyTip = false),
+                    icon: const Icon(Icons.close_rounded, size: 18),
+                  ),
+                ],
+              ),
             ),
           ),
         Expanded(

@@ -17,6 +17,10 @@ type SafetyCase = {
     type: string;
     severity: string;
     reason: string;
+    evidence: Record<string, boolean | number | string> | null;
+    occurrence_count: number;
+    first_observed_at: string | null;
+    last_observed_at: string | null;
 };
 type AccountAppeal = {
     id: string;
@@ -2482,6 +2486,19 @@ function App() {
                                         {valueLabel(item.severity)}
                                     </b>
                                     <p>{item.reason}</p>
+                                    {item.evidence ? (
+                                        <p className="muted">
+                                            {Object.entries(item.evidence)
+                                                .map(
+                                                    ([key, value]) =>
+                                                        `${valueLabel(key)}: ${String(value)}`,
+                                                )
+                                                .join(" · ")}
+                                            {item.occurrence_count > 1
+                                                ? ` · ${item.occurrence_count} occurrences`
+                                                : ""}
+                                        </p>
+                                    ) : null}
                                 </div>
                                 <div>
                                     <button

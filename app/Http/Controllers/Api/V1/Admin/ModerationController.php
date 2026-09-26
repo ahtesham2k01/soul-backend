@@ -65,7 +65,12 @@ class ModerationController extends Controller
 
         return ApiResponse::success(['cases' => collect($page->items())->map(fn (SafetyCase $case): array => [
             'id' => $case->public_id, 'type' => $case->type, 'severity' => $case->severity,
-            'reason' => $case->reason, 'created_at' => $case->created_at->toIso8601String(),
+            'reason' => $case->reason,
+            'evidence' => $case->evidence,
+            'occurrence_count' => $case->occurrence_count,
+            'first_observed_at' => $case->first_observed_at?->toIso8601String(),
+            'last_observed_at' => $case->last_observed_at?->toIso8601String(),
+            'created_at' => $case->created_at->toIso8601String(),
         ])->values(), 'next_cursor' => $page->nextCursor()?->encode()]);
     }
 
