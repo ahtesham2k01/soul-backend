@@ -776,7 +776,7 @@ Use at least:
 
 > **Run FLOW-24 only. Complete the mutual-match moment plus match list. Make the successful match feel polished without manipulative effects, then show authoritative match summaries, approved cover, unread count and presence/last-seen. Include unmatch entry and state consistency after restart. Run focused tests, update tracker and stop for device QA.**
 
-**Status:** ⬜ NOT STARTED  
+**Status:** 🟨 SOURCE COMPLETE — DEVICE QA PENDING
 **Checkpoint:** —
 
 ---
@@ -1663,7 +1663,7 @@ Update this table after every completed packet.
 | FLOW-21 | Full profile | ⬜ | ⬜ | — | — |
 | FLOW-22 | Filters | ⬜ | ⬜ | — | — |
 | FLOW-23 | Incoming likes | ⬜ | ⬜ | — | — |
-| FLOW-24 | Match moment/list | ⬜ | ⬜ | — | — |
+| FLOW-24 | Match moment/list | ✅ | ⬜ | current main | Mutual-match sheet + route to authoritative conversations; two-account device QA pending. |
 | FLOW-25 | Chat | ⬜ | ⬜ | — | — |
 | FLOW-26 | Private photos | ⬜ | ⬜ | — | — |
 | GATE-C | Discovery/Chat milestone | ⬜ | ⬜ | — | — |

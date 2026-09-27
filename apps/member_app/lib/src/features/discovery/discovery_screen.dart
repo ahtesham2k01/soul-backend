@@ -15,11 +15,13 @@ class DiscoveryScreen extends StatefulWidget {
     required this.repository,
     required this.safetyRepository,
     required this.labels,
+    required this.onOpenMatches,
   });
 
   final DiscoveryRepository repository;
   final SafetyRepository safetyRepository;
   final BootstrapState labels;
+  final VoidCallback onOpenMatches;
 
   @override
   State<DiscoveryScreen> createState() => _DiscoveryScreenState();
@@ -158,21 +160,16 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
       });
 
       if (result.matched) {
-        await showDialog<void>(
+        final openChat = await showModalBottomSheet<bool>(
           context: context,
-          builder: (context) => AlertDialog(
-            title: Text(
-              widget.labels.text('matches.new_match', 'It is a match!'),
-            ),
-            content: Text(widget.labels.format('matches.mutual_like', '{name} and you liked each other.', {'name': candidate.firstName})),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(widget.labels.text('common.done', 'Done')),
-              ),
-            ],
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          builder: (context) => _MatchMomentSheet(
+            candidate: candidate,
+            labels: widget.labels,
           ),
         );
+        if (openChat == true && mounted) widget.onOpenMatches();
       } else if (decision == 'like' && mounted) {
         final controller = ScaffoldMessenger.of(context);
         controller.hideCurrentSnackBar();
@@ -507,6 +504,115 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
               ),
             ),
         ],
+      ),
+    );
+  }
+}
+
+class _MatchMomentSheet extends StatelessWidget {
+  const _MatchMomentSheet({
+    required this.candidate,
+    required this.labels,
+  });
+
+  final DiscoveryCandidate candidate;
+  final BootstrapState labels;
+
+  @override
+  Widget build(BuildContext context) {
+    final photoUrl =
+        candidate.photos.isEmpty ? null : candidate.photos.first.url;
+    return SafeArea(
+      top: false,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(24, 12, 24, 28),
+        decoration: const BoxDecoration(
+          color: SoulColors.ink,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 44,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.white24,
+                borderRadius: BorderRadius.circular(99),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Container(
+              width: 112,
+              height: 112,
+              padding: const EdgeInsets.all(5),
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: SoulColors.limeLight,
+              ),
+              child: ClipOval(
+                child: photoUrl == null || photoUrl.isEmpty
+                    ? const ColoredBox(
+                        color: Color(0xff343434),
+                        child: Icon(
+                          Icons.person_rounded,
+                          size: 54,
+                          color: Colors.white70,
+                        ),
+                      )
+                    : Image.network(
+                        photoUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => const ColoredBox(
+                          color: Color(0xff343434),
+                          child: Icon(
+                            Icons.person_rounded,
+                            size: 54,
+                            color: Colors.white70,
+                          ),
+                        ),
+                      ),
+              ),
+            ),
+            const SizedBox(height: 22),
+            Text(
+              labels.text('matches.new_match', 'It is a match!'),
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 30,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              labels.format(
+                'matches.mutual_like',
+                '{name} and you liked each other.',
+                {'name': candidate.firstName},
+              ),
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.white70, fontSize: 16),
+            ),
+            const SizedBox(height: 28),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: () => Navigator.of(context).pop(true),
+                icon: const Icon(Icons.chat_bubble_rounded),
+                label: Text(labels.text('matches.title', 'Open matches')),
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(
+                labels.text('common.continue', 'Keep exploring'),
+                style: const TextStyle(color: Colors.white70),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

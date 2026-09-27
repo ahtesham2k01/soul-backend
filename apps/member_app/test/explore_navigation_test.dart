@@ -25,4 +25,17 @@ void main() {
     expect(repository, isNot(contains("'likes/sent'")));
     expect(repository, isNot(contains("'likes/outgoing'")));
   });
+
+  test('a mutual like opens a match moment with a route to conversations', () {
+    final discovery = File(
+      'lib/src/features/discovery/discovery_screen.dart',
+    ).readAsStringSync();
+    final app = File('lib/src/app.dart').readAsStringSync();
+
+    expect(discovery, contains('showModalBottomSheet<bool>'));
+    expect(discovery, contains('_MatchMomentSheet('));
+    expect(discovery, contains('widget.onOpenMatches()'));
+    expect(discovery, contains("'matches.mutual_like'"));
+    expect(app, contains('onOpenMatches: () => setState(() => _index = 2)'));
+  });
 }

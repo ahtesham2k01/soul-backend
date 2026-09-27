@@ -178,6 +178,7 @@ class _SignedInShellState extends ConsumerState<_SignedInShell> {
         repository: discovery,
         safetyRepository: safety,
         labels: labels,
+        onOpenMatches: () => setState(() => _index = 2),
       ),
       ReceivedLikesScreen(
         repository: discovery,
